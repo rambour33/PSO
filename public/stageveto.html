@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>PSO – Stage Veto</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Russo+One&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="stageveto.css" />
+</head>
+<body>
+  <div id="veto-root" class="veto-root">
+    <div class="veto-header">
+      <div class="veto-player" id="vh-p1">
+        <span class="vp-name" id="vh-p1-name">PLAYER 1</span>
+      </div>
+      <div class="veto-step-info">
+        <span class="step-action" id="step-action">BAN</span>
+        <span class="step-sep">·</span>
+        <span class="step-player" id="step-player">PLAYER 1</span>
+      </div>
+      <div class="veto-player veto-player-right" id="vh-p2">
+        <span class="vp-name" id="vh-p2-name">PLAYER 2</span>
+      </div>
+    </div>
+
+    <div class="stages-grid" id="stages-grid"></div>
+    <div class="sequence-bar" id="sequence-bar"></div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="stageveto.js"></script>
+</body>
+</html>

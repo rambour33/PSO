@@ -1,0 +1,169 @@
+@import url('https://fonts.googleapis.com/css2?family=Russo+One&family=Inter:wght@400;600&display=swap');
+
+:root {
+  --smash-bg:      #0E0E12;
+  --smash-surface: #16161E;
+  --smash-border:  #2A2A3E;
+  --smash-red:     #D4001A;
+  --smash-gold:    #E8B830;
+  --smash-blue:    #3A7FE8;
+  --smash-white:   #F0EEF8;
+  --smash-muted:   #5A5A7A;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: transparent;
+  width: 1920px;
+  height: 1080px;
+  overflow: hidden;
+  font-family: 'Inter', sans-serif;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+/* ── Root ──────────────────────────────────────────────────── */
+
+.casters-root {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  margin-bottom: 40px;
+  filter: drop-shadow(0 4px 32px rgba(0,0,0,0.85));
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+.casters-root.hidden {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(20px);
+}
+
+/* ── Label ─────────────────────────────────────────────────── */
+
+.casters-label {
+  background: var(--smash-gold);
+  color: var(--smash-bg);
+  font-family: 'Russo One', sans-serif;
+  font-size: 10px;
+  letter-spacing: 4px;
+  padding: 3px 20px;
+  clip-path: polygon(8px 0%, calc(100% - 8px) 0%, 100% 100%, 0% 100%);
+  text-align: center;
+  align-self: center;
+}
+
+/* ── Cards container ───────────────────────────────────────── */
+
+.casters-cards {
+  display: flex;
+  gap: 2px;
+}
+
+.casters-cards[data-layout="column"] {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.casters-cards[data-layout="column"] .caster-card {
+  min-width: 0;
+}
+
+/* ── Single caster card ────────────────────────────────────── */
+
+.caster-card {
+  background: var(--casters-bg, #0E0E12);
+  border: 1px solid var(--smash-border);
+  border-top: 2px solid var(--smash-gold);
+  min-width: 240px;
+  padding: 12px 20px 14px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Diagonal energy texture */
+.caster-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    -55deg,
+    transparent 0px, transparent 18px,
+    rgba(232,184,48, 0.04) 18px, rgba(232,184,48, 0.04) 19px,
+    transparent 19px, transparent 30px,
+    rgba(255,255,255, 0.015) 30px, rgba(255,255,255, 0.015) 31px
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+.caster-card-inner {
+  position: relative;
+  z-index: 1;
+}
+
+/* ── Caster name ────────────────────────────────────────────── */
+
+.caster-name {
+  font-family: 'Russo One', sans-serif;
+  font-size: 22px;
+  color: var(--smash-white);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  white-space: nowrap;
+  line-height: 1.1;
+  margin-bottom: 6px;
+}
+
+/* ── Social handles ─────────────────────────────────────────── */
+
+.caster-socials {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.caster-social {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+.social-icon {
+  font-size: 11px;
+  font-family: 'Russo One', sans-serif;
+  width: 18px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.social-handle {
+  color: var(--smash-muted);
+}
+
+/* Couleur par réseau */
+.caster-social.twitter  .social-icon { color: #1DA1F2; }
+.caster-social.twitter  .social-handle { color: #89C4E1; }
+.caster-social.twitch   .social-icon { color: #9146FF; }
+.caster-social.twitch   .social-handle { color: #B99FEE; }
+.caster-social.youtube  .social-icon { color: #FF0000; }
+.caster-social.youtube  .social-handle { color: #FF8080; }
+
+
+/* ── Animation entrée ───────────────────────────────────────── */
+
+@keyframes castersSlideUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+
+.casters-root.animate-in {
+  animation: castersSlideUp 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}

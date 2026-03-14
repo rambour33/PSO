@@ -1,0 +1,356 @@
+@import url('https://fonts.googleapis.com/css2?family=Russo+One&family=Inter:wght@400;500;600&display=swap');
+
+:root {
+  --smash-bg:       #0E0E12;
+  --smash-surface:  #16161E;
+  --smash-surface2: #1E1E2A;
+  --smash-border:   #2A2A3E;
+  --smash-red:      #D4001A;
+  --smash-red-dim:  rgba(212,0,26,0.15);
+  --smash-gold:     #E8B830;
+  --smash-gold-dim: rgba(232,184,48,0.15);
+  --smash-blue:     #3A7FE8;
+  --smash-white:    #F0EEF8;
+  --smash-muted:    #5A5A7A;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: transparent;
+  width: 1920px;
+  height: 1080px;
+  overflow: hidden;
+  font-family: 'Inter', sans-serif;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+/* ── Root ────────────────────────────────────────────────────── */
+
+.veto-root {
+  display: flex;
+  flex-direction: column;
+  filter: drop-shadow(0 4px 32px rgba(0,0,0,0.85));
+  min-width: 600px;
+  max-width: 1200px;
+  animation: fadeInUp 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.veto-root.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(-24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ── Header ──────────────────────────────────────────────────── */
+
+.veto-header {
+  display: flex;
+  align-items: center;
+  height: 52px;
+  background: var(--smash-bg);
+  border-bottom: 2px solid var(--smash-gold);
+}
+
+.veto-player {
+  min-width: 200px;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  height: 100%;
+  position: relative;
+}
+
+.veto-player::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--smash-gold);
+  opacity: 0.4;
+}
+
+.veto-player-right {
+  justify-content: flex-end;
+}
+
+.vp-name {
+  font-family: 'Russo One', sans-serif;
+  font-size: 20px;
+  letter-spacing: 3px;
+  color: var(--smash-white);
+  text-transform: uppercase;
+}
+
+/* ── Step info ───────────────────────────────────────────────── */
+
+.veto-step-info {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: #0A0A10;
+  height: 100%;
+  border-left: 1px solid var(--smash-border);
+  border-right: 1px solid var(--smash-border);
+  padding: 0 16px;
+}
+
+.step-sep {
+  color: var(--smash-gold);
+  opacity: 0.5;
+  font-size: 14px;
+}
+
+.step-action {
+  font-family: 'Russo One', sans-serif;
+  font-size: 13px;
+  letter-spacing: 3px;
+  padding: 4px 10px;
+  border-radius: 2px;
+  text-transform: uppercase;
+  transform: skewX(-5deg);
+  display: inline-block;
+}
+
+.step-action.ban {
+  background: var(--smash-red-dim);
+  color: var(--smash-red);
+  border: 1px solid var(--smash-red);
+}
+
+.step-action.done {
+  background: rgba(90,90,122,0.15);
+  color: var(--smash-muted);
+  border: 1px solid var(--smash-border);
+}
+
+.step-player {
+  font-family: 'Russo One', sans-serif;
+  font-size: 15px;
+  letter-spacing: 2px;
+  color: var(--smash-white);
+  text-transform: uppercase;
+}
+
+/* ── Stages grid ─────────────────────────────────────────────── */
+
+.stages-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 16px 20px;
+  background: var(--smash-bg);
+  border-left: 1px solid var(--smash-border);
+  border-right: 1px solid var(--smash-border);
+}
+
+/* ── Stage card ──────────────────────────────────────────────── */
+
+.stage-card {
+  width: 160px;
+  height: 180px;
+  border: 2px solid var(--smash-border);
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+  cursor: default;
+  transition: border-color 0.25s, opacity 0.25s, transform 0.2s, filter 0.25s;
+  background: var(--smash-surface2);
+}
+
+.stage-card.available {
+  cursor: pointer;
+}
+
+.stage-card.available:hover {
+  border-color: var(--smash-gold);
+  transform: translateY(-4px);
+}
+
+.stage-card.banned_p1,
+.stage-card.banned_p2 {
+  opacity: 0.4;
+  filter: grayscale(0.85);
+  border-color: rgba(212,0,26,0.5);
+}
+
+.stage-card.selected {
+  border-color: var(--smash-gold);
+  box-shadow: 0 0 18px rgba(232,184,48,0.5), inset 0 0 12px rgba(232,184,48,0.08);
+}
+
+.stage-card-bg {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  filter: brightness(0.7) saturate(0.8);
+}
+
+.stage-card-ov {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.2) 60%, transparent 100%);
+}
+
+.stage-card-name {
+  position: absolute;
+  bottom: 8px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-family: 'Russo One', sans-serif;
+  font-size: 14px;
+  color: var(--smash-white);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 0 4px;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.9);
+}
+
+.stage-card-type {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  font-family: 'Russo One', sans-serif;
+  font-size: 9px;
+  letter-spacing: 1px;
+  padding: 2px 5px;
+  border-radius: 2px;
+  text-transform: uppercase;
+}
+
+.stage-card-type.starter {
+  background: rgba(74,222,128,0.2);
+  color: #4ade80;
+  border: 1px solid rgba(74,222,128,0.4);
+}
+
+.stage-card-type.counterpick {
+  background: rgba(58,127,232,0.2);
+  color: #3A7FE8;
+  border: 1px solid rgba(58,127,232,0.4);
+}
+
+.stage-card-badge {
+  position: absolute;
+  top: 6px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: 'Russo One', sans-serif;
+  font-size: 10px;
+  letter-spacing: 1px;
+  padding: 3px 8px;
+  border-radius: 2px;
+  text-transform: uppercase;
+  display: none;
+  white-space: nowrap;
+}
+
+.stage-card.banned_p1 .stage-card-badge,
+.stage-card.banned_p2 .stage-card-badge {
+  display: block;
+  background: var(--smash-red-dim);
+  color: var(--smash-red);
+  border: 1px solid var(--smash-red);
+}
+
+.stage-card.selected .stage-card-badge {
+  display: block;
+  background: var(--smash-gold-dim);
+  color: var(--smash-gold);
+  border: 1px solid var(--smash-gold);
+}
+
+.stage-card-team {
+  position: absolute;
+  bottom: 28px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-family: 'Russo One', sans-serif;
+  font-size: 10px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.9);
+}
+
+/* ── Sequence bar ────────────────────────────────────────────── */
+
+.sequence-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  padding: 10px 20px;
+  background: #0A0A10;
+  border: 1px solid var(--smash-border);
+  border-top: 1px solid var(--smash-border);
+  align-items: center;
+}
+
+.seq-step {
+  font-family: 'Russo One', sans-serif;
+  font-size: 10px;
+  letter-spacing: 1px;
+  padding: 3px 8px;
+  border-radius: 2px;
+  text-transform: uppercase;
+  border: 1px solid var(--smash-border);
+  color: var(--smash-muted);
+  background: var(--smash-surface);
+}
+
+.seq-step.done-ban {
+  background: var(--smash-red-dim);
+  color: var(--smash-red);
+  border-color: rgba(212,0,26,0.3);
+}
+
+.seq-step.done-select {
+  background: var(--smash-gold-dim);
+  color: var(--smash-gold);
+  border-color: rgba(232,184,48,0.3);
+}
+
+.seq-step.current {
+  border-color: var(--smash-gold);
+  color: var(--smash-white);
+  background: var(--smash-surface2);
+  animation: pulseBorder 1.2s ease-in-out infinite;
+}
+
+@keyframes pulseBorder {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(232,184,48,0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 3px rgba(232,184,48,0.15);
+  }
+}
+
+.seq-sep {
+  color: var(--smash-muted);
+  font-size: 12px;
+  opacity: 0.5;
+}
+

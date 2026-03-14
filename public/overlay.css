@@ -1,0 +1,544 @@
+@import url('https://fonts.googleapis.com/css2?family=Russo+One&family=Inter:wght@400;500;600&display=swap');
+
+:root {
+  --smash-bg:       #0E0E12;
+  --smash-surface:  #16161E;
+  --smash-surface2: #1E1E2A;
+  --smash-border:   #2A2A3E;
+  --smash-red:      #D4001A;
+  --smash-red-dim:  rgba(212,0,26,0.15);
+  --smash-gold:     #E8B830;
+  --smash-gold-dim: rgba(232,184,48,0.15);
+  --smash-blue:     #3A7FE8;
+  --smash-white:    #F0EEF8;
+  --smash-muted:    #5A5A7A;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: transparent;
+  width: 1920px;
+  height: 1080px;
+  overflow: hidden;
+  font-family: 'Inter', sans-serif;
+}
+
+/* ── Scoreboard ──────────────────────────────────────────────── */
+
+.scoreboard {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  filter: drop-shadow(0 4px 32px rgba(0,0,0,0.8));
+  transition: opacity 0.4s;
+}
+
+.scoreboard.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ── Event bar ───────────────────────────────────────────────── */
+
+.event-bar {
+  background: var(--smash-bg);
+  border-bottom: 2px solid var(--smash-gold);
+  color: var(--event-text-color, var(--smash-muted));
+  font-size: var(--event-text-size, 12px);
+  font-weight: 600;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  padding: 5px 32px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  clip-path: polygon(12px 0%, calc(100% - 12px) 0%, 100% 100%, 0% 100%);
+  white-space: nowrap;
+}
+
+.sep {
+  color: var(--smash-gold);
+  opacity: 0.5;
+}
+
+#current-stage-name {
+  color: var(--smash-white);
+}
+
+/* ── Players container ───────────────────────────────────────── */
+
+.players-container {
+  display: flex;
+  align-items: stretch;
+  background: var(--sb-bg, var(--smash-bg));
+  border: 1px solid var(--smash-border);
+  border-top: none;
+}
+
+/* ── Player blocks ───────────────────────────────────────────── */
+
+.player {
+  display: flex;
+  align-items: center;
+  min-width: 320px;
+  position: relative;
+  overflow: hidden;
+}
+
+.player-left {
+  flex-direction: row;
+  border-bottom: 3px solid var(--p1-color, var(--smash-red));
+  background: var(--sb-bg, #0E0E12);
+}
+
+.player-right {
+  flex-direction: row;
+  border-bottom: 3px solid var(--p2-color, var(--smash-blue));
+  background: var(--sb-bg, #0E0E12);
+}
+
+.player-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  flex: 1;
+  position: relative;
+  z-index: 2;
+}
+
+/* ── Character portrait ──────────────────────────────────────── */
+
+.player-character {
+  width: 100px;
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  overflow: hidden;
+  background: var(--smash-surface);
+  border: 2px solid var(--smash-border);
+  position: relative;
+  z-index: 2;
+}
+
+.player-left .player-character {
+  border-top: 2px solid var(--p1-color, var(--smash-red));
+}
+
+.player-right .player-character {
+  border-top: 2px solid var(--p2-color, var(--smash-blue));
+}
+
+.player-character img {
+  width: 96px;
+  height: 96px;
+  object-fit: cover;
+}
+
+.char-placeholder {
+  font-size: 32px;
+  color: var(--smash-muted);
+  font-family: 'Russo One', sans-serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.player-name {
+  font-family: 'Russo One', sans-serif;
+  font-size: 24px;
+  letter-spacing: 2px;
+  color: var(--name-color, var(--smash-white));
+  text-transform: uppercase;
+  padding: 0 20px;
+  white-space: nowrap;
+}
+
+.player-right .player-name {
+  text-align: right;
+}
+
+.player-tag {
+  font-size: 16px;
+  color: var(--tag-color, var(--smash-gold));
+  letter-spacing: 1px;
+  margin-right: 8px;
+  opacity: 0.9;
+  vertical-align: middle;
+}
+
+.player-name-text {
+  color: var(--name-color, var(--smash-white));
+  vertical-align: middle;
+}
+
+.player-pronouns {
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--pronouns-color, var(--smash-muted));
+  letter-spacing: 0.5px;
+  margin-left: 8px;
+  vertical-align: middle;
+  text-transform: lowercase;
+}
+
+/* ── Score center ────────────────────────────────────────────── */
+
+.score-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: var(--sb-bg, #0A0A10);
+  padding: 0;
+  min-width: 160px;
+  border-left: 1px solid var(--smash-border);
+  border-right: 1px solid var(--smash-border);
+  position: relative;
+  overflow: hidden;
+}
+
+.score-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px 4px;
+  position: relative;
+  z-index: 2;
+}
+
+.center-logo-area {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  flex-shrink: 0;
+}
+
+.center-logo-area img {
+  width: 52px;
+  height: 52px;
+  object-fit: contain;
+}
+
+.score {
+  font-family: 'Russo One', sans-serif;
+  font-size: 52px;
+  color: var(--smash-white);
+  min-width: 44px;
+  text-align: center;
+  line-height: 1;
+}
+
+.score-vs {
+  font-family: 'Russo One', sans-serif;
+  font-size: 20px;
+  color: var(--smash-gold);
+  letter-spacing: 3px;
+  padding-bottom: 4px;
+}
+
+/* ── Series dots ─────────────────────────────────────────────── */
+
+.series-dots {
+  display: flex;
+  gap: 8px;
+  padding: 6px 12px;
+  width: 100%;
+  justify-content: center;
+  position: relative;
+  z-index: 2;
+}
+
+.dots-left {
+  display: flex;
+  gap: 4px;
+  justify-content: flex-end;
+  flex: 1;
+}
+
+.dots-right {
+  display: flex;
+  gap: 4px;
+  justify-content: flex-start;
+  flex: 1;
+}
+
+.win-dot {
+  width: 12px;
+  height: 12px;
+  background: var(--smash-border);
+  border-radius: 50%;
+  border: 1px solid var(--smash-muted);
+  transition: all 0.3s;
+}
+
+.win-dot.filled {
+  background: var(--dot-color, var(--smash-gold));
+  border-color: var(--dot-color, var(--smash-gold));
+  box-shadow: 0 0 8px var(--dot-color, var(--smash-gold));
+}
+
+/* ── Animations ──────────────────────────────────────────────── */
+
+.score.updated {
+  animation: scoreFlash 0.5s ease;
+}
+
+@keyframes scoreFlash {
+  0% {
+    color: #fff;
+    text-shadow: 0 0 20px #fff, 0 0 40px rgba(255,255,255,0.5);
+  }
+  100% {
+    color: var(--smash-white);
+    text-shadow: none;
+  }
+}
+
+@keyframes slideDown {
+  from {
+    transform: translateX(-50%) translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+  }
+}
+
+.scoreboard.animate-in {
+  animation: slideDown 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+
+/* ── Texture & animation Smash Bros ──────────────────────────── */
+
+/* Streaks diagonaux sur les blocs joueurs */
+@keyframes streakSlide {
+  from { background-position: 0 0; }
+  to   { background-position: 400px 0; }
+}
+
+.player-left::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    -55deg,
+    transparent      0px, transparent      17px,
+    rgba(212,  0, 26, 0.08) 17px, rgba(212,  0, 26, 0.08) 18px,
+    transparent      18px, transparent     30px,
+    rgba(255,255,255, 0.03) 30px, rgba(255,255,255, 0.03) 31px
+  );
+  animation: streakSlide 5s linear infinite;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.player-right::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    55deg,
+    transparent      0px, transparent      17px,
+    rgba(58, 127,232, 0.08) 17px, rgba(58, 127,232, 0.08) 18px,
+    transparent      18px, transparent     30px,
+    rgba(255,255,255, 0.03) 30px, rgba(255,255,255, 0.03) 31px
+  );
+  animation: streakSlide 5s linear infinite reverse;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Grille dorée pulsée sur le score center */
+@keyframes gridPulse {
+  0%, 100% { opacity: 0.4; }
+  50%       { opacity: 1;   }
+}
+
+.score-center::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    repeating-linear-gradient(
+      0deg,
+      transparent, transparent 19px,
+      rgba(232,184,48, 0.09) 19px, rgba(232,184,48, 0.09) 20px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent, transparent 19px,
+      rgba(232,184,48, 0.09) 19px, rgba(232,184,48, 0.09) 20px
+    );
+  animation: gridPulse 3s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Halo intérieur pulsé sur les portraits */
+@keyframes charGlow {
+  0%, 100% { box-shadow: inset 0 0  4px rgba(255,255,255,0.05); }
+  50%       { box-shadow: inset 0 0 14px rgba(255,255,255,0.18); }
+}
+
+.player-character {
+  animation: charGlow 2.8s ease-in-out infinite;
+}
+
+.players-container {
+  position: relative;
+}
+
+.scoreboard.swapped .players-container {
+  flex-direction: row-reverse;
+}
+
+/* ── Toggle layouts ───────────────────────────────────────────── */
+
+.scoreboard:not(.style-slim) .slim-layout { display: none; }
+.scoreboard.style-slim .full-layout       { display: none; }
+
+/* ── Slim layout ─────────────────────────────────────────────── */
+
+.slim-bar {
+  display: inline-flex;
+  align-items: stretch;
+  min-height: 64px;
+  background: var(--sb-bg, var(--smash-bg));
+  border: 1px solid var(--smash-border);
+  border-top: none;
+  position: relative;
+  overflow: hidden;
+}
+
+.slim-bar::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    -55deg,
+    transparent 0px, transparent 20px,
+    rgba(255,255,255,0.015) 20px, rgba(255,255,255,0.015) 21px,
+    transparent 21px, transparent 34px,
+    rgba(232,184,48,0.025) 34px, rgba(232,184,48,0.025) 35px
+  );
+  animation: streakSlide 7s linear infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.slim-player {
+  display: flex;
+  align-items: center;
+  padding: 0 22px;
+  gap: 14px;
+  position: relative;
+  z-index: 1;
+  flex-shrink: 0;
+}
+
+.slim-left {
+  border-bottom: 3px solid var(--p1-color, var(--smash-red));
+  justify-content: flex-end;
+}
+
+.slim-right {
+  border-bottom: 3px solid var(--p2-color, var(--smash-blue));
+  justify-content: flex-start;
+}
+
+.slim-name {
+  font-family: 'Russo One', sans-serif;
+  font-size: 20px;
+  letter-spacing: 2px;
+  color: var(--name-color, var(--smash-white));
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.slim-scores {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 14px;
+  background: var(--sb-bg, #08080E);
+  border-left: 1px solid var(--smash-border);
+  border-right: 1px solid var(--smash-border);
+  border-bottom: 3px solid rgba(232,184,48,0.5);
+  flex-shrink: 0;
+  position: relative;
+  z-index: 1;
+}
+
+.slim-scores::before, .slim-scores::after {
+  content: '';
+  position: absolute;
+  width: 6px; height: 6px;
+  border-color: var(--smash-gold);
+  border-style: solid;
+  opacity: 0.6;
+}
+.slim-scores::before { top: 4px;    left: 4px;  border-width: 1px 0 0 1px; }
+.slim-scores::after  { bottom: 7px; right: 4px; border-width: 0 1px 1px 0; }
+
+.slim-score {
+  font-family: 'Russo One', sans-serif;
+  font-size: 36px;
+  color: var(--smash-white);
+  min-width: 36px;
+  text-align: center;
+  line-height: 1;
+}
+
+.slim-score.updated { animation: scoreFlash 0.5s ease; }
+
+.slim-center-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+}
+
+.slim-center-logo img { width: 36px; height: 36px; object-fit: contain; }
+
+.slim-stock-icon {
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+  flex-shrink: 0;
+  image-rendering: pixelated;
+}
+
+.slim-icon-sep {
+  width: 1px;
+  align-self: stretch;
+  background: transparent;
+  flex-shrink: 0;
+  margin: 8px 0;
+}
+
+.slim-vs {
+  font-family: 'Russo One', sans-serif;
+  font-size: 13px;
+  color: var(--smash-gold);
+  letter-spacing: 2px;
+  opacity: 0.7;
+}
+
+.scoreboard.swapped .slim-bar { flex-direction: row-reverse; }

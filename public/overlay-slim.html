@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>PSO – Scoreboard Slim</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Russo+One&family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="overlay-slim.css" />
+</head>
+<body>
+  <div id="scoreboard" class="scoreboard hidden">
+
+    <!-- Barre infos événement -->
+    <div class="event-bar">
+      <span id="event-name">TOURNAMENT</span>
+      <span class="sep">·</span>
+      <span id="event-stage">Grand Final</span>
+      <span class="sep">·</span>
+      <span id="format-info">Bo3</span>
+      <span class="sep" id="current-stage-sep" style="display:none">·</span>
+      <span id="current-stage-name"></span>
+    </div>
+
+    <!-- Barre score principale -->
+    <div class="slim-bar">
+
+      <!-- Joueur 1 -->
+      <div class="slim-player slim-left" id="player1-block">
+        <span class="slim-name" id="p1-name">PLAYER 1</span>
+      </div>
+
+      <!-- Scores -->
+      <div class="slim-scores">
+        <span class="slim-score" id="p1-score">0</span>
+        <div class="slim-center-logo">
+          <span class="slim-vs" id="slim-vs">VS</span>
+          <img id="center-logo-img" src="" alt="" style="display:none" />
+        </div>
+        <span class="slim-score" id="p2-score">0</span>
+      </div>
+
+      <!-- Joueur 2 -->
+      <div class="slim-player slim-right" id="player2-block">
+        <span class="slim-name" id="p2-name">PLAYER 2</span>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="overlay-slim.js"></script>
+</body>
+</html>

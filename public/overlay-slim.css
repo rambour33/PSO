@@ -1,0 +1,243 @@
+@import url('https://fonts.googleapis.com/css2?family=Russo+One&family=Inter:wght@400;600&display=swap');
+
+:root {
+  --smash-bg:      #0E0E12;
+  --smash-surface: #16161E;
+  --smash-border:  #2A2A3E;
+  --smash-red:     #D4001A;
+  --smash-gold:    #E8B830;
+  --smash-blue:    #3A7FE8;
+  --smash-white:   #F0EEF8;
+  --smash-muted:   #5A5A7A;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: transparent;
+  width: 1920px;
+  height: 1080px;
+  overflow: hidden;
+  font-family: 'Inter', sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+/* ── Scoreboard ──────────────────────────────────────────────── */
+
+.scoreboard {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  filter: drop-shadow(0 4px 24px rgba(0,0,0,0.85));
+  transition: opacity 0.4s ease, transform 0.4s ease;
+  min-width: 700px;
+}
+
+.scoreboard.hidden {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(-50%) translateY(-100%);
+}
+
+/* ── Event bar ───────────────────────────────────────────────── */
+
+.event-bar {
+  background: var(--smash-bg);
+  border-bottom: 1px solid rgba(232,184,48,0.3);
+  color: var(--smash-gold);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  padding: 5px 28px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  clip-path: polygon(10px 0%, calc(100% - 10px) 0%, 100% 100%, 0% 100%);
+  white-space: nowrap;
+  justify-content: center;
+}
+
+.sep { color: var(--smash-gold); opacity: 0.4; }
+#current-stage-name { color: var(--smash-gold); }
+
+/* ── Slim bar ────────────────────────────────────────────────── */
+
+.slim-bar {
+  display: flex;
+  align-items: stretch;
+  height: 52px;
+  background: var(--smash-bg);
+  border: 1px solid var(--smash-border);
+  border-top: none;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Texture diagonale animée */
+@keyframes streakSlide { from { background-position: 0 0; } to { background-position: 400px 0; } }
+
+.slim-bar::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    -55deg,
+    transparent 0px, transparent 20px,
+    rgba(255,255,255,0.015) 20px, rgba(255,255,255,0.015) 21px,
+    transparent 21px, transparent 34px,
+    rgba(232,184,48,0.025) 34px, rgba(232,184,48,0.025) 35px
+  );
+  animation: streakSlide 7s linear infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── Blocs joueurs ───────────────────────────────────────────── */
+
+.slim-player {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  padding: 0 22px;
+  position: relative;
+  z-index: 1;
+  min-width: 0;
+}
+
+.slim-left {
+  background: linear-gradient(to left, transparent, rgba(var(--p1-r,212),var(--p1-g,0),var(--p1-b,26),0.06));
+  border-bottom: 3px solid var(--p1-color, var(--smash-red));
+  justify-content: flex-end;
+}
+
+.slim-right {
+  background: linear-gradient(to right, transparent, rgba(var(--p2-r,58),var(--p2-g,127),var(--p2-b,232),0.06));
+  border-bottom: 3px solid var(--p2-color, var(--smash-blue));
+  justify-content: flex-start;
+}
+
+.slim-name {
+  font-family: 'Russo One', sans-serif;
+  font-size: 20px;
+  letter-spacing: 2px;
+  color: var(--smash-white);
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.player-tag {
+  font-size: 14px;
+  color: var(--smash-gold);
+  letter-spacing: 1px;
+  margin-right: 7px;
+  opacity: 0.9;
+  vertical-align: middle;
+}
+
+.player-name-text {
+  vertical-align: middle;
+}
+
+.player-pronouns {
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--smash-muted);
+  letter-spacing: 0.5px;
+  margin-left: 7px;
+  vertical-align: middle;
+  text-transform: lowercase;
+}
+
+/* ── Zone scores ─────────────────────────────────────────────── */
+
+.slim-scores {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 14px;
+  background: #08080E;
+  border-left: 1px solid var(--smash-border);
+  border-right: 1px solid var(--smash-border);
+  border-bottom: 3px solid rgba(232,184,48,0.5);
+  flex-shrink: 0;
+  position: relative;
+  z-index: 1;
+}
+
+/* Coins dorés */
+.slim-scores::before,
+.slim-scores::after {
+  content: '';
+  position: absolute;
+  width: 6px; height: 6px;
+  border-color: var(--smash-gold);
+  border-style: solid;
+  opacity: 0.6;
+}
+.slim-scores::before { top: 4px; left: 4px;  border-width: 1px 0 0 1px; }
+.slim-scores::after  { bottom: 7px; right: 4px; border-width: 0 1px 1px 0; }
+
+.slim-score {
+  font-family: 'Russo One', sans-serif;
+  font-size: 36px;
+  color: var(--smash-white);
+  min-width: 36px;
+  text-align: center;
+  line-height: 1;
+}
+
+.slim-center-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+}
+
+.slim-center-logo img {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+}
+
+.slim-vs {
+  font-family: 'Russo One', sans-serif;
+  font-size: 13px;
+  color: var(--smash-gold);
+  letter-spacing: 2px;
+  opacity: 0.7;
+}
+
+/* ── Animation score ─────────────────────────────────────────── */
+
+.slim-score.updated {
+  animation: scoreFlash 0.5s ease;
+}
+
+@keyframes scoreFlash {
+  0%   { color: #fff; text-shadow: 0 0 16px #fff, 0 0 32px rgba(255,255,255,0.5); }
+  100% { color: var(--smash-white); text-shadow: none; }
+}
+
+/* ── Animation entrée ────────────────────────────────────────── */
+
+@keyframes slideDown {
+  from { transform: translateX(-50%) translateY(-100%); opacity: 0; }
+  to   { transform: translateX(-50%) translateY(0);     opacity: 1; }
+}
+
+.scoreboard.animate-in {
+  animation: slideDown 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+

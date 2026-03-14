@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PSO – Contrôle</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Russo+One&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="control.css" />
+</head>
+<body>
+<div class="app">
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="header-left">
+      <h1>PSO</h1>
+      <span class="badge">Smash Bros Ultimate</span>
+    </div>
+    <div class="header-right">
+      <div class="connection-status" id="conn-status">
+        <span class="dot"></span>
+        <span class="label">Connecté</span>
+      </div>
+      <a href="/overlay" target="_blank" class="btn btn-outline">Scoreboard ↗</a>
+      <a href="/stageveto" target="_blank" class="btn btn-outline">Stage Veto ↗</a>
+      <button id="btn-visibility" class="btn btn-primary">Masquer</button>
+    </div>
+  </header>
+
+  <!-- TAB NAV -->
+  <nav class="tab-nav">
+    <button class="tab-btn active" data-tab="match">Match</button>
+    <button class="tab-btn" data-tab="custom">Customisation</button>
+    <button class="tab-btn" data-tab="chars">Personnages</button>
+  </nav>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- TAB : MATCH                                                 -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <div class="tab-content active" id="tab-match">
+
+    <!-- SCOREBOARD SECTION -->
+    <section class="section scoreboard-section">
+      <div class="section-header">
+        <h2>Scoreboard</h2>
+      </div>
+      <div class="scoreboard-grid">
+
+        <!-- Player 1 card -->
+        <div class="player-card" id="p1-card">
+          <div class="player-card-header">
+            <h3>Joueur 1</h3>
+            <div class="color-row">
+              <label>Couleur</label>
+              <input type="color" id="p1-color" value="#E83030" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Tag · Pseudo · Pronoms</label>
+            <div class="name-row">
+              <input type="text" id="p1-tag" placeholder="TAG" class="input-tag" />
+              <input type="text" id="p1-name" value="PLAYER 1" class="input-name" />
+              <input type="text" id="p1-pronouns" placeholder="il/elle" class="input-pronouns" />
+            </div>
+          </div>
+          <div class="char-selector-mini" id="p1-char-display">
+            <div class="char-selected-preview" id="p1-char-preview">
+              <div class="char-preview-img" id="p1-preview-img">?</div>
+              <span id="p1-char-name">Aucun personnage</span>
+            </div>
+            <button class="btn btn-outline btn-sm" id="p1-pick-btn">Choisir personnage</button>
+          </div>
+          <div class="form-group" style="margin-top:8px;margin-bottom:0">
+            <label>Couleur du stock icon</label>
+            <div class="stock-color-btns" id="p1-stock-colors">
+              <button class="stock-color-btn active" data-player="1" data-color="0">1</button>
+              <button class="stock-color-btn" data-player="1" data-color="1">2</button>
+              <button class="stock-color-btn" data-player="1" data-color="2">3</button>
+              <button class="stock-color-btn" data-player="1" data-color="3">4</button>
+              <button class="stock-color-btn" data-player="1" data-color="4">5</button>
+              <button class="stock-color-btn" data-player="1" data-color="5">6</button>
+              <button class="stock-color-btn" data-player="1" data-color="6">7</button>
+              <button class="stock-color-btn" data-player="1" data-color="7">8</button>
+            </div>
+          </div>
+          <div class="score-control">
+            <label>Score</label>
+            <div class="score-row">
+              <button class="btn-score minus" data-player="1">−</button>
+              <span class="score-display" id="p1-score-display">0</span>
+              <button class="btn-score plus" data-player="1">+</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Match info card -->
+        <div class="match-card">
+          <h3>Informations du match</h3>
+          <div class="form-group">
+            <label>Événement</label>
+            <input type="text" id="event-name" value="TOURNAMENT" />
+          </div>
+          <div class="form-group">
+            <label>Phase</label>
+            <input type="text" id="event-stage" value="Grand Final" />
+          </div>
+          <div class="form-group">
+            <label>Stage actuel</label>
+            <input type="text" id="current-stage" placeholder="Nom du stage joué" />
+          </div>
+          <div class="form-group">
+            <label>Format</label>
+            <div class="format-selector">
+              <button class="format-btn" data-fmt="Bo1">Bo1</button>
+              <button class="format-btn active" data-fmt="Bo3">Bo3</button>
+              <button class="format-btn" data-fmt="Bo5">Bo5</button>
+              <button class="format-btn" data-fmt="custom">Custom</button>
+            </div>
+          </div>
+          <div class="form-group" id="custom-wins-group" style="display:none">
+            <label>Premier à X victoires</label>
+            <input type="number" id="custom-wins" value="2" min="1" max="10" />
+          </div>
+          <div class="match-actions">
+            <button id="btn-apply" class="btn btn-primary btn-full">Appliquer</button>
+            <button id="btn-reset-score" class="btn btn-danger btn-full">Reset scores</button>
+            <button id="btn-swap" class="btn btn-outline btn-full">⇄ Inverser joueurs</button>
+          </div>
+          <div class="obs-info">
+            <div class="obs-label">OBS Scoreboard</div>
+            <div class="obs-url-row">
+              <code>http://localhost:3002/overlay</code>
+              <button class="btn-copy" id="btn-copy-overlay" title="Copier l'URL">📋</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Player 2 card -->
+        <div class="player-card" id="p2-card">
+          <div class="player-card-header">
+            <h3>Joueur 2</h3>
+            <div class="color-row">
+              <label>Couleur</label>
+              <input type="color" id="p2-color" value="#3070E8" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Tag · Pseudo · Pronoms</label>
+            <div class="name-row">
+              <input type="text" id="p2-tag" placeholder="TAG" class="input-tag" />
+              <input type="text" id="p2-name" value="PLAYER 2" class="input-name" />
+              <input type="text" id="p2-pronouns" placeholder="il/elle" class="input-pronouns" />
+            </div>
+          </div>
+          <div class="char-selector-mini" id="p2-char-display">
+            <div class="char-selected-preview" id="p2-char-preview">
+              <div class="char-preview-img" id="p2-preview-img">?</div>
+              <span id="p2-char-name">Aucun personnage</span>
+            </div>
+            <button class="btn btn-outline btn-sm" id="p2-pick-btn">Choisir personnage</button>
+          </div>
+          <div class="form-group" style="margin-top:8px;margin-bottom:0">
+            <label>Couleur du stock icon</label>
+            <div class="stock-color-btns" id="p2-stock-colors">
+              <button class="stock-color-btn active" data-player="2" data-color="0">1</button>
+              <button class="stock-color-btn" data-player="2" data-color="1">2</button>
+              <button class="stock-color-btn" data-player="2" data-color="2">3</button>
+              <button class="stock-color-btn" data-player="2" data-color="3">4</button>
+              <button class="stock-color-btn" data-player="2" data-color="4">5</button>
+              <button class="stock-color-btn" data-player="2" data-color="5">6</button>
+              <button class="stock-color-btn" data-player="2" data-color="6">7</button>
+              <button class="stock-color-btn" data-player="2" data-color="7">8</button>
+            </div>
+          </div>
+          <div class="score-control">
+            <label>Score</label>
+            <div class="score-row">
+              <button class="btn-score minus" data-player="2">−</button>
+              <span class="score-display" id="p2-score-display">0</span>
+              <button class="btn-score plus" data-player="2">+</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- STAGE VETO SECTION -->
+    <section class="section veto-section">
+      <div class="section-header">
+        <div class="veto-title-row">
+          <h2>Stage Veto</h2>
+          <span class="badge badge-gold">Ruleset custom</span>
+        </div>
+        <div class="veto-header-actions">
+          <a href="/stageveto" target="_blank" class="btn btn-outline btn-sm">OBS ↗</a>
+          <button id="veto-btn-visibility" class="btn btn-primary btn-sm">Masquer veto</button>
+          <button id="veto-btn-reset" class="btn btn-danger btn-sm">Reset veto</button>
+          <button class="btn-copy" id="btn-copy-veto" title="Copier URL veto">📋</button>
+        </div>
+      </div>
+      <div class="veto-step-bar">
+        <div id="veto-action-badge" class="csb-action ban">BAN</div>
+        <span class="csb-sep">·</span>
+        <span id="veto-step-text" class="csb-team">Chargement...</span>
+      </div>
+      <div class="veto-body">
+        <div class="veto-main-col">
+          <div id="veto-stages-grid" class="veto-stages-grid"></div>
+          <div id="veto-seq-track" class="veto-sequence-track"></div>
+        </div>
+        <div class="ruleset-col">
+          <div class="ruleset-card">
+            <h3>Ruleset</h3>
+            <div class="form-group">
+              <label>Bans par joueur</label>
+              <input type="number" id="bans-per-player" value="2" min="1" max="6" />
+            </div>
+            <div id="ruleset-stages-list" class="ruleset-stages-list"></div>
+            <div class="add-stage-form">
+              <h4>Ajouter un stage</h4>
+              <input type="text" id="new-stage-name" placeholder="Nom du stage" />
+              <input type="text" id="new-stage-image" placeholder="URL image (optionnel)" />
+              <div class="stage-type-row">
+                <label><input type="radio" name="stage-type" value="starter" checked /> Starter</label>
+                <label><input type="radio" name="stage-type" value="counterpick" /> Counterpick</label>
+              </div>
+              <button id="btn-add-stage" class="btn btn-primary btn-full">Ajouter</button>
+            </div>
+            <button id="btn-save-ruleset" class="btn btn-primary btn-full">Appliquer le ruleset</button>
+            <div style="margin-top:12px;border-top:1px solid var(--border);padding-top:12px">
+              <h4 style="font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px">Enregistrer</h4>
+              <div style="display:flex;gap:6px">
+                <input type="text" id="ruleset-save-name" placeholder="Nom du ruleset…" style="flex:1" />
+                <button id="btn-ruleset-save" class="btn btn-primary btn-sm">Enregistrer</button>
+              </div>
+            </div>
+            <div style="margin-top:12px">
+              <h4 style="font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px">Rulesets sauvegardés</h4>
+              <div id="saved-rulesets-list"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CASTERS SECTION -->
+    <section class="section casters-section">
+      <div class="section-header">
+        <h2>Casters</h2>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <a href="/casters" target="_blank" class="btn btn-outline btn-sm">OBS ↗</a>
+          <button id="btn-copy-casters" class="btn-copy" title="Copier URL casters">📋</button>
+          <button id="btn-casters-visibility" class="btn btn-primary btn-sm">Afficher</button>
+        </div>
+      </div>
+      <div class="casters-grid">
+        <div class="caster-form-card">
+          <h3>Caster 1</h3>
+          <div class="form-group"><label>Nom</label><input type="text" id="c1-name" placeholder="Pseudo du caster" /></div>
+          <div class="form-group"><label>Twitter / X</label><input type="text" id="c1-twitter" placeholder="@handle" /></div>
+          <div class="form-group"><label>Twitch</label><input type="text" id="c1-twitch" placeholder="/channel" /></div>
+          <div class="form-group"><label>YouTube</label><input type="text" id="c1-youtube" placeholder="@channel" /></div>
+        </div>
+        <div class="caster-form-card">
+          <h3>Caster 2</h3>
+          <div class="form-group"><label>Nom</label><input type="text" id="c2-name" placeholder="Pseudo du caster" /></div>
+          <div class="form-group"><label>Twitter / X</label><input type="text" id="c2-twitter" placeholder="@handle" /></div>
+          <div class="form-group"><label>Twitch</label><input type="text" id="c2-twitch" placeholder="/channel" /></div>
+          <div class="form-group"><label>YouTube</label><input type="text" id="c2-youtube" placeholder="@channel" /></div>
+        </div>
+      </div>
+      <div class="casters-footer">
+        <button id="btn-apply-casters" class="btn btn-primary" style="align-self:flex-end">Appliquer</button>
+      </div>
+    </section>
+
+  </div><!-- /tab-match -->
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- TAB : CUSTOMISATION                                         -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <div class="tab-content" id="tab-custom">
+
+    <section class="section">
+      <div class="section-header"><h2>Scoreboard</h2></div>
+      <div class="custom-grid">
+        <div class="custom-card">
+          <h3>Style d'affichage</h3>
+          <p class="hint" style="margin-bottom:12px">Bascule entre le scoreboard complet et la version compacte.</p>
+          <div class="theme-btn-row">
+            <button class="overlay-style-btn theme-btn active" data-style="full">Full ▬</button>
+            <button class="overlay-style-btn theme-btn" data-style="slim">Slim —</button>
+          </div>
+        </div>
+        <div class="custom-card">
+          <h3>Barre événement</h3>
+          <div class="form-group" style="margin-bottom:12px">
+            <label>Taille texte</label>
+            <div style="display:flex;gap:8px;align-items:center">
+              <input type="number" id="event-text-size" value="12" min="8" max="32" style="width:60px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:13px;padding:4px 6px;text-align:center" />
+              <span style="font-size:12px;color:var(--text-muted)">px</span>
+            </div>
+          </div>
+          <div class="form-group" style="margin:0">
+            <label>Couleur texte</label>
+            <input type="color" id="event-text-color" value="#EAB830" />
+          </div>
+        </div>
+
+        <div class="custom-card">
+          <h3>Textes joueurs</h3>
+          <div class="form-group" style="margin-bottom:10px">
+            <label>Tag</label>
+            <input type="color" id="tag-color" value="#E8B830" />
+          </div>
+          <div class="form-group" style="margin-bottom:10px">
+            <label>Pseudo</label>
+            <input type="color" id="name-color" value="#F0EEF8" />
+          </div>
+          <div class="form-group" style="margin:0">
+            <label>Pronoms</label>
+            <input type="color" id="pronouns-color" value="#5A5A7A" />
+          </div>
+        </div>
+
+        <div class="custom-card">
+          <h3>Fond de l'overlay</h3>
+          <div class="form-group" style="margin:0">
+            <label>Couleur</label>
+            <div style="display:flex;gap:8px;align-items:center">
+              <input type="color" id="sb-bg-color" value="#0E0E12" />
+              <input type="number" id="sb-bg-opacity" value="100" min="0" max="100" style="width:60px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:13px;padding:4px 6px;text-align:center" />
+              <span style="font-size:12px;color:var(--text-muted)">%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-header"><h2>Overlay Casters</h2></div>
+      <div class="custom-grid">
+        <div class="custom-card">
+          <h3>Disposition</h3>
+          <div class="theme-btn-row">
+            <button class="casters-layout-btn theme-btn active" data-layout="row">En ligne →</button>
+            <button class="casters-layout-btn theme-btn" data-layout="column">En colonne ↓</button>
+          </div>
+        </div>
+        <div class="custom-card">
+          <h3>Fond des cartes</h3>
+          <div class="form-group" style="margin:0">
+            <label>Couleur</label>
+            <div style="display:flex;gap:8px;align-items:center">
+              <input type="color" id="casters-bg-color" value="#0E0E12" />
+              <input type="number" id="casters-bg-opacity" value="100" min="0" max="100" style="width:60px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:13px;padding:4px 6px;text-align:center" />
+              <span style="font-size:12px;color:var(--text-muted)">%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-header"><h2>Logos</h2></div>
+      <div class="custom-grid">
+
+        <div class="custom-card">
+          <h3>Logo central — Scoreboard</h3>
+          <p class="hint" style="margin-bottom:10px">Remplace le texte « VS » au centre.</p>
+          <div class="form-group">
+            <label>URL</label>
+            <input type="text" id="center-logo" placeholder="https://..." />
+          </div>
+          <div class="logo-preview-row">
+            <div class="logo-preview-box" id="center-logo-preview">
+              <span>Aperçu</span>
+            </div>
+            <button id="btn-apply-logo" class="btn btn-primary btn-sm">Appliquer</button>
+          </div>
+        </div>
+
+        <div class="custom-card">
+          <h3>URLs overlays OBS</h3>
+          <p class="hint" style="margin-bottom:10px">Copier-coller dans OBS → Source Navigateur.</p>
+          <div class="obs-url-list">
+            <div class="obs-url-item">
+              <span>Scoreboard</span>
+              <code>localhost:3002/overlay</code>
+              <button class="btn-copy" data-url="http://localhost:3002/overlay">📋</button>
+            </div>
+            <div class="obs-url-item">
+              <span>Scoreboard Slim</span>
+              <code>localhost:3002/overlay-slim</code>
+              <button class="btn-copy" data-url="http://localhost:3002/overlay-slim">📋</button>
+            </div>
+            <div class="obs-url-item">
+              <span>Stage Veto</span>
+              <code>localhost:3002/stageveto</code>
+              <button class="btn-copy" data-url="http://localhost:3002/stageveto">📋</button>
+            </div>
+            <div class="obs-url-item">
+              <span>Casters</span>
+              <code>localhost:3002/casters</code>
+              <button class="btn-copy" data-url="http://localhost:3002/casters">📋</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </div><!-- /tab-custom -->
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- TAB : PERSONNAGES                                           -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <div class="tab-content" id="tab-chars">
+
+    <section class="section char-manager-section">
+      <div class="section-header">
+        <h2>Images des personnages</h2>
+        <button id="btn-save-chars" class="btn btn-primary btn-sm">Sauvegarder</button>
+      </div>
+      <p class="hint">Colle une URL d'image pour chaque personnage (optionnel — portrait uniquement dans l'overlay).</p>
+      <div id="char-image-grid" class="char-image-grid"></div>
+    </section>
+
+  </div><!-- /tab-chars -->
+
+  <!-- CHARACTER PICKER MODAL -->
+  <div class="char-modal" id="char-modal" style="display:none">
+    <div class="char-modal-inner">
+      <div class="char-modal-header">
+        <h2 id="char-modal-title">Choisir un personnage — Joueur 1</h2>
+        <div class="char-search-row">
+          <input type="text" id="char-search" placeholder="Rechercher un personnage..." />
+          <button class="btn btn-outline" id="char-modal-close">Fermer</button>
+        </div>
+      </div>
+      <div class="char-grid" id="char-grid"></div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div id="status-msg" class="status-msg">Prêt</div>
+    <div class="footer-right">
+      Overlay : <span id="overlay-status">Visible</span>
+      &nbsp;·&nbsp;
+      <span class="shortcut-hint">Raccourcis : <kbd>1</kbd> <kbd>2</kbd> score, <kbd>R</kbd> reset, <kbd>V</kbd> visibilité</span>
+    </div>
+  </footer>
+
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="control.js"></script>
+</body>
+</html>
