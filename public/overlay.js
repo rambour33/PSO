@@ -5,7 +5,8 @@ let currentState = null;
 const _lp = { parts: [], rafId: null, src: null, count: 3 };
 const CUSTOM_THEMES = ['cyberpunk', 'synthwave', 'midnight', 'egypt', 'city', 'eco', 'water', 'fire',
   'pkpsy', 'pktenebres', 'pkelectrik', 'pkfee', 'pkspectre', 'pkdragon', 'pkglace', 'pkcombat',
-  'pkpoison', 'pksol', 'pkvol', 'pkinsecte', 'pkroche', 'pkacier', 'pknormal', 'pkplante', 'pkfeu', 'pkeau'];
+  'pkpoison', 'pksol', 'pkvol', 'pkinsecte', 'pkroche', 'pkacier', 'pknormal', 'pkplante', 'pkfeu', 'pkeau',
+  'rainbow', 'trans', 'pan', 'bi', 'lesbian'];
 
 function _lpSetCount(n) {
   const bg = document.getElementById('theme-logo-bg');
@@ -125,6 +126,11 @@ const PS = (() => {
       jitter:2+Math.random()*6, seed:Math.random()*9999,
       thick:0.5+Math.random()*1.8, branch:Math.random()>0.45 };
   }
+  function mkPride(W, H) {
+    return { t:'pride', x:Math.random()*W, y:Math.random()*H,
+      r:0.5+Math.random()*2.8, phase:Math.random()*Math.PI*2,
+      speed:0.014+Math.random()*0.034, hue:Math.random()*360 };
+  }
   function mkFlake(W, H) {
     return { t:'flake', x:Math.random()*W, y:Math.random()*H,
       r:4+Math.random()*9, vx:(Math.random()-0.5)*0.4,
@@ -134,7 +140,7 @@ const PS = (() => {
   }
   const FAC = { snow:mkSnow, fire:mkFire, rain:mkRain, sand:mkSand,
                 leaf:mkLeaf, bubble:mkBubble, sparkle:mkSparkle, data:mkData,
-                flake:mkFlake, bolt:mkBolt };
+                flake:mkFlake, bolt:mkBolt, pride:mkPride };
 
   // ── Update ─────────────────────────────────────────────────
   function upd(p, W, H) {
@@ -171,6 +177,9 @@ const PS = (() => {
     } else if (t==='bolt') {
       p.life -= p.decay;
       if (p.life<=0) Object.assign(p, mkBolt(W,H));
+    } else if (t==='pride') {
+      p.phase += p.speed;
+      p.hue = (p.hue + 0.35) % 360;
     }
   }
 
@@ -233,6 +242,20 @@ const PS = (() => {
       ctx.globalAlpha = p.op * 0.25;
       ctx.fillRect(p.x-1, p.y-2, p.w+2, 3);
       ctx.globalAlpha = 1;
+    } else if (t==='pride') {
+      const a = (Math.sin(p.phase)+1)/2;
+      const r = p.r*(0.4+a*0.6);
+      ctx.save(); ctx.globalAlpha = a;
+      ctx.strokeStyle = `hsl(${p.hue},100%,72%)`; ctx.lineWidth = r*0.7;
+      ctx.beginPath();
+      ctx.moveTo(p.x-r*3,p.y); ctx.lineTo(p.x+r*3,p.y);
+      ctx.moveTo(p.x,p.y-r*3); ctx.lineTo(p.x,p.y+r*3);
+      ctx.moveTo(p.x-r*1.8,p.y-r*1.8); ctx.lineTo(p.x+r*1.8,p.y+r*1.8);
+      ctx.moveTo(p.x+r*1.8,p.y-r*1.8); ctx.lineTo(p.x-r*1.8,p.y+r*1.8);
+      ctx.stroke();
+      ctx.beginPath(); ctx.arc(p.x,p.y,r,0,Math.PI*2);
+      ctx.fillStyle = `hsl(${p.hue},100%,90%)`; ctx.fill();
+      ctx.restore();
     } else if (t==='bolt') {
       const al = Math.max(0, p.life);
       const ca = Math.cos(p.angle), sa = Math.sin(p.angle);
@@ -387,6 +410,11 @@ const THEME_PARTICLES = {
   pkplante:    { type:'leaf',    count:40 },
   pkfeu:       { type:'fire',    count:75 },
   pkeau:       { type:'bubble',  count:55 },
+  rainbow:     { type:'pride',   count:80 },
+  trans:       { type:'sparkle', count:65 },
+  pan:         { type:'sparkle', count:65 },
+  bi:          { type:'sparkle', count:65 },
+  lesbian:     { type:'sparkle', count:65 },
 };
 
 function renderPlayerName(elId, player) {
@@ -441,7 +469,8 @@ function update(s) {
   // Theme class
   ['default', 'cyberpunk', 'synthwave', 'midnight', 'egypt', 'city', 'eco', 'water', 'fire',
    'pkpsy', 'pktenebres', 'pkelectrik', 'pkfee', 'pkspectre', 'pkdragon', 'pkglace', 'pkcombat',
-   'pkpoison', 'pksol', 'pkvol', 'pkinsecte', 'pkroche', 'pkacier', 'pknormal', 'pkplante', 'pkfeu', 'pkeau'].forEach(t => {
+   'pkpoison', 'pksol', 'pkvol', 'pkinsecte', 'pkroche', 'pkacier', 'pknormal', 'pkplante', 'pkfeu', 'pkeau',
+   'rainbow', 'trans', 'pan', 'bi', 'lesbian'].forEach(t => {
     sb.classList.toggle('theme-' + t, (s.overlayTheme || 'default') === t);
   });
 
