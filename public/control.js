@@ -12,7 +12,7 @@ let state = {
 };
 let vetoState = null;
 let characterList = [];
-let rulesetState = { stages: [], bansPerPlayer: 2 };
+let rulesetState = { stages: [], banPatternGame1: '2-2', banPatternGame2: '1', firstBanner: 1, stageClause: false };
 let activePickPlayer = null; // 1 or 2
 
 // ── Status messages ───────────────────────────────────────────
@@ -37,7 +37,7 @@ function updateStockColorBtns(player, charName) {
     btn.innerHTML = '';
     if (charName) {
       const img = document.createElement('img');
-      img.src = `/Stock Icons/chara_2_${charName}_${color}.png`;
+      img.src = `/Stock Icons/chara_2_${charName.replace(/\s*\/\s*/g, '-')}_${color}.png`;
       img.alt = parseInt(btn.dataset.color) + 1;
       img.onerror = () => { btn.textContent = parseInt(btn.dataset.color) + 1; };
       btn.appendChild(img);
@@ -128,11 +128,7 @@ function updateCharPreview(player, char) {
   const nameEl = document.getElementById(`p${player}-char-name`);
   if (char) {
     nameEl.textContent = char.name;
-    if (char.image) {
-      imgEl.innerHTML = `<img src="${char.image}" style="width:48px;height:48px;object-fit:cover;border-radius:3px" />`;
-    } else {
-      imgEl.textContent = char.name.charAt(0).toUpperCase();
-    }
+    imgEl.innerHTML = `<img src="/full/chara_1_${char.name}_00.png" style="width:48px;height:48px;object-fit:contain;" onerror="this.parentElement.textContent='${char.name.charAt(0).toUpperCase()}'" />`;
   } else {
     nameEl.textContent = 'Aucun personnage';
     imgEl.textContent = '?';
@@ -352,23 +348,17 @@ function renderCharGrid(filter) {
       card.classList.add('selected');
     }
 
-    if (char.image) {
-      const img = document.createElement('img');
-      img.className = 'char-card-img';
-      img.src = char.image;
-      img.alt = char.name;
-      card.appendChild(img);
-    } else {
-      card.style.display = 'flex';
-      card.style.alignItems = 'center';
-      card.style.justifyContent = 'center';
-      card.style.flexDirection = 'column';
-      card.style.gap = '2px';
-      const initial = document.createElement('div');
-      initial.style.cssText = 'font-size:22px;color:var(--gold);font-family:"Russo One",sans-serif;line-height:1;';
-      initial.textContent = char.name.charAt(0).toUpperCase();
-      card.appendChild(initial);
-    }
+    const img = document.createElement('img');
+    img.className = 'char-card-img';
+    img.src = `/full/chara_1_${char.name}_00.png`;
+    img.alt = char.name;
+    img.onerror = function() {
+      this.replaceWith(Object.assign(document.createElement('div'), {
+        style: 'font-size:22px;color:var(--gold);font-family:"Russo One",sans-serif;line-height:1;',
+        textContent: char.name.charAt(0).toUpperCase()
+      }));
+    };
+    card.appendChild(img);
 
     const nameEl = document.createElement('div');
     nameEl.className = 'char-card-name';
@@ -667,37 +657,354 @@ function renderRulesetList() {
     list.appendChild(item);
   });
 
-  document.getElementById('bans-per-player').value = rulesetState.bansPerPlayer;
+  renderBanBuilder('g1');
+  renderBanBuilder('g2');
+  updateBanPreview();
 }
 
-document.getElementById('btn-add-stage').addEventListener('click', () => {
-  const nameInput = document.getElementById('new-stage-name');
-  const name = nameInput.value.trim();
-  if (!name) {
-    nameInput.focus();
-    setStatus('Nom du stage requis', 'error');
+const STAGE_LIST = [
+  { name: 'Random',                    image: '' },
+  { name: 'Battlefield',               image: '/maps/SSBU-Battlefield.png' },
+  { name: 'Small Battlefield',         image: '/maps/SSBU-Small-Battlefield.jpg' },
+  { name: 'Big Battlefield',           image: '/maps/SSBU-Big-Battlefield.png' },
+  { name: 'Final Destination',         image: '/maps/SSBU-Final_Destination.jpg' },
+  { name: "Peach's Castle",            image: "/maps/SSBU-Peach's_Castle.png" },
+  { name: 'Kongo Jungle',              image: '/maps/SSBU-Kongo_Jungle.png' },
+  { name: 'Hyrule Castle',             image: '/maps/SSBU-Hyrule_Castle.png' },
+  { name: 'Super Happy Tree',          image: '' },
+  { name: 'Dream Land',                image: '/maps/SSBU-Dream_Land.png' },
+  { name: 'Saffron City',              image: '' },
+  { name: 'Mushroom Kingdom',          image: '/maps/SSBU-Mushroom_Kingdom_(SSB).png' },
+  { name: "Princess Peach's Castle",   image: "/maps/SSBU-Princess_Peach's_Castle.png" },
+  { name: 'Rainbow Cruise',            image: '/maps/SSBU-Rainbow_Cruise.png' },
+  { name: 'Kongo Falls',               image: '/maps/SSBU-Kongo_Falls.jpg' },
+  { name: 'Jungle Japes',              image: '/maps/SSBU-Jungle_Japes.png' },
+  { name: 'Great Bay',                 image: '/maps/SSBU-Great_Bay.jpg' },
+  { name: 'Temple',                    image: '/maps/SSBU-Temple.png' },
+  { name: 'Brinstar',                  image: '/maps/SSBU-Brinstar.png' },
+  { name: "Yoshi's Island (Melee)",    image: "/maps/SSBU-Yoshi's_Island_(SSBM).png" },
+  { name: "Yoshi's Story",             image: "/maps/SSBU-Yoshi's_Story.png" },
+  { name: 'Fountain of Dreams',        image: '/maps/SSBU-Fountain_of_Dreams.png' },
+  { name: 'Green Greens',              image: '/maps/SSBU-Green_Greens.png' },
+  { name: 'Corneria',                  image: '/maps/SSBU-Corneria.png' },
+  { name: 'Venom',                     image: '/maps/SSBU-Venom.png' },
+  { name: 'Pokémon Stadium',           image: '/maps/SSBU-Pokémon_Stadium.png' },
+  { name: 'Onett',                     image: '/maps/SSBU-Onett.png' },
+  { name: 'Mushroom Kingdom 2',        image: '/maps/SSBU-Mushroom_Kingdom_II.png' },
+  { name: 'Brinstar Depths',           image: '/maps/SSBU-Brinstar_Depths.png' },
+  { name: 'Big Blue',                  image: '/maps/SSBU-Big_Blue.png' },
+  { name: 'Fourside',                  image: '/maps/SSBU-Fourside.jpg' },
+  { name: 'Delfino Plaza',             image: '/maps/SSBU-Delfino_Plaza.jpg' },
+  { name: 'Mushroomy Kingdom',         image: '/maps/SSBU-Mushroomy_Kingdom.png' },
+  { name: 'Figure-8 Circuit',          image: '/maps/SSBU-Mario_Circuit_(SSBB).png' },
+  { name: 'WarioWare, Inc.',           image: '/maps/SSBU-WarioWare,_Inc..png' },
+  { name: 'Bridge of Eldin',           image: '/maps/SSBU-Bridge_of_Eldin.png' },
+  { name: 'Norfair',                   image: '/maps/SSBU-Norfair.png' },
+  { name: 'Frigate Orpheon',           image: '/maps/SSBU-Frigate_Orpheon.png' },
+  { name: "Yoshi's Island (Brawl)",    image: "/maps/SSBU-Yoshi's_Island_(SSBB).png" },
+  { name: 'Halberd',                   image: '/maps/SSBU-Halberd.png' },
+  { name: 'Lylat Cruise',              image: '/maps/SSBU-Lylat_Cruise.jpg' },
+  { name: 'Pokémon Stadium 2',         image: '/maps/SSBU-Pokémon_Stadium_2.png' },
+  { name: 'Port Town Aero Dive',       image: '/maps/SSBU-Port_Town_Aero_Dive.png' },
+  { name: 'Castle Siege',              image: '/maps/SSBU-Castle_Siege.png' },
+  { name: 'Distant Planet',            image: '/maps/SSBU-Distant_Planet.png' },
+  { name: 'Smashville',                image: '/maps/SSBU-Smashville.png' },
+  { name: 'New Pork City',             image: '/maps/SSBU-New_Pork_City.png' },
+  { name: 'Summit',                    image: '/maps/SSBU-Summit.png' },
+  { name: 'Skyworld',                  image: '/maps/SSBU-Skyworld.png' },
+  { name: 'Shadow Moses Island',       image: '/maps/SSBU-Shadow_Moses_Island_2.jpg' },
+  { name: "Luigi's Mansion",           image: "/maps/SSBU-Luigi's_Mansion.png" },
+  { name: 'Pirate Ship',               image: '/maps/SSBU-Pirate_Ship.png' },
+  { name: 'Spear Pillar',              image: '/maps/SSBU-Spear_Pillar.png' },
+  { name: '75 m',                      image: '/maps/SSBU-75m.png' },
+  { name: 'Mario Bros.',               image: '/maps/SSBU-Mario_Bros.png' },
+  { name: 'Hanenbow',                  image: '/maps/SSBU-Hanenbow.png' },
+  { name: 'Green Hill Zone',           image: '/maps/SSBU-Green_Hill_Zone.png' },
+  { name: '3D Land',                   image: '/maps/SSBU-3D_Land.png' },
+  { name: 'Golden Plains',             image: '/maps/SSBU-Golden_Plains.png' },
+  { name: 'Paper Mario',               image: '/maps/SSBU-Paper_Mario.png' },
+  { name: 'Gerudo Valley',             image: '/maps/SSBU-Gerudo_Valley.png' },
+  { name: 'Spirit Train',              image: '/maps/SSBU-Spirit_Train.png' },
+  { name: 'Dream Land GB',             image: '/maps/SSBU-Dream_Land_(3DS).png' },
+  { name: 'Unova Pokémon League',      image: '/maps/SSBU-Unova_Pokémon_League.png' },
+  { name: 'Prism Tower',               image: '/maps/SSBU-Prism_Tower.png' },
+  { name: 'Mute City SNES',            image: '/maps/SSBU-Mute_City_(3DS).png' },
+  { name: 'Magicant',                  image: '/maps/SSBU-Magicant.png' },
+  { name: 'Arena Ferox',               image: '/maps/SSBU-Arena_Ferox.png' },
+  { name: 'Reset Bomb Forest',         image: '/maps/SSBU-Reset_Bomb_Forest.png' },
+  { name: 'Tortimer Island',           image: '/maps/SSBU-Tortimer_Island.png' },
+  { name: 'Balloon Fight',             image: '/maps/SSBU-Balloon_Fight.png' },
+  { name: 'Living Room',               image: '/maps/SSBU-Living_Room.png' },
+  { name: 'Find Mii',                  image: '/maps/SSBU-Find_Mii.png' },
+  { name: 'Tomodachi Life',            image: '/maps/SSBU-Tomodachi_Life.png' },
+  { name: 'PictoChat 2',               image: '/maps/SSBU-PictoChat_2.png' },
+  { name: 'Mushroom Kingdom U',        image: '/maps/SSBU-Mushroom_Kingdom_U.png' },
+  { name: 'Mario Galaxy',              image: '/maps/SSBU-Mario_Galaxy.jpg' },
+  { name: 'Mario Circuit',             image: '/maps/SSBU-Mario_Circuit_(SSB4).png' },
+  { name: 'Skyloft',                   image: '/maps/SSBU-Skyloft.png' },
+  { name: 'The Great Cave Offensive',  image: '/maps/SSBU-The_Great_Cave_Offensive.png' },
+  { name: 'Kalos Pokémon League',      image: '/maps/SSBU-Kalos_Pokémon_League.png' },
+  { name: 'Coliseum',                  image: '/maps/SSBU-Coliseum.png' },
+  { name: 'Flat Zone X',               image: '/maps/SSBU-Flat_Zone_X.png' },
+  { name: "Palutena's Temple",         image: "/maps/SSBU-Palutena's_Temple.png" },
+  { name: 'Gamer',                     image: '/maps/SSBU-Gamer.png' },
+  { name: 'Garden of Hope',            image: '/maps/SSBU-Garden_of_Hope.png' },
+  { name: 'Town and City',             image: '/maps/SSBU-Town_and_City.png' },
+  { name: 'Wii Fit Studio',            image: '/maps/SSBU-Wii_Fit_Studio.png' },
+  { name: 'Boxing Ring',               image: '/maps/SSBU-Boxing_Ring_1.png' },
+  { name: 'Gaur Plain',                image: '/maps/SSBU-Gaur_Plain.png' },
+  { name: 'Duck Hunt',                 image: '/maps/SSBU-Duck_Hunt.png' },
+  { name: 'Wrecking Crew',             image: '/maps/SSBU-Wrecking_Crew.png' },
+  { name: 'Pilotwings',                image: '/maps/SSBU-Pilotwings.png' },
+  { name: 'Wuhu Island',               image: '/maps/SSBU-Wuhu_Island.png' },
+  { name: 'Windy Hill Zone',           image: '/maps/SSBU-Windy_Hill_Zone.png' },
+  { name: 'Wily Castle',               image: '/maps/SSBU-Wily_Castle.png' },
+  { name: 'PAC-LAND',                  image: '/maps/SSBU-Pac-Land.png' },
+  { name: 'Super Mario Maker',         image: '/maps/SSBU-Super_Mario_Maker.png' },
+  { name: 'Suzaku Castle',             image: '/maps/SSBU-Suzaku_Castle.png' },
+  { name: 'Midgar',                    image: '/maps/SSBU-Midgar.jpg' },
+  { name: 'Umbra Clock Tower',         image: '/maps/SSBU-Umbra_Clock_Tower.png' },
+  { name: 'New Donk City Hall',        image: '/maps/SSBU-New_Donk_City_Hall.jpg' },
+  { name: 'Great Plateau Tower',       image: '/maps/SSBU-Great_Plateau_Tower.jpg' },
+  { name: 'Moray Towers',              image: '/maps/SSBU-Moray_Towers.png' },
+  { name: "Dracula's Castle",          image: "/maps/SSBU-Dracula's_Castle.png" },
+  { name: 'Mementos',                  image: '/maps/SSBU-Mementos.jpg' },
+  { name: "Yggdrasil's Altar",         image: "/maps/SSBU-Yggdrasil'sAltar.jpg" },
+  { name: 'Spiral Mountain',           image: '/maps/SSBU-Spiral_Mountain.jpg' },
+  { name: 'Garreg Mach Monastery',     image: '/maps/SSBU-Garreg_Mach_Monastery.jpg' },
+  { name: 'Spring Stadium',            image: '/maps/SSBU-Spring_Stadium.jpg' },
+  { name: 'Minecraft World',           image: '/maps/SSBU-Minecraft_World.jpg' },
+  { name: 'Northern Cave',             image: '/maps/SSBU_Northern_Cave.png' },
+  { name: 'Mishima Dojo',              image: '/maps/SSBU-Mishima_Dojo.png' },
+  { name: 'Hollow Bastion',            image: '/maps/SSBU-Hollow_Bastion.jpg' },
+];
+
+function renderStagePicker() {
+  const grid = document.getElementById('stage-picker-grid');
+  grid.innerHTML = '';
+  STAGE_LIST.forEach(stage => {
+    const card = document.createElement('div');
+    card.className = 'stage-pick-card';
+    if (stage.image) {
+      const img = document.createElement('img');
+      img.src = stage.image;
+      img.alt = stage.name;
+      card.appendChild(img);
+    } else {
+      const ph = document.createElement('div');
+      ph.className = 'stage-pick-ph';
+      ph.textContent = '?';
+      card.appendChild(ph);
+    }
+    const lbl = document.createElement('span');
+    lbl.textContent = stage.name;
+    card.appendChild(lbl);
+    card.addEventListener('click', () => {
+      const type = document.querySelector('input[name="stage-type"]:checked').value;
+      const id = stage.name.toLowerCase().replace(/[^a-z0-9]/g, '_') + '_' + Date.now();
+      rulesetState.stages.push({ id, name: stage.name, image: stage.image, type });
+      renderRulesetList();
+      setStatus(`Stage "${stage.name}" ajouté`);
+      document.getElementById('stage-modal').style.display = 'none';
+    });
+    grid.appendChild(card);
+  });
+}
+renderStagePicker();
+
+document.getElementById('btn-open-stage-picker').addEventListener('click', () => {
+  document.getElementById('stage-modal').style.display = 'flex';
+});
+document.getElementById('stage-modal-close').addEventListener('click', () => {
+  document.getElementById('stage-modal').style.display = 'none';
+});
+document.getElementById('stage-modal').addEventListener('click', (e) => {
+  if (e.target === document.getElementById('stage-modal')) document.getElementById('stage-modal').style.display = 'none';
+});
+
+// ── Ban sequence builder ───────────────────────────────────────
+
+// Internal representation: [{player:1, count:2}, {player:2, count:2}]
+let banBuilderG1 = [];
+let banBuilderG2 = [];
+
+function parseBanPattern(str) {
+  return str.split('-').map(n => parseInt(n)).filter(n => n > 0);
+}
+
+function patternToBuilder(str, firstBanner) {
+  const parts = parseBanPattern(str);
+  let cur = firstBanner || 1;
+  return parts.map(count => { const p = cur; cur = cur === 1 ? 2 : 1; return { player: p, count }; });
+}
+
+function builderToPattern(builder) {
+  return builder.map(s => s.count).join('-') || '0';
+}
+
+function renderBanBuilder(key) {
+  const builder = key === 'g1' ? banBuilderG1 : banBuilderG2;
+  const stepsEl = document.getElementById(`ban-seq-${key}`);
+  const countEl = document.getElementById(`ban-builder-${key}-count`);
+  const total = rulesetState.stages.length;
+  const allocated = builder.reduce((s, b) => s + b.count, 0);
+  const remaining = total > 0 ? total - 1 - allocated : 0;
+
+  countEl.textContent = total > 0
+    ? `${allocated}/${total - 1} bans — ${remaining >= 0 ? remaining + ' restant(s)' : Math.abs(remaining) + ' en trop'}`
+    : 'Aucun stage dans le ruleset';
+  countEl.style.color = remaining === 0 ? 'var(--gold)' : remaining < 0 ? 'var(--danger)' : 'var(--text-muted)';
+
+  stepsEl.innerHTML = '';
+
+  builder.forEach((step, i) => {
+    if (i > 0) {
+      const arrow = document.createElement('span');
+      arrow.className = 'ban-seq-arrow';
+      arrow.textContent = '→';
+      stepsEl.appendChild(arrow);
+    }
+    const block = document.createElement('div');
+    block.className = `ban-seq-block p${step.player}`;
+
+    const minus = document.createElement('button');
+    minus.textContent = '−';
+    minus.className = 'ban-seq-adj';
+    minus.addEventListener('click', () => {
+      if (step.count > 1) step.count--;
+      else builder.splice(i, 1);
+      onBuilderChange(key);
+    });
+
+    const label = document.createElement('span');
+    label.textContent = `J${step.player} ×${step.count}`;
+
+    const plus = document.createElement('button');
+    plus.textContent = '+';
+    plus.className = 'ban-seq-adj';
+    plus.addEventListener('click', () => { step.count++; onBuilderChange(key); });
+
+    const del = document.createElement('button');
+    del.textContent = '×';
+    del.className = 'ban-seq-del';
+    del.addEventListener('click', () => { builder.splice(i, 1); onBuilderChange(key); });
+
+    block.appendChild(minus);
+    block.appendChild(label);
+    block.appendChild(plus);
+    block.appendChild(del);
+    stepsEl.appendChild(block);
+  });
+}
+
+function onBuilderChange(key) {
+  const builder = key === 'g1' ? banBuilderG1 : banBuilderG2;
+  const pattern = builderToPattern(builder);
+  document.getElementById(`ban-pattern-${key}`).value = pattern;
+  if (key === 'g1') rulesetState.banPatternGame1 = pattern;
+  else rulesetState.banPatternGame2 = pattern;
+  renderBanBuilder(key);
+  updateBanPreview();
+}
+
+function updateBanPreview() {
+  const total = rulesetState.stages.length;
+  const a1 = banBuilderG1.reduce((s, b) => s + b.count, 0);
+  const a2 = banBuilderG2.reduce((s, b) => s + b.count, 0);
+  const preview = document.getElementById('ban-pattern-preview');
+  const msgs = [];
+  if (total > 0) {
+    if (a1 + 1 === total) msgs.push(`Jeu 1 : ✓ ${a1} bans → 1 stage sélectionné`);
+    else msgs.push(`Jeu 1 : ${a1} bans / ${total - 1} requis`);
+    if (a2 + 1 === total) msgs.push(`Jeux suivants : ✓ ${a2} bans → 1 stage sélectionné`);
+    else msgs.push(`Jeux suivants : ${a2} bans / ${total - 1} requis`);
+  }
+  preview.textContent = msgs.join('   ·   ');
+}
+
+function syncBanUI() {
+  const first = rulesetState.firstBanner || 1;
+  banBuilderG1 = patternToBuilder(rulesetState.banPatternGame1 || '2-2', first);
+  banBuilderG2 = patternToBuilder(rulesetState.banPatternGame2 || '1', first);
+  document.getElementById('stage-clause').checked = !!rulesetState.stageClause;
+  document.querySelectorAll('.ban-first-btn').forEach(b => {
+    b.classList.toggle('active', parseInt(b.dataset.first) === first);
+  });
+  renderBanBuilder('g1');
+  renderBanBuilder('g2');
+  updateBanPreview();
+}
+
+document.querySelectorAll('.ban-seq-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const key = btn.dataset.builder;
+    const player = parseInt(btn.dataset.player);
+    const builder = key === 'g1' ? banBuilderG1 : banBuilderG2;
+    const last = builder[builder.length - 1];
+    if (last && last.player === player) last.count++;
+    else builder.push({ player, count: 1 });
+    onBuilderChange(key);
+  });
+});
+
+document.getElementById('stage-clause').addEventListener('change', (e) => {
+  rulesetState.stageClause = e.target.checked;
+});
+
+document.querySelectorAll('.ban-first-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    rulesetState.firstBanner = parseInt(btn.dataset.first);
+    document.querySelectorAll('.ban-first-btn').forEach(b => b.classList.toggle('active', b === btn));
+    document.getElementById('ban-first-result').textContent = `J${rulesetState.firstBanner} commence`;
+    updateBanPreview();
+  });
+});
+
+const SHIFUMI = ['Pierre 🪨', 'Feuille 📄', 'Ciseaux ✂️'];
+// wins[i][j] = true si le coup i bat le coup j (0=Pierre, 1=Feuille, 2=Ciseaux)
+const SHIFUMI_BEATS = [[false,false,true],[true,false,false],[false,true,false]];
+
+function runShifumi() {
+  const btn = document.getElementById('btn-shifumi');
+  const resultEl = document.getElementById('ban-first-result');
+  const i1 = Math.floor(Math.random() * 3);
+  const i2 = Math.floor(Math.random() * 3);
+  const move1 = SHIFUMI[i1];
+  const move2 = SHIFUMI[i2];
+
+  if (i1 === i2) {
+    resultEl.textContent = `J1: ${move1} · J2: ${move2} → Égalité, relance…`;
+    btn.disabled = true;
+    setTimeout(() => { btn.disabled = false; runShifumi(); }, 2000);
     return;
   }
-  const image = document.getElementById('new-stage-image').value.trim();
-  const type = document.querySelector('input[name="stage-type"]:checked').value;
-  const id = name.toLowerCase().replace(/[^a-z0-9]/g, '_') + '_' + Date.now();
 
-  rulesetState.stages.push({ id, name, image, type });
-  nameInput.value = '';
-  document.getElementById('new-stage-image').value = '';
-  renderRulesetList();
-  setStatus(`Stage "${name}" ajouté`);
-});
+  const winner = SHIFUMI_BEATS[i1][i2] ? 1 : 2;
+  rulesetState.firstBanner = winner;
+  document.querySelectorAll('.ban-first-btn').forEach(b => {
+    b.classList.toggle('active', parseInt(b.dataset.first) === winner);
+  });
+  resultEl.textContent = `J1: ${move1} · J2: ${move2} → J${winner} commence`;
+  updateBanPreview();
+  setStatus(`Shifumi : J${winner} bannit en premier`);
+}
 
-// Allow Enter key in stage name input
-document.getElementById('new-stage-name').addEventListener('keydown', (e) => {
-  if (e.key === 'Enter') document.getElementById('btn-add-stage').click();
-});
+document.getElementById('btn-shifumi').addEventListener('click', runShifumi);
 
 document.getElementById('btn-save-ruleset').addEventListener('click', () => {
-  rulesetState.bansPerPlayer = parseInt(document.getElementById('bans-per-player').value) || 2;
+  rulesetState.banPatternGame1 = builderToPattern(banBuilderG1) || '2-2';
+  rulesetState.banPatternGame2 = builderToPattern(banBuilderG2) || '1';
+  rulesetState.stageClause = document.getElementById('stage-clause').checked;
   socket.emit('updateRuleset', rulesetState);
   setStatus('Ruleset appliqué — veto réinitialisé');
+});
+
+document.getElementById('veto-btn-next-game').addEventListener('click', () => {
+  if (!vetoState || !vetoState.done) {
+    if (!confirm('Le veto n\'est pas terminé. Passer au jeu suivant quand même ?')) return;
+  }
+  socket.emit('vetoNextGame');
+  setStatus(`Jeu ${(vetoState?.gameNumber || 1) + 1} — veto relancé`);
 });
 
 function renderSavedRulesets(list) {

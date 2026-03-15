@@ -108,7 +108,8 @@ function update(s) {
   const p1Sep   = document.getElementById('p1-icon-sep');
   if (s.player1.character) {
     const color1 = String(s.player1.stockColor ?? 0).padStart(2, '0');
-    p1Stock.src = `/Stock Icons/chara_2_${s.player1.character.name}_${color1}.png`;
+    const name1 = s.player1.character.name.replace(/\s*\/\s*/g, '-');
+    p1Stock.src = `/Stock Icons/chara_2_${name1}_${color1}.png`;
     p1Stock.style.display = 'block';
     p1Sep.style.display = 'block';
     p1Stock.onerror = () => { p1Stock.style.display = 'none'; p1Sep.style.display = 'none'; };
@@ -135,7 +136,8 @@ function update(s) {
   const p2Sep   = document.getElementById('p2-icon-sep');
   if (s.player2.character) {
     const color2 = String(s.player2.stockColor ?? 0).padStart(2, '0');
-    p2Stock.src = `/Stock Icons/chara_2_${s.player2.character.name}_${color2}.png`;
+    const name2 = s.player2.character.name.replace(/\s*\/\s*/g, '-');
+    p2Stock.src = `/Stock Icons/chara_2_${name2}_${color2}.png`;
     p2Stock.style.display = 'block';
     p2Sep.style.display = 'block';
     p2Stock.onerror = () => { p2Stock.style.display = 'none'; p2Sep.style.display = 'none'; };

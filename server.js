@@ -134,14 +134,17 @@ let characterList = [
   { id: 'min_min',         name: 'Min Min',              image: '' },
   { id: 'steve',           name: 'Steve',                image: '' },
   { id: 'sephiroth',       name: 'Sephiroth',            image: '' },
-  { id: 'pyra_mythra',     name: 'Pyra / Mythra',        image: '' },
+  { id: 'pyra_mythra',     name: 'Pyra-Mythra',          image: '' },
   { id: 'kazuya',          name: 'Kazuya',               image: '' },
   { id: 'sora',            name: 'Sora',                 image: '' },
 ];
 
 let rulesetState = {
   stages: [],
-  bansPerPlayer: 2,
+  banPatternGame1: '2-2',
+  banPatternGame2: '1',
+  firstBanner: 1,
+  stageClause: false,
 };
 
 let castersState = {
@@ -157,29 +160,41 @@ let castersState = {
 
 // ─── Veto helpers ─────────────────────────────────────────────────────────────
 
-function generateVetoSequence(stageCount, bansPerPlayer) {
+function generateVetoSequence(pattern, firstBanner) {
   const seq = [];
-  let p1Bans = 0, p2Bans = 0;
-  while (p1Bans < bansPerPlayer || p2Bans < bansPerPlayer) {
-    if (p1Bans < bansPerPlayer) { seq.push({ action: 'ban', player: 1, mapId: null }); p1Bans++; }
-    if (p2Bans < bansPerPlayer) { seq.push({ action: 'ban', player: 2, mapId: null }); p2Bans++; }
+  const parts = String(pattern).split('-').map(n => parseInt(n)).filter(n => n > 0);
+  let current = firstBanner === 2 ? 2 : 1;
+  for (const count of parts) {
+    for (let i = 0; i < count; i++) {
+      seq.push({ action: 'ban', player: current, mapId: null });
+    }
+    current = current === 1 ? 2 : 1;
   }
   seq.push({ action: 'decider', player: 0, mapId: null });
   return seq;
 }
 
-function makeVetoState() {
+function makeVetoState(gameNumber = 1, playedStageIds = [], visible = true) {
+  const pattern = gameNumber === 1 ? rulesetState.banPatternGame1 : rulesetState.banPatternGame2;
+  const stages = rulesetState.stages
+    .filter(s => !rulesetState.stageClause || !playedStageIds.includes(s.id))
+    .map(s => ({ ...s, status: 'available' }));
   return {
-    stages: rulesetState.stages.map(s => ({ ...s, status: 'available' })),
-    sequence: generateVetoSequence(rulesetState.stages.length, rulesetState.bansPerPlayer),
+    stages,
+    sequence: generateVetoSequence(pattern, rulesetState.firstBanner),
     currentStep: 0,
     player1Name: matchState.player1.name,
     player2Name: matchState.player2.name,
     player1Color: matchState.player1.color,
     player2Color: matchState.player2.color,
-    bansPerPlayer: rulesetState.bansPerPlayer,
+    banPatternGame1: rulesetState.banPatternGame1,
+    banPatternGame2: rulesetState.banPatternGame2,
+    firstBanner: rulesetState.firstBanner,
+    stageClause: rulesetState.stageClause,
+    gameNumber,
+    playedStageIds,
     done: false,
-    visible: true,
+    visible,
   };
 }
 
@@ -307,6 +322,14 @@ io.on('connection', (socket) => {
       }
     }
 
+    io.emit('vetoUpdate', vetoState);
+  });
+
+  socket.on('vetoNextGame', () => {
+    const selected = vetoState.stages.find(s => s.status === 'selected');
+    const newPlayed = [...(vetoState.playedStageIds || [])];
+    if (selected) newPlayed.push(selected.id);
+    vetoState = makeVetoState(vetoState.gameNumber + 1, newPlayed, vetoState.visible);
     io.emit('vetoUpdate', vetoState);
   });
 });

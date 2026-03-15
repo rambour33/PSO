@@ -1,0 +1,5 @@
+roadmap
+
+selecteur de terrain 
+retravailler les pick et ban 
+generer une image de ruleset a partir du ruleset crée 

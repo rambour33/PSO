@@ -32,8 +32,10 @@
   <!-- TAB NAV -->
   <nav class="tab-nav">
     <button class="tab-btn active" data-tab="match">Match</button>
+    <button class="tab-btn" data-tab="veto">Stage Veto</button>
+    <button class="tab-btn" data-tab="ruleset">Ruleset</button>
     <button class="tab-btn" data-tab="custom">Customisation</button>
-    <button class="tab-btn" data-tab="chars">Personnages</button>
+    <button class="tab-btn" data-tab="chars" style="display:none">Personnages</button>
   </nav>
 
   <!-- ═══════════════════════════════════════════════════════════ -->
@@ -186,65 +188,6 @@
       </div>
     </section>
 
-    <!-- STAGE VETO SECTION -->
-    <section class="section veto-section">
-      <div class="section-header">
-        <div class="veto-title-row">
-          <h2>Stage Veto</h2>
-          <span class="badge badge-gold">Ruleset custom</span>
-        </div>
-        <div class="veto-header-actions">
-          <a href="/stageveto" target="_blank" class="btn btn-outline btn-sm">OBS ↗</a>
-          <button id="veto-btn-visibility" class="btn btn-primary btn-sm">Masquer veto</button>
-          <button id="veto-btn-reset" class="btn btn-danger btn-sm">Reset veto</button>
-          <button class="btn-copy" id="btn-copy-veto" title="Copier URL veto">📋</button>
-        </div>
-      </div>
-      <div class="veto-step-bar">
-        <div id="veto-action-badge" class="csb-action ban">BAN</div>
-        <span class="csb-sep">·</span>
-        <span id="veto-step-text" class="csb-team">Chargement...</span>
-      </div>
-      <div class="veto-body">
-        <div class="veto-main-col">
-          <div id="veto-stages-grid" class="veto-stages-grid"></div>
-          <div id="veto-seq-track" class="veto-sequence-track"></div>
-        </div>
-        <div class="ruleset-col">
-          <div class="ruleset-card">
-            <h3>Ruleset</h3>
-            <div class="form-group">
-              <label>Bans par joueur</label>
-              <input type="number" id="bans-per-player" value="2" min="1" max="6" />
-            </div>
-            <div id="ruleset-stages-list" class="ruleset-stages-list"></div>
-            <div class="add-stage-form">
-              <h4>Ajouter un stage</h4>
-              <input type="text" id="new-stage-name" placeholder="Nom du stage" />
-              <input type="text" id="new-stage-image" placeholder="URL image (optionnel)" />
-              <div class="stage-type-row">
-                <label><input type="radio" name="stage-type" value="starter" checked /> Starter</label>
-                <label><input type="radio" name="stage-type" value="counterpick" /> Counterpick</label>
-              </div>
-              <button id="btn-add-stage" class="btn btn-primary btn-full">Ajouter</button>
-            </div>
-            <button id="btn-save-ruleset" class="btn btn-primary btn-full">Appliquer le ruleset</button>
-            <div style="margin-top:12px;border-top:1px solid var(--border);padding-top:12px">
-              <h4 style="font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px">Enregistrer</h4>
-              <div style="display:flex;gap:6px">
-                <input type="text" id="ruleset-save-name" placeholder="Nom du ruleset…" style="flex:1" />
-                <button id="btn-ruleset-save" class="btn btn-primary btn-sm">Enregistrer</button>
-              </div>
-            </div>
-            <div style="margin-top:12px">
-              <h4 style="font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px">Rulesets sauvegardés</h4>
-              <div id="saved-rulesets-list"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
     <!-- CASTERS SECTION -->
     <section class="section casters-section">
       <div class="section-header">
@@ -277,6 +220,125 @@
     </section>
 
   </div><!-- /tab-match -->
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- TAB : STAGE VETO                                            -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <div class="tab-content" id="tab-veto">
+    <section class="section veto-section">
+      <div class="section-header">
+        <div class="veto-title-row">
+          <h2>Stage Veto</h2>
+          <span class="badge badge-gold">Ruleset custom</span>
+        </div>
+        <div class="veto-header-actions">
+          <a href="/stageveto" target="_blank" class="btn btn-outline btn-sm">OBS ↗</a>
+          <button id="veto-btn-visibility" class="btn btn-primary btn-sm">Masquer veto</button>
+          <button id="veto-btn-next-game" class="btn btn-outline btn-sm">Jeu suivant ▶</button>
+          <button id="veto-btn-reset" class="btn btn-danger btn-sm">Reset veto</button>
+          <button class="btn-copy" id="btn-copy-veto" title="Copier URL veto">📋</button>
+        </div>
+      </div>
+      <div class="veto-step-bar">
+        <div id="veto-action-badge" class="csb-action ban">BAN</div>
+        <span class="csb-sep">·</span>
+        <span id="veto-step-text" class="csb-team">Chargement...</span>
+      </div>
+      <div class="veto-body">
+        <div class="veto-main-col">
+          <div id="veto-stages-grid" class="veto-stages-grid"></div>
+          <div id="veto-seq-track" class="veto-sequence-track"></div>
+        </div>
+        <div class="veto-side-col">
+          <!-- Shifumi -->
+          <div class="ban-gen-block">
+            <div class="ban-gen-header"><span>Shifumi</span></div>
+            <button id="btn-shifumi" class="btn btn-outline btn-full">🎲 Lancer le shifumi</button>
+            <span id="ban-first-result" class="ban-first-result" style="text-align:left;font-style:normal;font-size:12px;min-height:16px;display:block"></span>
+          </div>
+          <!-- Premier bannisseur -->
+          <div class="ban-gen-block">
+            <div class="ban-gen-header"><span>Premier bannisseur</span></div>
+            <div class="ban-first-row">
+              <button class="ban-first-btn active" data-first="1" id="ban-first-p1">J1</button>
+              <button class="ban-first-btn" data-first="2" id="ban-first-p2">J2</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div><!-- /tab-veto -->
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- TAB : RULESET                                               -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <div class="tab-content" id="tab-ruleset">
+    <section class="section">
+      <div class="section-header"><h2>Ruleset &amp; Banlist</h2></div>
+      <div class="ruleset-card">
+
+        <!-- Séquences de bans -->
+        <div class="ban-builder-block">
+          <div class="ban-builder-title">
+            Séquence jeu 1
+            <span class="ban-builder-count" id="ban-builder-g1-count"></span>
+          </div>
+          <div class="ban-seq-steps" id="ban-seq-g1"></div>
+          <div class="ban-seq-add-row">
+            <button class="ban-seq-btn p1" data-builder="g1" data-player="1">+ J1</button>
+            <button class="ban-seq-btn p2" data-builder="g1" data-player="2">+ J2</button>
+          </div>
+          <input type="hidden" id="ban-pattern-g1" value="2-2" />
+        </div>
+
+        <div class="ban-builder-block">
+          <div class="ban-builder-title">
+            Séquence jeux suivants
+            <span class="ban-builder-count" id="ban-builder-g2-count"></span>
+          </div>
+          <div class="ban-seq-steps" id="ban-seq-g2"></div>
+          <div class="ban-seq-add-row">
+            <button class="ban-seq-btn p1" data-builder="g2" data-player="1">+ J1</button>
+            <button class="ban-seq-btn p2" data-builder="g2" data-player="2">+ J2</button>
+          </div>
+          <input type="hidden" id="ban-pattern-g2" value="1" />
+        </div>
+        <p class="hint" id="ban-pattern-preview" style="grid-column:1/-1;margin:0"></p>
+
+        <!-- Stage clause -->
+        <label class="checkbox-row" style="grid-column:1/-1">
+          <input type="checkbox" id="stage-clause" />
+          <span>Stage clause <span style="font-size:10px;color:var(--text-muted)">(pas de répétition)</span></span>
+        </label>
+
+        <!-- Liste des stages + ajout -->
+        <div id="ruleset-stages-list" class="ruleset-stages-list" style="grid-column:1/-1"></div>
+        <div class="add-stage-form" style="grid-column:1/-1">
+          <h4>Ajouter un stage</h4>
+          <div class="stage-type-row">
+            <label><input type="radio" name="stage-type" value="starter" checked /> Starter</label>
+            <label><input type="radio" name="stage-type" value="counterpick" /> Counterpick</label>
+          </div>
+          <button id="btn-open-stage-picker" class="btn btn-outline btn-full">Choisir un stage…</button>
+        </div>
+        <button id="btn-save-ruleset" class="btn btn-primary btn-full" style="grid-column:1/-1">Appliquer le ruleset</button>
+
+        <!-- Sauvegarde -->
+        <div style="grid-column:1/-1;border-top:1px solid var(--border);padding-top:12px">
+          <h4 style="font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px">Enregistrer</h4>
+          <div style="display:flex;gap:6px">
+            <input type="text" id="ruleset-save-name" placeholder="Nom du ruleset…" style="flex:1" />
+            <button id="btn-ruleset-save" class="btn btn-primary btn-sm">Enregistrer</button>
+          </div>
+        </div>
+        <div style="grid-column:1/-1">
+          <h4 style="font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px">Rulesets sauvegardés</h4>
+          <div id="saved-rulesets-list"></div>
+        </div>
+
+      </div>
+    </section>
+  </div><!-- /tab-ruleset -->
 
   <!-- ═══════════════════════════════════════════════════════════ -->
   <!-- TAB : CUSTOMISATION                                         -->
@@ -429,6 +491,17 @@
     </section>
 
   </div><!-- /tab-chars -->
+
+  <!-- STAGE PICKER MODAL -->
+  <div class="char-modal" id="stage-modal" style="display:none">
+    <div class="char-modal-inner stage-modal-inner">
+      <div class="char-modal-header">
+        <h2>Choisir un stage</h2>
+        <button class="btn btn-outline" id="stage-modal-close">Fermer</button>
+      </div>
+      <div class="stage-picker-grid" id="stage-picker-grid"></div>
+    </div>
+  </div>
 
   <!-- CHARACTER PICKER MODAL -->
   <div class="char-modal" id="char-modal" style="display:none">
