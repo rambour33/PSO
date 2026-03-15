@@ -117,6 +117,14 @@ const PS = (() => {
       vy:1.2+Math.random()*3.5, op:0.25+Math.random()*0.55,
       pink:Math.random()>0.5 };
   }
+  function mkBolt(W, H) {
+    return { t:'bolt', x:Math.random()*W, y:Math.random()*H,
+      life:1, decay:0.025+Math.random()*0.07,
+      len:10+Math.random()*44, segs:3+Math.floor(Math.random()*5),
+      angle:Math.floor(Math.random()*8)*Math.PI/4+(Math.random()-0.5)*0.35,
+      jitter:2+Math.random()*6, seed:Math.random()*9999,
+      thick:0.5+Math.random()*1.8, branch:Math.random()>0.45 };
+  }
   function mkFlake(W, H) {
     return { t:'flake', x:Math.random()*W, y:Math.random()*H,
       r:4+Math.random()*9, vx:(Math.random()-0.5)*0.4,
@@ -125,7 +133,8 @@ const PS = (() => {
       spin:(Math.random()-0.5)*0.012, op:0.45+Math.random()*0.55 };
   }
   const FAC = { snow:mkSnow, fire:mkFire, rain:mkRain, sand:mkSand,
-                leaf:mkLeaf, bubble:mkBubble, sparkle:mkSparkle, data:mkData, flake:mkFlake };
+                leaf:mkLeaf, bubble:mkBubble, sparkle:mkSparkle, data:mkData,
+                flake:mkFlake, bolt:mkBolt };
 
   // ── Update ─────────────────────────────────────────────────
   function upd(p, W, H) {
@@ -159,6 +168,9 @@ const PS = (() => {
       p.wb += p.wbs; p.x += p.vx+Math.sin(p.wb)*0.45; p.y += p.vy; p.rot += p.spin;
       if (p.y>H+20){p.y=-15;p.x=Math.random()*W;}
       if (p.x>W+20) p.x=-20; if (p.x<-20) p.x=W+20;
+    } else if (t==='bolt') {
+      p.life -= p.decay;
+      if (p.life<=0) Object.assign(p, mkBolt(W,H));
     }
   }
 
@@ -221,6 +233,52 @@ const PS = (() => {
       ctx.globalAlpha = p.op * 0.25;
       ctx.fillRect(p.x-1, p.y-2, p.w+2, 3);
       ctx.globalAlpha = 1;
+    } else if (t==='bolt') {
+      const al = Math.max(0, p.life);
+      const ca = Math.cos(p.angle), sa = Math.sin(p.angle);
+      const nx = -sa, ny = ca;          // perpendicular (for jitter)
+      const sl = p.len / p.segs;
+      // Build jagged points (shape is fixed per bolt via seed)
+      const bpts = [[p.x, p.y]];
+      for (let i = 1; i <= p.segs; i++) {
+        const j = Math.sin(p.seed + i*5.31) * p.jitter * (1 - i/p.segs*0.25);
+        bpts.push([p.x + ca*sl*i + nx*j, p.y + sa*sl*i + ny*j]);
+      }
+      const drawPath = (pts) => {
+        ctx.beginPath(); ctx.moveTo(pts[0][0], pts[0][1]);
+        for (let i=1;i<pts.length;i++) ctx.lineTo(pts[i][0], pts[i][1]);
+        ctx.stroke();
+      };
+      ctx.save(); ctx.lineCap='round'; ctx.lineJoin='round';
+      // outer glow
+      ctx.globalAlpha = al * 0.10; ctx.lineWidth = p.thick*9;
+      ctx.strokeStyle = '#F7D02C'; drawPath(bpts);
+      // mid glow
+      ctx.globalAlpha = al * 0.28; ctx.lineWidth = p.thick*3.5;
+      ctx.strokeStyle = '#FFF59D'; drawPath(bpts);
+      // core
+      ctx.globalAlpha = al; ctx.lineWidth = p.thick;
+      ctx.strokeStyle = `rgba(255,255,230,${al})`; drawPath(bpts);
+      // branch
+      if (p.branch && bpts.length >= 3) {
+        const bi = Math.floor(bpts.length * 0.45);
+        const [bx, by] = bpts[bi];
+        const bDir = Math.cos(p.seed*3) >= 0 ? 1 : -1;
+        const bAngle = p.angle + bDir * (Math.PI/6 + Math.abs(Math.sin(p.seed))*Math.PI/6);
+        const bca = Math.cos(bAngle), bsa = Math.sin(bAngle);
+        const bnx = -bsa, bny = bca;
+        const bsl = p.len*0.38 / 3;
+        const brPts = [[bx, by]];
+        for (let i=1;i<=3;i++) {
+          const j = Math.sin(p.seed*1.7+i*4.2) * p.jitter*0.5;
+          brPts.push([bx+bca*bsl*i+bnx*j, by+bsa*bsl*i+bny*j]);
+        }
+        ctx.globalAlpha = al*0.22; ctx.lineWidth = p.thick*3;
+        ctx.strokeStyle = '#FFF59D'; drawPath(brPts);
+        ctx.globalAlpha = al*0.65; ctx.lineWidth = p.thick*0.6;
+        ctx.strokeStyle = `rgba(255,255,200,${al})`; drawPath(brPts);
+      }
+      ctx.restore();
     } else if (t==='flake') {
       ctx.save();
       ctx.translate(p.x, p.y);
@@ -313,7 +371,7 @@ const THEME_PARTICLES = {
   fire:        { type:'fire',    count:80 },
   pkpsy:       { type:'sparkle', count:60 },
   pktenebres:  { type:'data',    count:45 },
-  pkelectrik:  { type:'sparkle', count:70 },
+  pkelectrik:  { type:'bolt',    count:70 },
   pkfee:       { type:'sparkle', count:55 },
   pkspectre:   { type:'bubble',  count:40 },
   pkdragon:    { type:'fire',    count:65 },
