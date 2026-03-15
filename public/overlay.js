@@ -379,14 +379,20 @@ function update(s) {
   // Characters — Player 1
   const p1Img = document.getElementById('p1-char-img');
   const p1Ph  = document.getElementById('p1-char-placeholder');
-  if (s.player1.character && s.player1.character.image) {
-    p1Img.src = s.player1.character.image;
+  if (s.player1.character) {
+    const c1 = String(s.player1.stockColor ?? 0).padStart(2, '0');
+    const n1 = s.player1.character.name.replace(/\s*\/\s*/g, '-');
+    p1Img.src = `/full/chara_1_${n1}_${c1}.png`;
     p1Img.style.display = 'block';
     p1Ph.style.display = 'none';
+    p1Img.onerror = () => {
+      p1Img.src = `/full/chara_1_${n1}_00.png`;
+      p1Img.onerror = () => { p1Img.style.display = 'none'; p1Ph.style.display = 'flex'; p1Ph.textContent = n1.charAt(0); };
+    };
   } else {
     p1Img.style.display = 'none';
     p1Ph.style.display = 'flex';
-    p1Ph.textContent = s.player1.character ? s.player1.character.name.charAt(0) : '?';
+    p1Ph.textContent = '?';
   }
 
   // Stock icon — Player 1 (slim)
@@ -407,14 +413,20 @@ function update(s) {
   // Characters — Player 2
   const p2Img = document.getElementById('p2-char-img');
   const p2Ph  = document.getElementById('p2-char-placeholder');
-  if (s.player2.character && s.player2.character.image) {
-    p2Img.src = s.player2.character.image;
+  if (s.player2.character) {
+    const c2 = String(s.player2.stockColor ?? 0).padStart(2, '0');
+    const n2 = s.player2.character.name.replace(/\s*\/\s*/g, '-');
+    p2Img.src = `/full/chara_1_${n2}_${c2}.png`;
     p2Img.style.display = 'block';
     p2Ph.style.display = 'none';
+    p2Img.onerror = () => {
+      p2Img.src = `/full/chara_1_${n2}_00.png`;
+      p2Img.onerror = () => { p2Img.style.display = 'none'; p2Ph.style.display = 'flex'; p2Ph.textContent = n2.charAt(0); };
+    };
   } else {
     p2Img.style.display = 'none';
     p2Ph.style.display = 'flex';
-    p2Ph.textContent = s.player2.character ? s.player2.character.name.charAt(0) : '?';
+    p2Ph.textContent = '?';
   }
 
   // Stock icon — Player 2 (slim)
