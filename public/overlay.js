@@ -3,7 +3,9 @@ let currentState = null;
 
 // ── Logo particules (thèmes custom) ──────────────────────────
 const _lp = { parts: [], rafId: null, src: null, count: 3 };
-const CUSTOM_THEMES = ['cyberpunk', 'synthwave', 'midnight', 'egypt', 'city', 'eco', 'water', 'fire'];
+const CUSTOM_THEMES = ['cyberpunk', 'synthwave', 'midnight', 'egypt', 'city', 'eco', 'water', 'fire',
+  'pkpsy', 'pktenebres', 'pkelectrik', 'pkfee', 'pkspectre', 'pkdragon', 'pkglace', 'pkcombat',
+  'pkpoison', 'pksol', 'pkvol', 'pkinsecte', 'pkroche', 'pkacier', 'pknormal', 'pkplante', 'pkfeu', 'pkeau'];
 
 function _lpSetCount(n) {
   const bg = document.getElementById('theme-logo-bg');
@@ -251,14 +253,32 @@ const PS = (() => {
 })();
 
 const THEME_PARTICLES = {
-  cyberpunk: { type:'data',    count:55 },
-  synthwave: { type:'sparkle', count:65 },
-  midnight:  { type:'snow',    count:75 },
-  egypt:     { type:'sand',    count:95 },
-  city:      { type:'rain',    count:75 },
-  eco:       { type:'leaf',    count:38 },
-  water:     { type:'bubble',  count:55 },
-  fire:      { type:'fire',    count:80 },
+  cyberpunk:   { type:'data',    count:55 },
+  synthwave:   { type:'sparkle', count:65 },
+  midnight:    { type:'snow',    count:75 },
+  egypt:       { type:'sand',    count:95 },
+  city:        { type:'rain',    count:75 },
+  eco:         { type:'leaf',    count:38 },
+  water:       { type:'bubble',  count:55 },
+  fire:        { type:'fire',    count:80 },
+  pkpsy:       { type:'sparkle', count:60 },
+  pktenebres:  { type:'data',    count:45 },
+  pkelectrik:  { type:'sparkle', count:70 },
+  pkfee:       { type:'sparkle', count:55 },
+  pkspectre:   { type:'bubble',  count:40 },
+  pkdragon:    { type:'fire',    count:65 },
+  pkglace:     { type:'snow',    count:80 },
+  pkcombat:    { type:'fire',    count:70 },
+  pkpoison:    { type:'bubble',  count:50 },
+  pksol:       { type:'sand',    count:90 },
+  pkvol:       { type:'sparkle', count:55 },
+  pkinsecte:   { type:'leaf',    count:35 },
+  pkroche:     { type:'sand',    count:80 },
+  pkacier:     { type:'sparkle', count:50 },
+  pknormal:    { type:'sparkle', count:40 },
+  pkplante:    { type:'leaf',    count:40 },
+  pkfeu:       { type:'fire',    count:75 },
+  pkeau:       { type:'bubble',  count:55 },
 };
 
 function renderPlayerName(elId, player) {
@@ -311,7 +331,9 @@ function update(s) {
   sb.classList.toggle('style-slim', s.overlayStyle === 'slim');
 
   // Theme class
-  ['default', 'cyberpunk', 'synthwave', 'midnight', 'egypt', 'city', 'eco', 'water', 'fire'].forEach(t => {
+  ['default', 'cyberpunk', 'synthwave', 'midnight', 'egypt', 'city', 'eco', 'water', 'fire',
+   'pkpsy', 'pktenebres', 'pkelectrik', 'pkfee', 'pkspectre', 'pkdragon', 'pkglace', 'pkcombat',
+   'pkpoison', 'pksol', 'pkvol', 'pkinsecte', 'pkroche', 'pkacier', 'pknormal', 'pkplante', 'pkfeu', 'pkeau'].forEach(t => {
     sb.classList.toggle('theme-' + t, (s.overlayTheme || 'default') === t);
   });
 

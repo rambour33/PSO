@@ -1237,3 +1237,497 @@ body {
 .scoreboard.theme-fire .theme-logo-bg img {
   filter: drop-shadow(0 0 6px #FF4500) drop-shadow(0 0 14px rgba(255,140,0,0.7));
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   POKÉMON TYPE THEMES
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Psy ──────────────────────────────────────────────────────── */
+
+@keyframes psy-pulse  { 0%,100%{box-shadow:0 0 8px rgba(249,85,135,0.5),0 0 18px rgba(159,68,211,0.3)}50%{box-shadow:0 0 18px rgba(249,85,135,0.8),0 0 38px rgba(159,68,211,0.5)} }
+@keyframes psy-glow   { 0%,100%{text-shadow:0 0 6px rgba(249,85,135,0.7),0 0 14px rgba(159,68,211,0.4)}50%{text-shadow:0 0 14px rgba(249,85,135,1),0 0 28px rgba(159,68,211,0.7)} }
+@keyframes psy-swirl  { 0%{transform:rotate(0deg) scale(1)}50%{transform:rotate(180deg) scale(1.05)}100%{transform:rotate(360deg) scale(1)} }
+
+.scoreboard.theme-pkpsy .players-container { border-color:#F95587; animation:psy-pulse 3s ease-in-out infinite; }
+.scoreboard.theme-pkpsy .players-container::before {
+  content:''; position:absolute; inset:0; pointer-events:none; z-index:0;
+  background:
+    radial-gradient(circle 80px at 15% 50%, rgba(249,85,135,0.12) 0%, transparent 70%),
+    radial-gradient(circle 60px at 85% 50%, rgba(159,68,211,0.10) 0%, transparent 70%),
+    radial-gradient(circle 40px at 50% 20%, rgba(249,85,135,0.08) 0%, transparent 70%),
+    radial-gradient(circle 50px at 30% 80%, rgba(159,68,211,0.09) 0%, transparent 70%),
+    repeating-conic-gradient(from 0deg at 50% 50%, transparent 0deg, rgba(249,85,135,0.03) 1deg, transparent 2deg, transparent 60deg);
+  animation:psy-swirl 20s linear infinite;
+}
+.scoreboard.theme-pkpsy .event-bar          { border-bottom-color:#F95587; box-shadow:0 2px 14px rgba(249,85,135,0.45); }
+.scoreboard.theme-pkpsy .player-tag         { animation:psy-glow 2.5s ease-in-out infinite; }
+.scoreboard.theme-pkpsy .score              { text-shadow:0 0 12px rgba(249,85,135,0.9),0 0 26px rgba(159,68,211,0.5); }
+.scoreboard.theme-pkpsy .score-center       { border-left-color:#F95587; border-right-color:#9F44D3; }
+.scoreboard.theme-pkpsy .player-character   { border-color:#F95587; box-shadow:0 0 14px rgba(249,85,135,0.55); }
+.scoreboard.theme-pkpsy .player-left        { border-bottom-color:#F95587; }
+.scoreboard.theme-pkpsy .player-right       { border-bottom-color:#9F44D3; }
+.scoreboard.theme-pkpsy .slim-bar           { border-color:#F95587; box-shadow:0 0 12px rgba(249,85,135,0.4); }
+.scoreboard.theme-pkpsy .slim-name          { animation:psy-glow 2.5s ease-in-out infinite; }
+.scoreboard.theme-pkpsy .slim-score         { text-shadow:0 0 10px rgba(249,85,135,0.9); }
+.scoreboard.theme-pkpsy .theme-logo-bg img  { filter:drop-shadow(0 0 6px #F95587) drop-shadow(0 0 12px rgba(159,68,211,0.8)); }
+
+/* ── Ténèbres ─────────────────────────────────────────────────── */
+
+@keyframes dark-throb  { 0%,100%{box-shadow:0 0 6px rgba(139,0,0,0.6),0 0 14px rgba(80,0,80,0.4)}50%{box-shadow:0 0 14px rgba(139,0,0,0.9),0 0 28px rgba(80,0,80,0.7)} }
+@keyframes dark-flicker { 0%,100%{opacity:1}92%{opacity:1}93%{opacity:0.4}94%{opacity:1}96%{opacity:0.6}97%{opacity:1} }
+@keyframes shadow-crawl { from{background-position:0 0,100% 0} to{background-position:60px 0,-60px 0} }
+
+.scoreboard.theme-pktenebres .players-container { border-color:#8B0000; animation:dark-throb 3.5s ease-in-out infinite; }
+.scoreboard.theme-pktenebres .players-container::before {
+  content:''; position:absolute; inset:0; pointer-events:none; z-index:0;
+  background:
+    repeating-linear-gradient(90deg, transparent 0, transparent 28px, rgba(80,0,20,0.12) 28px, rgba(80,0,20,0.12) 29px),
+    repeating-linear-gradient(0deg,  transparent 0, transparent 28px, rgba(80,0,20,0.08) 28px, rgba(80,0,20,0.08) 29px),
+    radial-gradient(ellipse 120% 50% at 50% 100%, rgba(80,0,80,0.18) 0%, transparent 60%);
+  animation:shadow-crawl 8s linear infinite;
+}
+.scoreboard.theme-pktenebres .event-bar          { border-bottom-color:#8B0000; box-shadow:0 2px 12px rgba(139,0,0,0.5); animation:dark-flicker 6s infinite; }
+.scoreboard.theme-pktenebres .player-tag         { animation:dark-throb 3.5s ease-in-out infinite; }
+.scoreboard.theme-pktenebres .score              { text-shadow:0 0 10px rgba(139,0,0,0.9),0 0 22px rgba(80,0,80,0.5); }
+.scoreboard.theme-pktenebres .score-center       { border-left-color:#8B0000; border-right-color:#500050; }
+.scoreboard.theme-pktenebres .player-character   { border-color:#8B0000; box-shadow:0 0 12px rgba(139,0,0,0.6); }
+.scoreboard.theme-pktenebres .player-left        { border-bottom-color:#8B0000; }
+.scoreboard.theme-pktenebres .player-right       { border-bottom-color:#500050; }
+.scoreboard.theme-pktenebres .slim-bar           { border-color:#8B0000; box-shadow:0 0 10px rgba(139,0,0,0.5); }
+.scoreboard.theme-pktenebres .slim-name          { animation:dark-throb 3.5s ease-in-out infinite; }
+.scoreboard.theme-pktenebres .slim-score         { text-shadow:0 0 8px rgba(139,0,0,0.9); }
+.scoreboard.theme-pktenebres .theme-logo-bg img  { filter:drop-shadow(0 0 5px #8B0000) drop-shadow(0 0 10px rgba(80,0,80,0.8)); }
+
+/* ── Électrik ─────────────────────────────────────────────────── */
+
+@keyframes elec-flash  { 0%,100%{box-shadow:0 0 6px rgba(247,208,44,0.5),0 0 14px rgba(247,208,44,0.3)}50%{box-shadow:0 0 18px rgba(247,208,44,0.9),0 0 38px rgba(255,255,120,0.5)} }
+@keyframes elec-zap    { 0%,88%,100%{opacity:1}89%{opacity:0.1}90%{opacity:1}92%{opacity:0.3}93%{opacity:1} }
+@keyframes elec-text   { 0%,100%{text-shadow:0 0 8px rgba(247,208,44,0.8)}50%{text-shadow:0 0 16px rgba(247,208,44,1),0 0 30px rgba(255,255,150,0.6)} }
+@keyframes elec-drift  { from{background-position:0 0} to{background-position:200px 200px} }
+
+.scoreboard.theme-pkelectrik .players-container { border-color:#F7D02C; animation:elec-flash 1.5s ease-in-out infinite; }
+.scoreboard.theme-pkelectrik .players-container::before {
+  content:''; position:absolute; inset:0; pointer-events:none; z-index:0;
+  background:
+    repeating-linear-gradient(60deg,  transparent 0, transparent 18px, rgba(247,208,44,0.06) 18px, rgba(247,208,44,0.06) 19px),
+    repeating-linear-gradient(120deg, transparent 0, transparent 18px, rgba(247,208,44,0.04) 18px, rgba(247,208,44,0.04) 19px),
+    radial-gradient(ellipse 80% 40% at 50% 0%, rgba(247,208,44,0.12) 0%, transparent 60%);
+  animation:elec-drift 4s linear infinite;
+}
+.scoreboard.theme-pkelectrik .event-bar          { border-bottom-color:#F7D02C; box-shadow:0 2px 16px rgba(247,208,44,0.6); animation:elec-zap 3s infinite; }
+.scoreboard.theme-pkelectrik .player-tag         { animation:elec-text 1.5s ease-in-out infinite; }
+.scoreboard.theme-pkelectrik .score              { text-shadow:0 0 14px rgba(247,208,44,1),0 0 28px rgba(255,255,100,0.5); }
+.scoreboard.theme-pkelectrik .score-center       { border-left-color:#F7D02C; border-right-color:#FFEE55; }
+.scoreboard.theme-pkelectrik .player-character   { border-color:#F7D02C; box-shadow:0 0 16px rgba(247,208,44,0.65); }
+.scoreboard.theme-pkelectrik .player-left        { border-bottom-color:#F7D02C; }
+.scoreboard.theme-pkelectrik .player-right       { border-bottom-color:#FFEE55; }
+.scoreboard.theme-pkelectrik .slim-bar           { border-color:#F7D02C; box-shadow:0 0 14px rgba(247,208,44,0.55); }
+.scoreboard.theme-pkelectrik .slim-name          { animation:elec-text 1.5s ease-in-out infinite; }
+.scoreboard.theme-pkelectrik .slim-score         { text-shadow:0 0 12px rgba(247,208,44,1); }
+.scoreboard.theme-pkelectrik .theme-logo-bg img  { filter:drop-shadow(0 0 6px #F7D02C) drop-shadow(0 0 14px rgba(255,255,100,0.9)); }
+
+/* ── Fée ──────────────────────────────────────────────────────── */
+
+@keyframes fee-shimmer { 0%,100%{box-shadow:0 0 8px rgba(214,133,173,0.5),0 0 18px rgba(255,183,213,0.3)}50%{box-shadow:0 0 16px rgba(214,133,173,0.8),0 0 36px rgba(255,183,213,0.5)} }
+@keyframes fee-glow    { 0%,100%{text-shadow:0 0 6px rgba(214,133,173,0.7)}50%{text-shadow:0 0 14px rgba(214,133,173,1),0 0 26px rgba(255,183,213,0.6)} }
+@keyframes fee-float   { 0%{background-position:0 0}100%{background-position:-50px -50px} }
+
+.scoreboard.theme-pkfee .players-container { border-color:#D685AD; animation:fee-shimmer 3s ease-in-out infinite; }
+.scoreboard.theme-pkfee .players-container::before {
+  content:''; position:absolute; inset:0; pointer-events:none; z-index:0;
+  background:
+    radial-gradient(circle 30px at 10% 25%, rgba(214,133,173,0.12) 0%, transparent 70%),
+    radial-gradient(circle 20px at 35% 75%, rgba(255,183,213,0.10) 0%, transparent 70%),
+    radial-gradient(circle 25px at 65% 30%, rgba(214,133,173,0.09) 0%, transparent 70%),
+    radial-gradient(circle 18px at 85% 70%, rgba(255,183,213,0.11) 0%, transparent 70%),
+    radial-gradient(circle 22px at 50% 55%, rgba(214,133,173,0.08) 0%, transparent 70%),
+    radial-gradient(ellipse 100% 30% at 50% 100%, rgba(255,183,213,0.08) 0%, transparent 60%);
+  animation:fee-float 15s linear infinite;
+}
+.scoreboard.theme-pkfee .event-bar          { border-bottom-color:#D685AD; box-shadow:0 2px 14px rgba(214,133,173,0.45); }
+.scoreboard.theme-pkfee .player-tag         { animation:fee-glow 3s ease-in-out infinite; }
+.scoreboard.theme-pkfee .score              { text-shadow:0 0 12px rgba(214,133,173,0.9),0 0 24px rgba(255,183,213,0.4); }
+.scoreboard.theme-pkfee .score-center       { border-left-color:#D685AD; border-right-color:#FFB7D5; }
+.scoreboard.theme-pkfee .player-character   { border-color:#D685AD; box-shadow:0 0 14px rgba(214,133,173,0.5); }
+.scoreboard.theme-pkfee .player-left        { border-bottom-color:#D685AD; }
+.scoreboard.theme-pkfee .player-right       { border-bottom-color:#FFB7D5; }
+.scoreboard.theme-pkfee .slim-bar           { border-color:#D685AD; box-shadow:0 0 12px rgba(214,133,173,0.4); }
+.scoreboard.theme-pkfee .slim-name          { animation:fee-glow 3s ease-in-out infinite; }
+.scoreboard.theme-pkfee .slim-score         { text-shadow:0 0 10px rgba(214,133,173,0.9); }
+.scoreboard.theme-pkfee .theme-logo-bg img  { filter:drop-shadow(0 0 6px #D685AD) drop-shadow(0 0 12px rgba(255,183,213,0.7)); }
+
+/* ── Spectre ──────────────────────────────────────────────────── */
+
+@keyframes ghost-haunt  { 0%,100%{box-shadow:0 0 10px rgba(112,56,248,0.5),0 0 22px rgba(112,56,248,0.2);opacity:1}40%{opacity:0.8}50%{box-shadow:0 0 20px rgba(112,56,248,0.8),0 0 44px rgba(112,56,248,0.4);opacity:1} }
+@keyframes ghost-drift  { 0%{background-position:0 0,0 0}100%{background-position:40px 60px,-30px 40px} }
+@keyframes ghost-text   { 0%,100%{text-shadow:0 0 8px rgba(112,56,248,0.8);opacity:1}45%{opacity:0.6}50%{text-shadow:0 0 18px rgba(112,56,248,1),0 0 32px rgba(112,56,248,0.5);opacity:1} }
+
+.scoreboard.theme-pkspectre .players-container { border-color:#7038F8; animation:ghost-haunt 4s ease-in-out infinite; }
+.scoreboard.theme-pkspectre .players-container::before {
+  content:''; position:absolute; inset:0; pointer-events:none; z-index:0;
+  background:
+    radial-gradient(circle 60px at 20% 40%, rgba(112,56,248,0.12) 0%, transparent 70%),
+    radial-gradient(circle 45px at 75% 60%, rgba(80,0,120,0.10) 0%, transparent 70%),
+    radial-gradient(circle 35px at 50% 20%, rgba(112,56,248,0.08) 0%, transparent 70%),
+    radial-gradient(ellipse 100% 40% at 50% 100%, rgba(20,0,40,0.4) 0%, transparent 60%);
+  animation:ghost-drift 12s linear infinite;
+}
+.scoreboard.theme-pkspectre .event-bar          { border-bottom-color:#7038F8; box-shadow:0 2px 16px rgba(112,56,248,0.5); animation:ghost-text 4s ease-in-out infinite; }
+.scoreboard.theme-pkspectre .player-tag         { animation:ghost-text 4s ease-in-out infinite; }
+.scoreboard.theme-pkspectre .score              { text-shadow:0 0 12px rgba(112,56,248,0.9),0 0 28px rgba(112,56,248,0.4); }
+.scoreboard.theme-pkspectre .score-center       { border-left-color:#7038F8; border-right-color:#480088; }
+.scoreboard.theme-pkspectre .player-character   { border-color:#7038F8; box-shadow:0 0 16px rgba(112,56,248,0.6); }
+.scoreboard.theme-pkspectre .player-left        { border-bottom-color:#7038F8; }
+.scoreboard.theme-pkspectre .player-right       { border-bottom-color:#480088; }
+.scoreboard.theme-pkspectre .slim-bar           { border-color:#7038F8; box-shadow:0 0 14px rgba(112,56,248,0.5); }
+.scoreboard.theme-pkspectre .slim-name          { animation:ghost-text 4s ease-in-out infinite; }
+.scoreboard.theme-pkspectre .slim-score         { text-shadow:0 0 10px rgba(112,56,248,0.9); }
+.scoreboard.theme-pkspectre .theme-logo-bg img  { filter:drop-shadow(0 0 6px #7038F8) drop-shadow(0 0 14px rgba(112,56,248,0.7)); }
+
+/* ── Dragon ───────────────────────────────────────────────────── */
+
+@keyframes dragon-roar  { 0%,100%{box-shadow:0 0 10px rgba(111,53,252,0.5),0 0 22px rgba(255,112,56,0.3)}50%{box-shadow:0 0 22px rgba(111,53,252,0.8),0 0 44px rgba(255,112,56,0.6)} }
+@keyframes dragon-text  { 0%,100%{text-shadow:0 0 8px rgba(111,53,252,0.8),0 0 16px rgba(255,112,56,0.4)}50%{text-shadow:0 0 18px rgba(255,112,56,1),0 0 32px rgba(111,53,252,0.6)} }
+@keyframes dragon-bg    { from{background-position:0 0} to{background-position:0 -100px} }
+
+.scoreboard.theme-pkdragon .players-container { border-color:#6F35FC; animation:dragon-roar 2.5s ease-in-out infinite; }
+.scoreboard.theme-pkdragon .players-container::before {
+  content:''; position:absolute; inset:0; pointer-events:none; z-index:0;
+  background:
+    radial-gradient(ellipse 60% 100% at 0% 50%, rgba(111,53,252,0.14) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 100% at 100% 50%, rgba(255,112,56,0.12) 0%, transparent 60%),
+    repeating-linear-gradient(45deg, transparent 0, transparent 22px, rgba(111,53,252,0.04) 22px, rgba(111,53,252,0.04) 23px);
+  animation:dragon-bg 10s linear infinite;
+}
+.scoreboard.theme-pkdragon .event-bar          { border-bottom-color:#6F35FC; box-shadow:0 2px 16px rgba(111,53,252,0.5); }
+.scoreboard.theme-pkdragon .player-tag         { animation:dragon-text 2.5s ease-in-out infinite; }
+.scoreboard.theme-pkdragon .score              { text-shadow:0 0 14px rgba(111,53,252,0.9),0 0 28px rgba(255,112,56,0.5); }
+.scoreboard.theme-pkdragon .score-center       { border-left-color:#6F35FC; border-right-color:#FF7038; }
+.scoreboard.theme-pkdragon .player-character   { border-color:#6F35FC; box-shadow:0 0 16px rgba(111,53,252,0.6); }
+.scoreboard.theme-pkdragon .player-left        { border-bottom-color:#6F35FC; }
+.scoreboard.theme-pkdragon .player-right       { border-bottom-color:#FF7038; }
+.scoreboard.theme-pkdragon .slim-bar           { border-color:#6F35FC; box-shadow:0 0 14px rgba(111,53,252,0.5),0 0 28px rgba(255,112,56,0.2); }
+.scoreboard.theme-pkdragon .slim-name          { animation:dragon-text 2.5s ease-in-out infinite; }
+.scoreboard.theme-pkdragon .slim-score         { text-shadow:0 0 12px rgba(111,53,252,0.9); }
+.scoreboard.theme-pkdragon .theme-logo-bg img  { filter:drop-shadow(0 0 6px #6F35FC) drop-shadow(0 0 12px rgba(255,112,56,0.8)); }
+
+/* ── Glace ────────────────────────────────────────────────────── */
+
+@keyframes ice-glow    { 0%,100%{box-shadow:0 0 8px rgba(150,217,214,0.4),0 0 18px rgba(186,240,255,0.2)}50%{box-shadow:0 0 16px rgba(150,217,214,0.7),0 0 34px rgba(186,240,255,0.4)} }
+@keyframes ice-text    { 0%,100%{text-shadow:0 0 6px rgba(150,217,214,0.6)}50%{text-shadow:0 0 14px rgba(150,217,214,0.9),0 0 26px rgba(186,240,255,0.5)} }
+@keyframes ice-crack   { from{background-position:0 0,0 0} to{background-position:30px 0,-20px 0} }
+
+.scoreboard.theme-pkglace .players-container { border-color:#96D9D6; animation:ice-glow 4s ease-in-out infinite; }
+.scoreboard.theme-pkglace .players-container::before {
+  content:''; position:absolute; inset:0; pointer-events:none; z-index:0;
+  background:
+    repeating-linear-gradient(30deg,  transparent 0, transparent 15px, rgba(150,217,214,0.05) 15px, rgba(150,217,214,0.05) 16px),
+    repeating-linear-gradient(150deg, transparent 0, transparent 15px, rgba(186,240,255,0.04) 15px, rgba(186,240,255,0.04) 16px),
+    radial-gradient(ellipse 120% 30% at 50% 0%, rgba(186,240,255,0.12) 0%, transparent 60%);
+  animation:ice-crack 20s linear infinite;
+}
+.scoreboard.theme-pkglace .event-bar          { border-bottom-color:#96D9D6; box-shadow:0 2px 12px rgba(150,217,214,0.4); }
+.scoreboard.theme-pkglace .player-tag         { animation:ice-text 4s ease-in-out infinite; }
+.scoreboard.theme-pkglace .score              { text-shadow:0 0 10px rgba(150,217,214,0.8),0 0 22px rgba(186,240,255,0.4); }
+.scoreboard.theme-pkglace .score-center       { border-left-color:#96D9D6; border-right-color:#BAE8FF; }
+.scoreboard.theme-pkglace .player-character   { border-color:#96D9D6; box-shadow:0 0 14px rgba(150,217,214,0.5); }
+.scoreboard.theme-pkglace .player-left        { border-bottom-color:#96D9D6; }
+.scoreboard.theme-pkglace .player-right       { border-bottom-color:#BAE8FF; }
+.scoreboard.theme-pkglace .slim-bar           { border-color:#96D9D6; box-shadow:0 0 12px rgba(150,217,214,0.4); }
+.scoreboard.theme-pkglace .slim-name          { animation:ice-text 4s ease-in-out infinite; }
+.scoreboard.theme-pkglace .slim-score         { text-shadow:0 0 10px rgba(150,217,214,0.8); }
+.scoreboard.theme-pkglace .theme-logo-bg img  { filter:drop-shadow(0 0 5px #96D9D6) drop-shadow(0 0 10px rgba(186,240,255,0.7)); }
+
+/* ── Combat ───────────────────────────────────────────────────── */
+
+@keyframes fight-pulse  { 0%,100%{box-shadow:0 0 8px rgba(194,46,40,0.5),0 0 18px rgba(120,20,10,0.3)}50%{box-shadow:0 0 18px rgba(194,46,40,0.9),0 0 36px rgba(255,80,60,0.4)} }
+@keyframes fight-text   { 0%,100%{text-shadow:0 0 8px rgba(194,46,40,0.8)}50%{text-shadow:0 0 16px rgba(194,46,40,1),0 0 28px rgba(255,80,60,0.5)} }
+
+.scoreboard.theme-pkcombat .players-container { border-color:#C22E28; animation:fight-pulse 1.8s ease-in-out infinite; }
+.scoreboard.theme-pkcombat .players-container::before {
+  content:''; position:absolute; inset:0; pointer-events:none; z-index:0;
+  background:
+    repeating-linear-gradient(80deg,  transparent 0, transparent 25px, rgba(194,46,40,0.07) 25px, rgba(194,46,40,0.07) 26px),
+    repeating-linear-gradient(100deg, transparent 0, transparent 25px, rgba(194,46,40,0.05) 25px, rgba(194,46,40,0.05) 26px),
+    radial-gradient(ellipse 80% 60% at 50% 100%, rgba(120,20,10,0.2) 0%, transparent 60%);
+}
+.scoreboard.theme-pkcombat .event-bar          { border-bottom-color:#C22E28; box-shadow:0 2px 14px rgba(194,46,40,0.5); }
+.scoreboard.theme-pkcombat .player-tag         { animation:fight-text 1.8s ease-in-out infinite; }
+.scoreboard.theme-pkcombat .score              { text-shadow:0 0 12px rgba(194,46,40,0.9),0 0 24px rgba(255,80,60,0.4); }
+.scoreboard.theme-pkcombat .score-center       { border-left-color:#C22E28; border-right-color:#FF4030; }
+.scoreboard.theme-pkcombat .player-character   { border-color:#C22E28; box-shadow:0 0 14px rgba(194,46,40,0.6); }
+.scoreboard.theme-pkcombat .player-left        { border-bottom-color:#C22E28; }
+.scoreboard.theme-pkcombat .player-right       { border-bottom-color:#FF4030; }
+.scoreboard.theme-pkcombat .slim-bar           { border-color:#C22E28; box-shadow:0 0 12px rgba(194,46,40,0.5); }
+.scoreboard.theme-pkcombat .slim-name          { animation:fight-text 1.8s ease-in-out infinite; }
+.scoreboard.theme-pkcombat .slim-score         { text-shadow:0 0 10px rgba(194,46,40,0.9); }
+.scoreboard.theme-pkcombat .theme-logo-bg img  { filter:drop-shadow(0 0 5px #C22E28) drop-shadow(0 0 10px rgba(255,80,60,0.6)); }
+
+/* ── Poison ───────────────────────────────────────────────────── */
+
+@keyframes tox-bubble   { 0%,100%{box-shadow:0 0 8px rgba(163,62,161,0.5),0 0 18px rgba(80,0,80,0.3)}50%{box-shadow:0 0 16px rgba(163,62,161,0.8),0 0 36px rgba(130,0,180,0.5)} }
+@keyframes tox-text     { 0%,100%{text-shadow:0 0 6px rgba(163,62,161,0.7)}50%{text-shadow:0 0 14px rgba(163,62,161,1),0 0 26px rgba(130,0,180,0.5)} }
+@keyframes tox-drift    { from{background-position:0 0} to{background-position:0 -80px} }
+
+.scoreboard.theme-pkpoison .players-container { border-color:#A33EA1; animation:tox-bubble 3s ease-in-out infinite; }
+.scoreboard.theme-pkpoison .players-container::before {
+  content:''; position:absolute; inset:0; pointer-events:none; z-index:0;
+  background:
+    radial-gradient(circle 20px at 12% 60%, rgba(163,62,161,0.14) 0%, transparent 70%),
+    radial-gradient(circle 14px at 30% 20%, rgba(130,0,180,0.10) 0%, transparent 70%),
+    radial-gradient(circle 18px at 55% 75%, rgba(163,62,161,0.12) 0%, transparent 70%),
+    radial-gradient(circle 12px at 75% 35%, rgba(130,0,180,0.09) 0%, transparent 70%),
+    radial-gradient(circle 16px at 88% 65%, rgba(163,62,161,0.11) 0%, transparent 70%),
+    radial-gradient(ellipse 100% 40% at 50% 100%, rgba(50,0,60,0.25) 0%, transparent 60%);
+  animation:tox-drift 8s linear infinite;
+}
+.scoreboard.theme-pkpoison .event-bar          { border-bottom-color:#A33EA1; box-shadow:0 2px 14px rgba(163,62,161,0.5); }
+.scoreboard.theme-pkpoison .player-tag         { animation:tox-text 3s ease-in-out infinite; }
+.scoreboard.theme-pkpoison .score              { text-shadow:0 0 12px rgba(163,62,161,0.9),0 0 24px rgba(130,0,180,0.4); }
+.scoreboard.theme-pkpoison .score-center       { border-left-color:#A33EA1; border-right-color:#7B00B4; }
+.scoreboard.theme-pkpoison .player-character   { border-color:#A33EA1; box-shadow:0 0 14px rgba(163,62,161,0.55); }
+.scoreboard.theme-pkpoison .player-left        { border-bottom-color:#A33EA1; }
+.scoreboard.theme-pkpoison .player-right       { border-bottom-color:#7B00B4; }
+.scoreboard.theme-pkpoison .slim-bar           { border-color:#A33EA1; box-shadow:0 0 12px rgba(163,62,161,0.45); }
+.scoreboard.theme-pkpoison .slim-name          { animation:tox-text 3s ease-in-out infinite; }
+.scoreboard.theme-pkpoison .slim-score         { text-shadow:0 0 10px rgba(163,62,161,0.9); }
+.scoreboard.theme-pkpoison .theme-logo-bg img  { filter:drop-shadow(0 0 5px #A33EA1) drop-shadow(0 0 10px rgba(130,0,180,0.7)); }
+
+/* ── Sol ──────────────────────────────────────────────────────── */
+
+@keyframes earth-hum   { 0%,100%{box-shadow:0 0 6px rgba(226,191,101,0.4),0 0 14px rgba(160,120,40,0.2)}50%{box-shadow:0 0 14px rgba(226,191,101,0.7),0 0 28px rgba(200,150,50,0.4)} }
+@keyframes earth-text  { 0%,100%{text-shadow:0 0 6px rgba(226,191,101,0.6)}50%{text-shadow:0 0 14px rgba(226,191,101,0.9),0 0 24px rgba(200,150,50,0.4)} }
+@keyframes earth-wave  { from{background-position:0 0,100px 0} to{background-position:200px 0,-100px 0} }
+
+.scoreboard.theme-pksol .players-container { border-color:#E2BF65; animation:earth-hum 4s ease-in-out infinite; }
+.scoreboard.theme-pksol .players-container::before {
+  content:''; position:absolute; inset:0; pointer-events:none; z-index:0;
+  background:
+    repeating-linear-gradient(0deg, transparent 0, transparent 20px, rgba(226,191,101,0.05) 20px, rgba(226,191,101,0.05) 21px),
+    repeating-linear-gradient(90deg, transparent 0, transparent 40px, rgba(160,120,40,0.04) 40px, rgba(160,120,40,0.04) 41px),
+    radial-gradient(ellipse 120% 40% at 50% 100%, rgba(120,80,20,0.2) 0%, transparent 60%);
+  animation:earth-wave 12s linear infinite;
+}
+.scoreboard.theme-pksol .event-bar          { border-bottom-color:#E2BF65; box-shadow:0 2px 12px rgba(226,191,101,0.4); }
+.scoreboard.theme-pksol .player-tag         { animation:earth-text 4s ease-in-out infinite; }
+.scoreboard.theme-pksol .score              { text-shadow:0 0 10px rgba(226,191,101,0.8),0 0 20px rgba(200,150,50,0.3); }
+.scoreboard.theme-pksol .score-center       { border-left-color:#E2BF65; border-right-color:#C89632; }
+.scoreboard.theme-pksol .player-character   { border-color:#E2BF65; box-shadow:0 0 12px rgba(226,191,101,0.4); }
+.scoreboard.theme-pksol .player-left        { border-bottom-color:#E2BF65; }
+.scoreboard.theme-pksol .player-right       { border-bottom-color:#C89632; }
+.scoreboard.theme-pksol .slim-bar           { border-color:#E2BF65; box-shadow:0 0 10px rgba(226,191,101,0.35); }
+.scoreboard.theme-pksol .slim-name          { animation:earth-text 4s ease-in-out infinite; }
+.scoreboard.theme-pksol .slim-score         { text-shadow:0 0 8px rgba(226,191,101,0.8); }
+.scoreboard.theme-pksol .theme-logo-bg img  { filter:drop-shadow(0 0 5px #E2BF65) drop-shadow(0 0 10px rgba(200,150,50,0.6)); }
+
+/* ── Vol ──────────────────────────────────────────────────────── */
+
+@keyframes wind-flow    { 0%,100%{box-shadow:0 0 8px rgba(169,143,243,0.4),0 0 18px rgba(120,180,255,0.2)}50%{box-shadow:0 0 16px rgba(169,143,243,0.7),0 0 34px rgba(120,180,255,0.4)} }
+@keyframes wind-text    { 0%,100%{text-shadow:0 0 6px rgba(169,143,243,0.6)}50%{text-shadow:0 0 14px rgba(169,143,243,0.9),0 0 24px rgba(120,180,255,0.5)} }
+@keyframes wind-drift   { from{background-position:0 0,0 0} to{background-position:120px 0,-80px 0} }
+
+.scoreboard.theme-pkvol .players-container { border-color:#A98FF3; animation:wind-flow 3.5s ease-in-out infinite; }
+.scoreboard.theme-pkvol .players-container::before {
+  content:''; position:absolute; inset:0; pointer-events:none; z-index:0;
+  background:
+    repeating-linear-gradient(15deg,  transparent 0, transparent 30px, rgba(169,143,243,0.05) 30px, rgba(169,143,243,0.05) 31px),
+    repeating-linear-gradient(165deg, transparent 0, transparent 30px, rgba(120,180,255,0.04) 30px, rgba(120,180,255,0.04) 31px),
+    radial-gradient(ellipse 100% 30% at 50% 0%, rgba(169,143,243,0.12) 0%, transparent 60%);
+  animation:wind-drift 10s linear infinite;
+}
+.scoreboard.theme-pkvol .event-bar          { border-bottom-color:#A98FF3; box-shadow:0 2px 14px rgba(169,143,243,0.4); }
+.scoreboard.theme-pkvol .player-tag         { animation:wind-text 3.5s ease-in-out infinite; }
+.scoreboard.theme-pkvol .score              { text-shadow:0 0 10px rgba(169,143,243,0.8),0 0 22px rgba(120,180,255,0.4); }
+.scoreboard.theme-pkvol .score-center       { border-left-color:#A98FF3; border-right-color:#78B4FF; }
+.scoreboard.theme-pkvol .player-character   { border-color:#A98FF3; box-shadow:0 0 12px rgba(169,143,243,0.45); }
+.scoreboard.theme-pkvol .player-left        { border-bottom-color:#A98FF3; }
+.scoreboard.theme-pkvol .player-right       { border-bottom-color:#78B4FF; }
+.scoreboard.theme-pkvol .slim-bar           { border-color:#A98FF3; box-shadow:0 0 10px rgba(169,143,243,0.4); }
+.scoreboard.theme-pkvol .slim-name          { animation:wind-text 3.5s ease-in-out infinite; }
+.scoreboard.theme-pkvol .slim-score         { text-shadow:0 0 8px rgba(169,143,243,0.8); }
+.scoreboard.theme-pkvol .theme-logo-bg img  { filter:drop-shadow(0 0 5px #A98FF3) drop-shadow(0 0 10px rgba(120,180,255,0.6)); }
+
+/* ── Insecte ──────────────────────────────────────────────────── */
+
+@keyframes bug-buzz     { 0%,100%{box-shadow:0 0 6px rgba(166,185,26,0.5),0 0 14px rgba(90,120,10,0.3)}50%{box-shadow:0 0 14px rgba(166,185,26,0.8),0 0 26px rgba(180,220,20,0.4)} }
+@keyframes bug-text     { 0%,100%{text-shadow:0 0 6px rgba(166,185,26,0.7)}50%{text-shadow:0 0 12px rgba(166,185,26,0.9),0 0 22px rgba(180,220,20,0.4)} }
+@keyframes bug-pattern  { from{background-position:0 0} to{background-position:50px 50px} }
+
+.scoreboard.theme-pkinsecte .players-container { border-color:#A6B91A; animation:bug-buzz 2s ease-in-out infinite; }
+.scoreboard.theme-pkinsecte .players-container::before {
+  content:''; position:absolute; inset:0; pointer-events:none; z-index:0;
+  background:
+    repeating-linear-gradient(45deg,  transparent 0, transparent 10px, rgba(166,185,26,0.05) 10px, rgba(166,185,26,0.05) 11px),
+    repeating-linear-gradient(135deg, transparent 0, transparent 10px, rgba(90,120,10,0.04) 10px, rgba(90,120,10,0.04) 11px),
+    radial-gradient(ellipse 100% 40% at 50% 100%, rgba(50,70,5,0.2) 0%, transparent 60%);
+  animation:bug-pattern 8s linear infinite;
+}
+.scoreboard.theme-pkinsecte .event-bar          { border-bottom-color:#A6B91A; box-shadow:0 2px 10px rgba(166,185,26,0.4); }
+.scoreboard.theme-pkinsecte .player-tag         { animation:bug-text 2s ease-in-out infinite; }
+.scoreboard.theme-pkinsecte .score              { text-shadow:0 0 10px rgba(166,185,26,0.8),0 0 20px rgba(180,220,20,0.3); }
+.scoreboard.theme-pkinsecte .score-center       { border-left-color:#A6B91A; border-right-color:#7AB000; }
+.scoreboard.theme-pkinsecte .player-character   { border-color:#A6B91A; box-shadow:0 0 12px rgba(166,185,26,0.45); }
+.scoreboard.theme-pkinsecte .player-left        { border-bottom-color:#A6B91A; }
+.scoreboard.theme-pkinsecte .player-right       { border-bottom-color:#7AB000; }
+.scoreboard.theme-pkinsecte .slim-bar           { border-color:#A6B91A; box-shadow:0 0 10px rgba(166,185,26,0.4); }
+.scoreboard.theme-pkinsecte .slim-name          { animation:bug-text 2s ease-in-out infinite; }
+.scoreboard.theme-pkinsecte .slim-score         { text-shadow:0 0 8px rgba(166,185,26,0.8); }
+.scoreboard.theme-pkinsecte .theme-logo-bg img  { filter:drop-shadow(0 0 5px #A6B91A) drop-shadow(0 0 10px rgba(180,220,20,0.6)); }
+
+/* ── Roche ────────────────────────────────────────────────────── */
+
+@keyframes rock-rumble  { 0%,100%{box-shadow:0 0 6px rgba(182,161,54,0.4),0 0 14px rgba(120,100,20,0.2)}50%{box-shadow:0 0 14px rgba(182,161,54,0.7),0 0 26px rgba(200,170,40,0.4)} }
+@keyframes rock-text    { 0%,100%{text-shadow:0 0 5px rgba(182,161,54,0.6)}50%{text-shadow:0 0 12px rgba(182,161,54,0.9),0 0 22px rgba(200,170,40,0.4)} }
+
+.scoreboard.theme-pkroche .players-container { border-color:#B6A136; animation:rock-rumble 5s ease-in-out infinite; }
+.scoreboard.theme-pkroche .players-container::before {
+  content:''; position:absolute; inset:0; pointer-events:none; z-index:0;
+  background:
+    repeating-linear-gradient(0deg,   transparent 0, transparent 8px,  rgba(182,161,54,0.06) 8px,  rgba(182,161,54,0.06) 9px),
+    repeating-linear-gradient(90deg,  transparent 0, transparent 16px, rgba(120,100,20,0.05) 16px, rgba(120,100,20,0.05) 17px),
+    repeating-linear-gradient(30deg,  transparent 0, transparent 24px, rgba(182,161,54,0.03) 24px, rgba(182,161,54,0.03) 25px),
+    radial-gradient(ellipse 100% 50% at 50% 100%, rgba(80,60,10,0.22) 0%, transparent 60%);
+}
+.scoreboard.theme-pkroche .event-bar          { border-bottom-color:#B6A136; box-shadow:0 2px 10px rgba(182,161,54,0.35); }
+.scoreboard.theme-pkroche .player-tag         { animation:rock-text 5s ease-in-out infinite; }
+.scoreboard.theme-pkroche .score              { text-shadow:0 0 10px rgba(182,161,54,0.7),0 0 20px rgba(200,170,40,0.3); }
+.scoreboard.theme-pkroche .score-center       { border-left-color:#B6A136; border-right-color:#988020; }
+.scoreboard.theme-pkroche .player-character   { border-color:#B6A136; box-shadow:0 0 10px rgba(182,161,54,0.4); }
+.scoreboard.theme-pkroche .player-left        { border-bottom-color:#B6A136; }
+.scoreboard.theme-pkroche .player-right       { border-bottom-color:#988020; }
+.scoreboard.theme-pkroche .slim-bar           { border-color:#B6A136; box-shadow:0 0 8px rgba(182,161,54,0.35); }
+.scoreboard.theme-pkroche .slim-name          { animation:rock-text 5s ease-in-out infinite; }
+.scoreboard.theme-pkroche .slim-score         { text-shadow:0 0 8px rgba(182,161,54,0.7); }
+.scoreboard.theme-pkroche .theme-logo-bg img  { filter:drop-shadow(0 0 5px #B6A136) drop-shadow(0 0 10px rgba(200,170,40,0.5)); }
+
+/* ── Acier ────────────────────────────────────────────────────── */
+
+@keyframes steel-sheen  { 0%,100%{box-shadow:0 0 8px rgba(183,183,206,0.4),0 0 18px rgba(100,120,160,0.2)}50%{box-shadow:0 0 16px rgba(183,183,206,0.7),0 0 34px rgba(140,160,200,0.4)} }
+@keyframes steel-text   { 0%,100%{text-shadow:0 0 5px rgba(183,183,206,0.5)}50%{text-shadow:0 0 12px rgba(183,183,206,0.9),0 0 22px rgba(140,160,200,0.4)} }
+@keyframes steel-glide  { from{background-position:-200px 0,0 0} to{background-position:200px 0,400px 0} }
+
+.scoreboard.theme-pkacier .players-container { border-color:#B7B7CE; animation:steel-sheen 4s ease-in-out infinite; }
+.scoreboard.theme-pkacier .players-container::before {
+  content:''; position:absolute; inset:0; pointer-events:none; z-index:0;
+  background:
+    repeating-linear-gradient(80deg, transparent 0, transparent 30px, rgba(183,183,206,0.05) 30px, rgba(183,183,206,0.05) 31px),
+    repeating-linear-gradient(10deg, transparent 0, transparent 30px, rgba(100,120,160,0.04) 30px, rgba(100,120,160,0.04) 31px),
+    linear-gradient(90deg, transparent 0%, rgba(183,183,206,0.08) 30%, rgba(200,200,220,0.12) 50%, rgba(183,183,206,0.08) 70%, transparent 100%);
+  animation:steel-glide 6s linear infinite;
+}
+.scoreboard.theme-pkacier .event-bar          { border-bottom-color:#B7B7CE; box-shadow:0 2px 12px rgba(183,183,206,0.35); }
+.scoreboard.theme-pkacier .player-tag         { animation:steel-text 4s ease-in-out infinite; }
+.scoreboard.theme-pkacier .score              { text-shadow:0 0 10px rgba(183,183,206,0.8),0 0 20px rgba(140,160,200,0.3); }
+.scoreboard.theme-pkacier .score-center       { border-left-color:#B7B7CE; border-right-color:#8C9CC8; }
+.scoreboard.theme-pkacier .player-character   { border-color:#B7B7CE; box-shadow:0 0 12px rgba(183,183,206,0.4); }
+.scoreboard.theme-pkacier .player-left        { border-bottom-color:#B7B7CE; }
+.scoreboard.theme-pkacier .player-right       { border-bottom-color:#8C9CC8; }
+.scoreboard.theme-pkacier .slim-bar           { border-color:#B7B7CE; box-shadow:0 0 10px rgba(183,183,206,0.35); }
+.scoreboard.theme-pkacier .slim-name          { animation:steel-text 4s ease-in-out infinite; }
+.scoreboard.theme-pkacier .slim-score         { text-shadow:0 0 8px rgba(183,183,206,0.8); }
+.scoreboard.theme-pkacier .theme-logo-bg img  { filter:drop-shadow(0 0 4px #B7B7CE) drop-shadow(0 0 8px rgba(140,160,200,0.6)); }
+
+/* ── Normal ───────────────────────────────────────────────────── */
+
+@keyframes norm-calm    { 0%,100%{box-shadow:0 0 6px rgba(168,167,122,0.3),0 0 12px rgba(120,120,80,0.15)}50%{box-shadow:0 0 12px rgba(168,167,122,0.5),0 0 24px rgba(150,150,100,0.25)} }
+@keyframes norm-text    { 0%,100%{text-shadow:0 0 4px rgba(168,167,122,0.5)}50%{text-shadow:0 0 10px rgba(168,167,122,0.7),0 0 18px rgba(150,150,100,0.3)} }
+
+.scoreboard.theme-pknormal .players-container { border-color:#A8A77A; animation:norm-calm 5s ease-in-out infinite; }
+.scoreboard.theme-pknormal .players-container::before {
+  content:''; position:absolute; inset:0; pointer-events:none; z-index:0;
+  background:
+    repeating-linear-gradient(45deg, transparent 0, transparent 20px, rgba(168,167,122,0.04) 20px, rgba(168,167,122,0.04) 21px),
+    radial-gradient(ellipse 100% 50% at 50% 100%, rgba(100,100,60,0.12) 0%, transparent 60%);
+}
+.scoreboard.theme-pknormal .event-bar          { border-bottom-color:#A8A77A; box-shadow:0 2px 8px rgba(168,167,122,0.3); }
+.scoreboard.theme-pknormal .player-tag         { animation:norm-text 5s ease-in-out infinite; }
+.scoreboard.theme-pknormal .score              { text-shadow:0 0 8px rgba(168,167,122,0.6),0 0 16px rgba(150,150,100,0.25); }
+.scoreboard.theme-pknormal .score-center       { border-left-color:#A8A77A; border-right-color:#888860; }
+.scoreboard.theme-pknormal .player-character   { border-color:#A8A77A; box-shadow:0 0 8px rgba(168,167,122,0.3); }
+.scoreboard.theme-pknormal .player-left        { border-bottom-color:#A8A77A; }
+.scoreboard.theme-pknormal .player-right       { border-bottom-color:#888860; }
+.scoreboard.theme-pknormal .slim-bar           { border-color:#A8A77A; box-shadow:0 0 8px rgba(168,167,122,0.3); }
+.scoreboard.theme-pknormal .slim-name          { animation:norm-text 5s ease-in-out infinite; }
+.scoreboard.theme-pknormal .slim-score         { text-shadow:0 0 6px rgba(168,167,122,0.6); }
+.scoreboard.theme-pknormal .theme-logo-bg img  { filter:drop-shadow(0 0 4px #A8A77A) drop-shadow(0 0 8px rgba(150,150,100,0.4)); }
+
+/* ── Plante ───────────────────────────────────────────────────── */
+
+@keyframes grass-grow   { 0%,100%{box-shadow:0 0 8px rgba(122,199,76,0.4),0 0 18px rgba(60,140,30,0.2)}50%{box-shadow:0 0 16px rgba(122,199,76,0.7),0 0 32px rgba(80,180,40,0.4)} }
+@keyframes grass-text   { 0%,100%{text-shadow:0 0 6px rgba(122,199,76,0.6)}50%{text-shadow:0 0 14px rgba(122,199,76,0.9),0 0 24px rgba(80,180,40,0.4)} }
+@keyframes grass-sway   { from{background-position:0 0,50px 0} to{background-position:100px 0,-50px 0} }
+
+.scoreboard.theme-pkplante .players-container { border-color:#7AC74C; animation:grass-grow 3.5s ease-in-out infinite; }
+.scoreboard.theme-pkplante .players-container::before {
+  content:''; position:absolute; inset:0; pointer-events:none; z-index:0;
+  background:
+    repeating-linear-gradient(80deg,  transparent 0, transparent 22px, rgba(122,199,76,0.06) 22px, rgba(122,199,76,0.06) 23px),
+    repeating-linear-gradient(100deg, transparent 0, transparent 22px, rgba(60,140,30,0.05) 22px, rgba(60,140,30,0.05) 23px),
+    radial-gradient(ellipse 120% 40% at 50% 100%, rgba(30,80,10,0.20) 0%, transparent 60%);
+  animation:grass-sway 10s linear infinite;
+}
+.scoreboard.theme-pkplante .event-bar          { border-bottom-color:#7AC74C; box-shadow:0 2px 12px rgba(122,199,76,0.4); }
+.scoreboard.theme-pkplante .player-tag         { animation:grass-text 3.5s ease-in-out infinite; }
+.scoreboard.theme-pkplante .score              { text-shadow:0 0 12px rgba(122,199,76,0.8),0 0 22px rgba(80,180,40,0.4); }
+.scoreboard.theme-pkplante .score-center       { border-left-color:#7AC74C; border-right-color:#4CAF50; }
+.scoreboard.theme-pkplante .player-character   { border-color:#7AC74C; box-shadow:0 0 12px rgba(122,199,76,0.45); }
+.scoreboard.theme-pkplante .player-left        { border-bottom-color:#7AC74C; }
+.scoreboard.theme-pkplante .player-right       { border-bottom-color:#4CAF50; }
+.scoreboard.theme-pkplante .slim-bar           { border-color:#7AC74C; box-shadow:0 0 10px rgba(122,199,76,0.4); }
+.scoreboard.theme-pkplante .slim-name          { animation:grass-text 3.5s ease-in-out infinite; }
+.scoreboard.theme-pkplante .slim-score         { text-shadow:0 0 8px rgba(122,199,76,0.8); }
+.scoreboard.theme-pkplante .theme-logo-bg img  { filter:drop-shadow(0 0 5px #7AC74C) drop-shadow(0 0 10px rgba(80,180,40,0.6)); }
+
+/* ── Feu Pokémon ──────────────────────────────────────────────── */
+
+@keyframes pkfeu-blaze  { 0%,100%{box-shadow:0 0 10px rgba(238,129,48,0.5),0 0 22px rgba(200,60,10,0.3)}50%{box-shadow:0 0 22px rgba(238,129,48,0.9),0 0 44px rgba(255,80,0,0.5)} }
+@keyframes pkfeu-text   { 0%,100%{text-shadow:0 0 8px rgba(238,129,48,0.8)}50%{text-shadow:0 0 18px rgba(238,129,48,1),0 0 32px rgba(255,80,0,0.5)} }
+@keyframes pkfeu-flare  { from{background-position:0 100%,0 0} to{background-position:0 -200px,0 -100px} }
+
+.scoreboard.theme-pkfeu .players-container { border-color:#EE8130; animation:pkfeu-blaze 2s ease-in-out infinite; }
+.scoreboard.theme-pkfeu .players-container::before {
+  content:''; position:absolute; inset:0; pointer-events:none; z-index:0;
+  background:
+    repeating-linear-gradient(70deg,  transparent 0, transparent 20px, rgba(238,129,48,0.07) 20px, rgba(238,129,48,0.07) 21px),
+    repeating-linear-gradient(110deg, transparent 0, transparent 20px, rgba(200,60,10,0.05) 20px, rgba(200,60,10,0.05) 21px),
+    radial-gradient(ellipse 100% 60% at 50% 100%, rgba(160,40,0,0.22) 0%, transparent 60%);
+  animation:pkfeu-flare 5s linear infinite;
+}
+.scoreboard.theme-pkfeu .event-bar          { border-bottom-color:#EE8130; box-shadow:0 2px 16px rgba(238,129,48,0.55); }
+.scoreboard.theme-pkfeu .player-tag         { animation:pkfeu-text 2s ease-in-out infinite; }
+.scoreboard.theme-pkfeu .score              { text-shadow:0 0 14px rgba(238,129,48,0.9),0 0 28px rgba(255,80,0,0.4); }
+.scoreboard.theme-pkfeu .score-center       { border-left-color:#EE8130; border-right-color:#FF5000; }
+.scoreboard.theme-pkfeu .player-character   { border-color:#EE8130; box-shadow:0 0 16px rgba(238,129,48,0.6); }
+.scoreboard.theme-pkfeu .player-left        { border-bottom-color:#EE8130; }
+.scoreboard.theme-pkfeu .player-right       { border-bottom-color:#FF5000; }
+.scoreboard.theme-pkfeu .slim-bar           { border-color:#EE8130; box-shadow:0 0 14px rgba(238,129,48,0.5),0 0 28px rgba(255,80,0,0.2); }
+.scoreboard.theme-pkfeu .slim-name          { animation:pkfeu-text 2s ease-in-out infinite; }
+.scoreboard.theme-pkfeu .slim-score         { text-shadow:0 0 12px rgba(238,129,48,0.9); }
+.scoreboard.theme-pkfeu .theme-logo-bg img  { filter:drop-shadow(0 0 6px #EE8130) drop-shadow(0 0 14px rgba(255,80,0,0.8)); }
+
+/* ── Eau Pokémon ──────────────────────────────────────────────── */
+
+@keyframes pkeau-wave   { 0%,100%{box-shadow:0 0 8px rgba(99,144,240,0.4),0 0 18px rgba(40,100,200,0.2)}50%{box-shadow:0 0 18px rgba(99,144,240,0.7),0 0 36px rgba(80,160,240,0.4)} }
+@keyframes pkeau-text   { 0%,100%{text-shadow:0 0 6px rgba(99,144,240,0.6)}50%{text-shadow:0 0 14px rgba(99,144,240,0.9),0 0 26px rgba(80,160,240,0.4)} }
+@keyframes pkeau-flow   { from{background-position:0 0,100px 0} to{background-position:-100px 0,200px 0} }
+
+.scoreboard.theme-pkeau .players-container { border-color:#6390F0; animation:pkeau-wave 3s ease-in-out infinite; }
+.scoreboard.theme-pkeau .players-container::before {
+  content:''; position:absolute; inset:0; pointer-events:none; z-index:0;
+  background:
+    repeating-linear-gradient(10deg,  transparent 0, transparent 25px, rgba(99,144,240,0.06) 25px, rgba(99,144,240,0.06) 26px),
+    repeating-linear-gradient(170deg, transparent 0, transparent 25px, rgba(40,100,200,0.05) 25px, rgba(40,100,200,0.05) 26px),
+    radial-gradient(ellipse 120% 40% at 50% 100%, rgba(20,60,120,0.20) 0%, transparent 60%);
+  animation:pkeau-flow 12s linear infinite;
+}
+.scoreboard.theme-pkeau .event-bar          { border-bottom-color:#6390F0; box-shadow:0 2px 14px rgba(99,144,240,0.45); }
+.scoreboard.theme-pkeau .player-tag         { animation:pkeau-text 3s ease-in-out infinite; }
+.scoreboard.theme-pkeau .score              { text-shadow:0 0 12px rgba(99,144,240,0.8),0 0 24px rgba(80,160,240,0.4); }
+.scoreboard.theme-pkeau .score-center       { border-left-color:#6390F0; border-right-color:#50A0F0; }
+.scoreboard.theme-pkeau .player-character   { border-color:#6390F0; box-shadow:0 0 14px rgba(99,144,240,0.5); }
+.scoreboard.theme-pkeau .player-left        { border-bottom-color:#6390F0; }
+.scoreboard.theme-pkeau .player-right       { border-bottom-color:#50A0F0; }
+.scoreboard.theme-pkeau .slim-bar           { border-color:#6390F0; box-shadow:0 0 12px rgba(99,144,240,0.4); }
+.scoreboard.theme-pkeau .slim-name          { animation:pkeau-text 3s ease-in-out infinite; }
+.scoreboard.theme-pkeau .slim-score         { text-shadow:0 0 10px rgba(99,144,240,0.8); }
+.scoreboard.theme-pkeau .theme-logo-bg img  { filter:drop-shadow(0 0 5px #6390F0) drop-shadow(0 0 10px rgba(80,160,240,0.6)); }
