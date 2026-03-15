@@ -47,6 +47,8 @@ let matchState = {
   tagColor: '#E8B830',
   nameColor: '#F0EEF8',
   pronounsColor: '#5A5A7A',
+  overlayTheme: 'default',
+  logoParticleCount: 3,
   visible: true
 };
 

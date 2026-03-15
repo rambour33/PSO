@@ -1,6 +1,266 @@
 const socket = io();
 let currentState = null;
 
+// ── Logo particules (thèmes custom) ──────────────────────────
+const _lp = { parts: [], rafId: null, src: null, count: 3 };
+const CUSTOM_THEMES = ['cyberpunk', 'synthwave', 'midnight', 'egypt', 'city', 'eco', 'water', 'fire'];
+
+function _lpSetCount(n) {
+  const bg = document.getElementById('theme-logo-bg');
+  // Remove excess
+  while (_lp.parts.length > n) {
+    const p = _lp.parts.pop();
+    p.el.remove();
+  }
+  // Add missing
+  while (_lp.parts.length < n) {
+    const img = document.createElement('img');
+    img.style.cssText = 'position:absolute;height:28px;width:auto;pointer-events:none;opacity:0.5;display:none;';
+    bg.appendChild(img);
+    _lp.parts.push({ el: img, x: 0, y: 0, vx: 0, vy: 0 });
+  }
+  _lp.count = n;
+}
+
+function _lpStart(src, count) {
+  _lpSetCount(count);
+  const bg = document.getElementById('theme-logo-bg');
+  _lp.parts.forEach(p => {
+    p.el.src = src;
+    p.el.style.display = 'block';
+    const W = bg.offsetWidth  || 600;
+    const H = bg.offsetHeight || 80;
+    p.x = Math.random() * W;
+    p.y = Math.random() * H;
+    const angle = Math.random() * Math.PI * 2;
+    const spd   = 0.3 + Math.random() * 0.5;
+    p.vx = Math.cos(angle) * spd;
+    p.vy = Math.sin(angle) * spd;
+  });
+  if (_lp.rafId) cancelAnimationFrame(_lp.rafId);
+  (function tick() {
+    const W = bg.offsetWidth;
+    const H = bg.offsetHeight;
+    _lp.parts.forEach(p => {
+      p.x += p.vx;
+      p.y += p.vy;
+      const iW = p.el.offsetWidth  || 40;
+      const iH = p.el.offsetHeight || 28;
+      if (p.x >  W + iW) p.x = -iW;
+      if (p.x < -iW)     p.x =  W + iW;
+      if (p.y >  H + iH) p.y = -iH;
+      if (p.y < -iH)     p.y =  H + iH;
+      p.el.style.left = p.x + 'px';
+      p.el.style.top  = p.y + 'px';
+    });
+    _lp.rafId = requestAnimationFrame(tick);
+  })();
+}
+
+function _lpStop() {
+  if (_lp.rafId) { cancelAnimationFrame(_lp.rafId); _lp.rafId = null; }
+  _lp.parts.forEach(p => { p.el.style.display = 'none'; });
+}
+
+// ── Canvas particle engine ────────────────────────────────────
+const PS = (() => {
+  let canvas, ctx, rafId = null, _type = null;
+  const pts = [];
+
+  // ── Factories ──────────────────────────────────────────────
+  function mkSnow(W, H) {
+    return { t:'snow', x:Math.random()*W, y:Math.random()*H,
+      r:1+Math.random()*3.5, vx:(Math.random()-0.5)*0.5,
+      vy:0.4+Math.random()*1.4, wb:Math.random()*Math.PI*2,
+      wbs:0.012+Math.random()*0.025, op:0.4+Math.random()*0.6 };
+  }
+  function mkFire(W, H) {
+    return { t:'fire', x:W*0.15+Math.random()*W*0.7, y:H+Math.random()*15,
+      r:2+Math.random()*7, vx:(Math.random()-0.5)*1.4,
+      vy:-(0.7+Math.random()*3), life:0.4+Math.random()*0.6,
+      decay:0.007+Math.random()*0.013, hue:5+Math.random()*40 };
+  }
+  function mkRain(W, H) {
+    return { t:'rain', x:Math.random()*(W+120)-60, y:-30-Math.random()*H,
+      len:10+Math.random()*18, vx:-2, vy:15+Math.random()*9,
+      op:0.12+Math.random()*0.3 };
+  }
+  function mkSand(W, H) {
+    return { t:'sand', x:Math.random()*W, y:Math.random()*H,
+      r:0.5+Math.random()*1.8, vx:0.2+Math.random()*1.0,
+      vy:(Math.random()-0.5)*0.4, op:0.2+Math.random()*0.5,
+      hue:28+Math.random()*22 };
+  }
+  function mkLeaf(W, H) {
+    return { t:'leaf', x:Math.random()*W, y:-15-Math.random()*50,
+      w:7+Math.random()*9, h:3+Math.random()*4,
+      vx:(Math.random()-0.35)*1.4, vy:0.4+Math.random()*1.2,
+      angle:Math.random()*Math.PI*2, spin:(Math.random()-0.5)*0.07,
+      op:0.5+Math.random()*0.5, hue:85+Math.random()*55 };
+  }
+  function mkBubble(W, H) {
+    return { t:'bubble', x:Math.random()*W, y:H+Math.random()*25,
+      r:2+Math.random()*10, vx:(Math.random()-0.5)*0.6,
+      vy:-(0.25+Math.random()*0.9), life:1,
+      decay:0.002+Math.random()*0.007, op:0.15+Math.random()*0.45 };
+  }
+  function mkSparkle(W, H) {
+    return { t:'sparkle', x:Math.random()*W, y:Math.random()*H,
+      r:0.5+Math.random()*2.5, phase:Math.random()*Math.PI*2,
+      speed:0.018+Math.random()*0.04, hue:200+Math.random()*160 };
+  }
+  function mkData(W, H) {
+    return { t:'data', x:Math.random()*W, y:-25-Math.random()*H,
+      w:1+Math.random()*3, h:7+Math.random()*16,
+      vy:1.2+Math.random()*3.5, op:0.25+Math.random()*0.55,
+      pink:Math.random()>0.5 };
+  }
+  const FAC = { snow:mkSnow, fire:mkFire, rain:mkRain, sand:mkSand,
+                leaf:mkLeaf, bubble:mkBubble, sparkle:mkSparkle, data:mkData };
+
+  // ── Update ─────────────────────────────────────────────────
+  function upd(p, W, H) {
+    const t = p.t;
+    if (t==='snow') {
+      p.wb += p.wbs; p.x += p.vx + Math.sin(p.wb)*0.5; p.y += p.vy;
+      if (p.y>H+10){p.y=-10;p.x=Math.random()*W;}
+      if (p.x>W+10) p.x=-10; if (p.x<-10) p.x=W+10;
+    } else if (t==='fire') {
+      p.x += p.vx+(Math.random()-0.5)*0.5; p.y += p.vy;
+      p.life -= p.decay; p.r = Math.max(0,p.r*0.997);
+      if (p.life<=0||p.r<0.2) Object.assign(p, mkFire(W,H));
+    } else if (t==='rain') {
+      p.x += p.vx; p.y += p.vy;
+      if (p.y>H+20){p.y=-20;p.x=Math.random()*(W+120)-60;}
+    } else if (t==='sand') {
+      p.x += p.vx; p.y += p.vy;
+      if (p.x>W+10){p.x=-10;p.y=Math.random()*H;}
+    } else if (t==='leaf') {
+      p.x += p.vx+Math.sin(p.angle*0.5)*0.5; p.y += p.vy; p.angle += p.spin;
+      if (p.y>H+20){p.y=-15;p.x=Math.random()*W;}
+    } else if (t==='bubble') {
+      p.x += p.vx; p.y += p.vy; p.life -= p.decay;
+      if (p.life<=0||p.y<-20) Object.assign(p, mkBubble(W,H));
+    } else if (t==='sparkle') {
+      p.phase += p.speed;
+    } else if (t==='data') {
+      p.y += p.vy;
+      if (p.y>H+20){p.y=-25-Math.random()*50;p.x=Math.random()*W;}
+    }
+  }
+
+  // ── Draw ───────────────────────────────────────────────────
+  function drw(p) {
+    const t = p.t;
+    if (t==='snow') {
+      ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fillStyle=`rgba(200,230,255,${p.op})`; ctx.fill();
+      if (p.r>2) {
+        ctx.beginPath(); ctx.arc(p.x,p.y,p.r*2.4,0,Math.PI*2);
+        ctx.fillStyle=`rgba(180,220,255,${p.op*0.10})`; ctx.fill();
+      }
+    } else if (t==='fire') {
+      const a = Math.max(0,p.life);
+      ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fillStyle=`hsla(${p.hue},100%,${40+a*32}%,${a*0.92})`; ctx.fill();
+      ctx.beginPath(); ctx.arc(p.x,p.y,p.r*2.8,0,Math.PI*2);
+      ctx.fillStyle=`hsla(${p.hue+18},100%,58%,${a*0.10})`; ctx.fill();
+    } else if (t==='rain') {
+      ctx.beginPath();
+      ctx.moveTo(p.x, p.y);
+      ctx.lineTo(p.x + p.vx*(p.len/p.vy), p.y+p.len);
+      ctx.strokeStyle=`rgba(0,212,255,${p.op})`; ctx.lineWidth=1; ctx.stroke();
+    } else if (t==='sand') {
+      ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fillStyle=`hsla(${p.hue},58%,68%,${p.op})`; ctx.fill();
+    } else if (t==='leaf') {
+      ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.angle);
+      ctx.beginPath(); ctx.ellipse(0,0,p.w,p.h,0,0,Math.PI*2);
+      ctx.fillStyle=`hsla(${p.hue},62%,35%,${p.op})`; ctx.fill();
+      ctx.beginPath(); ctx.moveTo(-p.w,0); ctx.lineTo(p.w,0);
+      ctx.strokeStyle=`hsla(${p.hue},65%,58%,${p.op*0.6})`; ctx.lineWidth=0.6; ctx.stroke();
+      ctx.restore();
+    } else if (t==='bubble') {
+      const a = Math.max(0,p.life)*p.op;
+      ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.strokeStyle=`rgba(100,210,255,${a})`; ctx.lineWidth=1.2; ctx.stroke();
+      ctx.beginPath(); ctx.arc(p.x-p.r*0.32,p.y-p.r*0.32,p.r*0.28,0,Math.PI*2);
+      ctx.fillStyle=`rgba(255,255,255,${a*0.45})`; ctx.fill();
+    } else if (t==='sparkle') {
+      const a = (Math.sin(p.phase)+1)/2;
+      const r = p.r*(0.4+a*0.6);
+      ctx.save(); ctx.globalAlpha=a;
+      ctx.strokeStyle=`hsl(${p.hue},100%,82%)`; ctx.lineWidth=r*0.7;
+      ctx.beginPath();
+      ctx.moveTo(p.x-r*3,p.y); ctx.lineTo(p.x+r*3,p.y);
+      ctx.moveTo(p.x,p.y-r*3); ctx.lineTo(p.x,p.y+r*3);
+      ctx.moveTo(p.x-r*1.8,p.y-r*1.8); ctx.lineTo(p.x+r*1.8,p.y+r*1.8);
+      ctx.moveTo(p.x+r*1.8,p.y-r*1.8); ctx.lineTo(p.x-r*1.8,p.y+r*1.8);
+      ctx.stroke();
+      ctx.beginPath(); ctx.arc(p.x,p.y,r,0,Math.PI*2);
+      ctx.fillStyle=`hsl(${p.hue},100%,92%)`; ctx.fill();
+      ctx.restore();
+    } else if (t==='data') {
+      ctx.globalAlpha = p.op;
+      ctx.fillStyle = p.pink ? '#FF2D78' : '#00F5FF';
+      ctx.fillRect(p.x, p.y, p.w, p.h);
+      // faint glow row above
+      ctx.globalAlpha = p.op * 0.25;
+      ctx.fillRect(p.x-1, p.y-2, p.w+2, 3);
+      ctx.globalAlpha = 1;
+    }
+  }
+
+  // ── Loop ───────────────────────────────────────────────────
+  function tick() {
+    const W=canvas.width, H=canvas.height;
+    ctx.clearRect(0,0,W,H);
+    for (const p of pts) { upd(p,W,H); drw(p); }
+    rafId = requestAnimationFrame(tick);
+  }
+
+  function resize() {
+    const sb = document.getElementById('scoreboard');
+    canvas.width  = sb.offsetWidth  || 600;
+    canvas.height = sb.offsetHeight || 100;
+  }
+
+  function start(type, count) {
+    stop(); _type = type;
+    if (!type || !FAC[type]) return;
+    resize(); pts.length = 0;
+    const W=canvas.width, H=canvas.height;
+    for (let i=0; i<count; i++) pts.push(FAC[type](W,H));
+    tick();
+  }
+
+  function stop() {
+    if (rafId) { cancelAnimationFrame(rafId); rafId=null; }
+    if (ctx) ctx.clearRect(0,0,canvas.width,canvas.height);
+    pts.length=0; _type=null;
+  }
+
+  function init() {
+    canvas = document.getElementById('particle-canvas');
+    ctx    = canvas.getContext('2d');
+    resize();
+    window.addEventListener('resize', resize);
+  }
+
+  return { init, start, stop, resize, get type() { return _type; } };
+})();
+
+const THEME_PARTICLES = {
+  cyberpunk: { type:'data',    count:55 },
+  synthwave: { type:'sparkle', count:65 },
+  midnight:  { type:'snow',    count:75 },
+  egypt:     { type:'sand',    count:95 },
+  city:      { type:'rain',    count:75 },
+  eco:       { type:'leaf',    count:38 },
+  water:     { type:'bubble',  count:55 },
+  fire:      { type:'fire',    count:80 },
+};
+
 function renderPlayerName(elId, player) {
   const el = document.getElementById(elId);
   el.innerHTML = '';
@@ -49,6 +309,32 @@ function update(s) {
   sb.classList.toggle('hidden', !s.visible);
   sb.classList.toggle('swapped', !!s.swapped);
   sb.classList.toggle('style-slim', s.overlayStyle === 'slim');
+
+  // Theme class
+  ['default', 'cyberpunk', 'synthwave', 'midnight', 'egypt', 'city', 'eco', 'water', 'fire'].forEach(t => {
+    sb.classList.toggle('theme-' + t, (s.overlayTheme || 'default') === t);
+  });
+
+  // Logo particules
+  const isCustomTheme = CUSTOM_THEMES.includes(s.overlayTheme || 'default');
+  const lpCount = Math.min(100, Math.max(1, s.logoParticleCount || 3));
+  if (isCustomTheme && s.centerLogo) {
+    if (_lp.src !== s.centerLogo || _lp.count !== lpCount || !_lp.rafId) {
+      _lp.src = s.centerLogo;
+      _lpStart(s.centerLogo, lpCount);
+    }
+  } else {
+    _lp.src = null;
+    _lpStop();
+  }
+
+  // Canvas particules
+  const tpConf = THEME_PARTICLES[s.overlayTheme || 'default'];
+  if (tpConf) {
+    if (tpConf.type !== PS.type) PS.start(tpConf.type, tpConf.count);
+  } else if (PS.type) {
+    PS.stop();
+  }
 
   // Background color + opacity
   const hex = (s.sbBgColor || '#0E0E12').replace('#', '');
@@ -206,6 +492,8 @@ function update(s) {
 }
 
 socket.on('stateUpdate', update);
+
+PS.init();
 
 fetch('/api/state')
   .then(r => r.json())

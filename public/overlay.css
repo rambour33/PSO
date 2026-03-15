@@ -542,3 +542,695 @@ body {
 }
 
 .scoreboard.swapped .slim-bar { flex-direction: row-reverse; }
+
+
+/* ═══════════════════════════════════════════════════════════════ */
+/* THEMES                                                          */
+/* ═══════════════════════════════════════════════════════════════ */
+
+/* ── Cyberpunk ───────────────────────────────────────────────── */
+
+@keyframes neon-pulse-pink {
+  0%, 100% { text-shadow: 0 0 6px #FF2D78, 0 0 14px #FF2D78, 0 0 28px #FF2D78; }
+  50%       { text-shadow: 0 0 3px #FF2D78, 0 0 7px #FF2D78; }
+}
+
+@keyframes neon-pulse-cyan {
+  0%, 100% { text-shadow: 0 0 8px #00F5FF, 0 0 18px #00F5FF, 0 0 36px #00F5FF; }
+  50%       { text-shadow: 0 0 4px #00F5FF, 0 0 9px #00F5FF; }
+}
+
+@keyframes neon-border-pulse {
+  0%, 100% { box-shadow: 0 0 8px #FF2D78, 0 0 16px rgba(255,45,120,0.3), inset 0 0 8px rgba(255,45,120,0.05); }
+  50%       { box-shadow: 0 0 8px #00F5FF, 0 0 16px rgba(0,245,255,0.3), inset 0 0 8px rgba(0,245,255,0.05); }
+}
+
+@keyframes glitch {
+  0%, 88%, 100% { transform: none; clip-path: none; }
+  90%  { transform: skewX(-4deg) translateX(-3px); clip-path: inset(5% 0 85% 0);  color: #00F5FF; }
+  92%  { transform: skewX(3deg)  translateX(2px);  clip-path: inset(60% 0 15% 0); color: #FF2D78; }
+  94%  { transform: none; clip-path: none; }
+}
+
+.scoreboard.theme-cyberpunk::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent 0px,
+    transparent 3px,
+    rgba(0,0,0,0.10) 3px,
+    rgba(0,0,0,0.10) 4px
+  );
+  pointer-events: none;
+  z-index: 100;
+}
+
+.scoreboard.theme-cyberpunk .event-bar {
+  border-bottom-color: #00F5FF;
+  box-shadow: 0 2px 14px rgba(0,245,255,0.5);
+  text-shadow: 0 0 8px #00F5FF;
+}
+
+.scoreboard.theme-cyberpunk .players-container {
+  border-color: #FF2D78;
+  animation: neon-border-pulse 2.4s ease-in-out infinite;
+}
+
+.scoreboard.theme-cyberpunk .score-center {
+  border-left-color: #00F5FF;
+  border-right-color: #00F5FF;
+  box-shadow: inset 0 0 24px rgba(0,245,255,0.06);
+}
+
+.scoreboard.theme-cyberpunk .player-tag {
+  animation: neon-pulse-pink 2s ease-in-out infinite;
+}
+
+.scoreboard.theme-cyberpunk .score {
+  animation: neon-pulse-cyan 1.8s ease-in-out infinite;
+}
+
+.scoreboard.theme-cyberpunk .player-name-text {
+  animation: glitch 9s steps(1) infinite;
+}
+
+.scoreboard.theme-cyberpunk .player-character {
+  border-color: #FF2D78;
+  box-shadow: 0 0 12px rgba(255,45,120,0.5);
+}
+
+.scoreboard.theme-cyberpunk .slim-bar {
+  border-color: #FF2D78;
+  box-shadow: 0 0 12px rgba(255,45,120,0.4), 0 0 24px rgba(0,245,255,0.2);
+}
+
+.scoreboard.theme-cyberpunk .slim-name {
+  animation: neon-pulse-pink 2.2s ease-in-out infinite;
+}
+
+.scoreboard.theme-cyberpunk .slim-score {
+  animation: neon-pulse-cyan 1.8s ease-in-out infinite;
+}
+
+/* ── Synthwave ───────────────────────────────────────────────── */
+
+@keyframes synthwave-tag {
+  0%, 100% { text-shadow: 0 0 8px #FF6EC7, 0 0 18px #FF6EC7, 0 0 32px #C77DFF; }
+  50%       { text-shadow: 0 0 4px #C77DFF, 0 0 10px #FF6EC7; }
+}
+
+@keyframes synthwave-score {
+  0%, 100% { text-shadow: 0 0 10px #FFD700, 0 0 20px #FF6EC7; }
+  50%       { text-shadow: 0 0 6px #C77DFF, 0 0 14px #FFD700; }
+}
+
+@keyframes synthwave-border {
+  0%, 100% { box-shadow: 0 0 10px rgba(255,110,199,0.4), inset 0 0 20px rgba(13,0,48,0.4); }
+  50%       { box-shadow: 0 0 10px rgba(199,125,255,0.5), inset 0 0 20px rgba(13,0,48,0.4); }
+}
+
+.scoreboard.theme-synthwave .players-container {
+  position: relative;
+  border-color: #C77DFF;
+  animation: synthwave-border 2.8s ease-in-out infinite;
+}
+
+.scoreboard.theme-synthwave .players-container::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(199,125,255,0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,110,199,0.07) 1px, transparent 1px);
+  background-size: 30px 30px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.scoreboard.theme-synthwave .event-bar {
+  border-bottom-color: #FF6EC7;
+  box-shadow: 0 2px 18px rgba(255,110,199,0.5);
+  text-shadow: 0 0 10px #FF6EC7;
+}
+
+.scoreboard.theme-synthwave .score-center {
+  border-left-color: #C77DFF;
+  border-right-color: #C77DFF;
+  box-shadow: inset 0 0 30px rgba(199,125,255,0.08);
+}
+
+.scoreboard.theme-synthwave .player-tag {
+  animation: synthwave-tag 2.5s ease-in-out infinite;
+}
+
+.scoreboard.theme-synthwave .score {
+  animation: synthwave-score 2s ease-in-out infinite;
+}
+
+.scoreboard.theme-synthwave .player-character {
+  border-color: #C77DFF;
+  box-shadow: 0 0 14px rgba(199,125,255,0.5);
+}
+
+.scoreboard.theme-synthwave .player-left {
+  border-bottom-color: #FF6EC7;
+}
+
+.scoreboard.theme-synthwave .player-right {
+  border-bottom-color: #C77DFF;
+}
+
+.scoreboard.theme-synthwave .slim-bar {
+  border-color: #C77DFF;
+  box-shadow: 0 0 14px rgba(255,110,199,0.4), 0 0 28px rgba(199,125,255,0.2);
+}
+
+.scoreboard.theme-synthwave .slim-name {
+  animation: synthwave-tag 2.5s ease-in-out infinite;
+}
+
+.scoreboard.theme-synthwave .slim-score {
+  animation: synthwave-score 2s ease-in-out infinite;
+}
+
+/* ── Midnight ────────────────────────────────────────────────── */
+
+@keyframes midnight-glow {
+  0%, 100% { text-shadow: 0 0 7px #4FC3F7, 0 0 14px #4FC3F7; }
+  50%       { text-shadow: 0 0 3px #4FC3F7, 0 0 7px #1E6FA8; }
+}
+
+@keyframes star-twinkle {
+  0%, 100% { opacity: 0.8; }
+  50%       { opacity: 0.4; }
+}
+
+@keyframes midnight-border {
+  0%, 100% { box-shadow: 0 0 6px rgba(79,195,247,0.3), inset 0 0 16px rgba(0,8,20,0.5); }
+  50%       { box-shadow: 0 0 12px rgba(79,195,247,0.5), inset 0 0 16px rgba(0,8,20,0.5); }
+}
+
+.scoreboard.theme-midnight .players-container {
+  position: relative;
+  border-color: rgba(79,195,247,0.4);
+  animation: midnight-border 3s ease-in-out infinite;
+}
+
+.scoreboard.theme-midnight .players-container::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(1px 1px at 8%  18%, rgba(255,255,255,0.65) 0%, transparent 100%),
+    radial-gradient(1px 1px at 22% 65%, rgba(255,255,255,0.45) 0%, transparent 100%),
+    radial-gradient(1px 1px at 38% 38%, rgba(255,255,255,0.70) 0%, transparent 100%),
+    radial-gradient(2px 2px at 52% 12%, rgba(79,195,247,0.50) 0%, transparent 100%),
+    radial-gradient(1px 1px at 65% 80%, rgba(255,255,255,0.55) 0%, transparent 100%),
+    radial-gradient(1px 1px at 78% 28%, rgba(255,255,255,0.60) 0%, transparent 100%),
+    radial-gradient(1px 1px at 88% 55%, rgba(255,255,255,0.40) 0%, transparent 100%),
+    radial-gradient(1px 1px at 15% 88%, rgba(255,255,255,0.50) 0%, transparent 100%),
+    radial-gradient(2px 2px at 44% 72%, rgba(79,195,247,0.35) 0%, transparent 100%),
+    radial-gradient(1px 1px at 92% 15%, rgba(255,255,255,0.55) 0%, transparent 100%),
+    radial-gradient(1px 1px at 60% 45%, rgba(255,255,255,0.40) 0%, transparent 100%),
+    radial-gradient(1px 1px at 30% 30%, rgba(255,255,255,0.60) 0%, transparent 100%);
+  pointer-events: none;
+  z-index: 0;
+  animation: star-twinkle 4s ease-in-out infinite;
+}
+
+.scoreboard.theme-midnight .event-bar {
+  border-bottom-color: #4FC3F7;
+  box-shadow: 0 2px 12px rgba(79,195,247,0.35);
+  text-shadow: 0 0 8px rgba(79,195,247,0.8);
+}
+
+.scoreboard.theme-midnight .score-center {
+  border-left-color: rgba(79,195,247,0.4);
+  border-right-color: rgba(79,195,247,0.4);
+  box-shadow: inset 0 0 24px rgba(0,8,20,0.6);
+}
+
+.scoreboard.theme-midnight .player-tag {
+  animation: midnight-glow 3s ease-in-out infinite;
+}
+
+.scoreboard.theme-midnight .score {
+  text-shadow: 0 0 12px rgba(79,195,247,0.6), 0 0 24px rgba(79,195,247,0.3);
+}
+
+.scoreboard.theme-midnight .player-character {
+  border-color: rgba(79,195,247,0.5);
+  box-shadow: 0 0 10px rgba(79,195,247,0.35);
+}
+
+.scoreboard.theme-midnight .player-left  { border-bottom-color: #4FC3F7; }
+.scoreboard.theme-midnight .player-right { border-bottom-color: #1E6FA8; }
+
+.scoreboard.theme-midnight .slim-bar {
+  border-color: rgba(79,195,247,0.4);
+  box-shadow: 0 0 10px rgba(79,195,247,0.3);
+}
+
+.scoreboard.theme-midnight .slim-name {
+  animation: midnight-glow 3s ease-in-out infinite;
+}
+
+/* ── Feu ──────────────────────────────────────────────────────── */
+
+@keyframes fire-flicker {
+  0%,100% { text-shadow: 0 0 8px #FF4500, 0 0 18px #FF6B00, 0 0 32px rgba(255,69,0,0.4); }
+  25%      { text-shadow: 0 0 12px #FF8C00, 0 0 24px #FFD700, 0 0 40px rgba(255,140,0,0.5); }
+  50%      { text-shadow: 0 0 6px #FF2200, 0 0 14px #FF4500, 0 0 24px rgba(255,34,0,0.3); }
+  75%      { text-shadow: 0 0 10px #FF6B00, 0 0 20px #FF8C00, 0 0 36px rgba(255,107,0,0.4); }
+}
+
+@keyframes fire-border {
+  0%,100% { box-shadow: 0 0 12px #FF4500, 0 0 24px rgba(255,69,0,0.4), inset 0 0 20px rgba(13,2,0,0.7); }
+  33%     { box-shadow: 0 0 18px #FF8C00, 0 0 36px rgba(255,140,0,0.5), inset 0 0 20px rgba(13,2,0,0.7); }
+  66%     { box-shadow: 0 0 8px  #FF2200, 0 0 16px rgba(255,34,0,0.3),  inset 0 0 20px rgba(13,2,0,0.7); }
+}
+
+@keyframes ember-drift {
+  0%   { background-position: 0 0; }
+  100% { background-position: 40px -60px; }
+}
+
+.scoreboard.theme-fire .players-container {
+  border-color: #FF4500;
+  animation: fire-border 1.8s ease-in-out infinite;
+}
+
+/* Braises en fond */
+.scoreboard.theme-fire .players-container::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(1px 1px at 10% 80%, rgba(255,140,0,0.7) 0%, transparent 100%),
+    radial-gradient(2px 2px at 24% 60%, rgba(255,69,0,0.5)  0%, transparent 100%),
+    radial-gradient(1px 1px at 38% 90%, rgba(255,215,0,0.6) 0%, transparent 100%),
+    radial-gradient(2px 2px at 52% 70%, rgba(255,140,0,0.5) 0%, transparent 100%),
+    radial-gradient(1px 1px at 66% 85%, rgba(255,69,0,0.7)  0%, transparent 100%),
+    radial-gradient(1px 1px at 78% 65%, rgba(255,215,0,0.5) 0%, transparent 100%),
+    radial-gradient(2px 2px at 88% 75%, rgba(255,140,0,0.6) 0%, transparent 100%),
+    radial-gradient(1px 1px at 15% 95%, rgba(255,69,0,0.4)  0%, transparent 100%),
+    radial-gradient(1px 1px at 44% 55%, rgba(255,215,0,0.5) 0%, transparent 100%),
+    radial-gradient(2px 2px at 92% 88%, rgba(255,140,0,0.6) 0%, transparent 100%);
+  animation: ember-drift 4s linear infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Lueur de fournaise en bas */
+.scoreboard.theme-fire::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 80% 40% at 50% 110%,
+    rgba(255,69,0,0.18) 0%, rgba(255,140,0,0.08) 40%, transparent 70%);
+  pointer-events: none;
+  z-index: 50;
+}
+
+.scoreboard.theme-fire .event-bar {
+  border-bottom-color: #FF4500;
+  box-shadow: 0 2px 18px rgba(255,69,0,0.6);
+  text-shadow: 0 0 10px #FF6B00;
+}
+.scoreboard.theme-fire .player-tag       { animation: fire-flicker 1.6s ease-in-out infinite; }
+.scoreboard.theme-fire .player-name-text { text-shadow: 0 0 6px rgba(255,100,0,0.4); }
+.scoreboard.theme-fire .score            { text-shadow: 0 0 12px #FF4500, 0 0 28px rgba(255,140,0,0.4); }
+.scoreboard.theme-fire .score-center     { border-left-color: #FF4500; border-right-color: #FF4500; box-shadow: inset 0 0 28px rgba(13,2,0,0.6); }
+.scoreboard.theme-fire .player-character { border-color: #FF4500; box-shadow: 0 0 14px rgba(255,69,0,0.6); }
+.scoreboard.theme-fire .player-left      { border-bottom-color: #FF4500; }
+.scoreboard.theme-fire .player-right     { border-bottom-color: #FF8C00; }
+.scoreboard.theme-fire .slim-bar         { border-color: #FF4500; box-shadow: 0 0 14px rgba(255,69,0,0.5), 0 0 28px rgba(255,140,0,0.2); }
+.scoreboard.theme-fire .slim-name        { animation: fire-flicker 1.6s ease-in-out infinite; }
+.scoreboard.theme-fire .slim-score       { text-shadow: 0 0 10px #FF4500; }
+
+/* ── Égypte antique ──────────────────────────────────────────── */
+
+@keyframes egypt-glow {
+  0%, 100% { text-shadow: 0 0 8px #D4A017, 0 0 20px rgba(212,160,23,0.5); }
+  50%       { text-shadow: 0 0 3px #C8A96E, 0 0 8px #D4A017; }
+}
+
+@keyframes egypt-border {
+  0%, 100% { box-shadow: 0 0 14px rgba(212,160,23,0.6), inset 0 0 28px rgba(26,15,0,0.6); }
+  50%       { box-shadow: 0 0 5px rgba(212,160,23,0.3), inset 0 0 28px rgba(26,15,0,0.6); }
+}
+
+@keyframes egypt-dust {
+  0%   { background-position: 0 0, 0 0; }
+  100% { background-position: 80px 20px, 40px 10px; }
+}
+
+@keyframes egypt-particles {
+  0%, 100% { opacity: 0.6; }
+  50%       { opacity: 0.2; }
+}
+
+.scoreboard.theme-egypt .players-container {
+  border-color: #D4A017;
+  animation: egypt-border 3.5s ease-in-out infinite;
+}
+
+/* Croix-hachures style hiéroglyphes */
+.scoreboard.theme-egypt .players-container::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    repeating-linear-gradient(45deg,
+      transparent 0px, transparent 22px,
+      rgba(212,160,23,0.06) 22px, rgba(212,160,23,0.06) 23px),
+    repeating-linear-gradient(-45deg,
+      transparent 0px, transparent 22px,
+      rgba(200,169,110,0.04) 22px, rgba(200,169,110,0.04) 23px);
+  animation: egypt-dust 14s linear infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Particules de sable flottant */
+.scoreboard.theme-egypt::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(1px 1px at 8%  25%, rgba(212,160,23,0.6) 0%, transparent 100%),
+    radial-gradient(1px 1px at 22% 65%, rgba(200,169,110,0.5) 0%, transparent 100%),
+    radial-gradient(2px 2px at 38% 15%, rgba(212,160,23,0.4) 0%, transparent 100%),
+    radial-gradient(1px 1px at 52% 80%, rgba(200,169,110,0.6) 0%, transparent 100%),
+    radial-gradient(1px 1px at 68% 45%, rgba(212,160,23,0.5) 0%, transparent 100%),
+    radial-gradient(2px 2px at 78% 20%, rgba(200,169,110,0.4) 0%, transparent 100%),
+    radial-gradient(1px 1px at 88% 70%, rgba(212,160,23,0.55) 0%, transparent 100%),
+    radial-gradient(1px 1px at 15% 88%, rgba(200,169,110,0.45) 0%, transparent 100%),
+    radial-gradient(1px 1px at 44% 55%, rgba(212,160,23,0.35) 0%, transparent 100%),
+    radial-gradient(1px 1px at 95% 38%, rgba(200,169,110,0.5) 0%, transparent 100%);
+  animation: egypt-particles 5s ease-in-out infinite, egypt-dust 10s linear infinite;
+  pointer-events: none;
+  z-index: 50;
+}
+
+.scoreboard.theme-egypt .event-bar {
+  border-bottom-color: #D4A017;
+  box-shadow: 0 2px 14px rgba(212,160,23,0.4);
+  text-shadow: 0 0 8px rgba(212,160,23,0.6);
+}
+.scoreboard.theme-egypt .player-tag  { animation: egypt-glow 3s ease-in-out infinite; }
+.scoreboard.theme-egypt .score       { text-shadow: 0 0 10px rgba(212,160,23,0.7), 0 0 24px rgba(212,160,23,0.3); }
+.scoreboard.theme-egypt .score-center { border-left-color: #D4A017; border-right-color: #D4A017; }
+.scoreboard.theme-egypt .player-character { border-color: #D4A017; box-shadow: 0 0 12px rgba(212,160,23,0.5); }
+.scoreboard.theme-egypt .player-left  { border-bottom-color: #D4A017; }
+.scoreboard.theme-egypt .player-right { border-bottom-color: #C8A96E; }
+.scoreboard.theme-egypt .slim-bar  { border-color: #D4A017; box-shadow: 0 0 12px rgba(212,160,23,0.4); }
+.scoreboard.theme-egypt .slim-name { animation: egypt-glow 3s ease-in-out infinite; }
+.scoreboard.theme-egypt .slim-score { text-shadow: 0 0 8px rgba(212,160,23,0.7); }
+
+/* ── Grande ville ─────────────────────────────────────────────── */
+
+@keyframes city-rain {
+  from { transform: translateY(-80px); }
+  to   { transform: translateY(0); }
+}
+
+@keyframes city-neon-tag {
+  0%   { text-shadow: 0 0 6px #00D4FF, 0 0 14px #00D4FF; }
+  33%  { text-shadow: 0 0 8px #FFD700, 0 0 18px rgba(255,215,0,0.5); }
+  66%  { text-shadow: 0 0 8px #FF44AA, 0 0 16px rgba(255,68,170,0.4); }
+  100% { text-shadow: 0 0 6px #00D4FF, 0 0 14px #00D4FF; }
+}
+
+@keyframes city-glow {
+  0%, 100% { text-shadow: 0 0 8px #00D4FF, 0 0 18px rgba(0,212,255,0.5); }
+  50%       { text-shadow: 0 0 4px #00D4FF, 0 0 9px rgba(0,212,255,0.3); }
+}
+
+@keyframes city-border {
+  0%, 100% { box-shadow: 0 0 10px rgba(0,212,255,0.45), inset 0 0 20px rgba(5,5,16,0.5); }
+  50%       { box-shadow: 0 0 18px rgba(255,68,170,0.35), inset 0 0 20px rgba(5,5,16,0.5); }
+}
+
+.scoreboard.theme-city .players-container {
+  border-color: #00D4FF;
+  animation: city-border 3s ease-in-out infinite;
+}
+
+/* Grille urbaine */
+.scoreboard.theme-city .players-container::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(0,212,255,0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,212,255,0.05) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Pluie diagonal */
+.scoreboard.theme-city::after {
+  content: '';
+  position: absolute;
+  top: -80px; left: 0; right: 0; bottom: 0;
+  background-image:
+    repeating-linear-gradient(
+      106deg,
+      transparent 0px, transparent 9px,
+      rgba(0,212,255,0.07) 9px, rgba(0,212,255,0.07) 10px,
+      transparent 10px, transparent 25px,
+      rgba(180,230,255,0.04) 25px, rgba(180,230,255,0.04) 26px,
+      transparent 26px, transparent 44px
+    );
+  background-size: 5px 80px;
+  animation: city-rain 0.8s linear infinite;
+  pointer-events: none;
+  z-index: 100;
+}
+
+.scoreboard.theme-city .event-bar {
+  border-bottom-color: #00D4FF;
+  box-shadow: 0 2px 16px rgba(0,212,255,0.4);
+  text-shadow: 0 0 8px #00D4FF;
+}
+.scoreboard.theme-city .player-tag  { animation: city-neon-tag 4s linear infinite; }
+.scoreboard.theme-city .score       { animation: city-glow 2s ease-in-out infinite; }
+.scoreboard.theme-city .score-center { border-left-color: #00D4FF; border-right-color: #00D4FF; box-shadow: inset 0 0 20px rgba(0,212,255,0.06); }
+.scoreboard.theme-city .player-character { border-color: #00D4FF; box-shadow: 0 0 12px rgba(0,212,255,0.5); }
+.scoreboard.theme-city .player-left  { border-bottom-color: #00D4FF; }
+.scoreboard.theme-city .player-right { border-bottom-color: #FF44AA; }
+.scoreboard.theme-city .slim-bar  { border-color: #00D4FF; box-shadow: 0 0 14px rgba(0,212,255,0.4), 0 0 28px rgba(255,68,170,0.15); }
+.scoreboard.theme-city .slim-name  { animation: city-neon-tag 4s linear infinite; }
+.scoreboard.theme-city .slim-score { animation: city-glow 2s ease-in-out infinite; }
+
+/* ── Écologie ─────────────────────────────────────────────────── */
+
+@keyframes eco-breathe {
+  0%, 100% { text-shadow: 0 0 6px #8BC34A, 0 0 14px rgba(139,195,74,0.5); }
+  50%       { text-shadow: 0 0 12px #4CAF50, 0 0 24px rgba(76,175,80,0.6); }
+}
+
+@keyframes eco-border {
+  0%, 100% { box-shadow: 0 0 8px rgba(139,195,74,0.4), inset 0 0 16px rgba(10,26,8,0.5); }
+  50%       { box-shadow: 0 0 20px rgba(76,175,80,0.55), inset 0 0 16px rgba(10,26,8,0.5); }
+}
+
+@keyframes leaf-drift {
+  0%   { background-position: 0 0, 0 0, 0 0; }
+  100% { background-position: -40px 120px, -20px 80px, -30px 100px; }
+}
+
+@keyframes sun-ray {
+  0%, 100% { opacity: 0.06; }
+  50%       { opacity: 0.14; }
+}
+
+.scoreboard.theme-eco .players-container {
+  border-color: #8BC34A;
+  animation: eco-border 3s ease-in-out infinite;
+}
+
+/* Feuilles organiques */
+.scoreboard.theme-eco .players-container::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(ellipse 7px 12px at 8%  35%, rgba(139,195,74,0.14) 0%, transparent 100%),
+    radial-gradient(ellipse 5px 9px  at 25% 70%, rgba(76,175,80,0.12)  0%, transparent 100%),
+    radial-gradient(ellipse 8px 13px at 45% 18%, rgba(139,195,74,0.11) 0%, transparent 100%),
+    radial-gradient(ellipse 6px 10px at 62% 80%, rgba(76,175,80,0.13)  0%, transparent 100%),
+    radial-gradient(ellipse 5px 9px  at 80% 30%, rgba(139,195,74,0.10) 0%, transparent 100%),
+    radial-gradient(ellipse 7px 11px at 92% 65%, rgba(76,175,80,0.12)  0%, transparent 100%),
+    radial-gradient(ellipse 4px 8px  at 35% 90%, rgba(139,195,74,0.09) 0%, transparent 100%),
+    repeating-linear-gradient(30deg,
+      transparent 0px, transparent 32px,
+      rgba(139,195,74,0.03) 32px, rgba(139,195,74,0.03) 33px);
+  animation: leaf-drift 12s linear infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Rayon de soleil */
+.scoreboard.theme-eco::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 70% 50% at 50% -10%,
+    rgba(139,195,74,1) 0%, transparent 70%);
+  animation: sun-ray 4s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 50;
+}
+
+.scoreboard.theme-eco .event-bar {
+  border-bottom-color: #8BC34A;
+  box-shadow: 0 2px 12px rgba(139,195,74,0.4);
+  text-shadow: 0 0 8px rgba(139,195,74,0.6);
+}
+.scoreboard.theme-eco .player-tag  { animation: eco-breathe 2.5s ease-in-out infinite; }
+.scoreboard.theme-eco .score       { text-shadow: 0 0 10px rgba(139,195,74,0.7); }
+.scoreboard.theme-eco .score-center { border-left-color: #8BC34A; border-right-color: #8BC34A; }
+.scoreboard.theme-eco .player-character { border-color: #8BC34A; box-shadow: 0 0 12px rgba(139,195,74,0.4); }
+.scoreboard.theme-eco .player-left  { border-bottom-color: #8BC34A; }
+.scoreboard.theme-eco .player-right { border-bottom-color: #4CAF50; }
+.scoreboard.theme-eco .slim-bar  { border-color: #8BC34A; box-shadow: 0 0 10px rgba(139,195,74,0.35); }
+.scoreboard.theme-eco .slim-name  { animation: eco-breathe 2.5s ease-in-out infinite; }
+.scoreboard.theme-eco .slim-score { text-shadow: 0 0 8px rgba(139,195,74,0.7); }
+
+/* ── Eau ──────────────────────────────────────────────────────── */
+
+@keyframes water-glow {
+  0%, 100% { text-shadow: 0 0 8px #00D4FF, 0 0 20px rgba(0,212,255,0.5); }
+  40%       { text-shadow: 0 0 14px #40E0D0, 0 0 30px rgba(64,224,208,0.6); }
+  70%       { text-shadow: 0 0 10px #0096C7, 0 0 22px rgba(0,150,199,0.4); }
+}
+
+@keyframes water-ripple {
+  0%   { box-shadow: 0 0 10px rgba(0,180,216,0.5), inset 0 0 24px rgba(0,12,24,0.7); }
+  33%  { box-shadow: 0 0 20px rgba(0,212,255,0.6), inset 0 0 24px rgba(0,12,24,0.7); }
+  66%  { box-shadow: 0 0 14px rgba(64,224,208,0.45), inset 0 0 24px rgba(0,12,24,0.7); }
+  100% { box-shadow: 0 0 10px rgba(0,180,216,0.5), inset 0 0 24px rgba(0,12,24,0.7); }
+}
+
+@keyframes caustic-flow {
+  0%   { background-position: 0 0, 0 0; }
+  50%  { background-position: 35px 18px, -20px 12px; }
+  100% { background-position: 0 0, 0 0; }
+}
+
+@keyframes depth-pulse {
+  0%, 100% { opacity: 0.08; }
+  50%       { opacity: 0.18; }
+}
+
+.scoreboard.theme-water .players-container {
+  border-color: #00B4D8;
+  animation: water-ripple 3s ease-in-out infinite;
+}
+
+/* Lumière caustique sous-marine */
+.scoreboard.theme-water .players-container::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(ellipse 32px 10px at 8%  45%, rgba(0,212,255,0.14) 0%, transparent 100%),
+    radial-gradient(ellipse 24px 8px  at 22% 78%, rgba(64,224,208,0.11) 0%, transparent 100%),
+    radial-gradient(ellipse 40px 13px at 42% 25%, rgba(0,212,255,0.12) 0%, transparent 100%),
+    radial-gradient(ellipse 28px 9px  at 60% 68%, rgba(0,180,216,0.14) 0%, transparent 100%),
+    radial-gradient(ellipse 20px 7px  at 78% 38%, rgba(64,224,208,0.10) 0%, transparent 100%),
+    radial-gradient(ellipse 34px 11px at 90% 72%, rgba(0,212,255,0.12) 0%, transparent 100%),
+    radial-gradient(ellipse 22px 7px  at 35% 90%, rgba(0,180,216,0.10) 0%, transparent 100%),
+    repeating-linear-gradient(
+      72deg,
+      transparent 0px, transparent 20px,
+      rgba(0,212,255,0.03) 20px, rgba(0,212,255,0.03) 21px
+    );
+  animation: caustic-flow 7s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Profondeur abyssale */
+.scoreboard.theme-water::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 90% 50% at 50% 120%, rgba(0,40,80,0.35) 0%, transparent 65%),
+    radial-gradient(ellipse 60% 30% at 50% -20%, rgba(0,212,255,0.06) 0%, transparent 60%);
+  animation: depth-pulse 5s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 50;
+}
+
+.scoreboard.theme-water .event-bar {
+  border-bottom-color: #00B4D8;
+  box-shadow: 0 2px 16px rgba(0,180,216,0.5);
+  text-shadow: 0 0 10px rgba(0,212,255,0.7);
+}
+.scoreboard.theme-water .player-tag       { animation: water-glow 2.8s ease-in-out infinite; }
+.scoreboard.theme-water .score            { text-shadow: 0 0 12px rgba(0,212,255,0.8), 0 0 28px rgba(0,180,216,0.4); }
+.scoreboard.theme-water .score-center     { border-left-color: #00B4D8; border-right-color: #00B4D8; box-shadow: inset 0 0 28px rgba(0,12,24,0.6); }
+.scoreboard.theme-water .player-character { border-color: #00B4D8; box-shadow: 0 0 14px rgba(0,180,216,0.55); }
+.scoreboard.theme-water .player-left      { border-bottom-color: #00D4FF; }
+.scoreboard.theme-water .player-right     { border-bottom-color: #40E0D0; }
+.scoreboard.theme-water .slim-bar         { border-color: #00B4D8; box-shadow: 0 0 12px rgba(0,180,216,0.45), 0 0 28px rgba(64,224,208,0.15); }
+.scoreboard.theme-water .slim-name        { animation: water-glow 2.8s ease-in-out infinite; }
+.scoreboard.theme-water .slim-score       { text-shadow: 0 0 10px rgba(0,212,255,0.8); }
+
+/* ── Canvas particules ───────────────────────────────────────── */
+
+#particle-canvas {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 3;
+}
+
+/* ── Logo particules (thèmes custom) ────────────────────────── */
+
+.theme-logo-bg {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.scoreboard.theme-cyberpunk .theme-logo-bg img {
+  filter: drop-shadow(0 0 5px #FF2D78) drop-shadow(0 0 10px #00F5FF);
+}
+
+.scoreboard.theme-synthwave .theme-logo-bg img {
+  filter: drop-shadow(0 0 6px #FF6EC7) drop-shadow(0 0 12px #C77DFF);
+}
+
+.scoreboard.theme-midnight .theme-logo-bg img {
+  filter: drop-shadow(0 0 5px #4FC3F7) drop-shadow(0 0 10px rgba(79,195,247,0.5));
+}
+
+.scoreboard.theme-egypt .theme-logo-bg img {
+  filter: drop-shadow(0 0 5px #D4A017) drop-shadow(0 0 10px rgba(212,160,23,0.5));
+}
+
+.scoreboard.theme-city .theme-logo-bg img {
+  filter: drop-shadow(0 0 5px #00D4FF) drop-shadow(0 0 10px #FF44AA);
+}
+
+.scoreboard.theme-eco .theme-logo-bg img {
+  filter: drop-shadow(0 0 5px #8BC34A) drop-shadow(0 0 10px rgba(76,175,80,0.5));
+}
+
+.scoreboard.theme-water .theme-logo-bg img {
+  filter: drop-shadow(0 0 5px #00D4FF) drop-shadow(0 0 12px rgba(64,224,208,0.6));
+}
+
+.scoreboard.theme-fire .theme-logo-bg img {
+  filter: drop-shadow(0 0 6px #FF4500) drop-shadow(0 0 14px rgba(255,140,0,0.7));
+}

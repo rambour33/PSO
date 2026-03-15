@@ -346,6 +346,79 @@
   <div class="tab-content" id="tab-custom">
 
     <section class="section">
+      <div class="section-header"><h2>Thèmes</h2></div>
+      <div class="themes-grid" id="themes-grid">
+
+        <div class="theme-preset-card" data-theme="default">
+          <div class="theme-preset-preview" style="background:linear-gradient(135deg,#0E0E12 0%,#16161E 100%)">
+            <span style="color:#E8B830;font-family:'Russo One',sans-serif;font-size:13px;letter-spacing:2px">DEFAULT</span>
+          </div>
+          <div class="theme-preset-name">Default</div>
+        </div>
+
+        <div class="theme-preset-card" data-theme="cyberpunk">
+          <div class="theme-preset-preview" style="background:linear-gradient(135deg,#0D0118 0%,#1A0030 50%,#00101A 100%)">
+            <span style="color:#FF2D78;font-family:'Russo One',sans-serif;font-size:13px;letter-spacing:2px;text-shadow:0 0 10px #FF2D78">CYBER</span>
+            <span style="color:#00F5FF;font-family:'Russo One',sans-serif;font-size:13px;letter-spacing:2px;text-shadow:0 0 10px #00F5FF">PUNK</span>
+          </div>
+          <div class="theme-preset-name">Cyberpunk</div>
+        </div>
+
+        <div class="theme-preset-card" data-theme="synthwave">
+          <div class="theme-preset-preview" style="background:linear-gradient(135deg,#0D0030 0%,#1A0040 40%,#2D0060 100%)">
+            <span style="color:#FF6EC7;font-family:'Russo One',sans-serif;font-size:13px;letter-spacing:2px;text-shadow:0 0 10px #FF6EC7">SYNTH</span>
+            <span style="color:#FFD700;font-family:'Russo One',sans-serif;font-size:13px;letter-spacing:2px;text-shadow:0 0 10px #FFD700">WAVE</span>
+          </div>
+          <div class="theme-preset-name">Synthwave</div>
+        </div>
+
+        <div class="theme-preset-card" data-theme="midnight">
+          <div class="theme-preset-preview" style="background:linear-gradient(135deg,#000814 0%,#001233 100%)">
+            <span style="color:#4FC3F7;font-family:'Russo One',sans-serif;font-size:13px;letter-spacing:2px;text-shadow:0 0 10px #4FC3F7">MIDNIGHT</span>
+          </div>
+          <div class="theme-preset-name">Midnight</div>
+        </div>
+
+        <div class="theme-preset-card" data-theme="fire">
+          <div class="theme-preset-preview" style="background:linear-gradient(135deg,#0D0200 0%,#1A0500 50%,#0D0200 100%)">
+            <span style="color:#FF4500;font-family:'Russo One',sans-serif;font-size:13px;letter-spacing:2px;text-shadow:0 0 10px #FF4500,0 0 20px #FF8C00">FIRE</span>
+          </div>
+          <div class="theme-preset-name">Feu</div>
+        </div>
+
+        <div class="theme-preset-card" data-theme="egypt">
+          <div class="theme-preset-preview" style="background:linear-gradient(135deg,#1A0F00 0%,#2D1800 50%,#1A0F00 100%)">
+            <span style="color:#D4A017;font-family:'Russo One',sans-serif;font-size:11px;letter-spacing:2px;text-shadow:0 0 8px #D4A017">EGYPT</span>
+          </div>
+          <div class="theme-preset-name">Égypte antique</div>
+        </div>
+
+        <div class="theme-preset-card" data-theme="city">
+          <div class="theme-preset-preview" style="background:linear-gradient(135deg,#050510 0%,#0A0A20 50%,#050510 100%)">
+            <span style="color:#00D4FF;font-family:'Russo One',sans-serif;font-size:11px;letter-spacing:2px;text-shadow:0 0 8px #00D4FF">CITY</span>
+            <span style="color:#FF44AA;font-family:'Russo One',sans-serif;font-size:11px;letter-spacing:2px;text-shadow:0 0 8px #FF44AA">LIGHTS</span>
+          </div>
+          <div class="theme-preset-name">Grande ville</div>
+        </div>
+
+        <div class="theme-preset-card" data-theme="eco">
+          <div class="theme-preset-preview" style="background:linear-gradient(135deg,#0A1A08 0%,#1A3010 50%,#0A1A08 100%)">
+            <span style="color:#8BC34A;font-family:'Russo One',sans-serif;font-size:11px;letter-spacing:2px;text-shadow:0 0 8px #8BC34A">ECO</span>
+          </div>
+          <div class="theme-preset-name">Écologie</div>
+        </div>
+
+        <div class="theme-preset-card" data-theme="water">
+          <div class="theme-preset-preview" style="background:linear-gradient(135deg,#00101E 0%,#001E36 50%,#00101E 100%)">
+            <span style="color:#00D4FF;font-family:'Russo One',sans-serif;font-size:11px;letter-spacing:2px;text-shadow:0 0 10px #00D4FF,0 0 20px #40E0D0">EAU</span>
+          </div>
+          <div class="theme-preset-name">Eau</div>
+        </div>
+
+      </div>
+    </section>
+
+    <section class="section">
       <div class="section-header"><h2>Scoreboard</h2></div>
       <div class="custom-grid">
         <div class="custom-card">
@@ -441,6 +514,13 @@
               <span>Aperçu</span>
             </div>
             <button id="btn-apply-logo" class="btn btn-primary btn-sm">Appliquer</button>
+          </div>
+          <div class="form-group" style="margin-top:12px">
+            <label>Particules logo (thèmes custom) <span class="hint">1 – 100</span></label>
+            <div class="logo-particles-row">
+              <input type="range" id="logo-particles-range" min="1" max="100" value="3" />
+              <input type="number" id="logo-particles-num" min="1" max="100" value="3" />
+            </div>
           </div>
         </div>
 

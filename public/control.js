@@ -64,6 +64,9 @@ function syncFromState(s) {
   document.getElementById('event-stage').value = s.stage;
   document.getElementById('current-stage').value = s.currentStage || '';
   document.getElementById('center-logo').value = s.centerLogo || '';
+  const lpVal = s.logoParticleCount ?? 3;
+  document.getElementById('logo-particles-range').value = lpVal;
+  document.getElementById('logo-particles-num').value   = lpVal;
   updateLogoPreview();
 
   // Format buttons
@@ -169,6 +172,7 @@ function buildStateFromForm() {
     sbBgOpacity: parseInt(document.getElementById('sb-bg-opacity')?.value ?? 100),
     format: state.format,
     customWins: parseInt(document.getElementById('custom-wins').value) || 2,
+    logoParticleCount: parseInt(document.getElementById('logo-particles-num').value) || 3,
   };
 }
 
@@ -1158,6 +1162,18 @@ function updateLogoPreview() {
   }
 }
 
+// Particules logo — sync slider ↔ number
+document.getElementById('logo-particles-range').addEventListener('input', function () {
+  document.getElementById('logo-particles-num').value = this.value;
+  emitState(buildStateFromForm());
+});
+document.getElementById('logo-particles-num').addEventListener('change', function () {
+  let v = Math.min(100, Math.max(1, parseInt(this.value) || 1));
+  this.value = v;
+  document.getElementById('logo-particles-range').value = v;
+  emitState(buildStateFromForm());
+});
+
 document.getElementById('btn-apply-logo').addEventListener('click', () => {
   emitState(buildStateFromForm());
   updateLogoPreview();
@@ -1241,6 +1257,155 @@ document.getElementById('casters-bg-color').addEventListener('input', (e) => {
 document.getElementById('casters-bg-opacity').addEventListener('input', (e) => {
   castersState.bgOpacity = Math.min(100, Math.max(0, parseInt(e.target.value) || 0));
   socket.emit('updateCasters', castersState);
+});
+
+// ── Thèmes ────────────────────────────────────────────────────
+
+const THEMES = {
+  default: {
+    sbBgColor:       '#0E0E12',
+    sbBgOpacity:     100,
+    eventTextColor:  '#EAB830',
+    eventTextSize:   12,
+    tagColor:        '#E8B830',
+    nameColor:       '#F0EEF8',
+    pronounsColor:   '#5A5A7A',
+    castersBgColor:  '#0E0E12',
+    castersBgOpacity: 100,
+  },
+  cyberpunk: {
+    sbBgColor:       '#0D0118',
+    sbBgOpacity:     95,
+    eventTextColor:  '#00F5FF',
+    eventTextSize:   13,
+    tagColor:        '#FF2D78',
+    nameColor:       '#E0D0FF',
+    pronounsColor:   '#BF00FF',
+    castersBgColor:  '#0D0118',
+    castersBgOpacity: 95,
+  },
+  synthwave: {
+    sbBgColor:       '#0D0030',
+    sbBgOpacity:     95,
+    eventTextColor:  '#FFD700',
+    eventTextSize:   13,
+    tagColor:        '#FF6EC7',
+    nameColor:       '#F8E8FF',
+    pronounsColor:   '#C77DFF',
+    castersBgColor:  '#0D0030',
+    castersBgOpacity: 95,
+  },
+  midnight: {
+    sbBgColor:       '#000814',
+    sbBgOpacity:     100,
+    eventTextColor:  '#4FC3F7',
+    eventTextSize:   12,
+    tagColor:        '#4FC3F7',
+    nameColor:       '#E8F4FD',
+    pronounsColor:   '#1E6FA8',
+    castersBgColor:  '#000814',
+    castersBgOpacity: 100,
+  },
+  fire: {
+    sbBgColor:       '#0D0200',
+    sbBgOpacity:     96,
+    eventTextColor:  '#FF6B35',
+    eventTextSize:   13,
+    tagColor:        '#FF4500',
+    nameColor:       '#FFE0C0',
+    pronounsColor:   '#8B3A1A',
+    castersBgColor:  '#0D0200',
+    castersBgOpacity: 96,
+  },
+  egypt: {
+    sbBgColor:       '#1A0F00',
+    sbBgOpacity:     93,
+    eventTextColor:  '#C8A96E',
+    eventTextSize:   12,
+    tagColor:        '#D4A017',
+    nameColor:       '#F5E6C8',
+    pronounsColor:   '#8B7355',
+    castersBgColor:  '#1A0F00',
+    castersBgOpacity: 93,
+  },
+  city: {
+    sbBgColor:       '#050510',
+    sbBgOpacity:     95,
+    eventTextColor:  '#4DAACC',
+    eventTextSize:   13,
+    tagColor:        '#00D4FF',
+    nameColor:       '#E8F4FF',
+    pronounsColor:   '#4A7A8A',
+    castersBgColor:  '#050510',
+    castersBgOpacity: 95,
+  },
+  eco: {
+    sbBgColor:       '#0A1A08',
+    sbBgOpacity:     92,
+    eventTextColor:  '#6AAA50',
+    eventTextSize:   12,
+    tagColor:        '#8BC34A',
+    nameColor:       '#E8F5E0',
+    pronounsColor:   '#5A7A48',
+    castersBgColor:  '#0A1A08',
+    castersBgOpacity: 92,
+  },
+  water: {
+    sbBgColor:       '#00101E',
+    sbBgOpacity:     94,
+    eventTextColor:  '#4DD9F0',
+    eventTextSize:   12,
+    tagColor:        '#00D4FF',
+    nameColor:       '#E0F7FF',
+    pronounsColor:   '#3A7A8A',
+    castersBgColor:  '#00101E',
+    castersBgOpacity: 94,
+  },
+};
+
+function applyTheme(key) {
+  const t = THEMES[key];
+  if (!t) return;
+
+  // Scoreboard state
+  state.overlayTheme   = key;
+  state.sbBgColor      = t.sbBgColor;
+  state.sbBgOpacity    = t.sbBgOpacity;
+  state.eventTextColor = t.eventTextColor;
+  state.eventTextSize  = t.eventTextSize;
+  state.tagColor       = t.tagColor;
+  state.nameColor      = t.nameColor;
+  state.pronounsColor  = t.pronounsColor;
+
+  // Casters state
+  castersState.bgColor   = t.castersBgColor;
+  castersState.bgOpacity = t.castersBgOpacity;
+
+  // Update color pickers
+  document.getElementById('sb-bg-color').value      = t.sbBgColor;
+  document.getElementById('sb-bg-opacity').value    = t.sbBgOpacity;
+  document.getElementById('event-text-color').value = t.eventTextColor;
+  document.getElementById('event-text-size').value  = t.eventTextSize;
+  document.getElementById('tag-color').value        = t.tagColor;
+  document.getElementById('name-color').value       = t.nameColor;
+  document.getElementById('pronouns-color').value   = t.pronounsColor;
+  document.getElementById('casters-bg-color').value   = t.castersBgColor;
+  document.getElementById('casters-bg-opacity').value = t.castersBgOpacity;
+
+  // Emit
+  emitState(buildStateFromForm());
+  socket.emit('updateCasters', castersState);
+
+  // Active state on cards
+  document.querySelectorAll('.theme-preset-card').forEach(c => {
+    c.classList.toggle('active', c.dataset.theme === key);
+  });
+
+  setStatus(`Thème "${key}" appliqué`);
+}
+
+document.querySelectorAll('.theme-preset-card').forEach(card => {
+  card.addEventListener('click', () => applyTheme(card.dataset.theme));
 });
 
 document.querySelectorAll('.casters-layout-btn').forEach(btn => {
