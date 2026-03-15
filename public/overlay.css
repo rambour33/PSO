@@ -1904,3 +1904,69 @@ body {
 .scoreboard.theme-lesbian .slim-name        { animation:les-text 3s ease-in-out infinite; }
 .scoreboard.theme-lesbian .slim-score       { animation:les-text 3s ease-in-out infinite; }
 .scoreboard.theme-lesbian .theme-logo-bg img { filter:drop-shadow(0 0 5px #D62900) drop-shadow(0 0 12px rgba(212,97,166,0.7)); }
+
+/* ── Plage de sable blanc ─────────────────────────────────────── */
+/* Sable blanc · vagues turquoise · coquillages roses             */
+
+@keyframes beach-shimmer {
+  0%,100% { box-shadow:0 0 10px rgba(72,202,228,0.55),0 0 24px rgba(0,150,199,0.25) }
+  50%     { box-shadow:0 0 18px rgba(72,202,228,0.80),0 0 40px rgba(173,232,244,0.30) }
+}
+@keyframes beach-text {
+  0%,100% { text-shadow:0 0 8px rgba(72,202,228,0.75),0 0 18px rgba(0,150,199,0.35) }
+  50%     { text-shadow:0 0 16px rgba(173,232,244,0.90),0 0 30px rgba(72,202,228,0.45) }
+}
+@keyframes beach-wave-move {
+  from { background-position:0 0,120px 0,0 0,0 0 }
+  to   { background-position:240px 0,360px 0,0 0,0 0 }
+}
+@keyframes beach-foam-drift {
+  0%   { transform:translateX(0) }
+  50%  { transform:translateX(12px) }
+  100% { transform:translateX(0) }
+}
+
+.scoreboard.theme-plage .players-container { border-color:#48CAE4; animation:beach-shimmer 3.5s ease-in-out infinite; }
+
+/* Fond : vagues qui défilent + sable chaud en bas + bleu profond en haut */
+.scoreboard.theme-plage .players-container::before {
+  content:''; position:absolute; inset:0; pointer-events:none; z-index:0;
+  background:
+    /* crêtes de vagues */
+    repeating-linear-gradient(90deg,
+      transparent 0, transparent 32px,
+      rgba(72,202,228,0.08) 32px, rgba(72,202,228,0.08) 46px,
+      rgba(173,232,244,0.05) 46px, rgba(173,232,244,0.05) 50px,
+      transparent 50px, transparent 82px),
+    /* deuxième rang de vagues décalé */
+    repeating-linear-gradient(90deg,
+      rgba(0,150,199,0.05) 0, rgba(0,150,199,0.05) 20px,
+      transparent 20px, transparent 68px),
+    /* sable chaud au bas */
+    radial-gradient(ellipse 130% 38% at 50% 105%, rgba(232,200,130,0.18) 0%, transparent 60%),
+    /* eau bleue en haut */
+    radial-gradient(ellipse 130% 30% at 50% -5%,  rgba(0,150,199,0.13) 0%, transparent 60%);
+  animation:beach-wave-move 5s linear infinite;
+}
+
+/* Écume douce tout en haut de l'overlay */
+.scoreboard.theme-plage::after {
+  content:''; position:absolute; top:0; left:0; right:0; height:6px; z-index:4;
+  background:linear-gradient(90deg,
+    transparent 0%, rgba(255,255,255,0.25) 15%, rgba(173,232,244,0.35) 30%,
+    transparent 45%, rgba(255,255,255,0.20) 60%, rgba(173,232,244,0.30) 75%, transparent 100%);
+  animation:beach-foam-drift 4s ease-in-out infinite;
+  pointer-events:none;
+}
+
+.scoreboard.theme-plage .event-bar          { border-bottom-color:#48CAE4; box-shadow:0 2px 14px rgba(72,202,228,0.45); }
+.scoreboard.theme-plage .player-tag         { animation:beach-text 3.5s ease-in-out infinite; }
+.scoreboard.theme-plage .score              { text-shadow:0 0 12px rgba(72,202,228,0.85),0 0 26px rgba(0,150,199,0.40); }
+.scoreboard.theme-plage .score-center       { border-left-color:#48CAE4; border-right-color:#ADE8F4; }
+.scoreboard.theme-plage .player-character   { border-color:#48CAE4; box-shadow:0 0 14px rgba(72,202,228,0.50); }
+.scoreboard.theme-plage .player-left        { border-bottom-color:#48CAE4; }
+.scoreboard.theme-plage .player-right       { border-bottom-color:#ADE8F4; }
+.scoreboard.theme-plage .slim-bar           { border-color:#48CAE4; box-shadow:0 0 12px rgba(72,202,228,0.45),0 0 28px rgba(173,232,244,0.18); }
+.scoreboard.theme-plage .slim-name          { animation:beach-text 3.5s ease-in-out infinite; }
+.scoreboard.theme-plage .slim-score         { text-shadow:0 0 10px rgba(72,202,228,0.85); }
+.scoreboard.theme-plage .theme-logo-bg img  { filter:drop-shadow(0 0 5px #48CAE4) drop-shadow(0 0 12px rgba(173,232,244,0.70)); }

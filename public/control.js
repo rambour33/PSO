@@ -1603,6 +1603,17 @@ const THEMES = {
     castersBgColor:  '#060308',
     castersBgOpacity: 96,
   },
+  plage: {
+    sbBgColor:       '#03121A',
+    sbBgOpacity:     94,
+    eventTextColor:  '#48CAE4',
+    eventTextSize:   12,
+    tagColor:        '#48CAE4',
+    nameColor:       '#F5F0E8',
+    pronounsColor:   '#ADE8F4',
+    castersBgColor:  '#03121A',
+    castersBgOpacity: 94,
+  },
   lesbian: {
     sbBgColor:       '#0A0200',
     sbBgOpacity:     95,

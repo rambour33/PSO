@@ -6,7 +6,7 @@ const _lp = { parts: [], rafId: null, src: null, count: 3 };
 const CUSTOM_THEMES = ['cyberpunk', 'synthwave', 'midnight', 'egypt', 'city', 'eco', 'water', 'fire',
   'pkpsy', 'pktenebres', 'pkelectrik', 'pkfee', 'pkspectre', 'pkdragon', 'pkglace', 'pkcombat',
   'pkpoison', 'pksol', 'pkvol', 'pkinsecte', 'pkroche', 'pkacier', 'pknormal', 'pkplante', 'pkfeu', 'pkeau',
-  'rainbow', 'trans', 'pan', 'bi', 'lesbian'];
+  'rainbow', 'trans', 'pan', 'bi', 'lesbian', 'plage'];
 
 function _lpSetCount(n) {
   const bg = document.getElementById('theme-logo-bg');
@@ -126,6 +126,21 @@ const PS = (() => {
       jitter:2+Math.random()*6, seed:Math.random()*9999,
       thick:0.5+Math.random()*1.8, branch:Math.random()>0.45 };
   }
+  function mkShell(W, H) {
+    // kind: 0=nautilus, 1=coquille saint-jacques, 2=escargot, 3=écume
+    const kind = Math.floor(Math.random() * 4);
+    const hue = kind === 3 ? 196
+              : kind === 1 && Math.random() > 0.4 ? 345 + Math.random()*22
+              : 18 + Math.random()*26;
+    return { t:'shell', kind,
+      x:Math.random()*W, y:Math.random()*H,
+      r: kind===3 ? 1.8+Math.random()*4.5 : 4+Math.random()*9,
+      rot:Math.random()*Math.PI*2, spin:(Math.random()-0.5)*0.005,
+      vx:(Math.random()-0.5)*0.28,
+      vy: kind===3 ? -(0.25+Math.random()*0.55) : (Math.random()-0.5)*0.18,
+      op: kind===3 ? 0.28+Math.random()*0.38 : 0.48+Math.random()*0.52,
+      hue, phase:Math.random()*Math.PI*2, speed:0.02+Math.random()*0.03 };
+  }
   function mkPride(W, H) {
     return { t:'pride', x:Math.random()*W, y:Math.random()*H,
       r:0.5+Math.random()*2.8, phase:Math.random()*Math.PI*2,
@@ -140,7 +155,7 @@ const PS = (() => {
   }
   const FAC = { snow:mkSnow, fire:mkFire, rain:mkRain, sand:mkSand,
                 leaf:mkLeaf, bubble:mkBubble, sparkle:mkSparkle, data:mkData,
-                flake:mkFlake, bolt:mkBolt, pride:mkPride };
+                flake:mkFlake, bolt:mkBolt, pride:mkPride, shell:mkShell };
 
   // ── Update ─────────────────────────────────────────────────
   function upd(p, W, H) {
@@ -180,6 +195,13 @@ const PS = (() => {
     } else if (t==='pride') {
       p.phase += p.speed;
       p.hue = (p.hue + 0.35) % 360;
+    } else if (t==='shell') {
+      p.x += p.vx; p.y += p.vy; p.rot += p.spin;
+      if (p.kind === 3) { p.phase += p.speed; }
+      if (p.y < -16) { p.y = H+16; p.x = Math.random()*W; }
+      if (p.y > H+16) { p.y = -16; p.x = Math.random()*W; }
+      if (p.x >  W+16) p.x = -16;
+      if (p.x < -16)   p.x =  W+16;
     }
   }
 
@@ -242,6 +264,70 @@ const PS = (() => {
       ctx.globalAlpha = p.op * 0.25;
       ctx.fillRect(p.x-1, p.y-2, p.w+2, 3);
       ctx.globalAlpha = 1;
+    } else if (t==='shell') {
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rot);
+      const r = p.r;
+      const sf = `hsla(${p.hue},38%,88%,${p.op*0.38})`;
+      const sc = `hsla(${p.hue},44%,74%,${p.op})`;
+      const sd = `hsla(${p.hue},48%,58%,${p.op*0.65})`;
+      ctx.globalAlpha = p.op;
+      ctx.lineCap = 'round';
+      if (p.kind === 3) {
+        // Écume de mer — bulle qui pulse
+        const fa = p.op * ((Math.sin(p.phase)+1)*0.38+0.24);
+        ctx.globalAlpha = fa;
+        ctx.beginPath(); ctx.arc(0, 0, r, 0, Math.PI*2);
+        ctx.strokeStyle = `rgba(215,245,255,${fa})`; ctx.lineWidth = 0.9; ctx.stroke();
+        ctx.beginPath(); ctx.arc(-r*0.3,-r*0.3, r*0.28, 0, Math.PI*2);
+        ctx.fillStyle = `rgba(255,255,255,${fa*0.55})`; ctx.fill();
+      } else if (p.kind === 0) {
+        // Nautilus — spirale logarithmique dans un cercle
+        ctx.beginPath(); ctx.arc(0,0,r,0,Math.PI*2);
+        ctx.fillStyle = sf; ctx.fill();
+        ctx.strokeStyle = sc; ctx.lineWidth = r*0.11; ctx.stroke();
+        ctx.beginPath();
+        for (let a=0; a<=Math.PI*4.2; a+=0.09) {
+          const rad = r*0.062*Math.exp(0.188*a);
+          if (rad > r*0.93) break;
+          if (a<0.01) ctx.moveTo(rad,0); else ctx.lineTo(Math.cos(a)*rad,Math.sin(a)*rad);
+        }
+        ctx.strokeStyle = sd; ctx.lineWidth = r*0.10; ctx.stroke();
+        // Centre
+        ctx.beginPath(); ctx.arc(0,0,r*0.09,0,Math.PI*2);
+        ctx.fillStyle = sd; ctx.fill();
+      } else if (p.kind === 1) {
+        // Coquille Saint-Jacques — demi-cercle + nervures
+        ctx.beginPath(); ctx.arc(0,0,r,-Math.PI,0); ctx.closePath();
+        ctx.fillStyle = sf; ctx.fill();
+        ctx.strokeStyle = sc; ctx.lineWidth = r*0.12; ctx.stroke();
+        for (let i=0; i<=7; i++) {
+          const a = -Math.PI + (Math.PI/7)*i;
+          ctx.beginPath(); ctx.moveTo(0,0);
+          ctx.lineTo(Math.cos(a)*r, Math.sin(a)*r);
+          ctx.strokeStyle = sd; ctx.lineWidth = r*0.07; ctx.stroke();
+        }
+        ctx.beginPath(); ctx.arc(0,0,r*0.13,0,Math.PI*2);
+        ctx.fillStyle = sd; ctx.fill();
+      } else {
+        // Escargot de mer — cercle + anneaux spiralés décalés
+        ctx.beginPath(); ctx.arc(0,0,r,0,Math.PI*2);
+        ctx.fillStyle = sf; ctx.fill();
+        ctx.strokeStyle = sc; ctx.lineWidth = r*0.11; ctx.stroke();
+        const offsets = [[0,0,1],[r*0.10,r*0.06,0.74],[r*0.18,r*0.10,0.50]];
+        offsets.forEach(([ox,oy,scale],i) => {
+          const ri = r*scale*0.88;
+          if (ri < 1) return;
+          ctx.beginPath();
+          ctx.arc(ox,oy,ri,0,Math.PI*(1.6-i*0.15));
+          ctx.strokeStyle = `hsla(${p.hue},46%,60%,${p.op*(0.55-i*0.08)})`;
+          ctx.lineWidth = r*0.09; ctx.stroke();
+        });
+        ctx.beginPath(); ctx.arc(r*0.25,r*0.14,r*0.12,0,Math.PI*2);
+        ctx.fillStyle = sd; ctx.fill();
+      }
+      ctx.restore();
     } else if (t==='pride') {
       const a = (Math.sin(p.phase)+1)/2;
       const r = p.r*(0.4+a*0.6);
@@ -415,6 +501,7 @@ const THEME_PARTICLES = {
   pan:         { type:'sparkle', count:65 },
   bi:          { type:'sparkle', count:65 },
   lesbian:     { type:'sparkle', count:65 },
+  plage:       { type:'shell',   count:38 },
 };
 
 function renderPlayerName(elId, player) {
@@ -470,7 +557,7 @@ function update(s) {
   ['default', 'cyberpunk', 'synthwave', 'midnight', 'egypt', 'city', 'eco', 'water', 'fire',
    'pkpsy', 'pktenebres', 'pkelectrik', 'pkfee', 'pkspectre', 'pkdragon', 'pkglace', 'pkcombat',
    'pkpoison', 'pksol', 'pkvol', 'pkinsecte', 'pkroche', 'pkacier', 'pknormal', 'pkplante', 'pkfeu', 'pkeau',
-   'rainbow', 'trans', 'pan', 'bi', 'lesbian'].forEach(t => {
+   'rainbow', 'trans', 'pan', 'bi', 'lesbian', 'plage'].forEach(t => {
     sb.classList.toggle('theme-' + t, (s.overlayTheme || 'default') === t);
   });
 
