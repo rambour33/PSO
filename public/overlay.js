@@ -117,8 +117,15 @@ const PS = (() => {
       vy:1.2+Math.random()*3.5, op:0.25+Math.random()*0.55,
       pink:Math.random()>0.5 };
   }
+  function mkFlake(W, H) {
+    return { t:'flake', x:Math.random()*W, y:Math.random()*H,
+      r:4+Math.random()*9, vx:(Math.random()-0.5)*0.4,
+      vy:0.25+Math.random()*0.85, wb:Math.random()*Math.PI*2,
+      wbs:0.008+Math.random()*0.018, rot:Math.random()*Math.PI/3,
+      spin:(Math.random()-0.5)*0.012, op:0.45+Math.random()*0.55 };
+  }
   const FAC = { snow:mkSnow, fire:mkFire, rain:mkRain, sand:mkSand,
-                leaf:mkLeaf, bubble:mkBubble, sparkle:mkSparkle, data:mkData };
+                leaf:mkLeaf, bubble:mkBubble, sparkle:mkSparkle, data:mkData, flake:mkFlake };
 
   // ── Update ─────────────────────────────────────────────────
   function upd(p, W, H) {
@@ -148,6 +155,10 @@ const PS = (() => {
     } else if (t==='data') {
       p.y += p.vy;
       if (p.y>H+20){p.y=-25-Math.random()*50;p.x=Math.random()*W;}
+    } else if (t==='flake') {
+      p.wb += p.wbs; p.x += p.vx+Math.sin(p.wb)*0.45; p.y += p.vy; p.rot += p.spin;
+      if (p.y>H+20){p.y=-15;p.x=Math.random()*W;}
+      if (p.x>W+20) p.x=-20; if (p.x<-20) p.x=W+20;
     }
   }
 
@@ -210,6 +221,45 @@ const PS = (() => {
       ctx.globalAlpha = p.op * 0.25;
       ctx.fillRect(p.x-1, p.y-2, p.w+2, 3);
       ctx.globalAlpha = 1;
+    } else if (t==='flake') {
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rot);
+      ctx.globalAlpha = p.op;
+      ctx.strokeStyle = `rgba(210,245,255,${p.op})`;
+      ctx.lineWidth = Math.max(0.5, p.r * 0.11);
+      ctx.lineCap = 'round';
+      const r = p.r;
+      const b1 = r * 0.42, b2 = r * 0.72; // branch positions along arm
+      const bl = r * 0.32;                  // branch half-length
+      ctx.beginPath();
+      for (let i = 0; i < 6; i++) {
+        const a = i * Math.PI / 3;
+        const ca = Math.cos(a), sa = Math.sin(a);
+        // main arm
+        ctx.moveTo(0, 0);
+        ctx.lineTo(ca * r, sa * r);
+        // inner branches
+        const x1 = ca * b1, y1 = sa * b1;
+        const a1a = a + Math.PI / 3, a1b = a - Math.PI / 3;
+        ctx.moveTo(x1, y1); ctx.lineTo(x1 + Math.cos(a1a)*bl*0.65, y1 + Math.sin(a1a)*bl*0.65);
+        ctx.moveTo(x1, y1); ctx.lineTo(x1 + Math.cos(a1b)*bl*0.65, y1 + Math.sin(a1b)*bl*0.65);
+        // outer branches
+        const x2 = ca * b2, y2 = sa * b2;
+        ctx.moveTo(x2, y2); ctx.lineTo(x2 + Math.cos(a1a)*bl, y2 + Math.sin(a1a)*bl);
+        ctx.moveTo(x2, y2); ctx.lineTo(x2 + Math.cos(a1b)*bl, y2 + Math.sin(a1b)*bl);
+      }
+      ctx.stroke();
+      // centre dot
+      ctx.beginPath(); ctx.arc(0, 0, r * 0.12, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(230,250,255,${p.op})`; ctx.fill();
+      // soft glow halo
+      if (r > 5) {
+        ctx.globalAlpha = p.op * 0.12;
+        ctx.beginPath(); ctx.arc(0, 0, r * 1.2, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(186,240,255,1)'; ctx.fill();
+      }
+      ctx.restore();
     }
   }
 
@@ -267,7 +317,7 @@ const THEME_PARTICLES = {
   pkfee:       { type:'sparkle', count:55 },
   pkspectre:   { type:'bubble',  count:40 },
   pkdragon:    { type:'fire',    count:65 },
-  pkglace:     { type:'snow',    count:80 },
+  pkglace:     { type:'flake',   count:50 },
   pkcombat:    { type:'fire',    count:70 },
   pkpoison:    { type:'bubble',  count:50 },
   pksol:       { type:'sand',    count:90 },
