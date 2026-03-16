@@ -87,6 +87,24 @@ function syncFromState(s) {
   updateCharPreview(1, s.player1.character);
   updateCharPreview(2, s.player2.character);
 
+  // Flag restore
+  if (window.flagPickerRestore) {
+    window.flagPickerRestore(1, s.player1.flag || '');
+    window.flagPickerRestore(2, s.player2.flag || '');
+  }
+  // Flag offset restore
+  const p1fx = s.player1.flagOffsetX ?? 0;
+  const p1fy = s.player1.flagOffsetY ?? 0;
+  const p2fx = s.player2.flagOffsetX ?? 0;
+  const p2fy = s.player2.flagOffsetY ?? 0;
+  ['p1-flag-x', 'p1-flag-y', 'p2-flag-x', 'p2-flag-y'].forEach((id, i) => {
+    const val = [p1fx, p1fy, p2fx, p2fy][i];
+    const range = document.getElementById(id + '-range');
+    const num   = document.getElementById(id + '-num');
+    if (range) range.value = val;
+    if (num)   num.value   = val;
+  });
+
   // Stock color buttons
   [1, 2].forEach(p => {
     const color = s[`player${p}`].stockColor ?? 0;
@@ -155,6 +173,9 @@ function buildStateFromForm() {
       pronouns:   document.getElementById('p1-pronouns').value.trim(),
       color:      document.getElementById('p1-color').value,
       stockColor: state.player1.stockColor ?? 0,
+      flag:        document.getElementById('p1-flag')?.value || '',
+      flagOffsetX: parseInt(document.getElementById('p1-flag-x-num')?.value ?? 0),
+      flagOffsetY: parseInt(document.getElementById('p1-flag-y-num')?.value ?? 0),
     },
     player2: {
       ...state.player2,
@@ -163,6 +184,9 @@ function buildStateFromForm() {
       pronouns:   document.getElementById('p2-pronouns').value.trim(),
       color:      document.getElementById('p2-color').value,
       stockColor: state.player2.stockColor ?? 0,
+      flag:        document.getElementById('p2-flag')?.value || '',
+      flagOffsetX: parseInt(document.getElementById('p2-flag-x-num')?.value ?? 0),
+      flagOffsetY: parseInt(document.getElementById('p2-flag-y-num')?.value ?? 0),
     },
     event: document.getElementById('event-name').value.trim() || 'TOURNAMENT',
     stage: document.getElementById('event-stage').value.trim() || '',
@@ -1231,6 +1255,20 @@ document.getElementById('logo-particles-num').addEventListener('change', functio
   this.value = v;
   document.getElementById('logo-particles-range').value = v;
   emitState(buildStateFromForm());
+});
+
+// Flag position sliders — sync range ↔ number and emit
+['p1-flag-x', 'p1-flag-y', 'p2-flag-x', 'p2-flag-y'].forEach(id => {
+  document.getElementById(id + '-range').addEventListener('input', function () {
+    document.getElementById(id + '-num').value = this.value;
+    emitState(buildStateFromForm());
+  });
+  document.getElementById(id + '-num').addEventListener('change', function () {
+    let v = Math.min(200, Math.max(-200, parseInt(this.value) || 0));
+    this.value = v;
+    document.getElementById(id + '-range').value = v;
+    emitState(buildStateFromForm());
+  });
 });
 
 document.getElementById('btn-apply-logo').addEventListener('click', () => {

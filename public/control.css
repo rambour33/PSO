@@ -1866,3 +1866,152 @@ kbd {
   margin-top: 8px;
   justify-content: center;
 }
+
+/* ── Flag Picker ─────────────────────────────────────────────── */
+
+.flag-picker-group { margin-top: 6px; }
+
+.flag-picker-wrap { position: relative; }
+
+.flag-search-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.flag-preview-img {
+  width: 32px;
+  height: 22px;
+  object-fit: cover;
+  border-radius: 3px;
+  border: 1px solid var(--border);
+  flex-shrink: 0;
+  display: none;
+}
+
+.input-flag-search {
+  flex: 1;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  font-size: 13px;
+  padding: 6px 10px;
+  outline: none;
+  transition: border-color .15s;
+}
+.input-flag-search:focus { border-color: var(--gold); }
+
+.btn-flag-clear {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 12px;
+  padding: 4px 7px;
+  line-height: 1;
+  flex-shrink: 0;
+  transition: color .15s, border-color .15s;
+}
+.btn-flag-clear:hover { color: var(--danger); border-color: var(--danger); }
+
+.flag-dropdown {
+  display: none;
+  position: absolute;
+  top: calc(100% + 2px);
+  left: 0;
+  right: 0;
+  z-index: 300;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  box-shadow: 0 10px 30px rgba(0,0,0,.6);
+  max-height: 280px;
+  overflow-y: auto;
+}
+
+.flag-drop-empty {
+  padding: 12px;
+  color: var(--text-muted);
+  font-size: 13px;
+  text-align: center;
+}
+
+.flag-drop-section { border-bottom: 1px solid var(--border); }
+.flag-drop-section:last-child { border-bottom: none; }
+
+.flag-drop-header {
+  padding: 6px 10px 4px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  color: var(--gold);
+  background: var(--surface);
+  position: sticky;
+  top: 0;
+}
+
+.flag-drop-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 6px 8px 8px;
+}
+
+.flag-drop-img {
+  width: 40px;
+  height: 28px;
+  object-fit: cover;
+  border-radius: 3px;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: border-color .12s, transform .12s;
+}
+.flag-drop-img:hover {
+  border-color: var(--gold);
+  transform: scale(1.15);
+  z-index: 1;
+  position: relative;
+}
+
+/* ── Autocomplete dropdown ───────────────────────────────────── */
+
+.ac-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 200;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-top: none;
+  border-radius: 0 0 6px 6px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+.ac-item {
+  padding: 7px 12px;
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--text);
+  border-bottom: 1px solid var(--border);
+  outline: none;
+}
+
+.ac-item:last-child { border-bottom: none; }
+
+.ac-item:hover,
+.ac-item:focus {
+  background: var(--surface);
+  color: var(--gold);
+}
+
+.ac-prefix {
+  color: var(--text-muted);
+  font-size: 12px;
+}
+

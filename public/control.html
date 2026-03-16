@@ -70,6 +70,18 @@
               <input type="text" id="p1-pronouns" placeholder="il/elle" class="input-pronouns" />
             </div>
           </div>
+          <div class="form-group flag-picker-group">
+            <label>Drapeau</label>
+            <div class="flag-picker-wrap" id="p1-flag-wrap">
+              <div class="flag-search-row">
+                <img id="p1-flag-preview" class="flag-preview-img" />
+                <input type="text" id="p1-flag-search" placeholder="Rechercher un pays…" class="input-flag-search" autocomplete="off" />
+                <button class="btn-flag-clear" id="p1-flag-clear" title="Effacer">✕</button>
+              </div>
+              <div class="flag-dropdown" id="p1-flag-dropdown"></div>
+              <input type="hidden" id="p1-flag" value="" />
+            </div>
+          </div>
           <div class="char-selector-mini" id="p1-char-display">
             <div class="char-selected-preview" id="p1-char-preview">
               <div class="char-preview-img" id="p1-preview-img">?</div>
@@ -157,6 +169,18 @@
               <input type="text" id="p2-tag" placeholder="TAG" class="input-tag" />
               <input type="text" id="p2-name" value="PLAYER 2" class="input-name" />
               <input type="text" id="p2-pronouns" placeholder="il/elle" class="input-pronouns" />
+            </div>
+          </div>
+          <div class="form-group flag-picker-group">
+            <label>Drapeau</label>
+            <div class="flag-picker-wrap" id="p2-flag-wrap">
+              <div class="flag-search-row">
+                <img id="p2-flag-preview" class="flag-preview-img" />
+                <input type="text" id="p2-flag-search" placeholder="Rechercher un pays…" class="input-flag-search" autocomplete="off" />
+                <button class="btn-flag-clear" id="p2-flag-clear" title="Effacer">✕</button>
+              </div>
+              <div class="flag-dropdown" id="p2-flag-dropdown"></div>
+              <input type="hidden" id="p2-flag" value="" />
             </div>
           </div>
           <div class="char-selector-mini" id="p2-char-display">
@@ -1303,6 +1327,46 @@
       </div>
     </section>
 
+    <section class="section">
+      <div class="section-header"><h2>Drapeaux</h2></div>
+      <div class="custom-grid">
+        <div class="custom-card">
+          <h3>Position — Joueur 1</h3>
+          <div class="form-group" style="margin-bottom:10px">
+            <label>Décalage X</label>
+            <div class="logo-particles-row">
+              <input type="range" id="p1-flag-x-range" min="-200" max="200" value="0" />
+              <input type="number" id="p1-flag-x-num" min="-200" max="200" value="0" style="width:60px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:13px;padding:4px 6px;text-align:center" />
+            </div>
+          </div>
+          <div class="form-group" style="margin:0">
+            <label>Décalage Y</label>
+            <div class="logo-particles-row">
+              <input type="range" id="p1-flag-y-range" min="-200" max="200" value="0" />
+              <input type="number" id="p1-flag-y-num" min="-200" max="200" value="0" style="width:60px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:13px;padding:4px 6px;text-align:center" />
+            </div>
+          </div>
+        </div>
+        <div class="custom-card">
+          <h3>Position — Joueur 2</h3>
+          <div class="form-group" style="margin-bottom:10px">
+            <label>Décalage X</label>
+            <div class="logo-particles-row">
+              <input type="range" id="p2-flag-x-range" min="-200" max="200" value="0" />
+              <input type="number" id="p2-flag-x-num" min="-200" max="200" value="0" style="width:60px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:13px;padding:4px 6px;text-align:center" />
+            </div>
+          </div>
+          <div class="form-group" style="margin:0">
+            <label>Décalage Y</label>
+            <div class="logo-particles-row">
+              <input type="range" id="p2-flag-y-range" min="-200" max="200" value="0" />
+              <input type="number" id="p2-flag-y-num" min="-200" max="200" value="0" style="width:60px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:13px;padding:4px 6px;text-align:center" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
   </div><!-- /tab-custom -->
 
   <!-- ═══════════════════════════════════════════════════════════ -->
@@ -1428,5 +1492,6 @@
 <script src="/socket.io/socket.io.js"></script>
 <script src="control.js"></script>
 <script src="startgg-ui.js"></script>
+<script src="flag-picker.js"></script>
 </body>
 </html>
