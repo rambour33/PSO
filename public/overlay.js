@@ -77,6 +77,8 @@ function _lpStop() {
 // ── Canvas particle engine ────────────────────────────────────
 const PS = (() => {
   let canvas, ctx, rafId = null, _type = null, _dualKey = null;
+  let _opacityScale = 1.0, _countScale = 1.0;
+  let _lastType = null, _lastCount = 0, _lastType2 = null, _lastCount2 = 0;
   const pts = [];
 
   // ── Factories ──────────────────────────────────────────────
@@ -1600,11 +1602,13 @@ const PS = (() => {
   }
 
   function start(type, count) {
+    _lastType = type; _lastCount = count; _lastType2 = null; _lastCount2 = 0;
     stop(); _type = type;
     if (!type || !FAC[type]) return;
     resize(); pts.length = 0;
     const W=canvas.width, H=canvas.height;
-    for (let i=0; i<count; i++) pts.push(FAC[type](W,H));
+    const n = Math.max(1, Math.round(count * _countScale));
+    for (let i=0; i<n; i++) pts.push(FAC[type](W,H));
     tick();
   }
 
@@ -1615,6 +1619,7 @@ const PS = (() => {
   }
 
   function startDual(type1, count1, type2, count2) {
+    _lastType = type1; _lastCount = count1; _lastType2 = type2; _lastCount2 = count2;
     stop();
     _type = '__dual__';
     _dualKey = `${type1}|${count1}|${type2}|${count2}`;
@@ -1622,13 +1627,28 @@ const PS = (() => {
     pts.length = 0;
     const W = canvas.width, H = canvas.height;
     const half = Math.floor(W / 2);
+    const n1 = Math.max(1, Math.round(count1 * _countScale));
+    const n2 = Math.max(1, Math.round(count2 * _countScale));
     if (type1 && FAC[type1]) {
-      for (let i = 0; i < count1; i++) { const p = FAC[type1](half, H); pts.push(p); }
+      for (let i = 0; i < n1; i++) { const p = FAC[type1](half, H); pts.push(p); }
     }
     if (type2 && FAC[type2]) {
-      for (let i = 0; i < count2; i++) { const p = FAC[type2](half, H); p.x += half; pts.push(p); }
+      for (let i = 0; i < n2; i++) { const p = FAC[type2](half, H); p.x += half; pts.push(p); }
     }
     tick();
+  }
+
+  function setOpacity(v) {
+    _opacityScale = Math.max(0, Math.min(1, v));
+    if (canvas) canvas.style.opacity = _opacityScale;
+  }
+
+  function setCountScale(v) {
+    const prev = _countScale;
+    _countScale = Math.max(0.05, Math.min(5, v));
+    if (_countScale === prev || !_lastType) return;
+    if (_type === '__dual__') startDual(_lastType, _lastCount, _lastType2, _lastCount2);
+    else start(_lastType, _lastCount);
   }
 
   function init() {
@@ -1638,8 +1658,9 @@ const PS = (() => {
     window.addEventListener('resize', resize);
   }
 
-  return { init, start, stop, resize, startDual,
-           get type() { return _type; }, get dualKey() { return _dualKey; } };
+  return { init, start, stop, resize, startDual, setOpacity, setCountScale,
+           get type() { return _type; }, get dualKey() { return _dualKey; },
+           get opacity() { return _opacityScale; }, get countScale() { return _countScale; } };
 })();
 
 // ── Couleurs de référence par thème personnage (pour le mode Dual) ─────────────
@@ -1981,6 +2002,13 @@ function update(s) {
   const b = parseInt(hex.substring(4, 6), 16);
   const a = (s.sbBgOpacity ?? 100) / 100;
   sb.style.setProperty('--sb-bg', `rgba(${r},${g},${b},${a})`);
+
+  // Particule opacity & count scale
+  const pOp = (s.particleOpacity ?? 100) / 100;
+  if (PS.opacity !== pOp) PS.setOpacity(pOp);
+  const pScale = (s.particleCountScale ?? 100) / 100;
+  if (Math.abs(PS.countScale - pScale) > 0.001) PS.setCountScale(pScale);
+
   sb.style.setProperty('--event-text-size', `${s.eventTextSize ?? 12}px`);
   sb.style.setProperty('--event-text-color', s.eventTextColor || '#5A5A7A');
   sb.style.setProperty('--tag-color', s.tagColor || '#E8B830');
