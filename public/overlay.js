@@ -894,15 +894,50 @@ const PS = (() => {
       ctx.closePath(); ctx.fill();
       ctx.restore(); ctx.globalAlpha=1;
     } else if (t==='triforce') {
+      // Vraie Triforce : 3 triangles équilatéraux remplis, style Zelda
       ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.rot);
-      ctx.globalAlpha=p.op*p.life;
-      const tr=p.r;
-      ctx.beginPath();
-      ctx.moveTo(0,-tr); ctx.lineTo(tr*.866,tr*.5); ctx.lineTo(-tr*.866,tr*.5);
-      ctx.closePath();
-      ctx.strokeStyle=`hsl(${p.hue},90%,70%)`; ctx.lineWidth=1.4; ctx.stroke();
-      ctx.beginPath(); ctx.arc(0,-tr*.2,tr*.28,0,Math.PI*2);
-      ctx.fillStyle=`hsla(${p.hue},100%,80%,${p.life*.28})`; ctx.fill();
+      const al=p.op*p.life; ctx.globalAlpha=al;
+      const R=p.r;
+
+      // Sommets du grand triangle équilatéral
+      // (pointé vers le haut : sommet en haut, base en bas)
+      const tA=[0,-R], tB=[-R*.866,R*.5], tC=[R*.866,R*.5];
+      // Points médians des côtés → délimitent les 3 sous-triangles
+      const mAB=[-R*.433,-R*.25], mAC=[R*.433,-R*.25], mBC=[0,R*.5];
+
+      // Halo de lueur dorée
+      const hrd=ctx.createRadialGradient(0,R*.08,0,0,R*.08,R*1.6);
+      hrd.addColorStop(0,`rgba(255,230,50,${al*.25})`);
+      hrd.addColorStop(1,`rgba(200,120,0,0)`);
+      ctx.beginPath(); ctx.arc(0,R*.08,R*1.6,0,Math.PI*2);
+      ctx.fillStyle=hrd; ctx.fill();
+
+      // Dessin des 3 sous-triangles
+      [[tA,mAB,mAC],[mAB,tB,mBC],[mAC,mBC,tC]].forEach(([[ax,ay],[bx,by],[cx_,cy_]])=>{
+        const kcx=(ax+bx+cx_)/3, kcy=(ay+by+cy_)/3; // centroïde
+
+        // Dégradé radial : blanc-jaune au centre → or vif → or foncé
+        const grd=ctx.createRadialGradient(kcx,kcy,0,kcx,kcy,R*.6);
+        grd.addColorStop(0,  `rgba(255,255,200,${al})`);
+        grd.addColorStop(0.3,`rgba(255,238,60,${al})`);
+        grd.addColorStop(0.7,`rgba(240,190,10,${al})`);
+        grd.addColorStop(1,  `rgba(200,120,0,${al})`);
+
+        ctx.beginPath();
+        ctx.moveTo(ax,ay); ctx.lineTo(bx,by); ctx.lineTo(cx_,cy_);
+        ctx.closePath();
+        ctx.fillStyle=grd; ctx.fill();
+
+        // Contour or foncé
+        ctx.strokeStyle=`rgba(185,105,0,${al*.85})`;
+        ctx.lineWidth=R*.10; ctx.lineJoin='round'; ctx.stroke();
+
+        // Reflet (petit triangle blanc vers le coin haut-gauche de chaque sous-triangle)
+        const rx=(ax+kcx)/2, ry=(ay+kcy)/2;
+        ctx.beginPath(); ctx.arc(rx,ry,R*.09,0,Math.PI*2);
+        ctx.fillStyle=`rgba(255,255,255,${al*.35})`; ctx.fill();
+      });
+
       ctx.restore(); ctx.globalAlpha=1;
     } else if (t==='keyblade') {
       // Kingdom Key : lame argent-bleu, garde or, dents à la pointe, porte-clés Mickey
