@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8">
+  <!--
+    45° diagonal lines, 8px spacing.
+    Three lines ensure seamless tiling at all 4 edges.
+  -->
+  <line x1="-1" y1="1"  x2="1"  y2="-1" stroke="rgba(255,255,255,0.07)" stroke-width="0.8"/>
+  <line x1="0"  y1="8"  x2="8"  y2="0"  stroke="rgba(255,255,255,0.07)" stroke-width="0.8"/>
+  <line x1="7"  y1="9"  x2="9"  y2="7"  stroke="rgba(255,255,255,0.07)" stroke-width="0.8"/>
+</svg>
