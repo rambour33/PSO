@@ -144,6 +144,21 @@ const PS = (() => {
       jitter:2+Math.random()*6, seed:Math.random()*9999,
       thick:0.5+Math.random()*1.8, branch:Math.random()>0.45 };
   }
+  function mkGhost(W, H) {
+    return { t:'ghost',
+      x: Math.random()*W, y: Math.random()*H,
+      w: 10 + Math.random()*22,
+      vx: (Math.random()-0.5)*0.35,
+      vy: -(0.10 + Math.random()*0.25),
+      wb: Math.random()*Math.PI*2, wbs: 0.010+Math.random()*0.020,
+      wba: 1.5+Math.random()*3.5,
+      phase: Math.random()*Math.PI*2,
+      cycleSpd: 0.006+Math.random()*0.010,
+      hue: 258+Math.random()*35,
+      maxOp: 0.32+Math.random()*0.44,
+      eyes: Math.random()>0.20,
+      mouth: Math.random()>0.40 };
+  }
   function mkShell(W, H) {
     // kind: 0=nautilus, 1=coquille saint-jacques, 2=escargot, 3=écume
     const kind = Math.floor(Math.random() * 4);
@@ -173,7 +188,8 @@ const PS = (() => {
   }
   const FAC = { snow:mkSnow, fire:mkFire, rain:mkRain, sand:mkSand,
                 leaf:mkLeaf, bubble:mkBubble, sparkle:mkSparkle, data:mkData,
-                flake:mkFlake, bolt:mkBolt, pride:mkPride, shell:mkShell, flame:mkFlame };
+                flake:mkFlake, bolt:mkBolt, pride:mkPride, shell:mkShell, flame:mkFlame,
+                ghost:mkGhost };
 
   // ── Update ─────────────────────────────────────────────────
   function upd(p, W, H) {
@@ -220,6 +236,13 @@ const PS = (() => {
       p.y += p.vy;
       p.life -= p.decay;
       if (p.life <= 0 || p.y < -(p.h * 2)) Object.assign(p, mkFlame(W, H));
+    } else if (t==='ghost') {
+      p.wb += p.wbs; p.phase += p.cycleSpd;
+      p.x += p.vx + Math.sin(p.wb)*p.wba;
+      p.y += p.vy;
+      if (p.y < -(p.w*2)) { Object.assign(p, mkGhost(W,H)); p.y = H+p.w; }
+      if (p.x >  W+p.w) p.x = -p.w;
+      if (p.x < -p.w)   p.x =  W+p.w;
     } else if (t==='shell') {
       p.x += p.vx; p.y += p.vy; p.rot += p.spin;
       if (p.kind === 3) { p.phase += p.speed; }
@@ -335,6 +358,75 @@ const PS = (() => {
       ctx.fillStyle = hrd; ctx.fill();
 
       ctx.restore();
+    } else if (t==='ghost') {
+      // Apparition/disparition : sin² → visible seulement quand sin > 0 (la moitié du cycle)
+      const raw  = Math.sin(p.phase);
+      const fade = raw > 0 ? Math.pow(raw, 1.6) : 0;
+      const al   = fade * p.maxOp;
+      if (al < 0.012) { /* invisible */ } else {
+        const r     = p.w / 2;
+        const bodyH = p.w * 0.72;
+        const scW   = p.w / 3;
+        ctx.save();
+        ctx.translate(p.x, p.y);
+
+        // ── Aura extérieure ──────────────────────────────────────
+        const aura = ctx.createRadialGradient(0, bodyH*0.3, 0, 0, bodyH*0.3, r*2.4);
+        aura.addColorStop(0,   `hsla(${p.hue},80%,70%,${al*0.35})`);
+        aura.addColorStop(0.5, `hsla(${p.hue},75%,60%,${al*0.12})`);
+        aura.addColorStop(1,   `hsla(${p.hue},70%,50%,0)`);
+        ctx.beginPath(); ctx.arc(0, bodyH*0.3, r*2.4, 0, Math.PI*2);
+        ctx.fillStyle = aura; ctx.fill();
+
+        // ── Forme fantôme ────────────────────────────────────────
+        ctx.beginPath();
+        ctx.moveTo(-r, bodyH);
+        ctx.lineTo(-r, 0);
+        ctx.arc(0, 0, r, Math.PI, 0);          // tête arrondie
+        ctx.lineTo(r, bodyH);
+        for (let i = 0; i < 3; i++) {          // 3 découpes en bas
+          const fx = r - i*scW, tx = r-(i+1)*scW;
+          ctx.quadraticCurveTo((fx+tx)/2, bodyH+scW*0.6, tx, bodyH);
+        }
+        ctx.closePath();
+
+        // Dégradé vertical : blanc/mauve en haut → mauve foncé en bas
+        const grd = ctx.createLinearGradient(0, -r, 0, bodyH);
+        grd.addColorStop(0,   `hsla(${p.hue},60%,95%,${al*0.82})`);
+        grd.addColorStop(0.5, `hsla(${p.hue},65%,82%,${al*0.70})`);
+        grd.addColorStop(1,   `hsla(${p.hue},70%,65%,${al*0.50})`);
+        ctx.fillStyle = grd; ctx.fill();
+
+        // Contour luisant
+        ctx.strokeStyle = `hsla(${p.hue},85%,88%,${al*0.55})`;
+        ctx.lineWidth   = p.w*0.055; ctx.lineJoin='round'; ctx.stroke();
+
+        // ── Yeux ────────────────────────────────────────────────
+        if (p.eyes) {
+          const eyeY = -r*0.18, eyeX = r*0.28, eyeR = r*0.14;
+          [-eyeX, eyeX].forEach(ex => {
+            // Lueur de l'œil
+            ctx.beginPath(); ctx.arc(ex, eyeY, eyeR*2.2, 0, Math.PI*2);
+            ctx.fillStyle = `hsla(${p.hue+30},100%,70%,${al*0.28})`; ctx.fill();
+            // Œil sombre
+            ctx.beginPath(); ctx.arc(ex, eyeY, eyeR, 0, Math.PI*2);
+            ctx.fillStyle = `hsla(${p.hue+15},90%,28%,${al*0.85})`; ctx.fill();
+            // Reflet blanc
+            ctx.beginPath(); ctx.arc(ex-eyeR*0.3, eyeY-eyeR*0.3, eyeR*0.32, 0, Math.PI*2);
+            ctx.fillStyle = `rgba(255,255,255,${al*0.7})`; ctx.fill();
+          });
+        }
+
+        // ── Bouche ──────────────────────────────────────────────
+        if (p.mouth) {
+          ctx.beginPath();
+          ctx.arc(0, r*0.28, r*0.16, 0, Math.PI);
+          ctx.strokeStyle = `hsla(${p.hue+15},80%,35%,${al*0.70})`;
+          ctx.lineWidth = p.w*0.06; ctx.lineCap='round'; ctx.stroke();
+        }
+
+        ctx.restore();
+      }
     } else if (t==='shell') {
       ctx.save();
       ctx.translate(p.x, p.y);
@@ -553,7 +645,7 @@ const THEME_PARTICLES = {
   pktenebres:  { type:'data',    count:45 },
   pkelectrik:  { type:'bolt',    count:70 },
   pkfee:       { type:'sparkle', count:55 },
-  pkspectre:   { type:'bubble',  count:40 },
+  pkspectre:   { type:'ghost',   count:22 },
   pkdragon:    { type:'fire',    count:65 },
   pkglace:     { type:'flake',   count:50 },
   pkcombat:    { type:'fire',    count:70 },
