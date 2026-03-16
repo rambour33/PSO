@@ -38,6 +38,7 @@
     <button class="tab-btn" data-tab="ruleset">Ruleset</button>
     <button class="tab-btn" data-tab="custom">Customisation</button>
     <button class="tab-btn" data-tab="chars" style="display:none">Personnages</button>
+    <button class="tab-btn" data-tab="startgg">start.gg</button>
   </nav>
 
   <!-- ═══════════════════════════════════════════════════════════ -->
@@ -1285,6 +1286,73 @@
 
   </div><!-- /tab-chars -->
 
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- TAB : START.GG                                              -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <div class="tab-content" id="tab-startgg">
+
+    <!-- Config clé API -->
+    <section class="section">
+      <div class="section-header">
+        <h2>Connexion start.gg</h2>
+      </div>
+      <div class="form-group">
+        <label>Clé API</label>
+        <div class="name-row">
+          <input type="password" id="sgg-api-key" placeholder="Votre clé API start.gg" style="flex:1" />
+          <button class="btn btn-primary btn-sm" id="sgg-save-key">Enregistrer</button>
+        </div>
+        <p class="hint" id="sgg-key-status">Chargement…</p>
+      </div>
+    </section>
+
+    <!-- Recherche tournoi -->
+    <section class="section">
+      <div class="section-header">
+        <h2>Tournoi</h2>
+      </div>
+      <div class="form-group">
+        <label>Slug ou URL start.gg</label>
+        <div class="name-row">
+          <input type="text" id="sgg-slug" placeholder="ex: tournament/combo-breaker-2024" style="flex:1" />
+          <button class="btn btn-primary btn-sm" id="sgg-search-btn">Chercher</button>
+        </div>
+        <p class="hint">Format attendu : <code>tournament/nom-du-tournoi</code></p>
+      </div>
+      <div id="sgg-tournament-info" style="display:none">
+        <p class="hint" id="sgg-tournament-name"></p>
+        <div class="form-group">
+          <label>Évènement</label>
+          <select id="sgg-event-select" class="input-name" style="width:100%"></select>
+          <button class="btn btn-outline btn-sm" id="sgg-load-event" style="margin-top:6px">Charger les participants</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Participants -->
+    <section class="section" id="sgg-entrants-section" style="display:none">
+      <div class="section-header">
+        <h2>Participants</h2>
+        <span class="hint" id="sgg-entrants-count"></span>
+      </div>
+      <div class="form-group">
+        <input type="text" id="sgg-entrants-search" placeholder="Filtrer les joueurs…" style="width:100%" />
+      </div>
+      <div id="sgg-entrants-list" class="sgg-entrants-list"></div>
+      <div id="sgg-entrants-pagination" class="sgg-pagination"></div>
+    </section>
+
+    <!-- Sets en cours -->
+    <section class="section" id="sgg-sets-section" style="display:none">
+      <div class="section-header">
+        <h2>Sets en cours</h2>
+        <button class="btn btn-outline btn-sm" id="sgg-refresh-sets">Actualiser</button>
+      </div>
+      <div id="sgg-sets-list" class="sgg-sets-list"></div>
+    </section>
+
+  </div><!-- /tab-startgg -->
+
   <!-- STAGE PICKER MODAL -->
   <div class="char-modal" id="stage-modal" style="display:none">
     <div class="char-modal-inner stage-modal-inner">
@@ -1324,5 +1392,6 @@
 
 <script src="/socket.io/socket.io.js"></script>
 <script src="control.js"></script>
+<script src="startgg-ui.js"></script>
 </body>
 </html>

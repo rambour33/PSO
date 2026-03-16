@@ -342,6 +342,109 @@ io.on('connection', (socket) => {
   });
 });
 
+// ─── start.gg API ─────────────────────────────────────────────────────────────
+
+const CONFIG_FILE = path.join(__dirname, 'config.json');
+
+function getConfig() {
+  try {
+    if (fs.existsSync(CONFIG_FILE)) return JSON.parse(fs.readFileSync(CONFIG_FILE, 'utf8'));
+  } catch {}
+  return {};
+}
+
+function saveConfig(cfg) {
+  fs.writeFileSync(CONFIG_FILE, JSON.stringify(cfg, null, 2));
+}
+
+async function startggQuery(query, variables = {}) {
+  const cfg = getConfig();
+  const apiKey = cfg.startggApiKey;
+  if (!apiKey) throw new Error('Clé API start.gg non configurée');
+  const res = await fetch('https://api.start.gg/gql/alpha', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${apiKey}`
+    },
+    body: JSON.stringify({ query, variables })
+  });
+  const data = await res.json();
+  if (data.errors) throw new Error(data.errors[0].message);
+  return data.data;
+}
+
+app.get('/api/startgg/config', (req, res) => {
+  const cfg = getConfig();
+  res.json({ hasKey: !!cfg.startggApiKey });
+});
+
+app.post('/api/startgg/config', (req, res) => {
+  const cfg = getConfig();
+  cfg.startggApiKey = req.body.apiKey;
+  saveConfig(cfg);
+  res.json({ ok: true });
+});
+
+app.get('/api/startgg/tournament/:slug', async (req, res) => {
+  try {
+    const data = await startggQuery(`
+      query TournamentQuery($slug: String!) {
+        tournament(slug: $slug) {
+          id name slug
+          events { id name numEntrants }
+        }
+      }
+    `, { slug: req.params.slug });
+    if (!data.tournament) return res.status(404).json({ error: 'Tournoi introuvable' });
+    res.json(data.tournament);
+  } catch (e) { res.status(400).json({ error: e.message }); }
+});
+
+app.get('/api/startgg/event/:id/entrants', async (req, res) => {
+  try {
+    const data = await startggQuery(`
+      query EventEntrants($eventId: ID!, $page: Int!) {
+        event(id: $eventId) {
+          id name
+          entrants(query: { page: $page, perPage: 100 }) {
+            pageInfo { total totalPages }
+            nodes {
+              id name
+              participants { gamerTag prefix }
+            }
+          }
+        }
+      }
+    `, { eventId: parseInt(req.params.id), page: parseInt(req.query.page || 1) });
+    if (!data.event) return res.status(404).json({ error: 'Évènement introuvable' });
+    res.json(data.event);
+  } catch (e) { res.status(400).json({ error: e.message }); }
+});
+
+app.get('/api/startgg/event/:id/sets', async (req, res) => {
+  try {
+    const data = await startggQuery(`
+      query EventSets($eventId: ID!) {
+        event(id: $eventId) {
+          id name
+          sets(filters: { state: [2] }, perPage: 20, sortType: RECENT) {
+            nodes {
+              id fullRoundText state
+              slots {
+                entrant { name participants { gamerTag prefix } }
+                standing { stats { score { value } } }
+              }
+            }
+          }
+        }
+      }
+    `, { eventId: parseInt(req.params.id) });
+    if (!data.event) return res.status(404).json({ error: 'Évènement introuvable' });
+    res.json(data.event);
+  } catch (e) { res.status(400).json({ error: e.message }); }
+});
+
 // ─── Start ────────────────────────────────────────────────────────────────────
 
 const PORT = 3002;
