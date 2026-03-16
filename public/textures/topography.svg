@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120">
+  <!--
+    Topographic / contour line texture — 120×120 tileable.
+    Concentric oval shapes offset slightly to create organic layered look.
+  -->
+  <g fill="none" stroke="rgba(255,255,255,0.045)" stroke-width="0.7">
+    <!-- Outer contours (wrap-friendly straight segments near edges) -->
+    <ellipse cx="60"  cy="60"  rx="55" ry="38"/>
+    <ellipse cx="60"  cy="60"  rx="44" ry="29"/>
+    <ellipse cx="60"  cy="60"  rx="32" ry="20"/>
+    <ellipse cx="60"  cy="60"  rx="20" ry="12"/>
+    <!-- Offset set for visual interest -->
+    <ellipse cx="0"   cy="0"   rx="28" ry="18"/>
+    <ellipse cx="120" cy="0"   rx="28" ry="18"/>
+    <ellipse cx="0"   cy="120" rx="28" ry="18"/>
+    <ellipse cx="120" cy="120" rx="28" ry="18"/>
+    <ellipse cx="0"   cy="60"  rx="18" ry="30"/>
+    <ellipse cx="120" cy="60"  rx="18" ry="30"/>
+    <ellipse cx="60"  cy="0"   rx="30" ry="18"/>
+    <ellipse cx="60"  cy="120" rx="30" ry="18"/>
+  </g>
+</svg>

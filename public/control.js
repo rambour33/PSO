@@ -67,6 +67,13 @@ function syncFromState(s) {
   const lpVal = s.logoParticleCount ?? 3;
   document.getElementById('logo-particles-range').value = lpVal;
   document.getElementById('logo-particles-num').value   = lpVal;
+  const pOp = s.particleOpacity ?? 100;
+  document.getElementById('particle-opacity-range').value = pOp;
+  document.getElementById('particle-opacity-num').value   = pOp;
+  const pCt = s.particleCountScale ?? 100;
+  document.getElementById('particle-count-range').value = pCt;
+  document.getElementById('particle-count-num').value   = pCt;
+  updateParticlesToggle(s.particlesEnabled !== false);
   updateLogoPreview();
 
   // Format buttons
@@ -173,6 +180,9 @@ function buildStateFromForm() {
     format: state.format,
     customWins: parseInt(document.getElementById('custom-wins').value) || 2,
     logoParticleCount: parseInt(document.getElementById('logo-particles-num').value) || 3,
+    particleOpacity:    parseInt(document.getElementById('particle-opacity-num')?.value ?? 100),
+    particleCountScale: parseInt(document.getElementById('particle-count-num')?.value ?? 100),
+    particlesEnabled:   state.particlesEnabled !== false,
   };
 }
 
@@ -288,6 +298,13 @@ document.getElementById('btn-swap').addEventListener('click', () => {
   emitState(ns);
   document.getElementById('btn-swap').classList.toggle('active', ns.swapped);
   setStatus(`Joueurs ${ns.swapped ? 'inversés' : 'normal'}`);
+});
+
+document.getElementById('btn-vs-trigger').addEventListener('click', () => {
+  socket.emit('triggerVsScreen');
+  const btn = document.getElementById('btn-vs-trigger');
+  btn.textContent = '✓ Envoyé';
+  setTimeout(() => { btn.textContent = '⚔ VS Anim'; }, 1200);
 });
 
 document.getElementById('btn-visibility').addEventListener('click', () => {
@@ -1161,6 +1178,48 @@ function updateLogoPreview() {
     box.innerHTML = '<span>Aperçu</span>';
   }
 }
+
+// Particules — bouton ON/OFF
+function updateParticlesToggle(enabled) {
+  const btn  = document.getElementById('btn-particles-toggle');
+  const ctrls = document.getElementById('particles-controls');
+  if (!btn) return;
+  if (enabled) {
+    btn.textContent = '⏸ Désactiver les particules';
+    btn.classList.remove('btn-outline');
+    btn.classList.add('btn-primary');
+    ctrls.style.opacity = '1';
+    ctrls.style.pointerEvents = '';
+  } else {
+    btn.textContent = '▶ Activer les particules';
+    btn.classList.remove('btn-primary');
+    btn.classList.add('btn-outline');
+    ctrls.style.opacity = '0.4';
+    ctrls.style.pointerEvents = 'none';
+  }
+}
+
+document.getElementById('btn-particles-toggle').addEventListener('click', () => {
+  state.particlesEnabled = state.particlesEnabled === false;
+  emitState(buildStateFromForm());
+  setStatus(state.particlesEnabled === false ? 'Particules désactivées' : 'Particules activées');
+});
+
+// Particules — opacité & quantité — sync slider ↔ number
+['particle-opacity', 'particle-count'].forEach(id => {
+  document.getElementById(id + '-range').addEventListener('input', function () {
+    document.getElementById(id + '-num').value = this.value;
+    emitState(buildStateFromForm());
+  });
+  document.getElementById(id + '-num').addEventListener('change', function () {
+    const isOpacity = id === 'particle-opacity';
+    const [min, max] = isOpacity ? [0, 100] : [10, 500];
+    let v = Math.min(max, Math.max(min, parseInt(this.value) || min));
+    this.value = v;
+    document.getElementById(id + '-range').value = v;
+    emitState(buildStateFromForm());
+  });
+});
 
 // Particules logo — sync slider ↔ number
 document.getElementById('logo-particles-range').addEventListener('input', function () {

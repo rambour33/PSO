@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="4" height="8">
+  <!--
+    Carbon fiber weave — 4×8 tile.
+    Two interlocking "fiber" cells in a 2×2 checkerboard weave.
+  -->
+  <!-- Base -->
+  <rect width="4" height="8" fill="#161616"/>
+  <!-- Cell A (top-left): slightly raised fiber -->
+  <rect x="0" y="0" width="2" height="4" fill="#1e1e1e"/>
+  <rect x="0" y="0" width="2" height="1" fill="rgba(255,255,255,0.07)"/>
+  <!-- Cell B (bottom-right): slightly raised fiber -->
+  <rect x="2" y="4" width="2" height="4" fill="#1e1e1e"/>
+  <rect x="2" y="4" width="2" height="1" fill="rgba(255,255,255,0.07)"/>
+  <!-- Separation grooves -->
+  <line x1="2" y1="0" x2="2" y2="4" stroke="rgba(0,0,0,0.6)" stroke-width="0.4"/>
+  <line x1="0" y1="4" x2="4" y2="4" stroke="rgba(0,0,0,0.6)" stroke-width="0.4"/>
+  <line x1="0" y1="0" x2="2" y2="0" stroke="rgba(0,0,0,0.6)" stroke-width="0.4"/>
+  <line x1="2" y1="4" x2="4" y2="4" stroke="rgba(0,0,0,0.6)" stroke-width="0.4"/>
+</svg>

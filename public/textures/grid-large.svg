@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60">
+  <!-- Large grid with accent cross at tile origin -->
+  <path d="M60,0 L0,0 L0,60" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="0.5"/>
+  <!-- Inner subdivisions -->
+  <line x1="20" y1="0" x2="20" y2="60" stroke="rgba(255,255,255,0.02)" stroke-width="0.5"/>
+  <line x1="40" y1="0" x2="40" y2="60" stroke="rgba(255,255,255,0.02)" stroke-width="0.5"/>
+  <line x1="0" y1="20" x2="60" y2="20" stroke="rgba(255,255,255,0.02)" stroke-width="0.5"/>
+  <line x1="0" y1="40" x2="60" y2="40" stroke="rgba(255,255,255,0.02)" stroke-width="0.5"/>
+  <!-- Corner dot -->
+  <circle cx="0" cy="0" r="1" fill="rgba(255,255,255,0.06)"/>
+</svg>
