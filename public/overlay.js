@@ -76,7 +76,7 @@ function _lpStop() {
 
 // ── Canvas particle engine ────────────────────────────────────
 const PS = (() => {
-  let canvas, ctx, rafId = null, _type = null;
+  let canvas, ctx, rafId = null, _type = null, _dualKey = null;
   const pts = [];
 
   // ── Factories ──────────────────────────────────────────────
@@ -1611,7 +1611,24 @@ const PS = (() => {
   function stop() {
     if (rafId) { cancelAnimationFrame(rafId); rafId=null; }
     if (ctx) ctx.clearRect(0,0,canvas.width,canvas.height);
-    pts.length=0; _type=null;
+    pts.length=0; _type=null; _dualKey=null;
+  }
+
+  function startDual(type1, count1, type2, count2) {
+    stop();
+    _type = '__dual__';
+    _dualKey = `${type1}|${count1}|${type2}|${count2}`;
+    resize();
+    pts.length = 0;
+    const W = canvas.width, H = canvas.height;
+    const half = Math.floor(W / 2);
+    if (type1 && FAC[type1]) {
+      for (let i = 0; i < count1; i++) { const p = FAC[type1](half, H); pts.push(p); }
+    }
+    if (type2 && FAC[type2]) {
+      for (let i = 0; i < count2; i++) { const p = FAC[type2](half, H); p.x += half; pts.push(p); }
+    }
+    tick();
   }
 
   function init() {
@@ -1621,8 +1638,101 @@ const PS = (() => {
     window.addEventListener('resize', resize);
   }
 
-  return { init, start, stop, resize, get type() { return _type; } };
+  return { init, start, stop, resize, startDual,
+           get type() { return _type; }, get dualKey() { return _dualKey; } };
 })();
+
+// ── Couleurs de référence par thème personnage (pour le mode Dual) ─────────────
+const CHAR_THEME_COLORS = {
+  smario:      { primary:'#E52222', glow:'rgba(229,34,34,0.38)',    bg:'rgba(26,4,0,0.94)'    },
+  sdk:         { primary:'#8B4513', glow:'rgba(139,69,19,0.38)',    bg:'rgba(12,6,0,0.94)'    },
+  slink:       { primary:'#5BAD20', glow:'rgba(91,173,32,0.38)',    bg:'rgba(4,18,0,0.94)'    },
+  ssamus:      { primary:'#FF6A00', glow:'rgba(255,106,0,0.38)',    bg:'rgba(18,6,0,0.94)'    },
+  sdsamus:     { primary:'#9D00FF', glow:'rgba(157,0,255,0.38)',    bg:'rgba(10,0,20,0.94)'   },
+  syoshi:      { primary:'#5DCB14', glow:'rgba(93,203,20,0.38)',    bg:'rgba(4,16,0,0.94)'    },
+  skirby:      { primary:'#FF8CB4', glow:'rgba(255,140,180,0.38)',  bg:'rgba(20,4,12,0.94)'   },
+  sfox:        { primary:'#CC5500', glow:'rgba(204,85,0,0.38)',     bg:'rgba(18,6,0,0.94)'    },
+  spikachu:    { primary:'#FFD700', glow:'rgba(255,215,0,0.38)',    bg:'rgba(20,16,0,0.94)'   },
+  sluigi:      { primary:'#2AA000', glow:'rgba(42,160,0,0.38)',     bg:'rgba(2,14,0,0.94)'    },
+  sness:       { primary:'#CC1100', glow:'rgba(204,17,0,0.38)',     bg:'rgba(18,0,0,0.94)'    },
+  sfalcon:     { primary:'#FF4400', glow:'rgba(255,68,0,0.38)',     bg:'rgba(20,4,0,0.94)'    },
+  sjigglypuff: { primary:'#FF8CB4', glow:'rgba(255,140,180,0.38)',  bg:'rgba(20,4,12,0.94)'   },
+  speach:      { primary:'#F9A8D4', glow:'rgba(249,168,212,0.38)',  bg:'rgba(20,4,14,0.94)'   },
+  sdaisy:      { primary:'#FFD700', glow:'rgba(255,215,0,0.38)',    bg:'rgba(20,16,0,0.94)'   },
+  sbowser:     { primary:'#009A00', glow:'rgba(0,154,0,0.38)',      bg:'rgba(0,14,0,0.94)'    },
+  siceclimbers:{ primary:'#7AB8FF', glow:'rgba(122,184,255,0.38)',  bg:'rgba(4,10,20,0.94)'   },
+  ssheik:      { primary:'#00A0C0', glow:'rgba(0,160,192,0.38)',    bg:'rgba(0,10,16,0.94)'   },
+  szelda:      { primary:'#C080FF', glow:'rgba(192,128,255,0.38)',  bg:'rgba(10,4,20,0.94)'   },
+  sdrmario:    { primary:'#E52222', glow:'rgba(229,34,34,0.38)',    bg:'rgba(26,4,0,0.94)'    },
+  spichu:      { primary:'#FFD700', glow:'rgba(255,215,0,0.38)',    bg:'rgba(20,16,0,0.94)'   },
+  sfalco:      { primary:'#0088CC', glow:'rgba(0,136,204,0.38)',    bg:'rgba(0,8,18,0.94)'    },
+  smarth:      { primary:'#8855FF', glow:'rgba(136,85,255,0.38)',   bg:'rgba(8,4,20,0.94)'    },
+  slucina:     { primary:'#CC6688', glow:'rgba(204,102,136,0.38)',  bg:'rgba(18,4,10,0.94)'   },
+  sylink:      { primary:'#2A7040', glow:'rgba(42,112,64,0.38)',    bg:'rgba(2,10,4,0.94)'    },
+  sganondorf:  { primary:'#6600AA', glow:'rgba(102,0,170,0.38)',    bg:'rgba(8,0,16,0.94)'    },
+  smewtwo:     { primary:'#C070FF', glow:'rgba(192,112,255,0.38)',  bg:'rgba(12,4,20,0.94)'   },
+  sroy:        { primary:'#FF3300', glow:'rgba(255,51,0,0.38)',     bg:'rgba(20,2,0,0.94)'    },
+  schrom:      { primary:'#4488FF', glow:'rgba(68,136,255,0.38)',   bg:'rgba(2,6,20,0.94)'    },
+  sgamewatch:  { primary:'#AAAAAA', glow:'rgba(170,170,170,0.28)',  bg:'rgba(4,4,4,0.94)'     },
+  smetaknight: { primary:'#4466BB', glow:'rgba(68,102,187,0.38)',   bg:'rgba(2,4,16,0.94)'    },
+  spit:        { primary:'#AACC55', glow:'rgba(170,204,85,0.38)',   bg:'rgba(10,14,2,0.94)'   },
+  sdarkpit:    { primary:'#6688AA', glow:'rgba(102,136,170,0.38)',  bg:'rgba(4,6,12,0.94)'    },
+  szss:        { primary:'#CC66FF', glow:'rgba(204,102,255,0.38)',  bg:'rgba(14,4,20,0.94)'   },
+  swario:      { primary:'#DDAA00', glow:'rgba(221,170,0,0.38)',    bg:'rgba(16,12,0,0.94)'   },
+  ssnake:      { primary:'#448822', glow:'rgba(68,136,34,0.38)',    bg:'rgba(4,10,2,0.94)'    },
+  sike:        { primary:'#0066CC', glow:'rgba(0,102,204,0.38)',    bg:'rgba(0,6,18,0.94)'    },
+  spktrainer:  { primary:'#CC3300', glow:'rgba(204,51,0,0.38)',     bg:'rgba(18,2,0,0.94)'    },
+  sdiddy:      { primary:'#BB5500', glow:'rgba(187,85,0,0.38)',     bg:'rgba(16,6,0,0.94)'    },
+  slucas:      { primary:'#CC8833', glow:'rgba(204,136,51,0.38)',   bg:'rgba(18,8,2,0.94)'    },
+  ssonic:      { primary:'#1A6BFF', glow:'rgba(26,107,255,0.38)',   bg:'rgba(0,4,20,0.94)'    },
+  sdedede:     { primary:'#CC0055', glow:'rgba(204,0,85,0.38)',     bg:'rgba(16,0,6,0.94)'    },
+  solimar:     { primary:'#DDAA00', glow:'rgba(221,170,0,0.38)',    bg:'rgba(18,12,0,0.94)'   },
+  slucario:    { primary:'#4488CC', glow:'rgba(68,136,204,0.38)',   bg:'rgba(2,6,18,0.94)'    },
+  srob:        { primary:'#AAAAAA', glow:'rgba(170,170,170,0.28)',  bg:'rgba(10,10,10,0.94)'  },
+  stoonlink:   { primary:'#55AA22', glow:'rgba(85,170,34,0.38)',    bg:'rgba(4,12,2,0.94)'    },
+  swolf:       { primary:'#6688AA', glow:'rgba(102,136,170,0.38)',  bg:'rgba(4,8,14,0.94)'    },
+  svilager:    { primary:'#88CC44', glow:'rgba(136,204,68,0.38)',   bg:'rgba(8,14,2,0.94)'    },
+  smegaman:    { primary:'#0099DD', glow:'rgba(0,153,221,0.38)',    bg:'rgba(0,10,18,0.94)'   },
+  swiifit:     { primary:'#AADDAA', glow:'rgba(170,221,170,0.28)',  bg:'rgba(10,16,10,0.94)'  },
+  srosalina:   { primary:'#88AAFF', glow:'rgba(136,170,255,0.38)',  bg:'rgba(6,8,20,0.94)'    },
+  slittlemac:  { primary:'#FF8822', glow:'rgba(255,136,34,0.38)',   bg:'rgba(20,8,2,0.94)'    },
+  sgreninja:   { primary:'#2266AA', glow:'rgba(34,102,170,0.38)',   bg:'rgba(2,6,16,0.94)'    },
+  spalutena:   { primary:'#CCAAFF', glow:'rgba(204,170,255,0.38)',  bg:'rgba(16,12,20,0.94)'  },
+  spacman:     { primary:'#FFDD00', glow:'rgba(255,221,0,0.38)',    bg:'rgba(20,18,0,0.94)'   },
+  srobin:      { primary:'#CC5500', glow:'rgba(204,85,0,0.38)',     bg:'rgba(16,6,0,0.94)'    },
+  sshulk:      { primary:'#CCAA55', glow:'rgba(204,170,85,0.38)',   bg:'rgba(18,16,4,0.94)'   },
+  sbowserjr:   { primary:'#DD9900', glow:'rgba(221,153,0,0.38)',    bg:'rgba(18,12,0,0.94)'   },
+  sduckhunt:   { primary:'#886644', glow:'rgba(136,102,68,0.38)',   bg:'rgba(12,8,4,0.94)'    },
+  sryu:        { primary:'#FFFFFF', glow:'rgba(255,255,255,0.22)',  bg:'rgba(6,6,10,0.94)'    },
+  sken:        { primary:'#FF6600', glow:'rgba(255,102,0,0.38)',    bg:'rgba(20,6,0,0.94)'    },
+  scloud:      { primary:'#6699CC', glow:'rgba(102,153,204,0.38)',  bg:'rgba(4,8,16,0.94)'    },
+  scorrin:     { primary:'#CC7755', glow:'rgba(204,119,85,0.38)',   bg:'rgba(18,10,6,0.94)'   },
+  sbayonetta:  { primary:'#8888CC', glow:'rgba(136,136,204,0.38)',  bg:'rgba(6,6,14,0.94)'    },
+  sinkling:    { primary:'#FF4499', glow:'rgba(255,68,153,0.38)',   bg:'rgba(20,2,12,0.94)'   },
+  sridley:     { primary:'#8844AA', glow:'rgba(136,68,170,0.38)',   bg:'rgba(10,2,14,0.94)'   },
+  ssimon:      { primary:'#CC8844', glow:'rgba(204,136,68,0.38)',   bg:'rgba(18,12,4,0.94)'   },
+  srichter:    { primary:'#997744', glow:'rgba(153,119,68,0.38)',   bg:'rgba(14,10,4,0.94)'   },
+  skrool:      { primary:'#AA6600', glow:'rgba(170,102,0,0.38)',    bg:'rgba(16,8,0,0.94)'    },
+  sisabelle:   { primary:'#FFCC44', glow:'rgba(255,204,68,0.38)',   bg:'rgba(20,18,2,0.94)'   },
+  sincineroar: { primary:'#CC3366', glow:'rgba(204,51,102,0.38)',   bg:'rgba(18,2,8,0.94)'    },
+  spiranha:    { primary:'#33BB33', glow:'rgba(51,187,51,0.38)',    bg:'rgba(2,16,2,0.94)'    },
+  sjoker:      { primary:'#DD0000', glow:'rgba(221,0,0,0.38)',      bg:'rgba(18,0,0,0.94)'    },
+  shero:       { primary:'#4455CC', glow:'rgba(68,85,204,0.38)',    bg:'rgba(2,4,18,0.94)'    },
+  sbanjo:      { primary:'#CC9933', glow:'rgba(204,153,51,0.38)',   bg:'rgba(18,14,2,0.94)'   },
+  sterry:      { primary:'#FF3300', glow:'rgba(255,51,0,0.38)',     bg:'rgba(20,2,0,0.94)'    },
+  sbyleth:     { primary:'#996633', glow:'rgba(153,102,51,0.38)',   bg:'rgba(14,8,4,0.94)'    },
+  sminmin:     { primary:'#FF6688', glow:'rgba(255,102,136,0.38)',  bg:'rgba(20,6,10,0.94)'   },
+  ssteve:      { primary:'#887766', glow:'rgba(136,119,102,0.38)',  bg:'rgba(10,8,6,0.94)'    },
+  ssephiroth:  { primary:'#AAAAFF', glow:'rgba(170,170,255,0.38)',  bg:'rgba(8,8,20,0.94)'    },
+  spyra:       { primary:'#FF9900', glow:'rgba(255,153,0,0.38)',    bg:'rgba(20,14,0,0.94)'   },
+  smythra:     { primary:'#FF5500', glow:'rgba(255,85,0,0.38)',     bg:'rgba(20,4,0,0.94)'    },
+  skazuya:     { primary:'#5500CC', glow:'rgba(85,0,204,0.38)',     bg:'rgba(6,0,18,0.94)'    },
+  ssora:       { primary:'#4477FF', glow:'rgba(68,119,255,0.38)',   bg:'rgba(2,4,20,0.94)'    },
+  smii_brawl:  { primary:'#AA4400', glow:'rgba(170,68,0,0.38)',     bg:'rgba(16,4,0,0.94)'    },
+  smii_sword:  { primary:'#7799BB', glow:'rgba(119,153,187,0.38)',  bg:'rgba(6,8,14,0.94)'    },
+  smii_gun:    { primary:'#448866', glow:'rgba(68,136,102,0.38)',   bg:'rgba(2,10,6,0.94)'    },
+  default:     { primary:'#888888', glow:'rgba(136,136,136,0.22)',  bg:'rgba(10,10,14,0.94)'  },
+};
 
 const THEME_PARTICLES = {
   cyberpunk:   { type:'data',    count:55 },
@@ -1808,9 +1918,25 @@ function update(s) {
    'srosalina','slittlemac','sgreninja','spalutena','spacman','srobin','sshulk','sbowserjr','sduckhunt','sryu',
    'sken','scloud','scorrin','sbayonetta','sinkling','sridley','ssimon','srichter','skrool','sisabelle',
    'sincineroar','spiranha','sjoker','shero','sbanjo','sterry','sbyleth','sminmin','ssteve','ssephiroth',
-   'spyra','smythra','skazuya','ssora','smii_brawl','smii_sword','smii_gun'].forEach(t => {
+   'spyra','smythra','skazuya','ssora','smii_brawl','smii_sword','smii_gun',
+   'dual'].forEach(t => {
     sb.classList.toggle('theme-' + t, (s.overlayTheme || 'default') === t);
   });
+
+  // ── Dual character theme — CSS vars ─────────────────────────
+  const isDual = (s.overlayTheme || 'default') === 'dual';
+  if (isDual) {
+    const k1 = s.player1.character?.id ? 's' + s.player1.character.id : 'default';
+    const k2 = s.player2.character?.id ? 's' + s.player2.character.id : 'default';
+    const c1 = CHAR_THEME_COLORS[k1] || CHAR_THEME_COLORS.default;
+    const c2 = CHAR_THEME_COLORS[k2] || CHAR_THEME_COLORS.default;
+    sb.style.setProperty('--p1-theme-primary', c1.primary);
+    sb.style.setProperty('--p1-theme-glow',    c1.glow);
+    sb.style.setProperty('--p1-theme-bg',      c1.bg);
+    sb.style.setProperty('--p2-theme-primary', c2.primary);
+    sb.style.setProperty('--p2-theme-glow',    c2.glow);
+    sb.style.setProperty('--p2-theme-bg',      c2.bg);
+  }
 
   // Logo particules
   const isCustomTheme = CUSTOM_THEMES.includes(s.overlayTheme || 'default');
@@ -1826,11 +1952,26 @@ function update(s) {
   }
 
   // Canvas particules
-  const tpConf = THEME_PARTICLES[s.overlayTheme || 'default'];
-  if (tpConf) {
-    if (tpConf.type !== PS.type) PS.start(tpConf.type, tpConf.count);
-  } else if (PS.type) {
-    PS.stop();
+  if (isDual) {
+    const k1 = s.player1.character?.id ? 's' + s.player1.character.id : 'default';
+    const k2 = s.player2.character?.id ? 's' + s.player2.character.id : 'default';
+    const tp1 = THEME_PARTICLES[k1];
+    const tp2 = THEME_PARTICLES[k2];
+    const type1  = tp1?.type  || 'sparkle';
+    const count1 = Math.round((tp1?.count || 40) * 0.55);
+    const type2  = tp2?.type  || 'sparkle';
+    const count2 = Math.round((tp2?.count || 40) * 0.55);
+    const key = `${type1}|${count1}|${type2}|${count2}`;
+    if (PS.type !== '__dual__' || PS.dualKey !== key) {
+      PS.startDual(type1, count1, type2, count2);
+    }
+  } else {
+    const tpConf = THEME_PARTICLES[s.overlayTheme || 'default'];
+    if (tpConf) {
+      if (tpConf.type !== PS.type) PS.start(tpConf.type, tpConf.count);
+    } else if (PS.type) {
+      PS.stop();
+    }
   }
 
   // Background color + opacity

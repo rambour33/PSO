@@ -2617,3 +2617,174 @@ body {
 #scoreboard.theme-smii_gun::before{content:'';position:absolute;inset:0;pointer-events:none;z-index:0;background:radial-gradient(ellipse at 20% 80%,#FF444418 0%,transparent 60%),radial-gradient(ellipse at 80% 20%,#FF444412 0%,transparent 50%);animation:smii_gun-glow 3s ease-in-out infinite}
 #scoreboard.theme-smii_gun .event-bar,#scoreboard.theme-smii_gun .player-block,#scoreboard.theme-smii_gun .score-center{border-color:#FF444455;box-shadow:0 0 8px #FF444422}
 #scoreboard.theme-smii_gun .logo-zone{filter:drop-shadow(0 0 6px #FF4444)}
+
+/* ─── Dual Character Theme ─────────────────────────────────────────────────── */
+
+/* Variables par défaut */
+#scoreboard.theme-dual {
+  --p1-theme-primary: #888;
+  --p1-theme-glow: rgba(136,136,136,0.22);
+  --p1-theme-bg: rgba(10,10,14,0.94);
+  --p2-theme-primary: #888;
+  --p2-theme-glow: rgba(136,136,136,0.22);
+  --p2-theme-bg: rgba(10,10,14,0.94);
+
+  background: linear-gradient(
+    to right,
+    var(--p1-theme-bg) 0%,
+    var(--p1-theme-bg) 46%,
+    rgba(8,8,12,0.97) 50%,
+    var(--p2-theme-bg) 54%,
+    var(--p2-theme-bg) 100%
+  );
+}
+
+/* Ligne de séparation centrale (glow vertical) */
+#scoreboard.theme-dual::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  transform: translateX(-50%);
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(255,255,255,0.12) 20%,
+    rgba(255,255,255,0.18) 50%,
+    rgba(255,255,255,0.12) 80%,
+    transparent 100%
+  );
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* Halo de fond gauche/droite */
+#scoreboard.theme-dual::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(ellipse at 15% 90%, var(--p1-theme-glow) 0%, transparent 55%),
+    radial-gradient(ellipse at 85% 90%, var(--p2-theme-glow) 0%, transparent 55%);
+  animation: dual-pulse 3.2s ease-in-out infinite;
+}
+
+@keyframes dual-pulse {
+  0%, 100% { opacity: 0.7; }
+  50%       { opacity: 1.0; }
+}
+
+/* Event bar — gradient gauche/droite */
+#scoreboard.theme-dual .event-bar {
+  border-bottom: 1px solid transparent;
+  border-image: linear-gradient(
+    to right,
+    var(--p1-theme-primary) 0%,
+    rgba(255,255,255,0.15) 45%,
+    rgba(255,255,255,0.15) 55%,
+    var(--p2-theme-primary) 100%
+  ) 1;
+  text-shadow: none;
+}
+
+/* Container joueurs — bordure dégradée */
+#scoreboard.theme-dual .players-container {
+  border-color: transparent;
+  border-image: linear-gradient(
+    to right,
+    var(--p1-theme-primary) 0%,
+    rgba(255,255,255,0.08) 45%,
+    rgba(255,255,255,0.08) 55%,
+    var(--p2-theme-primary) 100%
+  ) 1;
+}
+
+/* Portrait personnage — couleurs du thème */
+#scoreboard.theme-dual .player-left .player-character {
+  border-color: var(--p1-theme-primary);
+  box-shadow: 0 0 18px var(--p1-theme-glow), inset 0 0 8px var(--p1-theme-glow);
+}
+
+#scoreboard.theme-dual .player-right .player-character {
+  border-color: var(--p2-theme-primary);
+  box-shadow: 0 0 18px var(--p2-theme-glow), inset 0 0 8px var(--p2-theme-glow);
+}
+
+/* Tag joueur */
+#scoreboard.theme-dual .player-left .player-tag {
+  color: var(--p1-theme-primary);
+  text-shadow: 0 0 10px var(--p1-theme-glow);
+}
+
+#scoreboard.theme-dual .player-right .player-tag {
+  color: var(--p2-theme-primary);
+  text-shadow: 0 0 10px var(--p2-theme-glow);
+}
+
+/* Score center — bordures des deux couleurs */
+#scoreboard.theme-dual .score-center {
+  border-left-color: var(--p1-theme-primary);
+  border-right-color: var(--p2-theme-primary);
+  box-shadow:
+    -4px 0 16px var(--p1-theme-glow),
+     4px 0 16px var(--p2-theme-glow);
+}
+
+/* VS text — dégradé */
+#scoreboard.theme-dual .score-vs {
+  background: linear-gradient(135deg, var(--p1-theme-primary), var(--p2-theme-primary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 0 6px rgba(255,255,255,0.15));
+}
+
+/* Scores */
+#scoreboard.theme-dual #p1-score {
+  color: var(--p1-theme-primary);
+  text-shadow: 0 0 16px var(--p1-theme-glow);
+}
+
+#scoreboard.theme-dual #p2-score {
+  color: var(--p2-theme-primary);
+  text-shadow: 0 0 16px var(--p2-theme-glow);
+}
+
+/* Slim layout */
+#scoreboard.theme-dual .slim-bar {
+  border-color: transparent;
+  border-image: linear-gradient(
+    to right,
+    var(--p1-theme-primary) 0%,
+    rgba(255,255,255,0.1) 45%,
+    rgba(255,255,255,0.1) 55%,
+    var(--p2-theme-primary) 100%
+  ) 1;
+  box-shadow:
+    -6px 0 20px var(--p1-theme-glow),
+     6px 0 20px var(--p2-theme-glow);
+}
+
+#scoreboard.theme-dual .slim-left .slim-name {
+  color: var(--p1-theme-primary);
+  text-shadow: 0 0 8px var(--p1-theme-glow);
+}
+
+#scoreboard.theme-dual .slim-right .slim-name {
+  color: var(--p2-theme-primary);
+  text-shadow: 0 0 8px var(--p2-theme-glow);
+}
+
+#scoreboard.theme-dual #p1-score-slim {
+  color: var(--p1-theme-primary);
+  text-shadow: 0 0 12px var(--p1-theme-glow);
+}
+
+#scoreboard.theme-dual #p2-score-slim {
+  color: var(--p2-theme-primary);
+  text-shadow: 0 0 12px var(--p2-theme-glow);
+}
