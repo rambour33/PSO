@@ -260,6 +260,29 @@ const PS = (() => {
       spin:Math.random()*Math.PI*2,spinSpd:0.10+Math.random()*.08,
       shimmer:Math.random()*Math.PI*2,shimSpd:0.055+Math.random()*.06,
       op:0.72+Math.random()*.28,life:1,decay};}
+  function mkDkItem(W,H){
+    // kind: 0=tuile lettre KONG, 1=tonneau DK
+    const kind=Math.floor(Math.random()*2);
+    const dir=Math.random()>.5?1:-1;
+    const letters=['K','O','N','G'];
+    const li=Math.floor(Math.random()*4);
+    const s=12+Math.random()*9;
+    let x,y,vx,vy,decay;
+    if(kind===1){
+      // Tonneaux: traversent l'écran gauche↔droite
+      x=dir>0?-32:W+32; y=20+Math.random()*(H-40);
+      vx=dir*(0.52+Math.random()*.62); vy=(Math.random()-.5)*.12; decay=0;
+    } else {
+      // Tuiles KONG: dérivent lentement
+      x=Math.random()*W; y=Math.random()*H;
+      vx=(Math.random()-.5)*.28; vy=(Math.random()-.5)*.18; decay=0.0008+Math.random()*.0012;
+    }
+    return{t:'dkitem',kind,x,y,vx,vy,dir,s,letter:letters[li],li,
+      rot:Math.random()*Math.PI*2,
+      spin:kind===1?(0.038+Math.random()*.038)*dir:(Math.random()-.5)*.009,
+      bob:Math.random()*Math.PI*2,bobSpd:0.038+Math.random()*.028,
+      shimmer:Math.random()*Math.PI*2,shimSpd:0.050+Math.random()*.055,
+      op:0.74+Math.random()*.26,life:1,decay};}
   const FAC = { snow:mkSnow, fire:mkFire, rain:mkRain, sand:mkSand,
                 leaf:mkLeaf, bubble:mkBubble, sparkle:mkSparkle, data:mkData,
                 flake:mkFlake, bolt:mkBolt, pride:mkPride, shell:mkShell, flame:mkFlame,
@@ -268,7 +291,7 @@ const PS = (() => {
                 pixel:mkPixel, star:mkStar, aura:mkAura, rune:mkRune, smoke:mkSmoke,
                 ink:mkInk, heart:mkHeart, kunai:mkKunai, shuriken:mkShuriken,
                 cross:mkCross, spring:mkSpring, block:mkBlock, triforce:mkTriforce,
-                keyblade:mkKeyblade, pikmin:mkPikmin, ordnance:mkOrdnance, marioitem:mkMarioItem };
+                keyblade:mkKeyblade, pikmin:mkPikmin, ordnance:mkOrdnance, marioitem:mkMarioItem, dkitem:mkDkItem };
 
   // ── Update ─────────────────────────────────────────────────
   function upd(p, W, H) {
@@ -422,6 +445,20 @@ const PS = (() => {
         if(p.life<=0) Object.assign(p,mkMarioItem(W,H));
         if(p.x<-28) p.x=W+28; if(p.x>W+28) p.x=-28;
         if(p.y<-28) p.y=H+28; if(p.y>H+28) p.y=-28;
+      }
+    } else if (t==='dkitem') {
+      p.rot+=p.spin; p.bob+=p.bobSpd; p.shimmer+=p.shimSpd;
+      if(p.kind===1){
+        // Tonneau: traverse l'écran en tournant
+        p.x+=p.vx; p.y+=Math.sin(p.bob)*0.18;
+        if(p.x<-42||p.x>W+42) Object.assign(p,mkDkItem(W,H));
+      } else {
+        // Tuile KONG: dérive avec rebond sur les bords
+        p.x+=p.vx; p.y+=p.vy+Math.sin(p.bob)*0.15;
+        p.life-=p.decay;
+        if(p.life<=0) Object.assign(p,mkDkItem(W,H));
+        if(p.x<-32) p.x=W+32; if(p.x>W+32) p.x=-32;
+        if(p.y<-32) p.y=H+32; if(p.y>H+32) p.y=-32;
       }
     }
   }
@@ -1464,6 +1501,87 @@ const PS = (() => {
         ctx.restore();
       }
       ctx.restore(); ctx.globalAlpha=1;
+    } else if (t==='dkitem') {
+      ctx.save(); ctx.globalAlpha=p.op;
+      const s=p.s;
+      if(p.kind===0){
+        // ── TUILE LETTRE KONG ──
+        ctx.save();
+        ctx.translate(p.x, p.y+Math.sin(p.bob)*2.2); ctx.rotate(p.rot);
+        const ts=s;
+        const shim=(Math.sin(p.shimmer)+1)*.5;
+        // Ombre portée
+        ctx.fillStyle='rgba(0,0,0,0.25)'; ctx.fillRect(-ts+3,-ts+3,ts*2,ts*2);
+        // Corps rouge foncé
+        const tg=ctx.createLinearGradient(-ts,-ts,ts*.45,ts);
+        tg.addColorStop(0,'rgb(190,46,10)'); tg.addColorStop(0.5,'rgb(163,32,8)'); tg.addColorStop(1,'rgb(128,22,5)');
+        ctx.fillStyle=tg; ctx.fillRect(-ts,-ts,ts*2,ts*2);
+        // Cadre orange/or épais (bordure intérieure)
+        ctx.strokeStyle='rgba(230,135,22,0.96)'; ctx.lineWidth=ts*.22;
+        ctx.strokeRect(-ts+ts*.1,-ts+ts*.1,(ts-ts*.1)*2,(ts-ts*.1)*2);
+        // Contour extérieur sombre
+        ctx.strokeStyle='rgba(75,13,0,0.90)'; ctx.lineWidth=1.5;
+        ctx.strokeRect(-ts,-ts,ts*2,ts*2);
+        // Ombre 3D de la lettre (décalage bas-droite)
+        ctx.font=`bold ${Math.round(ts*1.55)}px "Arial Black", Impact, sans-serif`;
+        ctx.textAlign='center'; ctx.textBaseline='middle';
+        ctx.fillStyle='rgba(105,52,0,0.88)'; ctx.fillText(p.letter,ts*.1,ts*.1);
+        // Lettre dorée gradient
+        const lg=ctx.createLinearGradient(0,-ts*.65,0,ts*.65);
+        lg.addColorStop(0,  `hsl(52,100%,${Math.round(76+shim*13)}%)`);
+        lg.addColorStop(0.4,`hsl(46,98%, ${Math.round(60+shim*10)}%)`);
+        lg.addColorStop(0.8,'hsl(37,92%,47%)');
+        lg.addColorStop(1,  'hsl(30,86%,37%)');
+        ctx.fillStyle=lg; ctx.fillText(p.letter,0,0);
+        ctx.restore();
+      } else {
+        // ── TONNEAU DK (rotation 360° axe vertical) ──
+        const scx=Math.cos(p.rot);
+        if(Math.abs(scx)>0.02){
+          ctx.save();
+          ctx.translate(p.x, p.y+Math.sin(p.bob)*1.8); ctx.scale(scx,1);
+          const bw=s, bh=s*1.08;
+          // Ombre
+          ctx.fillStyle='rgba(0,0,0,0.22)'; ctx.fillRect(-bw+2,-bh+2,bw*2,bh*2);
+          // Corps brun (gradient gauche→droite pour donner arrondi cylindrique)
+          const bg=ctx.createLinearGradient(-bw,0,bw,0);
+          bg.addColorStop(0,   'rgb(102,50,17)');
+          bg.addColorStop(0.18,'rgb(162,92,42)');
+          bg.addColorStop(0.5, 'rgb(178,105,50)');
+          bg.addColorStop(0.82,'rgb(148,78,33)');
+          bg.addColorStop(1,   'rgb(95,45,14)');
+          ctx.fillStyle=bg; ctx.fillRect(-bw,-bh,bw*2,bh*2);
+          // Grain de bois (lignes verticales légères)
+          ctx.strokeStyle='rgba(72,32,8,0.32)'; ctx.lineWidth=0.85;
+          for(let i=-2;i<=2;i++){
+            if(i===0) continue;
+            const lx=i*bw*.33;
+            ctx.beginPath(); ctx.moveTo(lx,-bh); ctx.lineTo(lx+bw*.04,bh); ctx.stroke();
+          }
+          // Cerceaux noirs (haut, milieu, bas)
+          const bnd=bh*.17; ctx.fillStyle='rgb(17,12,8)';
+          ctx.fillRect(-bw,-bh,     bw*2,bnd);    // haut
+          ctx.fillRect(-bw,-bnd*.5, bw*2,bnd);    // milieu
+          ctx.fillRect(-bw,bh-bnd,  bw*2,bnd);    // bas
+          // "DK" sur la face avant seulement
+          if(scx>0){
+            ctx.font=`bold ${Math.round(bw*.9)}px Impact, "Arial Black", sans-serif`;
+            ctx.textAlign='center'; ctx.textBaseline='middle';
+            ctx.strokeStyle='rgb(248,210,22)'; ctx.lineWidth=bw*.13; ctx.lineJoin='round';
+            ctx.strokeText('DK',0,bh*.1);
+            ctx.fillStyle='rgb(212,34,18)'; ctx.fillText('DK',0,bh*.1);
+          }
+          // Reflet de lumière (haut)
+          const rg=ctx.createLinearGradient(-bw,-bh,0,-bh*.22);
+          rg.addColorStop(0,'rgba(255,200,130,0.26)'); rg.addColorStop(1,'rgba(255,200,130,0)');
+          ctx.fillStyle=rg; ctx.fillRect(-bw,-bh,bw*2,bh*.52);
+          // Bordure extérieure
+          ctx.strokeStyle='rgba(50,20,5,0.82)'; ctx.lineWidth=1.5;
+          ctx.strokeRect(-bw,-bh,bw*2,bh*2);
+          ctx.restore();
+        }
+      }
+      ctx.restore(); ctx.globalAlpha=1;
     }
   }
 
@@ -1540,7 +1658,7 @@ const THEME_PARTICLES = {
   lesbian:     { type:'sparkle', count:65 },
   plage:       { type:'shell',   count:38 },
   smario:      { type:'marioitem', count:50 },
-  sdk:         { type:'leaf',      count:45 },
+  sdk:         { type:'dkitem',    count:40 },
   slink:       { type:'triforce',  count:50 },
   ssamus:      { type:'ring',      count:55 },
   sdsamus:     { type:'ring',      count:55 },
