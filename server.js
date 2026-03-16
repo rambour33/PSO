@@ -51,6 +51,7 @@ let matchState = {
   logoParticleCount: 3,
   particleOpacity: 100,
   particleCountScale: 100,
+  particlesEnabled: true,
   visible: true
 };
 

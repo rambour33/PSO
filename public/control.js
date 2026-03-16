@@ -73,6 +73,7 @@ function syncFromState(s) {
   const pCt = s.particleCountScale ?? 100;
   document.getElementById('particle-count-range').value = pCt;
   document.getElementById('particle-count-num').value   = pCt;
+  updateParticlesToggle(s.particlesEnabled !== false);
   updateLogoPreview();
 
   // Format buttons
@@ -181,6 +182,7 @@ function buildStateFromForm() {
     logoParticleCount: parseInt(document.getElementById('logo-particles-num').value) || 3,
     particleOpacity:    parseInt(document.getElementById('particle-opacity-num')?.value ?? 100),
     particleCountScale: parseInt(document.getElementById('particle-count-num')?.value ?? 100),
+    particlesEnabled:   state.particlesEnabled !== false,
   };
 }
 
@@ -1176,6 +1178,32 @@ function updateLogoPreview() {
     box.innerHTML = '<span>Aperçu</span>';
   }
 }
+
+// Particules — bouton ON/OFF
+function updateParticlesToggle(enabled) {
+  const btn  = document.getElementById('btn-particles-toggle');
+  const ctrls = document.getElementById('particles-controls');
+  if (!btn) return;
+  if (enabled) {
+    btn.textContent = '⏸ Désactiver les particules';
+    btn.classList.remove('btn-outline');
+    btn.classList.add('btn-primary');
+    ctrls.style.opacity = '1';
+    ctrls.style.pointerEvents = '';
+  } else {
+    btn.textContent = '▶ Activer les particules';
+    btn.classList.remove('btn-primary');
+    btn.classList.add('btn-outline');
+    ctrls.style.opacity = '0.4';
+    ctrls.style.pointerEvents = 'none';
+  }
+}
+
+document.getElementById('btn-particles-toggle').addEventListener('click', () => {
+  state.particlesEnabled = state.particlesEnabled === false;
+  emitState(buildStateFromForm());
+  setStatus(state.particlesEnabled === false ? 'Particules désactivées' : 'Particules activées');
+});
 
 // Particules — opacité & quantité — sync slider ↔ number
 ['particle-opacity', 'particle-count'].forEach(id => {
