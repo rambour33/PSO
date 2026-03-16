@@ -290,6 +290,13 @@ document.getElementById('btn-swap').addEventListener('click', () => {
   setStatus(`Joueurs ${ns.swapped ? 'inversés' : 'normal'}`);
 });
 
+document.getElementById('btn-vs-trigger').addEventListener('click', () => {
+  socket.emit('triggerVsScreen');
+  const btn = document.getElementById('btn-vs-trigger');
+  btn.textContent = '✓ Envoyé';
+  setTimeout(() => { btn.textContent = '⚔ VS Anim'; }, 1200);
+});
+
 document.getElementById('btn-visibility').addEventListener('click', () => {
   const ns = buildStateFromForm();
   ns.visible = !state.visible;
