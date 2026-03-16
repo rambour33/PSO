@@ -199,6 +199,7 @@ const PS = (() => {
   function mkNote(W,H){return{t:'note',x:Math.random()*W,y:H+Math.random()*20,r:3+Math.random()*5,vy:-(0.35+Math.random()*.7),vx:(Math.random()-.5)*.4,op:0.6+Math.random()*.4,rot:(Math.random()-.5)*.3,hue:280+Math.random()*80};}
   function mkPetal(W,H){return{t:'petal',x:Math.random()*W,y:-15-Math.random()*40,w:4+Math.random()*8,h:2+Math.random()*3.5,angle:Math.random()*Math.PI*2,spin:(Math.random()-.5)*.03,vy:0.35+Math.random()*.9,vx:(Math.random()-.5)*.6,op:0.5+Math.random()*.5,hue:300+Math.random()*80};}
   function mkRing(W,H){return{t:'ring',x:Math.random()*W,y:Math.random()*H,r:Math.random()*10,maxR:12+Math.random()*22,speed:0.5+Math.random()*1.0,op:0.7+Math.random()*.3,hue:200+Math.random()*40};}
+  function mkSonicRing(W,H){return{t:'sonicring',x:Math.random()*W,y:H+Math.random()*20,r:9+Math.random()*10,tilt:0.22+Math.random()*0.32,rot:Math.random()*Math.PI*2,spin:(Math.random()-.5)*.04,vy:-(0.35+Math.random()*.7),vx:(Math.random()-.5)*.38,shimmer:Math.random()*Math.PI*2,shimmerSpd:0.055+Math.random()*.07,op:0.65+Math.random()*.35,life:1,decay:0.0025+Math.random()*.004};}
   function mkFeather(W,H){return{t:'feather',x:Math.random()*W,y:-20-Math.random()*40,len:9+Math.random()*18,angle:Math.random()*Math.PI*2,spin:(Math.random()-.5)*.012,vy:0.2+Math.random()*.55,vx:(Math.random()-.5)*.35,op:0.4+Math.random()*.55,hue:40+Math.random()*25};}
   function mkPixel(W,H){return{t:'pixel',x:Math.random()*W,y:Math.random()*H,s:3+Math.random()*7,vy:(Math.random()-.5)*.7,vx:Math.random()*.9-.1,op:0.5+Math.random()*.5,hue:180+Math.random()*180,life:1,decay:0.004+Math.random()*.009};}
   function mkStar(W,H){return{t:'star',x:Math.random()*W,y:Math.random()*H,r:3+Math.random()*8,rot:Math.random()*Math.PI*2,spin:(Math.random()-.5)*.018,vy:-(0.1+Math.random()*.35),vx:(Math.random()-.5)*.22,op:0.4+Math.random()*.55,hue:45+Math.random()*30,life:1,decay:0.003+Math.random()*.006};}
@@ -240,7 +241,7 @@ const PS = (() => {
                 leaf:mkLeaf, bubble:mkBubble, sparkle:mkSparkle, data:mkData,
                 flake:mkFlake, bolt:mkBolt, pride:mkPride, shell:mkShell, flame:mkFlame,
                 ghost:mkGhost,
-                coin:mkCoin, note:mkNote, petal:mkPetal, ring:mkRing, feather:mkFeather,
+                coin:mkCoin, note:mkNote, petal:mkPetal, ring:mkRing, sonicring:mkSonicRing, feather:mkFeather,
                 pixel:mkPixel, star:mkStar, aura:mkAura, rune:mkRune, smoke:mkSmoke,
                 ink:mkInk, heart:mkHeart, kunai:mkKunai, shuriken:mkShuriken,
                 cross:mkCross, spring:mkSpring, block:mkBlock, triforce:mkTriforce,
@@ -317,6 +318,9 @@ const PS = (() => {
     } else if (t==='ring') {
       p.r+=p.speed; p.op-=p.speed*.02;
       if (p.op<=0) { Object.assign(p, mkRing(W,H)); }
+    } else if (t==='sonicring') {
+      p.y+=p.vy; p.x+=p.vx; p.rot+=p.spin; p.shimmer+=p.shimmerSpd; p.life-=p.decay;
+      if (p.life<=0) Object.assign(p, mkSonicRing(W,H));
     } else if (t==='feather') {
       p.angle+=p.spin; p.y+=p.vy; p.x+=p.vx;
       if (p.y>H+25) { p.y=-20; p.x=Math.random()*W; }
@@ -750,6 +754,37 @@ const PS = (() => {
       ctx.beginPath(); ctx.arc(p.x,p.y,Math.max(0,p.r),0,Math.PI*2);
       ctx.strokeStyle=`hsla(${p.hue},90%,72%,${Math.max(0,p.op)})`;
       ctx.lineWidth=1.8; ctx.stroke();
+    } else if (t==='sonicring') {
+      ctx.save();
+      ctx.translate(p.x,p.y); ctx.rotate(p.rot);
+      const alpha=p.op*p.life;
+      ctx.globalAlpha=alpha;
+      const R=p.r, thickness=R*0.40, innerR=R-thickness, tY=p.tilt;
+      const shim=(Math.sin(p.shimmer)+1)*0.5;
+      // Gold gradient across the ring body
+      const gx=ctx.createLinearGradient(-R,-R*tY,R,R*tY);
+      const bright=58+Math.round(shim*18);
+      gx.addColorStop(0,  `hsl(52,100%,${bright+8}%)`);
+      gx.addColorStop(0.2,`hsl(46,98%,${bright}%)`);
+      gx.addColorStop(0.55,`hsl(40,92%,48%)`);
+      gx.addColorStop(0.82,`hsl(33,88%,37%)`);
+      gx.addColorStop(1,  `hsl(28,84%,30%)`);
+      // Draw donut using evenodd fill
+      ctx.beginPath();
+      ctx.ellipse(0,0,R,R*tY,0,0,Math.PI*2);
+      ctx.ellipse(0,0,innerR,innerR*tY,0,0,Math.PI*2);
+      ctx.fillStyle=gx; ctx.fill('evenodd');
+      // Highlight shine on upper arc
+      ctx.beginPath();
+      ctx.ellipse(0,0,R-thickness*0.48,(R-thickness*0.48)*tY,0,Math.PI+0.55,Math.PI*2-0.55);
+      ctx.strokeStyle=`rgba(255,252,195,${(0.22+shim*0.42)*alpha})`;
+      ctx.lineWidth=thickness*0.52; ctx.stroke();
+      // Outer edge subtle dark rim
+      ctx.beginPath();
+      ctx.ellipse(0,0,R,R*tY,0,0,Math.PI*2);
+      ctx.strokeStyle=`rgba(120,60,0,${0.35*alpha})`;
+      ctx.lineWidth=0.7; ctx.stroke();
+      ctx.restore();
     } else if (t==='feather') {
       ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.angle);
       const fl=p.len;
@@ -1389,7 +1424,7 @@ const THEME_PARTICLES = {
   spktrainer:  { type:'ring',      count:50 },
   sdiddy:      { type:'leaf',      count:40 },
   slucas:      { type:'aura',      count:40 },
-  ssonic:      { type:'ring',      count:65 },
+  ssonic:      { type:'sonicring',  count:45 },
   sdedede:     { type:'star',      count:50 },
   solimar:     { type:'pikmin',    count:25 },
   slucario:    { type:'aura',      count:40 },
