@@ -1785,3 +1785,84 @@ kbd {
     width: 100%;
   }
 }
+
+/* ─── start.gg styles ──────────────────────────────────────────────────────── */
+
+.sgg-entrants-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.sgg-entrant-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 10px;
+  background: var(--bg-card);
+  border-radius: 6px;
+  border: 1px solid var(--border);
+}
+
+.sgg-entrant-name {
+  font-size: 13px;
+  color: var(--text-primary);
+}
+
+.sgg-entrant-actions {
+  display: flex;
+  gap: 4px;
+}
+
+.sgg-sets-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sgg-set-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.sgg-set-round {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+}
+
+.sgg-set-players {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.sgg-set-score {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--accent);
+  padding: 0 12px;
+}
+
+.sgg-set-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.sgg-pagination {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+  justify-content: center;
+}
