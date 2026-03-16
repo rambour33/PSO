@@ -2269,12 +2269,29 @@ body {
 #scoreboard.theme-sdedede .event-bar,#scoreboard.theme-sdedede .player-block,#scoreboard.theme-sdedede .score-center{border-color:#3366EE55;box-shadow:0 0 8px #3366EE22}
 #scoreboard.theme-sdedede .logo-zone{filter:drop-shadow(0 0 6px #3366EE)}
 
-/* ── solimar ── */
-@keyframes solimar-glow{0%,100%{box-shadow:0 0 18px #FF222255,0 0 4px #FF222233 inset}50%{box-shadow:0 0 36px #FF222288,0 0 10px #FF222255 inset}}
-#scoreboard.theme-solimar{background:radial-gradient(ellipse at 50% 110%,#FF222222 0%,#050005 65%)}
-#scoreboard.theme-solimar::before{content:'';position:absolute;inset:0;pointer-events:none;z-index:0;background:radial-gradient(ellipse at 20% 80%,#FF222218 0%,transparent 60%),radial-gradient(ellipse at 80% 20%,#FF222212 0%,transparent 50%);animation:solimar-glow 3s ease-in-out infinite}
-#scoreboard.theme-solimar .event-bar,#scoreboard.theme-solimar .player-block,#scoreboard.theme-solimar .score-center{border-color:#FF222255;box-shadow:0 0 8px #FF222222}
-#scoreboard.theme-solimar .logo-zone{filter:drop-shadow(0 0 6px #FF2222)}
+/* ── solimar — Monde Pikmin ── */
+@keyframes solimar-pikmin{
+  0%,100%{box-shadow:0 0 18px #5AAA2855,0 0 5px #FFD70033 inset;}
+  50%    {box-shadow:0 0 34px #6DC83888,0 0 12px #FFEC5044 inset;}
+}
+#scoreboard.theme-solimar{
+  background: radial-gradient(ellipse at 50% 115%,#5AAA2820 0%,#020A02 62%);
+}
+#scoreboard.theme-solimar::before{
+  content:'';position:absolute;inset:0;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(ellipse at 15% 90%,#5AAA2818 0%,transparent 50%),
+    radial-gradient(ellipse at 85% 85%,#4488FF15 0%,transparent 45%),
+    radial-gradient(ellipse at 70% 10%,#FFD70014 0%,transparent 40%),
+    radial-gradient(ellipse at 30% 10%,#FF222212 0%,transparent 38%);
+  animation:solimar-pikmin 3.5s ease-in-out infinite;
+}
+#scoreboard.theme-solimar .event-bar,
+#scoreboard.theme-solimar .player-block,
+#scoreboard.theme-solimar .score-center{
+  border-color:#5AAA2855;box-shadow:0 0 8px #5AAA2822,0 0 2px #FFD70018 inset;
+}
+#scoreboard.theme-solimar .logo-zone{filter:drop-shadow(0 0 6px #5AAA28) drop-shadow(0 0 3px #FFD700);}
 
 /* ── slucario ── */
 @keyframes slucario-glow{0%,100%{box-shadow:0 0 18px #4488FF55,0 0 4px #4488FF33 inset}50%{box-shadow:0 0 36px #4488FF88,0 0 10px #4488FF55 inset}}

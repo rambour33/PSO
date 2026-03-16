@@ -214,6 +214,15 @@ const PS = (() => {
   function mkBlock(W,H){return{t:'block',x:Math.random()*W,y:Math.random()*H,s:5+Math.random()*9,vy:(Math.random()-.5)*.35,vx:(Math.random()-.5)*.35,rot:Math.random()*Math.PI*2,spin:(Math.random()-.5)*.012,op:0.45+Math.random()*.5,hue:28+Math.random()*22,life:1,decay:0.003+Math.random()*.005};}
   function mkTriforce(W,H){return{t:'triforce',x:Math.random()*W,y:Math.random()*H,r:4+Math.random()*10,rot:Math.random()*Math.PI*2,spin:(Math.random()-.5)*.01,vy:-(0.12+Math.random()*.28),vx:(Math.random()-.5)*.22,op:0.4+Math.random()*.55,hue:45+Math.random()*15,life:1,decay:0.003+Math.random()*.005};}
   function mkKeyblade(W,H){return{t:'keyblade',x:Math.random()*W,y:Math.random()*H,len:16+Math.random()*16,rot:Math.random()*Math.PI*2,spin:(Math.random()-.5)*.010,vx:(Math.random()-.5)*.28,vy:(Math.random()-.5)*.28,op:0.45+Math.random()*.50,life:1,decay:0.0018+Math.random()*.0032};}
+  function mkPikmin(W,H){
+    // 5 types : Rouge, Jaune, Bleu, Blanc, Violet
+    const cols=[[218,48,32],[232,192,28],[52,102,210],[232,232,232],[102,32,155]];
+    const ci=Math.floor(Math.random()*5);
+    const dir=Math.random()>.5?1:-1;
+    return{t:'pikmin',x:Math.random()*W,y:Math.random()*H,s:11+Math.random()*10,
+      vx:dir*(0.30+Math.random()*.45),vy:(Math.random()-.5)*.14,
+      bob:Math.random()*Math.PI*2,bobSpd:0.10+Math.random()*.08,
+      col:cols[ci],ci,dir,op:0.70+Math.random()*.30,life:1,decay:0.0014+Math.random()*.0028};}
   const FAC = { snow:mkSnow, fire:mkFire, rain:mkRain, sand:mkSand,
                 leaf:mkLeaf, bubble:mkBubble, sparkle:mkSparkle, data:mkData,
                 flake:mkFlake, bolt:mkBolt, pride:mkPride, shell:mkShell, flame:mkFlame,
@@ -222,7 +231,7 @@ const PS = (() => {
                 pixel:mkPixel, star:mkStar, aura:mkAura, rune:mkRune, smoke:mkSmoke,
                 ink:mkInk, heart:mkHeart, kunai:mkKunai, shuriken:mkShuriken,
                 cross:mkCross, spring:mkSpring, block:mkBlock, triforce:mkTriforce,
-                keyblade:mkKeyblade };
+                keyblade:mkKeyblade, pikmin:mkPikmin };
 
   // ── Update ─────────────────────────────────────────────────
   function upd(p, W, H) {
@@ -344,6 +353,13 @@ const PS = (() => {
       if (p.life<=0) Object.assign(p, mkKeyblade(W,H));
       if (p.x<-35) p.x=W+35; if (p.x>W+35) p.x=-35;
       if (p.y<-35) p.y=H+35; if (p.y>H+35) p.y=-35;
+    } else if (t==='pikmin') {
+      p.bob+=p.bobSpd; p.x+=p.vx; p.y+=p.vy+Math.sin(p.bob*2)*0.14;
+      p.life-=p.decay;
+      if (p.life<=0) Object.assign(p, mkPikmin(W,H));
+      if (p.x>W+22) { p.x=-22; p.y=Math.random()*H; }
+      if (p.x<-22)  { p.x=W+22; p.y=Math.random()*H; }
+      if (p.y>H+22) p.y=-22; if (p.y<-22) p.y=H+22;
     }
   }
 
@@ -946,6 +962,87 @@ const PS = (() => {
       ctx.beginPath(); ctx.arc(l*.24, l*.395, l*.030, 0, Math.PI*2); ctx.fill();
 
       ctx.restore(); ctx.globalAlpha=1;
+    } else if (t==='pikmin') {
+      const [r,g,b]=p.col; const s=p.s; const al=p.op*p.life;
+      const isWhite=(p.ci===3), isYellow=(p.ci===1);
+      ctx.save();
+      // Décalage de marche vertical (bob)
+      ctx.translate(p.x, p.y + Math.sin(p.bob)*s*.09);
+      ctx.scale(p.dir, 1); // orientation gauche/droite
+      ctx.globalAlpha=al;
+
+      // ── Ombre portée ──────────────────────────────────────
+      ctx.beginPath(); ctx.ellipse(0,s*.60,s*.24,s*.06,0,0,Math.PI*2);
+      ctx.fillStyle=`rgba(0,0,0,${al*.28})`; ctx.fill();
+
+      // ── Jambes (derrière le corps) ─────────────────────────
+      const stepL=Math.sin(p.bob)*s*.12;  // décalage oscillant
+      ctx.strokeStyle=`rgba(${r},${g},${b},${al})`;
+      ctx.lineWidth=s*.115; ctx.lineCap='round';
+      ctx.beginPath(); ctx.moveTo(-s*.10,s*.46); ctx.lineTo(-s*.16-stepL,s*.64); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo( s*.10,s*.46); ctx.lineTo( s*.16+stepL,s*.64); ctx.stroke();
+
+      // ── Corps (ovale) ─────────────────────────────────────
+      ctx.beginPath(); ctx.ellipse(0,s*.24,s*.27,s*.31,0,0,Math.PI*2);
+      ctx.fillStyle=`rgba(${r},${g},${b},${al})`; ctx.fill();
+      // Ventre légèrement plus clair
+      ctx.beginPath(); ctx.ellipse(s*.05,s*.22,s*.16,s*.20,0.15,0,Math.PI*2);
+      ctx.fillStyle=`rgba(${Math.min(255,r+55)},${Math.min(255,g+50)},${Math.min(255,b+48)},${al*.45})`; ctx.fill();
+
+      // ── Tête (cercle principal) ────────────────────────────
+      // Oreilles latérales des Pikmin Jaunes (avant la tête)
+      if (isYellow) {
+        ctx.fillStyle=`rgba(${r},${g},${b},${al})`;
+        ctx.beginPath(); ctx.ellipse(-s*.33,-s*.14,s*.10,s*.18,-0.35,0,Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.ellipse( s*.33,-s*.14,s*.10,s*.18, 0.35,0,Math.PI*2); ctx.fill();
+      }
+      ctx.beginPath(); ctx.arc(0,-s*.13,s*.31,0,Math.PI*2);
+      ctx.fillStyle=`rgba(${r},${g},${b},${al})`; ctx.fill();
+
+      // Zone faciale avant (plus claire)
+      ctx.beginPath(); ctx.ellipse(s*.08,-s*.10,s*.19,s*.23,0.2,0,Math.PI*2);
+      ctx.fillStyle=`rgba(${Math.min(255,r+62)},${Math.min(255,g+56)},${Math.min(255,b+52)},${al*.55})`; ctx.fill();
+
+      // ── Yeux ──────────────────────────────────────────────
+      // Pikmin Blanc → yeux rouges, les autres → pupilles noires
+      if (!isWhite) {
+        // Blanc de l'œil
+        ctx.beginPath(); ctx.arc(s*.10,-s*.19,s*.092,0,Math.PI*2);
+        ctx.fillStyle=`rgba(255,255,255,${al})`; ctx.fill();
+        // Pupille noire
+        ctx.beginPath(); ctx.arc(s*.12,-s*.18,s*.055,0,Math.PI*2);
+        ctx.fillStyle=`rgba(10,8,8,${al})`; ctx.fill();
+        // Reflet
+        ctx.beginPath(); ctx.arc(s*.10,-s*.205,s*.020,0,Math.PI*2);
+        ctx.fillStyle=`rgba(255,255,255,${al*.75})`; ctx.fill();
+      } else {
+        // Pikmin blanc : grand œil rouge brillant
+        ctx.beginPath(); ctx.arc(s*.11,-s*.18,s*.09,0,Math.PI*2);
+        ctx.fillStyle=`rgba(230,40,40,${al})`; ctx.fill();
+        ctx.beginPath(); ctx.arc(s*.09,-s*.20,s*.025,0,Math.PI*2);
+        ctx.fillStyle=`rgba(255,180,180,${al*.7})`; ctx.fill();
+      }
+
+      // ── Tige de la feuille ────────────────────────────────
+      ctx.strokeStyle=`rgba(70,135,45,${al*.9})`;
+      ctx.lineWidth=s*.072; ctx.lineCap='round';
+      ctx.beginPath();
+      ctx.moveTo(s*.02,-s*.44);
+      ctx.quadraticCurveTo(s*.18,-s*.68,-s*.04,-s*.92);
+      ctx.stroke();
+
+      // ── Feuille (ellipse verte inclinée) ──────────────────
+      ctx.save();
+      ctx.translate(-s*.04,-s*.92);
+      ctx.rotate(-0.55);
+      ctx.beginPath(); ctx.ellipse(0,0,s*.17,s*.09,0,0,Math.PI*2);
+      ctx.fillStyle=`rgba(68,152,48,${al})`; ctx.fill();
+      // Nervure centrale de la feuille
+      ctx.strokeStyle=`rgba(100,185,70,${al*.55})`; ctx.lineWidth=s*.025;
+      ctx.beginPath(); ctx.moveTo(-s*.14,0); ctx.lineTo(s*.14,0); ctx.stroke();
+      ctx.restore();
+
+      ctx.restore(); ctx.globalAlpha=1;
     }
   }
 
@@ -1063,7 +1160,7 @@ const THEME_PARTICLES = {
   slucas:      { type:'aura',      count:40 },
   ssonic:      { type:'ring',      count:65 },
   sdedede:     { type:'star',      count:50 },
-  solimar:     { type:'petal',     count:50 },
+  solimar:     { type:'pikmin',    count:25 },
   slucario:    { type:'aura',      count:40 },
   srob:        { type:'ring',      count:55 },
   stoonlink:   { type:'leaf',      count:40 },
