@@ -237,6 +237,29 @@ const PS = (() => {
       vx:dir*(0.30+Math.random()*.45),vy:(Math.random()-.5)*.14,
       bob:Math.random()*Math.PI*2,bobSpd:0.10+Math.random()*.08,
       col:cols[ci],ci,dir,op:0.70+Math.random()*.30,life:1,decay:0.0014+Math.random()*.0028};}
+  function mkMarioItem(W,H){
+    // kind: 0=champignon, 1=boule de feu, 2=pièce, 3=bloc "?", 4=brique
+    const kind=Math.floor(Math.random()*5);
+    const dir=Math.random()>.5?1:-1;
+    const mCols=[[200,48,32],[52,148,52],[52,102,210],[220,180,28]];
+    const ci=Math.floor(Math.random()*4);
+    const s=10+Math.random()*10;
+    let x,y,vx,vy,decay;
+    if(kind<=1){
+      x=dir>0?-28:W+28; y=22+Math.random()*(H-44);
+      vx=dir*(0.50+Math.random()*.62); vy=(Math.random()-.5)*.1; decay=0;
+    } else if(kind===2){
+      x=Math.random()*W; y=20+Math.random()*(H-40);
+      vx=(Math.random()-.5)*.14; vy=-(0.20+Math.random()*.28); decay=0.006+Math.random()*.006;
+    } else {
+      x=Math.random()*W; y=Math.random()*H;
+      vx=(Math.random()-.5)*.20; vy=(Math.random()-.5)*.08; decay=0.0008+Math.random()*.0012;
+    }
+    return{t:'marioitem',kind,x,y,vx,vy,dir,s,col:mCols[ci],ci,
+      bob:Math.random()*Math.PI*2,bobSpd:0.040+Math.random()*.032,
+      spin:Math.random()*Math.PI*2,spinSpd:0.10+Math.random()*.08,
+      shimmer:Math.random()*Math.PI*2,shimSpd:0.055+Math.random()*.06,
+      op:0.72+Math.random()*.28,life:1,decay};}
   const FAC = { snow:mkSnow, fire:mkFire, rain:mkRain, sand:mkSand,
                 leaf:mkLeaf, bubble:mkBubble, sparkle:mkSparkle, data:mkData,
                 flake:mkFlake, bolt:mkBolt, pride:mkPride, shell:mkShell, flame:mkFlame,
@@ -245,7 +268,7 @@ const PS = (() => {
                 pixel:mkPixel, star:mkStar, aura:mkAura, rune:mkRune, smoke:mkSmoke,
                 ink:mkInk, heart:mkHeart, kunai:mkKunai, shuriken:mkShuriken,
                 cross:mkCross, spring:mkSpring, block:mkBlock, triforce:mkTriforce,
-                keyblade:mkKeyblade, pikmin:mkPikmin, ordnance:mkOrdnance };
+                keyblade:mkKeyblade, pikmin:mkPikmin, ordnance:mkOrdnance, marioitem:mkMarioItem };
 
   // ── Update ─────────────────────────────────────────────────
   function upd(p, W, H) {
@@ -383,6 +406,23 @@ const PS = (() => {
       if (p.x>W+22) { p.x=-22; p.y=Math.random()*H; }
       if (p.x<-22)  { p.x=W+22; p.y=Math.random()*H; }
       if (p.y>H+22) p.y=-22; if (p.y<-22) p.y=H+22;
+    } else if (t==='marioitem') {
+      p.bob+=p.bobSpd; p.spin+=p.spinSpd; p.shimmer+=p.shimSpd;
+      if(p.kind<=1){
+        // Champignon & boule de feu : déplacement horizontal + légère oscillation
+        p.x+=p.vx; p.y+=Math.sin(p.bob)*0.22;
+        if(p.x<-38||p.x>W+38) Object.assign(p,mkMarioItem(W,H));
+      } else if(p.kind===2){
+        // Pièce : monte doucement et disparaît
+        p.x+=p.vx; p.y+=p.vy; p.life-=p.decay;
+        if(p.life<=0) Object.assign(p,mkMarioItem(W,H));
+      } else {
+        // Blocs : dérive lente, respawn sur les bords
+        p.x+=p.vx; p.y+=p.vy; p.life-=p.decay;
+        if(p.life<=0) Object.assign(p,mkMarioItem(W,H));
+        if(p.x<-28) p.x=W+28; if(p.x>W+28) p.x=-28;
+        if(p.y<-28) p.y=H+28; if(p.y>H+28) p.y=-28;
+      }
     }
   }
 
@@ -1309,6 +1349,121 @@ const PS = (() => {
         }
       }
       ctx.restore(); ctx.globalAlpha=1;
+    } else if (t==='marioitem') {
+      const al=p.kind===2 ? Math.max(0,Math.sin(p.life*Math.PI)*p.op) : p.op;
+      ctx.save(); ctx.globalAlpha=Math.max(0,al);
+      const s=p.s;
+      if(p.kind===0){
+        // ── CHAMPIGNON ──
+        ctx.save(); ctx.translate(p.x,p.y+Math.sin(p.bob)*2.5);
+        // Face beige
+        ctx.beginPath(); ctx.ellipse(0,s*.55,s*.52,s*.45,0,0,Math.PI*2);
+        ctx.fillStyle='rgb(210,185,140)'; ctx.fill();
+        ctx.strokeStyle='rgba(0,0,0,0.4)'; ctx.lineWidth=0.8; ctx.stroke();
+        // Yeux
+        ctx.fillStyle='rgb(18,8,4)';
+        ctx.beginPath(); ctx.ellipse(-s*.18,s*.50,s*.10,s*.14,-0.15,0,Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.ellipse( s*.18,s*.50,s*.10,s*.14, 0.15,0,Math.PI*2); ctx.fill();
+        // Chapeau coloré
+        const [mr,mg,mb]=p.col;
+        ctx.beginPath(); ctx.arc(0,0,s,0,Math.PI*2);
+        ctx.fillStyle=`rgb(${mr},${mg},${mb})`; ctx.fill();
+        ctx.strokeStyle='rgba(0,0,0,0.38)'; ctx.lineWidth=0.8; ctx.stroke();
+        // Taches blanches
+        ctx.fillStyle='rgba(255,255,255,0.88)';
+        ctx.beginPath(); ctx.arc(-s*.38,-s*.14,s*.20,0,Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.arc( s*.40,-s*.17,s*.17,0,Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.arc( 0,-s*.58,s*.13,0,Math.PI*2); ctx.fill();
+        ctx.restore();
+      } else if(p.kind===1){
+        // ── BOULE DE FEU ──
+        ctx.save(); ctx.translate(p.x,p.y+Math.sin(p.bob)*1.5);
+        const shim=(Math.sin(p.shimmer)+1)*.5;
+        const td=-p.dir;
+        // Queue de feu (derrière la balle)
+        ctx.beginPath();
+        ctx.moveTo(td*s*.75,0);
+        ctx.bezierCurveTo(td*s*1.5,-s*.5,td*s*2.7,-s*.28,td*s*3.2,0);
+        ctx.bezierCurveTo(td*s*2.7,s*.28,td*s*1.5,s*.5,td*s*.75,0);
+        ctx.fillStyle=`rgba(255,135,10,${0.38+shim*.3})`; ctx.fill();
+        // Halo externe
+        const gr=ctx.createRadialGradient(0,0,s*.1,0,0,s*1.75);
+        gr.addColorStop(0,`rgba(255,248,120,${0.52+shim*.22})`);
+        gr.addColorStop(0.5,`rgba(255,110,0,${0.28})`);
+        gr.addColorStop(1,`rgba(255,55,0,0)`);
+        ctx.beginPath(); ctx.arc(0,0,s*1.75,0,Math.PI*2); ctx.fillStyle=gr; ctx.fill();
+        // Noyau
+        const gb=ctx.createRadialGradient(-s*.25,-s*.25,0,0,0,s);
+        gb.addColorStop(0,  'hsl(58,100%,88%)');
+        gb.addColorStop(0.35,'hsl(44,100%,68%)');
+        gb.addColorStop(0.72,'hsl(22,100%,52%)');
+        gb.addColorStop(1,  'hsl(12,95%,40%)');
+        ctx.beginPath(); ctx.arc(0,0,s,0,Math.PI*2); ctx.fillStyle=gb; ctx.fill();
+        ctx.restore();
+      } else if(p.kind===2){
+        // ── PIÈCE PIXEL ART (tourne sur elle-même) ──
+        const scx=Math.abs(Math.cos(p.spin));
+        if(scx>0.025){
+          ctx.save(); ctx.translate(p.x,p.y); ctx.scale(scx,1);
+          const cs=s;
+          ctx.fillStyle='#000'; ctx.fillRect(-cs-2,-cs-2,(cs+2)*2,(cs+2)*2);
+          ctx.fillStyle='rgb(222,172,0)'; ctx.fillRect(-cs,-cs,cs*2,cs*2);
+          ctx.fillStyle='rgb(192,144,0)'; ctx.fillRect(-cs*.65,-cs*.65,cs*1.3,cs*1.3);
+          // Reflet blanc en "D"
+          ctx.fillStyle='rgb(255,252,195)';
+          ctx.fillRect(-cs*.44,-cs*.58,cs*.28,cs*1.16);
+          ctx.fillRect(-cs*.44,-cs*.58,cs*.44,cs*.16);
+          ctx.fillRect(-cs*.44, cs*.42,cs*.44,cs*.16);
+          // Bord gauche or
+          ctx.fillStyle='rgb(222,172,0)'; ctx.fillRect(-cs,-cs*.74,cs*.22,cs*1.48);
+          ctx.restore();
+        }
+      } else if(p.kind===3){
+        // ── BLOC "?" ──
+        ctx.save(); ctx.translate(p.x,p.y);
+        const qs=s;
+        ctx.fillStyle='rgba(0,0,0,0.18)'; ctx.fillRect(-qs+3,-qs+3,qs*2,qs*2);
+        const qg=ctx.createLinearGradient(-qs,-qs,qs*.5,qs);
+        qg.addColorStop(0,'rgb(255,224,52)');
+        qg.addColorStop(0.5,'rgb(240,190,20)');
+        qg.addColorStop(1,'rgb(200,152,8)');
+        ctx.fillStyle=qg; ctx.fillRect(-qs,-qs,qs*2,qs*2);
+        ctx.strokeStyle='rgba(60,28,0,0.85)'; ctx.lineWidth=1.8; ctx.strokeRect(-qs,-qs,qs*2,qs*2);
+        for(const [bx,by] of [[-1,-1],[1,-1],[1,1],[-1,1]]){
+          ctx.beginPath(); ctx.arc(bx*qs*.72,by*qs*.72,qs*.13,0,Math.PI*2);
+          ctx.fillStyle='rgb(80,38,0)'; ctx.fill();
+        }
+        ctx.font=`bold ${Math.round(qs*1.3)}px Arial`;
+        ctx.textAlign='center'; ctx.textBaseline='middle';
+        ctx.fillStyle='#fff'; ctx.shadowColor='rgba(0,0,0,0.55)'; ctx.shadowBlur=2;
+        ctx.fillText('?',0,qs*.08); ctx.shadowBlur=0;
+        ctx.restore();
+      } else {
+        // ── BRIQUE ──
+        ctx.save(); ctx.translate(p.x,p.y);
+        const bs=s;
+        ctx.fillStyle='rgba(0,0,0,0.18)'; ctx.fillRect(-bs+3,-bs+3,bs*2,bs*2);
+        const bg=ctx.createLinearGradient(-bs,-bs,bs*.4,bs);
+        bg.addColorStop(0,'rgb(215,125,72)');
+        bg.addColorStop(0.5,'rgb(188,96,50)');
+        bg.addColorStop(1,'rgb(158,74,34)');
+        ctx.fillStyle=bg; ctx.fillRect(-bs,-bs,bs*2,bs*2);
+        ctx.strokeStyle='rgba(75,26,8,0.9)'; ctx.lineWidth=1.5; ctx.strokeRect(-bs,-bs,bs*2,bs*2);
+        // Joints de mortier
+        ctx.strokeStyle='rgba(65,22,6,0.8)'; ctx.lineWidth=1.2;
+        ctx.beginPath(); ctx.moveTo(-bs,-bs*.05); ctx.lineTo(bs,-bs*.05); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(-bs, bs*.50); ctx.lineTo(bs, bs*.50); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(0,-bs); ctx.lineTo(0,-bs*.05); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(-bs*.5,-bs*.05); ctx.lineTo(-bs*.5,bs*.50); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo( bs*.5,-bs*.05); ctx.lineTo( bs*.5,bs*.50); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(0,bs*.50); ctx.lineTo(0,bs); ctx.stroke();
+        // Reflet biseau (haut-gauche)
+        ctx.strokeStyle='rgba(240,158,108,0.52)'; ctx.lineWidth=1.5;
+        ctx.beginPath(); ctx.moveTo(-bs+1,-bs+1); ctx.lineTo(bs-1,-bs+1); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(-bs+1,-bs+1); ctx.lineTo(-bs+1,bs-1); ctx.stroke();
+        ctx.restore();
+      }
+      ctx.restore(); ctx.globalAlpha=1;
     }
   }
 
@@ -1384,7 +1539,7 @@ const THEME_PARTICLES = {
   bi:          { type:'sparkle', count:65 },
   lesbian:     { type:'sparkle', count:65 },
   plage:       { type:'shell',   count:38 },
-  smario:      { type:'coin',      count:65 },
+  smario:      { type:'marioitem', count:50 },
   sdk:         { type:'leaf',      count:45 },
   slink:       { type:'triforce',  count:50 },
   ssamus:      { type:'ring',      count:55 },
