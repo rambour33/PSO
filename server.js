@@ -49,6 +49,8 @@ let matchState = {
   pronounsColor: '#5A5A7A',
   overlayTheme: 'default',
   logoParticleCount: 3,
+  particleOpacity: 100,
+  particleCountScale: 100,
   visible: true
 };
 

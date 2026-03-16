@@ -67,6 +67,12 @@ function syncFromState(s) {
   const lpVal = s.logoParticleCount ?? 3;
   document.getElementById('logo-particles-range').value = lpVal;
   document.getElementById('logo-particles-num').value   = lpVal;
+  const pOp = s.particleOpacity ?? 100;
+  document.getElementById('particle-opacity-range').value = pOp;
+  document.getElementById('particle-opacity-num').value   = pOp;
+  const pCt = s.particleCountScale ?? 100;
+  document.getElementById('particle-count-range').value = pCt;
+  document.getElementById('particle-count-num').value   = pCt;
   updateLogoPreview();
 
   // Format buttons
@@ -173,6 +179,8 @@ function buildStateFromForm() {
     format: state.format,
     customWins: parseInt(document.getElementById('custom-wins').value) || 2,
     logoParticleCount: parseInt(document.getElementById('logo-particles-num').value) || 3,
+    particleOpacity:    parseInt(document.getElementById('particle-opacity-num')?.value ?? 100),
+    particleCountScale: parseInt(document.getElementById('particle-count-num')?.value ?? 100),
   };
 }
 
@@ -1168,6 +1176,22 @@ function updateLogoPreview() {
     box.innerHTML = '<span>Aperçu</span>';
   }
 }
+
+// Particules — opacité & quantité — sync slider ↔ number
+['particle-opacity', 'particle-count'].forEach(id => {
+  document.getElementById(id + '-range').addEventListener('input', function () {
+    document.getElementById(id + '-num').value = this.value;
+    emitState(buildStateFromForm());
+  });
+  document.getElementById(id + '-num').addEventListener('change', function () {
+    const isOpacity = id === 'particle-opacity';
+    const [min, max] = isOpacity ? [0, 100] : [10, 500];
+    let v = Math.min(max, Math.max(min, parseInt(this.value) || min));
+    this.value = v;
+    document.getElementById(id + '-range').value = v;
+    emitState(buildStateFromForm());
+  });
+});
 
 // Particules logo — sync slider ↔ number
 document.getElementById('logo-particles-range').addEventListener('input', function () {
