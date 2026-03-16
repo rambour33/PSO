@@ -2556,12 +2556,12 @@ body {
 #scoreboard.theme-skazuya .event-bar,#scoreboard.theme-skazuya .player-block,#scoreboard.theme-skazuya .score-center{border-color:#AA000055;box-shadow:0 0 8px #AA000022}
 #scoreboard.theme-skazuya .logo-zone{filter:drop-shadow(0 0 6px #AA0000)}
 
-/* ── ssora ── */
-@keyframes ssora-glow{0%,100%{box-shadow:0 0 18px #4488FF55,0 0 4px #4488FF33 inset}50%{box-shadow:0 0 36px #4488FF88,0 0 10px #4488FF55 inset}}
-#scoreboard.theme-ssora{background:radial-gradient(ellipse at 50% 110%,#4488FF22 0%,#000510 65%)}
-#scoreboard.theme-ssora::before{content:'';position:absolute;inset:0;pointer-events:none;z-index:0;background:radial-gradient(ellipse at 20% 80%,#4488FF18 0%,transparent 60%),radial-gradient(ellipse at 80% 20%,#4488FF12 0%,transparent 50%);animation:ssora-glow 3s ease-in-out infinite}
-#scoreboard.theme-ssora .event-bar,#scoreboard.theme-ssora .player-block,#scoreboard.theme-ssora .score-center{border-color:#4488FF55;box-shadow:0 0 8px #4488FF22}
-#scoreboard.theme-ssora .logo-zone{filter:drop-shadow(0 0 6px #4488FF)}
+/* ── ssora — Kingdom Hearts ── */
+@keyframes ssora-keyblade{0%{box-shadow:0 0 20px #6BA8FF66,0 0 6px #FFC83244 inset}40%{box-shadow:0 0 38px #88BBFF88,0 0 14px #FFD85066 inset}70%{box-shadow:0 0 28px #FFC83255,0 0 8px #6BA8FF44 inset}100%{box-shadow:0 0 20px #6BA8FF66,0 0 6px #FFC83244 inset}}
+#scoreboard.theme-ssora{background:radial-gradient(ellipse at 50% 115%,#5599FF28 0%,#00051A 60%)}
+#scoreboard.theme-ssora::before{content:'';position:absolute;inset:0;pointer-events:none;z-index:0;background:radial-gradient(ellipse at 18% 85%,#FFC83218 0%,transparent 55%),radial-gradient(ellipse at 82% 15%,#6BA8FF16 0%,transparent 50%),radial-gradient(ellipse at 50% 50%,#88AAFF0A 0%,transparent 70%);animation:ssora-keyblade 4s ease-in-out infinite}
+#scoreboard.theme-ssora .event-bar,#scoreboard.theme-ssora .player-block,#scoreboard.theme-ssora .score-center{border-color:#6BA8FF55;box-shadow:0 0 10px #5599FF22,0 0 3px #FFC83218 inset}
+#scoreboard.theme-ssora .logo-zone{filter:drop-shadow(0 0 7px #6BA8FF) drop-shadow(0 0 4px #FFC832)}
 
 /* ── smii_brawl ── */
 @keyframes smii_brawl-glow{0%,100%{box-shadow:0 0 18px #FF882255,0 0 4px #FF882233 inset}50%{box-shadow:0 0 36px #FF882288,0 0 10px #FF882255 inset}}

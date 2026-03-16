@@ -213,6 +213,7 @@ const PS = (() => {
   function mkSpring(W,H){return{t:'spring',x:Math.random()*W,y:Math.random()*H,h:8+Math.random()*14,w:3+Math.random()*5,rot:Math.random()*Math.PI*2,vy:(Math.random()-.5)*.5,vx:(Math.random()-.5)*.35,op:0.45+Math.random()*.5,hue:0+Math.random()*20,life:1,decay:0.003+Math.random()*.005,coils:2+Math.floor(Math.random()*3)};}
   function mkBlock(W,H){return{t:'block',x:Math.random()*W,y:Math.random()*H,s:5+Math.random()*9,vy:(Math.random()-.5)*.35,vx:(Math.random()-.5)*.35,rot:Math.random()*Math.PI*2,spin:(Math.random()-.5)*.012,op:0.45+Math.random()*.5,hue:28+Math.random()*22,life:1,decay:0.003+Math.random()*.005};}
   function mkTriforce(W,H){return{t:'triforce',x:Math.random()*W,y:Math.random()*H,r:4+Math.random()*10,rot:Math.random()*Math.PI*2,spin:(Math.random()-.5)*.01,vy:-(0.12+Math.random()*.28),vx:(Math.random()-.5)*.22,op:0.4+Math.random()*.55,hue:45+Math.random()*15,life:1,decay:0.003+Math.random()*.005};}
+  function mkKeyblade(W,H){return{t:'keyblade',x:Math.random()*W,y:Math.random()*H,len:16+Math.random()*16,rot:Math.random()*Math.PI*2,spin:(Math.random()-.5)*.010,vx:(Math.random()-.5)*.28,vy:(Math.random()-.5)*.28,op:0.45+Math.random()*.50,life:1,decay:0.0018+Math.random()*.0032};}
   const FAC = { snow:mkSnow, fire:mkFire, rain:mkRain, sand:mkSand,
                 leaf:mkLeaf, bubble:mkBubble, sparkle:mkSparkle, data:mkData,
                 flake:mkFlake, bolt:mkBolt, pride:mkPride, shell:mkShell, flame:mkFlame,
@@ -220,7 +221,8 @@ const PS = (() => {
                 coin:mkCoin, note:mkNote, petal:mkPetal, ring:mkRing, feather:mkFeather,
                 pixel:mkPixel, star:mkStar, aura:mkAura, rune:mkRune, smoke:mkSmoke,
                 ink:mkInk, heart:mkHeart, kunai:mkKunai, shuriken:mkShuriken,
-                cross:mkCross, spring:mkSpring, block:mkBlock, triforce:mkTriforce };
+                cross:mkCross, spring:mkSpring, block:mkBlock, triforce:mkTriforce,
+                keyblade:mkKeyblade };
 
   // ── Update ─────────────────────────────────────────────────
   function upd(p, W, H) {
@@ -337,6 +339,11 @@ const PS = (() => {
     } else if (t==='triforce') {
       p.rot+=p.spin; p.y+=p.vy; p.x+=p.vx; p.life-=p.decay;
       if (p.life<=0) Object.assign(p, mkTriforce(W,H));
+    } else if (t==='keyblade') {
+      p.rot+=p.spin; p.x+=p.vx; p.y+=p.vy; p.life-=p.decay;
+      if (p.life<=0) Object.assign(p, mkKeyblade(W,H));
+      if (p.x<-35) p.x=W+35; if (p.x>W+35) p.x=-35;
+      if (p.y<-35) p.y=H+35; if (p.y>H+35) p.y=-35;
     }
   }
 
@@ -862,6 +869,83 @@ const PS = (() => {
       ctx.beginPath(); ctx.arc(0,-tr*.2,tr*.28,0,Math.PI*2);
       ctx.fillStyle=`hsla(${p.hue},100%,80%,${p.life*.28})`; ctx.fill();
       ctx.restore(); ctx.globalAlpha=1;
+    } else if (t==='keyblade') {
+      // Kingdom Key : lame argent-bleu, garde or, dents à la pointe, porte-clés Mickey
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rot);
+      const al = p.op * p.life;
+      ctx.globalAlpha = al;
+      const l = p.len;
+
+      // ── Halo de lueur globale ─────────────────────────────
+      const glow = ctx.createRadialGradient(0,0,0,0,0,l*.7);
+      glow.addColorStop(0,  `rgba(120,190,255,${al*.22})`);
+      glow.addColorStop(1,  `rgba(80,140,220,0)`);
+      ctx.beginPath(); ctx.ellipse(0,0,l*.7,l*.38,0,0,Math.PI*2);
+      ctx.fillStyle=glow; ctx.fill();
+
+      // ── Lame (shaft) argent-bleu ──────────────────────────
+      // Corps principal
+      ctx.fillStyle=`rgba(175,215,235,${al})`;
+      ctx.beginPath();
+      ctx.moveTo(-l*.48, -l*.055);
+      ctx.lineTo( l*.24, -l*.055);
+      ctx.lineTo( l*.24,  l*.055);
+      ctx.lineTo(-l*.48,  l*.055);
+      ctx.closePath(); ctx.fill();
+      // Reflet sur la lame (bande claire en haut)
+      ctx.fillStyle=`rgba(230,248,255,${al*.5})`;
+      ctx.fillRect(-l*.44, -l*.044, l*.64, l*.025);
+
+      // ── Dents de la clé (bout gauche) ─────────────────────
+      // Trois dents d'inégale hauteur (M-shape comme sur l'image)
+      ctx.fillStyle=`rgba(155,200,220,${al})`;
+      // Dent 1 (gauche, haute)
+      ctx.fillRect(-l*.48,  l*.055, l*.09, l*.20);
+      // Dent 2 (milieu, courte)
+      ctx.fillRect(-l*.34,  l*.055, l*.09, l*.13);
+      // Dent 3 (droite, haute)
+      ctx.fillRect(-l*.20,  l*.055, l*.09, l*.20);
+
+      // ── Garde (barre verticale or) ────────────────────────
+      ctx.fillStyle=`rgba(255,200,50,${al})`;
+      ctx.fillRect(l*.20, -l*.22, l*.08, l*.44);
+      // Ombre basse de la garde
+      ctx.fillStyle=`rgba(200,140,20,${al*.6})`;
+      ctx.fillRect(l*.20,  l*.12, l*.08, l*.10);
+
+      // ── Arceau (bow) or — cadre rectangulaire ─────────────
+      ctx.strokeStyle=`rgba(255,200,50,${al})`;
+      ctx.lineWidth = l*.072; ctx.lineJoin='round';
+      ctx.strokeRect(l*.30, -l*.165, l*.185, l*.33);
+      // Reflet interne de l'arceau
+      ctx.strokeStyle=`rgba(255,235,140,${al*.45})`;
+      ctx.lineWidth = l*.025;
+      ctx.strokeRect(l*.32, -l*.145, l*.145, l*.29);
+
+      // ── Chaîne (porte-clés) ───────────────────────────────
+      ctx.strokeStyle=`rgba(140,215,235,${al*.8})`;
+      ctx.lineWidth = l*.032; ctx.lineCap='round';
+      ctx.beginPath();
+      ctx.moveTo(l*.39, l*.165);
+      ctx.lineTo(l*.36, l*.30);
+      ctx.lineTo(l*.30, l*.36);
+      ctx.stroke();
+
+      // ── Tête Mickey (3 cercles cyan) ─────────────────────
+      // Tête principale
+      ctx.fillStyle=`rgba(100,210,235,${al})`;
+      ctx.beginPath(); ctx.arc(l*.27, l*.42, l*.082, 0, Math.PI*2); ctx.fill();
+      // Oreille gauche
+      ctx.beginPath(); ctx.arc(l*.19, l*.35, l*.050, 0, Math.PI*2); ctx.fill();
+      // Oreille droite
+      ctx.beginPath(); ctx.arc(l*.35, l*.35, l*.050, 0, Math.PI*2); ctx.fill();
+      // Reflet sur la tête
+      ctx.fillStyle=`rgba(210,248,255,${al*.5})`;
+      ctx.beginPath(); ctx.arc(l*.24, l*.395, l*.030, 0, Math.PI*2); ctx.fill();
+
+      ctx.restore(); ctx.globalAlpha=1;
     }
   }
 
@@ -1020,7 +1104,7 @@ const THEME_PARTICLES = {
   spyra:       { type:'flame',     count:100 },
   smythra:     { type:'bolt',      count:65 },
   skazuya:     { type:'aura',      count:40 },
-  ssora:       { type:'star',      count:55 },
+  ssora:       { type:'keyblade',  count:30 },
   smii_brawl:  { type:'ring',      count:50 },
   smii_sword:  { type:'sparkle',   count:50 },
   smii_gun:    { type:'ring',      count:50 },
