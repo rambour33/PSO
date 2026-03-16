@@ -1480,6 +1480,21 @@ kbd {
   margin-top: 16px;
 }
 
+.themes-group-label {
+  flex-basis: 100%;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 2.5px;
+  color: var(--muted);
+  padding: 14px 2px 6px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 2px;
+}
+.themes-group-label:first-child {
+  padding-top: 0;
+}
+
 .theme-preset-card {
   cursor: pointer;
   border: 2px solid var(--border);
