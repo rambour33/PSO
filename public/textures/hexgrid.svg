@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="34.641" height="60">
+  <!--
+    Tileable pointy-top hex grid. Circumradius r=20.
+    Tile W = sqrt(3)*r = 34.641   H = 3*r = 60
+    Central hex straddles left/right tile edges (vertices at x=0 and x=W).
+    Two connecting segments link to adjacent tiles above/below.
+  -->
+  <polygon
+    points="17.321,10 34.641,20 34.641,40 17.321,50 0,40 0,20"
+    fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="0.7"/>
+  <line x1="17.321" y1="0"  x2="17.321" y2="10" stroke="rgba(255,255,255,0.07)" stroke-width="0.7"/>
+  <line x1="17.321" y1="50" x2="17.321" y2="60" stroke="rgba(255,255,255,0.07)" stroke-width="0.7"/>
+</svg>

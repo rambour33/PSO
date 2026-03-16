@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="40" height="34.641">
+  <!--
+    Equilateral triangle grid — 40×34.641 tile.
+    Side = 40, height = sqrt(3)/2 * 40 = 34.641.
+    Draws a single upward triangle + downward triangle to tile seamlessly.
+  -->
+  <!-- Upward triangle -->
+  <polygon points="0,34.641 40,34.641 20,0"
+    fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="0.7"/>
+  <!-- Partial downward triangle for tiling (top half only) -->
+  <polygon points="0,0 40,0 20,34.641"
+    fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="0.7"/>
+</svg>
