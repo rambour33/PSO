@@ -115,6 +115,32 @@ body {
   flex: 1;
   position: relative;
   z-index: 2;
+  overflow: visible;
+}
+
+/* ── Player flag ─────────────────────────────────────────────── */
+
+.player-flag {
+  position: absolute;
+  top: 0;
+  width: 52px;
+  height: 34px;
+  object-fit: cover;
+  border-radius: 3px;
+  border: 1px solid rgba(255,255,255,0.15);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.6);
+  z-index: 10;
+  pointer-events: none;
+}
+
+.player-flag-left {
+  right: 0;
+  transform: translate(var(--p1-flag-x, 0px), var(--p1-flag-y, 0px));
+}
+
+.player-flag-right {
+  left: 0;
+  transform: translate(var(--p2-flag-x, 0px), var(--p2-flag-y, 0px));
 }
 
 /* ── Character portrait ──────────────────────────────────────── */

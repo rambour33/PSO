@@ -30,8 +30,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 // ─── State ────────────────────────────────────────────────────────────────────
 
 let matchState = {
-  player1: { name: 'PLAYER 1', score: 0, character: null, color: '#E83030', tag: '', pronouns: '', stockColor: 0 },
-  player2: { name: 'PLAYER 2', score: 0, character: null, color: '#3070E8', tag: '', pronouns: '', stockColor: 0 },
+  player1: { name: 'PLAYER 1', score: 0, character: null, color: '#E83030', tag: '', pronouns: '', stockColor: 0, flag: '', flagOffsetX: 0, flagOffsetY: 0 },
+  player2: { name: 'PLAYER 2', score: 0, character: null, color: '#3070E8', tag: '', pronouns: '', stockColor: 0, flag: '', flagOffsetX: 0, flagOffsetY: 0 },
   format: 'Bo3',
   customWins: 2,
   event: 'TOURNAMENT',
@@ -446,6 +446,24 @@ app.get('/api/startgg/event/:id/sets', async (req, res) => {
     if (!data.event) return res.status(404).json({ error: 'Évènement introuvable' });
     res.json(data.event);
   } catch (e) { res.status(400).json({ error: e.message }); }
+});
+
+// ─── Flags API ───────────────────────────────────────────────────────────────
+
+app.get('/api/flags', (req, res) => {
+  const flagsDir = path.join(__dirname, 'public', 'state_flag');
+  try {
+    const countries = fs.readdirSync(flagsDir, { withFileTypes: true })
+      .filter(d => d.isDirectory())
+      .sort((a, b) => a.name.localeCompare(b.name))
+      .map(d => ({
+        code: d.name,
+        files: fs.readdirSync(path.join(flagsDir, d.name))
+          .filter(f => /\.png$/i.test(f))
+          .sort()
+      }));
+    res.json(countries);
+  } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
 // ─── Start ────────────────────────────────────────────────────────────────────

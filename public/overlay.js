@@ -2112,6 +2112,24 @@ function update(s) {
     p2Sep.style.display = 'none';
   }
 
+  // Player flags
+  const p1FlagImg = document.getElementById('p1-flag-img');
+  const p2FlagImg = document.getElementById('p2-flag-img');
+  if (p1FlagImg) {
+    const f1 = s.player1?.flag;
+    if (f1) { p1FlagImg.src = '/' + f1; p1FlagImg.style.display = 'block'; }
+    else { p1FlagImg.style.display = 'none'; }
+    sb.style.setProperty('--p1-flag-x', (s.player1?.flagOffsetX ?? 0) + 'px');
+    sb.style.setProperty('--p1-flag-y', (s.player1?.flagOffsetY ?? 0) + 'px');
+  }
+  if (p2FlagImg) {
+    const f2 = s.player2?.flag;
+    if (f2) { p2FlagImg.src = '/' + f2; p2FlagImg.style.display = 'block'; }
+    else { p2FlagImg.style.display = 'none'; }
+    sb.style.setProperty('--p2-flag-x', (s.player2?.flagOffsetX ?? 0) + 'px');
+    sb.style.setProperty('--p2-flag-y', (s.player2?.flagOffsetY ?? 0) + 'px');
+  }
+
   // Center logo — full layout
   const centerImg = document.getElementById('center-logo-img');
   const vsEl = document.getElementById('score-vs');

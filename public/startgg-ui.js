@@ -108,6 +108,8 @@
     document.getElementById('sgg-entrants-count').textContent = `${total} participants`;
     document.getElementById('sgg-entrants-section').style.display = '';
     renderEntrants(allEntrants);
+    setupAutocomplete(1);
+    setupAutocomplete(2);
     showStatus('Participants chargés : ' + allEntrants.length);
   }
 
@@ -253,6 +255,86 @@
     await fetchSets(currentEventId);
     showStatus('Sets actualisés');
   });
+
+  // ── Autocomplete ──────────────────────────────────────────────────────────────
+
+  function setupAutocomplete(playerNum) {
+    const nameInput = document.getElementById(`p${playerNum}-name`);
+    const tagInput  = document.getElementById(`p${playerNum}-tag`);
+    if (!nameInput) return;
+
+    // Create dropdown container
+    const drop = document.createElement('div');
+    drop.className = 'ac-dropdown';
+    drop.style.display = 'none';
+    nameInput.parentNode.style.position = 'relative';
+    nameInput.parentNode.appendChild(drop);
+
+    function hideDrop() { drop.style.display = 'none'; }
+
+    function showDrop(results) {
+      drop.innerHTML = '';
+      if (!results.length) { hideDrop(); return; }
+      results.forEach(e => {
+        const item = document.createElement('div');
+        item.className = 'ac-item';
+        item.tabIndex = -1;
+        const label = e.prefix ? `<span class="ac-prefix">[${e.prefix}]</span> ${e.tag}` : e.tag;
+        item.innerHTML = label;
+        item.addEventListener('mousedown', ev => {
+          ev.preventDefault();
+          applyPlayer(playerNum, e.prefix, e.tag);
+          hideDrop();
+        });
+        drop.appendChild(item);
+      });
+      drop.style.display = 'block';
+    }
+
+    nameInput.addEventListener('input', () => {
+      const q = nameInput.value.toLowerCase();
+      if (!q || !allEntrants.length) { hideDrop(); return; }
+      const results = allEntrants
+        .filter(e => e.tag.toLowerCase().includes(q) || e.prefix.toLowerCase().includes(q))
+        .slice(0, 8);
+      showDrop(results);
+    });
+
+    nameInput.addEventListener('keydown', e => {
+      if (e.key === 'Escape') hideDrop();
+      if (e.key === 'ArrowDown') {
+        const items = drop.querySelectorAll('.ac-item');
+        if (items.length) { e.preventDefault(); items[0].focus(); }
+      }
+    });
+
+    drop.addEventListener('keydown', e => {
+      const items = [...drop.querySelectorAll('.ac-item')];
+      const idx = items.indexOf(document.activeElement);
+      if (e.key === 'ArrowDown' && idx < items.length - 1) { e.preventDefault(); items[idx+1].focus(); }
+      if (e.key === 'ArrowUp') { e.preventDefault(); idx > 0 ? items[idx-1].focus() : nameInput.focus(); }
+      if (e.key === 'Enter' && idx >= 0) { e.preventDefault(); items[idx].dispatchEvent(new MouseEvent('mousedown')); }
+      if (e.key === 'Escape') { hideDrop(); nameInput.focus(); }
+    });
+
+    // Also autocomplete on tag input
+    if (tagInput) {
+      tagInput.addEventListener('input', () => {
+        const q = tagInput.value.toLowerCase();
+        if (!q || !allEntrants.length) { hideDrop(); return; }
+        const results = allEntrants
+          .filter(e => e.prefix.toLowerCase().includes(q) || e.tag.toLowerCase().includes(q))
+          .slice(0, 8);
+        showDrop(results);
+      });
+    }
+
+    document.addEventListener('click', e => {
+      if (!nameInput.contains(e.target) && !drop.contains(e.target) && !(tagInput && tagInput.contains(e.target))) {
+        hideDrop();
+      }
+    });
+  }
 
   // ── Init ──────────────────────────────────────────────────────────────────────
 
