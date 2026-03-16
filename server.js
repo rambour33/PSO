@@ -210,6 +210,7 @@ app.get('/overlay-slim', (req, res) => res.redirect('/overlay'));
 app.get('/stageveto', (req, res) => res.sendFile(path.join(__dirname, 'public', 'stageveto.html')));
 app.get('/casters', (req, res) => res.sendFile(path.join(__dirname, 'public', 'casters.html')));
 app.get('/control', (req, res) => res.sendFile(path.join(__dirname, 'public', 'control.html')));
+app.get('/vs-screen', (req, res) => res.sendFile(path.join(__dirname, 'public', 'vs-screen.html')));
 
 app.get('/api/casters', (req, res) => res.json(castersState));
 
@@ -273,6 +274,11 @@ io.on('connection', (socket) => {
   socket.emit('rulesetUpdate', rulesetState);
   socket.emit('characterUpdate', characterList);
   socket.emit('castersUpdate', castersState);
+
+  // Déclenche l'animation d'entrée sur la VS screen
+  socket.on('triggerVsScreen', () => {
+    io.emit('vsScreenTrigger');
+  });
 
   socket.on('updateState', (data) => {
     matchState = { ...matchState, ...data };
