@@ -1,0 +1,347 @@
+/* ═══════════════════════════════════════════════════
+   VS SCREEN  ·  PSO Smash Bros Overlay
+   ═══════════════════════════════════════════════════ */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  width: 100%; height: 100%;
+  overflow: hidden;
+  background: transparent;
+}
+
+/* ── Root container ───────────────────────────────── */
+#vs-root {
+  position: relative;
+  width: 1920px; height: 1080px;
+  overflow: hidden;
+  background: #080810;
+  font-family: 'Russo One', sans-serif;
+}
+
+/* ── Background (stage image) ─────────────────────── */
+#vs-bg {
+  position: absolute; inset: 0;
+  background-size: cover;
+  background-position: center;
+  filter: blur(18px) brightness(0.3) saturate(1.4);
+  transform: scale(1.08);
+  transition: background-image 0.6s ease;
+}
+
+#vs-vignette {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse 70% 70% at 50% 50%,
+      transparent 30%, rgba(4,4,12,0.85) 100%),
+    linear-gradient(to bottom, rgba(4,4,12,0.5) 0%, transparent 18%, transparent 82%, rgba(4,4,12,0.7) 100%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+#vs-scanlines {
+  position: absolute; inset: 0;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(0,0,0,0) 0px,
+    rgba(0,0,0,0) 2px,
+    rgba(0,0,0,0.08) 2px,
+    rgba(0,0,0,0.08) 4px
+  );
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* ── Canvases particules ──────────────────────────── */
+#vs-canvas-p1,
+#vs-canvas-p2 {
+  position: absolute;
+  top: 0;
+  width: 960px; height: 1080px;
+  z-index: 3;
+  pointer-events: none;
+}
+#vs-canvas-p1 { left: 0; }
+#vs-canvas-p2 { left: 960px; }
+
+/* ── Flash d'entrée ───────────────────────────────── */
+#vs-flash {
+  position: absolute; inset: 0;
+  background: white;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 100;
+}
+#vs-flash.flash-anim {
+  animation: vsFlash 0.55s ease-out forwards;
+}
+@keyframes vsFlash {
+  0%   { opacity: 0; }
+  15%  { opacity: 0.92; }
+  100% { opacity: 0; }
+}
+
+/* ── Côtés joueurs ────────────────────────────────── */
+.vs-side {
+  position: absolute;
+  top: 0; bottom: 0;
+  width: 780px;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  pointer-events: none;
+}
+.vs-side:not(.vs-right) { left: 0; }
+.vs-side.vs-right       { right: 0; align-items: flex-end; }
+
+/* Barre couleur verticale (accent du joueur) */
+.vs-color-bar {
+  position: absolute;
+  top: 0; bottom: 0;
+  width: 5px;
+  left: 0;
+  background: var(--pcolor, #E83030);
+  box-shadow: 0 0 20px 4px var(--pcolor, #E83030);
+  opacity: 0.9;
+  z-index: 11;
+  transition: background 0.4s, box-shadow 0.4s;
+}
+.vs-right .vs-color-bar { left: auto; right: 0; }
+
+/* ── Art du personnage ────────────────────────────── */
+.vs-char-wrap {
+  position: absolute;
+  bottom: 120px;
+  left: -40px;
+  width: 820px;
+  height: 860px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-start;
+
+  /* Entrée P1 : glisse depuis la gauche */
+  transform: translateX(-120px);
+  opacity: 0;
+  transition: transform 0.7s cubic-bezier(0.22,1,0.36,1),
+              opacity    0.5s ease;
+}
+.vs-char-wrap.vs-flip {
+  left: auto;
+  right: -40px;
+  justify-content: flex-end;
+  transform: translateX(120px) scaleX(-1);
+}
+.vs-char-wrap.vs-flip.vs-in {
+  transform: translateX(0) scaleX(-1);
+}
+.vs-char-wrap.vs-in:not(.vs-flip) {
+  transform: translateX(0);
+  opacity: 1;
+}
+.vs-char-wrap.vs-in.vs-flip {
+  opacity: 1;
+}
+
+.vs-char-img {
+  max-height: 860px;
+  max-width: 780px;
+  object-fit: contain;
+  object-position: bottom center;
+  filter: drop-shadow(0 0 40px rgba(0,0,0,0.8));
+}
+/* Masque de fondu vers le centre */
+.vs-side:not(.vs-right) .vs-char-wrap {
+  mask-image: linear-gradient(to right, rgba(0,0,0,1) 55%, rgba(0,0,0,0) 100%);
+  -webkit-mask-image: linear-gradient(to right, rgba(0,0,0,1) 55%, rgba(0,0,0,0) 100%);
+}
+.vs-side.vs-right .vs-char-wrap {
+  mask-image: linear-gradient(to left, rgba(0,0,0,1) 55%, rgba(0,0,0,0) 100%);
+  -webkit-mask-image: linear-gradient(to left, rgba(0,0,0,1) 55%, rgba(0,0,0,0) 100%);
+}
+
+.vs-char-ph {
+  display: none;
+  font-size: 120px;
+  color: rgba(255,255,255,0.15);
+  font-family: 'Russo One', sans-serif;
+}
+.vs-char-ph.active { display: flex; align-items: center; justify-content: center; width: 300px; height: 300px; }
+
+/* ── Infos joueur ─────────────────────────────────── */
+.vs-player-info {
+  position: absolute;
+  bottom: 62px;
+  left: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  transform: translateY(30px);
+  opacity: 0;
+  transition: transform 0.5s 0.45s ease,
+              opacity    0.5s 0.45s ease;
+}
+.vs-player-info.vs-in {
+  transform: translateY(0);
+  opacity: 1;
+}
+.vs-right-info {
+  left: auto; right: 28px;
+  align-items: flex-end;
+  text-align: right;
+}
+
+.vs-tag {
+  font-size: 22px;
+  font-family: 'Inter', sans-serif;
+  font-weight: 700;
+  color: var(--pcolor, #E8B830);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-shadow: 0 0 12px var(--pcolor, #E8B830);
+}
+.vs-tag:empty { display: none; }
+
+.vs-name {
+  font-size: 58px;
+  font-family: 'Russo One', sans-serif;
+  color: #F8F6FF;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  text-shadow:
+    0 2px 8px rgba(0,0,0,0.9),
+    0 0 40px rgba(0,0,0,0.6);
+}
+
+.vs-char-name {
+  font-size: 18px;
+  font-family: 'Inter', sans-serif;
+  font-weight: 400;
+  color: rgba(255,255,255,0.45);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+.vs-char-name:empty { display: none; }
+
+/* ── Centre VS ────────────────────────────────────── */
+#vs-center {
+  position: absolute;
+  left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  pointer-events: none;
+
+  opacity: 0;
+  scale: 0.6;
+  transition: opacity 0.4s 0.3s ease,
+              scale   0.5s 0.3s cubic-bezier(0.34,1.56,0.64,1);
+}
+#vs-center.vs-in {
+  opacity: 1;
+  scale: 1;
+}
+
+#vs-vs-text {
+  font-size: 148px;
+  font-family: 'Russo One', sans-serif;
+  color: #FFFFFF;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  text-shadow:
+    0 0 30px rgba(255,255,255,0.5),
+    0 0 80px rgba(255,255,255,0.2),
+    0 4px 20px rgba(0,0,0,0.8);
+  position: relative;
+}
+/* Trait décoratif sous VS */
+#vs-vs-text::after {
+  content: '';
+  position: absolute;
+  bottom: -8px; left: 10%; right: 10%;
+  height: 3px;
+  background: linear-gradient(to right, transparent, rgba(255,255,255,0.6), transparent);
+}
+
+#vs-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 16px;
+  font-family: 'Inter', sans-serif;
+  font-weight: 400;
+  color: rgba(255,255,255,0.65);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+#vs-meta:empty { display: none; }
+.vs-meta-sep { opacity: 0.4; }
+#vs-stage-name:empty + .vs-meta-sep,
+.vs-meta-sep:first-child { display: none; }
+
+#vs-event-name {
+  font-size: 13px;
+  font-family: 'Inter', sans-serif;
+  font-weight: 400;
+  color: rgba(255,255,255,0.35);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+#vs-series {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 8px;
+}
+.vs-series-score {
+  font-size: 36px;
+  font-family: 'Russo One', sans-serif;
+  color: rgba(255,255,255,0.9);
+  min-width: 30px;
+  text-align: center;
+}
+.vs-series-dash {
+  font-size: 22px;
+  color: rgba(255,255,255,0.3);
+}
+
+/* ── Lignes diagonales décoratives ────────────────── */
+#vs-root::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(135deg, transparent 49.5%, rgba(255,255,255,0.04) 49.5%, rgba(255,255,255,0.04) 50.5%, transparent 50.5%),
+    linear-gradient(45deg,  transparent 49.5%, rgba(255,255,255,0.03) 49.5%, rgba(255,255,255,0.03) 50.5%, transparent 50.5%);
+  pointer-events: none;
+  z-index: 5;
+}
+
+/* Ligne centrale verticale */
+#vs-root::after {
+  content: '';
+  position: absolute;
+  top: 0; bottom: 0;
+  left: 50%;
+  width: 1px;
+  background: linear-gradient(to bottom,
+    transparent 0%,
+    rgba(255,255,255,0.12) 20%,
+    rgba(255,255,255,0.12) 80%,
+    transparent 100%
+  );
+  pointer-events: none;
+  z-index: 6;
+}
+
+/* ── Thème overlay ────────────────────────────────── */
+/* Le thème colore le VS text selon les couleurs du scoreboard */
+#vs-root.theme-fire   #vs-vs-text { text-shadow: 0 0 40px #ff6600, 0 0 80px #ff330044, 0 4px 20px #0004; }
+#vs-root.theme-cyber  #vs-vs-text { text-shadow: 0 0 40px #00ffcc, 0 0 80px #00ffcc44, 0 4px 20px #0004; }
+#vs-root.theme-bolt   #vs-vs-text { text-shadow: 0 0 40px #ffdd00, 0 0 80px #ffdd0044, 0 4px 20px #0004; }

@@ -25,6 +25,8 @@
       </div>
       <a href="/overlay" target="_blank" class="btn btn-outline">Scoreboard ↗</a>
       <a href="/stageveto" target="_blank" class="btn btn-outline">Stage Veto ↗</a>
+      <a href="/vs-screen" target="_blank" class="btn btn-outline">VS Screen ↗</a>
+      <button id="btn-vs-trigger" class="btn btn-primary" title="Déclenche l'animation d'entrée sur la VS Screen">⚔ VS Anim</button>
       <button id="btn-visibility" class="btn btn-primary">Masquer</button>
     </div>
   </header>
@@ -36,6 +38,7 @@
     <button class="tab-btn" data-tab="ruleset">Ruleset</button>
     <button class="tab-btn" data-tab="custom">Customisation</button>
     <button class="tab-btn" data-tab="chars" style="display:none">Personnages</button>
+    <button class="tab-btn" data-tab="startgg">start.gg</button>
   </nav>
 
   <!-- ═══════════════════════════════════════════════════════════ -->
@@ -346,8 +349,184 @@
   <div class="tab-content" id="tab-custom">
 
     <section class="section">
+      <div class="section-header"><h2>Scoreboard</h2></div>
+      <div class="custom-grid">
+        <div class="custom-card">
+          <h3>Style d'affichage</h3>
+          <p class="hint" style="margin-bottom:12px">Bascule entre le scoreboard complet et la version compacte.</p>
+          <div class="theme-btn-row">
+            <button class="overlay-style-btn theme-btn active" data-style="full">Full ▬</button>
+            <button class="overlay-style-btn theme-btn" data-style="slim">Slim —</button>
+          </div>
+        </div>
+        <div class="custom-card">
+          <h3>Barre événement</h3>
+          <div class="form-group" style="margin-bottom:12px">
+            <label>Taille texte</label>
+            <div style="display:flex;gap:8px;align-items:center">
+              <input type="number" id="event-text-size" value="12" min="8" max="32" style="width:60px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:13px;padding:4px 6px;text-align:center" />
+              <span style="font-size:12px;color:var(--text-muted)">px</span>
+            </div>
+          </div>
+          <div class="form-group" style="margin:0">
+            <label>Couleur texte</label>
+            <input type="color" id="event-text-color" value="#EAB830" />
+          </div>
+        </div>
+
+        <div class="custom-card">
+          <h3>Textes joueurs</h3>
+          <div class="form-group" style="margin-bottom:10px">
+            <label>Tag</label>
+            <input type="color" id="tag-color" value="#E8B830" />
+          </div>
+          <div class="form-group" style="margin-bottom:10px">
+            <label>Pseudo</label>
+            <input type="color" id="name-color" value="#F0EEF8" />
+          </div>
+          <div class="form-group" style="margin:0">
+            <label>Pronoms</label>
+            <input type="color" id="pronouns-color" value="#5A5A7A" />
+          </div>
+        </div>
+
+        <div class="custom-card">
+          <h3>Fond de l'overlay</h3>
+          <div class="form-group" style="margin:0">
+            <label>Couleur</label>
+            <div style="display:flex;gap:8px;align-items:center">
+              <input type="color" id="sb-bg-color" value="#0E0E12" />
+              <input type="number" id="sb-bg-opacity" value="100" min="0" max="100" style="width:60px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:13px;padding:4px 6px;text-align:center" />
+              <span style="font-size:12px;color:var(--text-muted)">%</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="custom-card">
+          <h3>Particules</h3>
+          <div class="form-group" style="margin-bottom:14px">
+            <button id="btn-particles-toggle" class="btn btn-primary" style="width:100%">⏸ Désactiver les particules</button>
+          </div>
+          <div id="particles-controls">
+            <div class="form-group" style="margin-bottom:14px">
+              <label>Opacité <span class="hint">0 – 100 %</span></label>
+              <div class="logo-particles-row">
+                <input type="range" id="particle-opacity-range" min="0" max="100" value="100" />
+                <input type="number" id="particle-opacity-num" min="0" max="100" value="100" style="width:56px" />
+              </div>
+            </div>
+            <div class="form-group" style="margin:0">
+              <label>Quantité <span class="hint">10 – 500 %</span></label>
+              <div class="logo-particles-row">
+                <input type="range" id="particle-count-range" min="10" max="500" value="100" />
+                <input type="number" id="particle-count-num" min="10" max="500" value="100" style="width:56px" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-header"><h2>Overlay Casters</h2></div>
+      <div class="custom-grid">
+        <div class="custom-card">
+          <h3>Disposition</h3>
+          <div class="theme-btn-row">
+            <button class="casters-layout-btn theme-btn active" data-layout="row">En ligne →</button>
+            <button class="casters-layout-btn theme-btn" data-layout="column">En colonne ↓</button>
+          </div>
+        </div>
+        <div class="custom-card">
+          <h3>Fond des cartes</h3>
+          <div class="form-group" style="margin:0">
+            <label>Couleur</label>
+            <div style="display:flex;gap:8px;align-items:center">
+              <input type="color" id="casters-bg-color" value="#0E0E12" />
+              <input type="number" id="casters-bg-opacity" value="100" min="0" max="100" style="width:60px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:13px;padding:4px 6px;text-align:center" />
+              <span style="font-size:12px;color:var(--text-muted)">%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-header"><h2>Logos</h2></div>
+      <div class="custom-grid">
+
+        <div class="custom-card">
+          <h3>Logo central — Scoreboard</h3>
+          <p class="hint" style="margin-bottom:10px">Remplace le texte « VS » au centre.</p>
+          <div class="form-group">
+            <label>URL</label>
+            <input type="text" id="center-logo" placeholder="https://..." />
+          </div>
+          <div class="logo-preview-row">
+            <div class="logo-preview-box" id="center-logo-preview">
+              <span>Aperçu</span>
+            </div>
+            <button id="btn-apply-logo" class="btn btn-primary btn-sm">Appliquer</button>
+          </div>
+          <div class="form-group" style="margin-top:12px">
+            <label>Particules logo (thèmes custom) <span class="hint">1 – 100</span></label>
+            <div class="logo-particles-row">
+              <input type="range" id="logo-particles-range" min="1" max="100" value="3" />
+              <input type="number" id="logo-particles-num" min="1" max="100" value="3" />
+            </div>
+          </div>
+        </div>
+
+        <div class="custom-card">
+          <h3>URLs overlays OBS</h3>
+          <p class="hint" style="margin-bottom:10px">Copier-coller dans OBS → Source Navigateur.</p>
+          <div class="obs-url-list">
+            <div class="obs-url-item">
+              <span>Scoreboard</span>
+              <code>localhost:3002/overlay</code>
+              <button class="btn-copy" data-url="http://localhost:3002/overlay">📋</button>
+            </div>
+            <div class="obs-url-item">
+              <span>Scoreboard Slim</span>
+              <code>localhost:3002/overlay-slim</code>
+              <button class="btn-copy" data-url="http://localhost:3002/overlay-slim">📋</button>
+            </div>
+            <div class="obs-url-item">
+              <span>Stage Veto</span>
+              <code>localhost:3002/stageveto</code>
+              <button class="btn-copy" data-url="http://localhost:3002/stageveto">📋</button>
+            </div>
+            <div class="obs-url-item">
+              <span>Casters</span>
+              <code>localhost:3002/casters</code>
+              <button class="btn-copy" data-url="http://localhost:3002/casters">📋</button>
+            </div>
+            <div class="obs-url-item">
+              <span>VS Screen</span>
+              <code>localhost:3002/vs-screen</code>
+              <button class="btn-copy" data-url="http://localhost:3002/vs-screen">📋</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <section class="section">
       <div class="section-header"><h2>Thèmes</h2></div>
       <div class="themes-grid" id="themes-grid">
+
+        <!-- ── Dual ── -->
+        <div class="themes-group-label">Dynamique</div>
+
+        <div class="theme-preset-card" data-theme="dual" style="grid-column: span 2;">
+          <div class="theme-preset-preview" style="background:linear-gradient(to right,#1A0400 0%,#1A0400 48%,#050505 50%,#00041A 52%,#00041A 100%);position:relative;overflow:hidden">
+            <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 20% 80%,rgba(229,34,34,0.4) 0%,transparent 60%),radial-gradient(ellipse at 80% 80%,rgba(26,107,255,0.4) 0%,transparent 60%)"></div>
+            <div style="position:absolute;left:50%;top:0;bottom:0;width:1px;background:rgba(255,255,255,0.25)"></div>
+            <span style="position:relative;font-family:'Russo One',sans-serif;font-size:11px;letter-spacing:1px;background:linear-gradient(135deg,#E52222,#1A6BFF);-webkit-background-clip:text;-webkit-text-fill-color:transparent">DUAL PERSO</span>
+          </div>
+          <div class="theme-preset-name">Dual Personnages <span style="font-size:10px;opacity:0.6">(auto)</span></div>
+        </div>
 
         <!-- ── Ambiances ── -->
         <div class="themes-group-label">Ambiances</div>
@@ -1124,142 +1303,6 @@
       </div>
     </section>
 
-    <section class="section">
-      <div class="section-header"><h2>Scoreboard</h2></div>
-      <div class="custom-grid">
-        <div class="custom-card">
-          <h3>Style d'affichage</h3>
-          <p class="hint" style="margin-bottom:12px">Bascule entre le scoreboard complet et la version compacte.</p>
-          <div class="theme-btn-row">
-            <button class="overlay-style-btn theme-btn active" data-style="full">Full ▬</button>
-            <button class="overlay-style-btn theme-btn" data-style="slim">Slim —</button>
-          </div>
-        </div>
-        <div class="custom-card">
-          <h3>Barre événement</h3>
-          <div class="form-group" style="margin-bottom:12px">
-            <label>Taille texte</label>
-            <div style="display:flex;gap:8px;align-items:center">
-              <input type="number" id="event-text-size" value="12" min="8" max="32" style="width:60px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:13px;padding:4px 6px;text-align:center" />
-              <span style="font-size:12px;color:var(--text-muted)">px</span>
-            </div>
-          </div>
-          <div class="form-group" style="margin:0">
-            <label>Couleur texte</label>
-            <input type="color" id="event-text-color" value="#EAB830" />
-          </div>
-        </div>
-
-        <div class="custom-card">
-          <h3>Textes joueurs</h3>
-          <div class="form-group" style="margin-bottom:10px">
-            <label>Tag</label>
-            <input type="color" id="tag-color" value="#E8B830" />
-          </div>
-          <div class="form-group" style="margin-bottom:10px">
-            <label>Pseudo</label>
-            <input type="color" id="name-color" value="#F0EEF8" />
-          </div>
-          <div class="form-group" style="margin:0">
-            <label>Pronoms</label>
-            <input type="color" id="pronouns-color" value="#5A5A7A" />
-          </div>
-        </div>
-
-        <div class="custom-card">
-          <h3>Fond de l'overlay</h3>
-          <div class="form-group" style="margin:0">
-            <label>Couleur</label>
-            <div style="display:flex;gap:8px;align-items:center">
-              <input type="color" id="sb-bg-color" value="#0E0E12" />
-              <input type="number" id="sb-bg-opacity" value="100" min="0" max="100" style="width:60px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:13px;padding:4px 6px;text-align:center" />
-              <span style="font-size:12px;color:var(--text-muted)">%</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="section">
-      <div class="section-header"><h2>Overlay Casters</h2></div>
-      <div class="custom-grid">
-        <div class="custom-card">
-          <h3>Disposition</h3>
-          <div class="theme-btn-row">
-            <button class="casters-layout-btn theme-btn active" data-layout="row">En ligne →</button>
-            <button class="casters-layout-btn theme-btn" data-layout="column">En colonne ↓</button>
-          </div>
-        </div>
-        <div class="custom-card">
-          <h3>Fond des cartes</h3>
-          <div class="form-group" style="margin:0">
-            <label>Couleur</label>
-            <div style="display:flex;gap:8px;align-items:center">
-              <input type="color" id="casters-bg-color" value="#0E0E12" />
-              <input type="number" id="casters-bg-opacity" value="100" min="0" max="100" style="width:60px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:13px;padding:4px 6px;text-align:center" />
-              <span style="font-size:12px;color:var(--text-muted)">%</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="section">
-      <div class="section-header"><h2>Logos</h2></div>
-      <div class="custom-grid">
-
-        <div class="custom-card">
-          <h3>Logo central — Scoreboard</h3>
-          <p class="hint" style="margin-bottom:10px">Remplace le texte « VS » au centre.</p>
-          <div class="form-group">
-            <label>URL</label>
-            <input type="text" id="center-logo" placeholder="https://..." />
-          </div>
-          <div class="logo-preview-row">
-            <div class="logo-preview-box" id="center-logo-preview">
-              <span>Aperçu</span>
-            </div>
-            <button id="btn-apply-logo" class="btn btn-primary btn-sm">Appliquer</button>
-          </div>
-          <div class="form-group" style="margin-top:12px">
-            <label>Particules logo (thèmes custom) <span class="hint">1 – 100</span></label>
-            <div class="logo-particles-row">
-              <input type="range" id="logo-particles-range" min="1" max="100" value="3" />
-              <input type="number" id="logo-particles-num" min="1" max="100" value="3" />
-            </div>
-          </div>
-        </div>
-
-        <div class="custom-card">
-          <h3>URLs overlays OBS</h3>
-          <p class="hint" style="margin-bottom:10px">Copier-coller dans OBS → Source Navigateur.</p>
-          <div class="obs-url-list">
-            <div class="obs-url-item">
-              <span>Scoreboard</span>
-              <code>localhost:3002/overlay</code>
-              <button class="btn-copy" data-url="http://localhost:3002/overlay">📋</button>
-            </div>
-            <div class="obs-url-item">
-              <span>Scoreboard Slim</span>
-              <code>localhost:3002/overlay-slim</code>
-              <button class="btn-copy" data-url="http://localhost:3002/overlay-slim">📋</button>
-            </div>
-            <div class="obs-url-item">
-              <span>Stage Veto</span>
-              <code>localhost:3002/stageveto</code>
-              <button class="btn-copy" data-url="http://localhost:3002/stageveto">📋</button>
-            </div>
-            <div class="obs-url-item">
-              <span>Casters</span>
-              <code>localhost:3002/casters</code>
-              <button class="btn-copy" data-url="http://localhost:3002/casters">📋</button>
-            </div>
-          </div>
-        </div>
-
-      </div>
-    </section>
-
   </div><!-- /tab-custom -->
 
   <!-- ═══════════════════════════════════════════════════════════ -->
@@ -1277,6 +1320,73 @@
     </section>
 
   </div><!-- /tab-chars -->
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- TAB : START.GG                                              -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <div class="tab-content" id="tab-startgg">
+
+    <!-- Config clé API -->
+    <section class="section">
+      <div class="section-header">
+        <h2>Connexion start.gg</h2>
+      </div>
+      <div class="form-group">
+        <label>Clé API</label>
+        <div class="name-row">
+          <input type="password" id="sgg-api-key" placeholder="Votre clé API start.gg" style="flex:1" />
+          <button class="btn btn-primary btn-sm" id="sgg-save-key">Enregistrer</button>
+        </div>
+        <p class="hint" id="sgg-key-status">Chargement…</p>
+      </div>
+    </section>
+
+    <!-- Recherche tournoi -->
+    <section class="section">
+      <div class="section-header">
+        <h2>Tournoi</h2>
+      </div>
+      <div class="form-group">
+        <label>Slug ou URL start.gg</label>
+        <div class="name-row">
+          <input type="text" id="sgg-slug" placeholder="ex: tournament/combo-breaker-2024" style="flex:1" />
+          <button class="btn btn-primary btn-sm" id="sgg-search-btn">Chercher</button>
+        </div>
+        <p class="hint">Format attendu : <code>tournament/nom-du-tournoi</code></p>
+      </div>
+      <div id="sgg-tournament-info" style="display:none">
+        <p class="hint" id="sgg-tournament-name"></p>
+        <div class="form-group">
+          <label>Évènement</label>
+          <select id="sgg-event-select" class="input-name" style="width:100%"></select>
+          <button class="btn btn-outline btn-sm" id="sgg-load-event" style="margin-top:6px">Charger les participants</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Participants -->
+    <section class="section" id="sgg-entrants-section" style="display:none">
+      <div class="section-header">
+        <h2>Participants</h2>
+        <span class="hint" id="sgg-entrants-count"></span>
+      </div>
+      <div class="form-group">
+        <input type="text" id="sgg-entrants-search" placeholder="Filtrer les joueurs…" style="width:100%" />
+      </div>
+      <div id="sgg-entrants-list" class="sgg-entrants-list"></div>
+      <div id="sgg-entrants-pagination" class="sgg-pagination"></div>
+    </section>
+
+    <!-- Sets en cours -->
+    <section class="section" id="sgg-sets-section" style="display:none">
+      <div class="section-header">
+        <h2>Sets en cours</h2>
+        <button class="btn btn-outline btn-sm" id="sgg-refresh-sets">Actualiser</button>
+      </div>
+      <div id="sgg-sets-list" class="sgg-sets-list"></div>
+    </section>
+
+  </div><!-- /tab-startgg -->
 
   <!-- STAGE PICKER MODAL -->
   <div class="char-modal" id="stage-modal" style="display:none">
@@ -1317,5 +1427,6 @@
 
 <script src="/socket.io/socket.io.js"></script>
 <script src="control.js"></script>
+<script src="startgg-ui.js"></script>
 </body>
 </html>

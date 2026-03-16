@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>PSO – VS Screen</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Russo+One&family=Inter:wght@400;700;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="vs-screen.css" />
+</head>
+<body>
+  <div id="vs-root">
+
+    <!-- Fond scène (image floutée) -->
+    <div id="vs-bg"></div>
+    <div id="vs-vignette"></div>
+    <div id="vs-scanlines"></div>
+
+    <!-- Canvases particules (derrière les persos) -->
+    <canvas id="vs-canvas-p1"></canvas>
+    <canvas id="vs-canvas-p2"></canvas>
+
+    <!-- Flash d'entrée -->
+    <div id="vs-flash"></div>
+
+    <!-- Côté P1 -->
+    <div id="vs-p1-side" class="vs-side">
+      <div class="vs-color-bar" id="vs-p1-bar"></div>
+      <div class="vs-char-wrap" id="vs-p1-char-wrap">
+        <div class="vs-char-ph" id="vs-p1-ph">?</div>
+        <img class="vs-char-img" id="vs-p1-img" src="" alt="" />
+      </div>
+      <div class="vs-player-info" id="vs-p1-info">
+        <div class="vs-tag" id="vs-p1-tag"></div>
+        <div class="vs-name" id="vs-p1-name">PLAYER 1</div>
+        <div class="vs-char-name" id="vs-p1-charname"></div>
+      </div>
+    </div>
+
+    <!-- Centre VS -->
+    <div id="vs-center">
+      <div id="vs-vs-text">VS</div>
+      <div id="vs-meta">
+        <div id="vs-round"></div>
+        <div id="vs-dot" class="vs-meta-sep">·</div>
+        <div id="vs-stage-name"></div>
+      </div>
+      <div id="vs-event-name"></div>
+      <div id="vs-series">
+        <span id="vs-s1-score" class="vs-series-score">0</span>
+        <span class="vs-series-dash">–</span>
+        <span id="vs-s2-score" class="vs-series-score">0</span>
+      </div>
+    </div>
+
+    <!-- Côté P2 -->
+    <div id="vs-p2-side" class="vs-side vs-right">
+      <div class="vs-color-bar" id="vs-p2-bar"></div>
+      <div class="vs-char-wrap vs-flip" id="vs-p2-char-wrap">
+        <div class="vs-char-ph" id="vs-p2-ph">?</div>
+        <img class="vs-char-img" id="vs-p2-img" src="" alt="" />
+      </div>
+      <div class="vs-player-info vs-right-info" id="vs-p2-info">
+        <div class="vs-tag" id="vs-p2-tag"></div>
+        <div class="vs-name" id="vs-p2-name">PLAYER 2</div>
+        <div class="vs-char-name" id="vs-p2-charname"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="vs-screen.js"></script>
+</body>
+</html>

@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg"
+     width="1920" height="1080"
+     viewBox="0 0 1920 1080"
+     preserveAspectRatio="none">
+  <!--
+    Radial vignette — use with background-size: 100% 100%; background-repeat: no-repeat;
+    Darkens edges and corners, leaves center clear.
+  -->
+  <defs>
+    <radialGradient id="vg" cx="50%" cy="50%" rx="62%" ry="62%">
+      <stop offset="0%"   stop-color="black" stop-opacity="0"/>
+      <stop offset="60%"  stop-color="black" stop-opacity="0.05"/>
+      <stop offset="100%" stop-color="black" stop-opacity="0.55"/>
+    </radialGradient>
+  </defs>
+  <rect width="1920" height="1080" fill="url(#vg)"/>
+</svg>
