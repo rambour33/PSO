@@ -6,7 +6,16 @@ const _lp = { parts: [], rafId: null, src: null, count: 3 };
 const CUSTOM_THEMES = ['cyberpunk', 'synthwave', 'midnight', 'egypt', 'city', 'eco', 'water', 'fire',
   'pkpsy', 'pktenebres', 'pkelectrik', 'pkfee', 'pkspectre', 'pkdragon', 'pkglace', 'pkcombat',
   'pkpoison', 'pksol', 'pkvol', 'pkinsecte', 'pkroche', 'pkacier', 'pknormal', 'pkplante', 'pkfeu', 'pkeau',
-  'rainbow', 'trans', 'pan', 'bi', 'lesbian', 'plage'];
+  'rainbow', 'trans', 'pan', 'bi', 'lesbian', 'plage',
+  'smario','sdk','slink','ssamus','sdsamus','syoshi','skirby','sfox','spikachu','sluigi',
+  'sness','sfalcon','sjigglypuff','speach','sdaisy','sbowser','siceclimbers','ssheik','szelda','sdrmario',
+  'spichu','sfalco','smarth','slucina','sylink','sganondorf','smewtwo','sroy','schrom','sgamewatch',
+  'smetaknight','spit','sdarkpit','szss','swario','ssnake','sike','spktrainer','sdiddy','slucas',
+  'ssonic','sdedede','solimar','slucario','srob','stoonlink','swolf','svilager','smegaman','swiifit',
+  'srosalina','slittlemac','sgreninja','spalutena','spacman','srobin','sshulk','sbowserjr','sduckhunt','sryu',
+  'sken','scloud','scorrin','sbayonetta','sinkling','sridley','ssimon','srichter','skrool','sisabelle',
+  'sincineroar','spiranha','sjoker','shero','sbanjo','sterry','sbyleth','sminmin','ssteve','ssephiroth',
+  'spyra','smythra','skazuya','ssora','smii_brawl','smii_sword','smii_gun'];
 
 function _lpSetCount(n) {
   const bg = document.getElementById('theme-logo-bg');
@@ -186,10 +195,32 @@ const PS = (() => {
       wbs:0.008+Math.random()*0.018, rot:Math.random()*Math.PI/3,
       spin:(Math.random()-0.5)*0.012, op:0.45+Math.random()*0.55 };
   }
+  function mkCoin(W,H){return{t:'coin',x:Math.random()*W,y:H+Math.random()*20,r:3+Math.random()*6,rot:Math.random()*Math.PI*2,spin:(Math.random()-.5)*.06,vy:-(0.25+Math.random()*.6),vx:(Math.random()-.5)*.4,op:0.5+Math.random()*.5,hue:40+Math.random()*18};}
+  function mkNote(W,H){return{t:'note',x:Math.random()*W,y:H+Math.random()*20,r:3+Math.random()*5,vy:-(0.35+Math.random()*.7),vx:(Math.random()-.5)*.4,op:0.6+Math.random()*.4,rot:(Math.random()-.5)*.3,hue:280+Math.random()*80};}
+  function mkPetal(W,H){return{t:'petal',x:Math.random()*W,y:-15-Math.random()*40,w:4+Math.random()*8,h:2+Math.random()*3.5,angle:Math.random()*Math.PI*2,spin:(Math.random()-.5)*.03,vy:0.35+Math.random()*.9,vx:(Math.random()-.5)*.6,op:0.5+Math.random()*.5,hue:300+Math.random()*80};}
+  function mkRing(W,H){return{t:'ring',x:Math.random()*W,y:Math.random()*H,r:Math.random()*10,maxR:12+Math.random()*22,speed:0.5+Math.random()*1.0,op:0.7+Math.random()*.3,hue:200+Math.random()*40};}
+  function mkFeather(W,H){return{t:'feather',x:Math.random()*W,y:-20-Math.random()*40,len:9+Math.random()*18,angle:Math.random()*Math.PI*2,spin:(Math.random()-.5)*.012,vy:0.2+Math.random()*.55,vx:(Math.random()-.5)*.35,op:0.4+Math.random()*.55,hue:40+Math.random()*25};}
+  function mkPixel(W,H){return{t:'pixel',x:Math.random()*W,y:Math.random()*H,s:3+Math.random()*7,vy:(Math.random()-.5)*.7,vx:Math.random()*.9-.1,op:0.5+Math.random()*.5,hue:180+Math.random()*180,life:1,decay:0.004+Math.random()*.009};}
+  function mkStar(W,H){return{t:'star',x:Math.random()*W,y:Math.random()*H,r:3+Math.random()*8,rot:Math.random()*Math.PI*2,spin:(Math.random()-.5)*.018,vy:-(0.1+Math.random()*.35),vx:(Math.random()-.5)*.22,op:0.4+Math.random()*.55,hue:45+Math.random()*30,life:1,decay:0.003+Math.random()*.006};}
+  function mkAura(W,H){return{t:'aura',x:Math.random()*W,y:Math.random()*H,r:4+Math.random()*10,phase:Math.random()*Math.PI*2,speed:0.022+Math.random()*.042,vx:(Math.random()-.5)*.3,vy:(Math.random()-.5)*.3,op:0.3+Math.random()*.45,hue:260+Math.random()*60};}
+  function mkRune(W,H){return{t:'rune',x:Math.random()*W,y:Math.random()*H,r:4+Math.random()*9,sides:3+Math.floor(Math.random()*3),rot:Math.random()*Math.PI*2,spin:(Math.random()-.5)*.022,vy:(Math.random()-.5)*.25,vx:(Math.random()-.5)*.22,op:0.4+Math.random()*.5,hue:200+Math.random()*160,life:1,decay:0.003+Math.random()*.005};}
+  function mkSmoke(W,H){return{t:'smoke',x:Math.random()*W,y:H+Math.random()*20,r:4+Math.random()*8,vx:(Math.random()-.5)*.35,vy:-(0.45+Math.random()*.65),life:1,decay:0.005+Math.random()*.009,op:0.12+Math.random()*.2,hue:100+Math.random()*40};}
+  function mkInk(W,H){return{t:'ink',x:Math.random()*W,y:Math.random()*H,r:3+Math.random()*8,rot:Math.random()*Math.PI*2,life:1,decay:0.004+Math.random()*.007,op:0.5+Math.random()*.4,hue:20+Math.random()*40,blobs:3+Math.floor(Math.random()*3)};}
+  function mkHeart(W,H){return{t:'heart',x:Math.random()*W,y:H+Math.random()*20,r:3+Math.random()*7,rot:(Math.random()-.5)*.4,vy:-(0.25+Math.random()*.55),vx:(Math.random()-.5)*.28,op:0.45+Math.random()*.5,hue:340+Math.random()*30,life:1,decay:0.003+Math.random()*.006};}
+  function mkKunai(W,H){return{t:'kunai',x:Math.random()*W,y:Math.random()*H,len:6+Math.random()*12,rot:Math.random()*Math.PI*2,spin:0.065+Math.random()*.085,vx:(Math.random()-.5)*.55,vy:(Math.random()-.5)*.35,op:0.5+Math.random()*.45,hue:40+Math.random()*22,life:1,decay:0.004+Math.random()*.006};}
+  function mkShuriken(W,H){return{t:'shuriken',x:Math.random()*W,y:Math.random()*H,r:4+Math.random()*8,rot:Math.random()*Math.PI*2,spin:0.045+Math.random()*.065,vx:(Math.random()-.5)*.45,vy:(Math.random()-.5)*.45,op:0.4+Math.random()*.55,hue:180+Math.random()*40,life:1,decay:0.003+Math.random()*.005};}
+  function mkCross(W,H){return{t:'cross',x:Math.random()*W,y:Math.random()*H,r:4+Math.random()*9,rot:(Math.random()-.5)*.25,vy:-(0.18+Math.random()*.35),vx:(Math.random()-.5)*.22,op:0.45+Math.random()*.5,hue:45+Math.random()*20,life:1,decay:0.003+Math.random()*.005};}
+  function mkSpring(W,H){return{t:'spring',x:Math.random()*W,y:Math.random()*H,h:8+Math.random()*14,w:3+Math.random()*5,rot:Math.random()*Math.PI*2,vy:(Math.random()-.5)*.5,vx:(Math.random()-.5)*.35,op:0.45+Math.random()*.5,hue:0+Math.random()*20,life:1,decay:0.003+Math.random()*.005,coils:2+Math.floor(Math.random()*3)};}
+  function mkBlock(W,H){return{t:'block',x:Math.random()*W,y:Math.random()*H,s:5+Math.random()*9,vy:(Math.random()-.5)*.35,vx:(Math.random()-.5)*.35,rot:Math.random()*Math.PI*2,spin:(Math.random()-.5)*.012,op:0.45+Math.random()*.5,hue:28+Math.random()*22,life:1,decay:0.003+Math.random()*.005};}
+  function mkTriforce(W,H){return{t:'triforce',x:Math.random()*W,y:Math.random()*H,r:4+Math.random()*10,rot:Math.random()*Math.PI*2,spin:(Math.random()-.5)*.01,vy:-(0.12+Math.random()*.28),vx:(Math.random()-.5)*.22,op:0.4+Math.random()*.55,hue:45+Math.random()*15,life:1,decay:0.003+Math.random()*.005};}
   const FAC = { snow:mkSnow, fire:mkFire, rain:mkRain, sand:mkSand,
                 leaf:mkLeaf, bubble:mkBubble, sparkle:mkSparkle, data:mkData,
                 flake:mkFlake, bolt:mkBolt, pride:mkPride, shell:mkShell, flame:mkFlame,
-                ghost:mkGhost };
+                ghost:mkGhost,
+                coin:mkCoin, note:mkNote, petal:mkPetal, ring:mkRing, feather:mkFeather,
+                pixel:mkPixel, star:mkStar, aura:mkAura, rune:mkRune, smoke:mkSmoke,
+                ink:mkInk, heart:mkHeart, kunai:mkKunai, shuriken:mkShuriken,
+                cross:mkCross, spring:mkSpring, block:mkBlock, triforce:mkTriforce };
 
   // ── Update ─────────────────────────────────────────────────
   function upd(p, W, H) {
@@ -250,6 +281,62 @@ const PS = (() => {
       if (p.y > H+16) { p.y = -16; p.x = Math.random()*W; }
       if (p.x >  W+16) p.x = -16;
       if (p.x < -16)   p.x =  W+16;
+    } else if (t==='coin') {
+      p.rot+=p.spin; p.x+=p.vx; p.y+=p.vy;
+      if (p.y<-20) { p.y=H+10; p.x=Math.random()*W; }
+    } else if (t==='note') {
+      p.y+=p.vy; p.x+=p.vx;
+      if (p.y<-20) { p.y=H+10; p.x=Math.random()*W; }
+    } else if (t==='petal') {
+      p.angle+=p.spin; p.y+=p.vy; p.x+=p.vx+Math.sin(p.angle*.4)*.5;
+      if (p.y>H+20) { p.y=-15; p.x=Math.random()*W; }
+    } else if (t==='ring') {
+      p.r+=p.speed; p.op-=p.speed*.02;
+      if (p.op<=0) { Object.assign(p, mkRing(W,H)); }
+    } else if (t==='feather') {
+      p.angle+=p.spin; p.y+=p.vy; p.x+=p.vx;
+      if (p.y>H+25) { p.y=-20; p.x=Math.random()*W; }
+      if (p.x>W+20) p.x=-20; if (p.x<-20) p.x=W+20;
+    } else if (t==='pixel') {
+      p.x+=p.vx; p.y+=p.vy; p.life-=p.decay;
+      if (p.life<=0) Object.assign(p, mkPixel(W,H));
+    } else if (t==='star') {
+      p.rot+=p.spin; p.y+=p.vy; p.x+=p.vx; p.life-=p.decay;
+      if (p.life<=0) Object.assign(p, mkStar(W,H));
+    } else if (t==='aura') {
+      p.phase+=p.speed; p.x+=p.vx; p.y+=p.vy;
+      if (p.x<0||p.x>W) p.vx*=-1;
+      if (p.y<0||p.y>H) p.vy*=-1;
+    } else if (t==='rune') {
+      p.rot+=p.spin; p.x+=p.vx; p.y+=p.vy; p.life-=p.decay;
+      if (p.life<=0) Object.assign(p, mkRune(W,H));
+    } else if (t==='smoke') {
+      p.x+=p.vx; p.y+=p.vy; p.r+=0.18; p.life-=p.decay;
+      if (p.life<=0) Object.assign(p, mkSmoke(W,H));
+    } else if (t==='ink') {
+      p.life-=p.decay;
+      if (p.life<=0) Object.assign(p, mkInk(W,H));
+    } else if (t==='heart') {
+      p.y+=p.vy; p.x+=p.vx; p.life-=p.decay;
+      if (p.life<=0) Object.assign(p, mkHeart(W,H));
+    } else if (t==='kunai') {
+      p.rot+=p.spin; p.x+=p.vx; p.y+=p.vy; p.life-=p.decay;
+      if (p.life<=0) Object.assign(p, mkKunai(W,H));
+    } else if (t==='shuriken') {
+      p.rot+=p.spin; p.x+=p.vx; p.y+=p.vy; p.life-=p.decay;
+      if (p.life<=0) Object.assign(p, mkShuriken(W,H));
+    } else if (t==='cross') {
+      p.y+=p.vy; p.x+=p.vx; p.life-=p.decay;
+      if (p.life<=0) Object.assign(p, mkCross(W,H));
+    } else if (t==='spring') {
+      p.y+=p.vy; p.x+=p.vx; p.life-=p.decay;
+      if (p.life<=0) Object.assign(p, mkSpring(W,H));
+    } else if (t==='block') {
+      p.rot+=p.spin; p.x+=p.vx; p.y+=p.vy; p.life-=p.decay;
+      if (p.life<=0) Object.assign(p, mkBlock(W,H));
+    } else if (t==='triforce') {
+      p.rot+=p.spin; p.y+=p.vy; p.x+=p.vx; p.life-=p.decay;
+      if (p.life<=0) Object.assign(p, mkTriforce(W,H));
     }
   }
 
@@ -590,6 +677,191 @@ const PS = (() => {
         ctx.fillStyle = 'rgba(186,240,255,1)'; ctx.fill();
       }
       ctx.restore();
+    } else if (t==='coin') {
+      ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.rot);
+      const scaleX = Math.abs(Math.cos(p.rot*2));
+      ctx.scale(Math.max(0.15,scaleX),1);
+      ctx.beginPath(); ctx.arc(0,0,p.r,0,Math.PI*2);
+      ctx.fillStyle=`hsla(${p.hue},88%,62%,${p.op})`; ctx.fill();
+      ctx.beginPath(); ctx.ellipse(0,-p.r*.28,p.r*.6,p.r*.18,0,0,Math.PI*2);
+      ctx.fillStyle=`rgba(255,255,220,${p.op*.55})`; ctx.fill();
+      ctx.beginPath(); ctx.arc(0,0,p.r,0,Math.PI*2);
+      ctx.strokeStyle=`hsla(${p.hue+8},75%,45%,${p.op*.6})`; ctx.lineWidth=p.r*.12; ctx.stroke();
+      ctx.restore();
+    } else if (t==='note') {
+      ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.rot);
+      ctx.fillStyle=`hsla(${p.hue},75%,72%,${p.op})`;
+      ctx.strokeStyle=`hsla(${p.hue},75%,72%,${p.op})`;
+      const hr=p.r*.6;
+      ctx.beginPath(); ctx.ellipse(-p.r*.15,0,hr,hr*.72,-0.35,0,Math.PI*2); ctx.fill();
+      ctx.lineWidth=p.r*.18; ctx.lineCap='round';
+      ctx.beginPath(); ctx.moveTo(p.r*.45,0); ctx.lineTo(p.r*.45,-p.r*2.6); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(p.r*.45,-p.r*2.6); ctx.quadraticCurveTo(p.r*1.2,-p.r*2.8,p.r*1.1,-p.r*1.9); ctx.stroke();
+      ctx.restore();
+    } else if (t==='petal') {
+      ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.angle);
+      ctx.beginPath(); ctx.ellipse(0,0,p.w,p.h,0,0,Math.PI*2);
+      ctx.fillStyle=`hsla(${p.hue},65%,72%,${p.op})`; ctx.fill();
+      ctx.strokeStyle=`hsla(${p.hue+15},60%,85%,${p.op*.4})`; ctx.lineWidth=0.5; ctx.stroke();
+      ctx.restore();
+    } else if (t==='ring') {
+      ctx.beginPath(); ctx.arc(p.x,p.y,Math.max(0,p.r),0,Math.PI*2);
+      ctx.strokeStyle=`hsla(${p.hue},90%,72%,${Math.max(0,p.op)})`;
+      ctx.lineWidth=1.8; ctx.stroke();
+    } else if (t==='feather') {
+      ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.angle);
+      const fl=p.len;
+      ctx.beginPath();
+      ctx.moveTo(0,fl*.5);
+      ctx.bezierCurveTo(-fl*.18,fl*.25,-fl*.16,-fl*.3,0,-fl*.5);
+      ctx.bezierCurveTo(fl*.16,-fl*.3,fl*.18,fl*.25,0,fl*.5);
+      ctx.fillStyle=`hsla(${p.hue},38%,82%,${p.op})`; ctx.fill();
+      ctx.beginPath(); ctx.moveTo(0,fl*.5); ctx.lineTo(0,-fl*.5);
+      ctx.strokeStyle=`hsla(${p.hue},25%,62%,${p.op*.45})`; ctx.lineWidth=.55; ctx.stroke();
+      ctx.restore();
+    } else if (t==='pixel') {
+      const s2=p.s/2;
+      ctx.globalAlpha=p.life*p.op;
+      ctx.fillStyle=`hsl(${p.hue},78%,62%)`;
+      ctx.fillRect(p.x-s2,p.y-s2,p.s,p.s);
+      ctx.fillStyle=`rgba(255,255,255,${p.life*p.op*.35})`;
+      ctx.fillRect(p.x-s2,p.y-s2,p.s*.45,p.s*.15);
+      ctx.globalAlpha=1;
+    } else if (t==='star') {
+      ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.rot);
+      ctx.globalAlpha=p.op*p.life;
+      ctx.beginPath();
+      for(let i=0;i<10;i++){
+        const a=i*Math.PI/5-Math.PI/2;
+        const r2=i%2===0?p.r:p.r*.42;
+        if(i===0) ctx.moveTo(Math.cos(a)*r2,Math.sin(a)*r2);
+        else ctx.lineTo(Math.cos(a)*r2,Math.sin(a)*r2);
+      }
+      ctx.closePath();
+      ctx.fillStyle=`hsl(${p.hue},95%,75%)`; ctx.fill();
+      ctx.beginPath(); ctx.arc(0,0,p.r*.38,0,Math.PI*2);
+      ctx.fillStyle=`hsla(${p.hue},100%,95%,${p.life*.45})`; ctx.fill();
+      ctx.restore(); ctx.globalAlpha=1;
+    } else if (t==='aura') {
+      const pulse=(Math.sin(p.phase)+1)/2;
+      const rr=p.r*(0.6+pulse*.42);
+      const grd=ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,rr);
+      grd.addColorStop(0,`hsla(${p.hue},80%,82%,${p.op*(0.5+pulse*.5)})`);
+      grd.addColorStop(0.55,`hsla(${p.hue},75%,60%,${p.op*.3})`);
+      grd.addColorStop(1,`hsla(${p.hue},75%,50%,0)`);
+      ctx.beginPath(); ctx.arc(p.x,p.y,rr,0,Math.PI*2);
+      ctx.fillStyle=grd; ctx.fill();
+    } else if (t==='rune') {
+      ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.rot);
+      ctx.globalAlpha=p.op*p.life;
+      ctx.beginPath();
+      for(let i=0;i<p.sides;i++){
+        const a=i*(Math.PI*2/p.sides)-Math.PI/2;
+        if(i===0) ctx.moveTo(Math.cos(a)*p.r,Math.sin(a)*p.r);
+        else ctx.lineTo(Math.cos(a)*p.r,Math.sin(a)*p.r);
+      }
+      ctx.closePath();
+      ctx.strokeStyle=`hsl(${p.hue},88%,68%)`; ctx.lineWidth=1.3; ctx.stroke();
+      ctx.beginPath(); ctx.arc(0,0,p.r*.5,0,Math.PI*2);
+      ctx.fillStyle=`hsla(${p.hue},100%,78%,${p.life*.28})`; ctx.fill();
+      ctx.restore(); ctx.globalAlpha=1;
+    } else if (t==='smoke') {
+      ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fillStyle=`hsla(${p.hue},8%,58%,${p.life*p.op})`; ctx.fill();
+    } else if (t==='ink') {
+      ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.rot);
+      ctx.globalAlpha=p.op*p.life;
+      ctx.fillStyle=`hsl(${p.hue},68%,38%)`;
+      ctx.beginPath(); ctx.arc(0,0,p.r,0,Math.PI*2); ctx.fill();
+      for(let i=0;i<p.blobs;i++){
+        const a=i*(Math.PI*2/p.blobs)+p.rot;
+        const bx=Math.cos(a)*p.r*1.1, by=Math.sin(a)*p.r*1.1;
+        ctx.beginPath(); ctx.arc(bx,by,p.r*.42,0,Math.PI*2); ctx.fill();
+      }
+      ctx.restore(); ctx.globalAlpha=1;
+    } else if (t==='heart') {
+      ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.rot);
+      ctx.globalAlpha=p.op*p.life;
+      const hr=p.r*.55;
+      ctx.beginPath();
+      ctx.moveTo(0,hr*1.2);
+      ctx.bezierCurveTo(-hr*3.5,hr*.2,-hr*3.5,-hr*2.5,0,-hr*2.0);
+      ctx.bezierCurveTo(hr*3.5,-hr*2.5,hr*3.5,hr*.2,0,hr*1.2);
+      ctx.closePath();
+      ctx.fillStyle=`hsl(${p.hue},88%,65%)`; ctx.fill();
+      ctx.restore(); ctx.globalAlpha=1;
+    } else if (t==='kunai') {
+      ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.rot);
+      ctx.globalAlpha=p.op*p.life;
+      const kl=p.len;
+      ctx.beginPath();
+      ctx.moveTo(0,-kl); ctx.lineTo(kl*.2,0); ctx.lineTo(0,kl*.4); ctx.lineTo(-kl*.2,0);
+      ctx.closePath();
+      ctx.fillStyle=`hsl(${p.hue},62%,75%)`; ctx.fill();
+      ctx.beginPath(); ctx.moveTo(0,-kl); ctx.lineTo(0,kl*.4);
+      ctx.strokeStyle=`rgba(255,255,240,${p.life*.5})`; ctx.lineWidth=.6; ctx.stroke();
+      ctx.restore(); ctx.globalAlpha=1;
+    } else if (t==='shuriken') {
+      ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.rot);
+      ctx.globalAlpha=p.op*p.life;
+      ctx.fillStyle=`hsl(${p.hue},72%,65%)`;
+      ctx.beginPath();
+      for(let i=0;i<4;i++){
+        const a=i*Math.PI/2;
+        const x1=Math.cos(a)*p.r*.35, y1=Math.sin(a)*p.r*.35;
+        const x2=Math.cos(a+Math.PI/4)*p.r*1.05, y2=Math.sin(a+Math.PI/4)*p.r*1.05;
+        const x3=Math.cos(a+Math.PI/2)*p.r*.35, y3=Math.sin(a+Math.PI/2)*p.r*.35;
+        if(i===0) ctx.moveTo(x1,y1); else ctx.lineTo(x1,y1);
+        ctx.lineTo(x2,y2); ctx.lineTo(x3,y3);
+      }
+      ctx.closePath(); ctx.fill();
+      ctx.restore(); ctx.globalAlpha=1;
+    } else if (t==='cross') {
+      ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.rot);
+      ctx.globalAlpha=p.op*p.life;
+      ctx.fillStyle=`hsl(${p.hue},78%,76%)`;
+      const cr=p.r, cw=cr*.38;
+      ctx.fillRect(-cw,-cr,cw*2,cr*2); ctx.fillRect(-cr,-cw,cr*2,cw*2);
+      ctx.beginPath(); ctx.arc(0,0,cr*.42,0,Math.PI*2);
+      ctx.fillStyle=`hsla(${p.hue},100%,92%,${p.life*.3})`; ctx.fill();
+      ctx.restore(); ctx.globalAlpha=1;
+    } else if (t==='spring') {
+      ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.rot);
+      ctx.globalAlpha=p.op*p.life;
+      ctx.strokeStyle=`hsl(${p.hue},80%,65%)`; ctx.lineWidth=1.5; ctx.lineCap='round';
+      const seg=p.h/(p.coils*2);
+      ctx.beginPath();
+      for(let i=0;i<=p.coils*2;i++){
+        const x2=(i%2===0)?-p.w:p.w, y2=-p.h/2+i*seg;
+        if(i===0) ctx.moveTo(x2,y2); else ctx.lineTo(x2,y2);
+      }
+      ctx.stroke();
+      ctx.restore(); ctx.globalAlpha=1;
+    } else if (t==='block') {
+      ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.rot);
+      ctx.globalAlpha=p.op*p.life;
+      const bs=p.s, bh=bs*.55;
+      ctx.fillStyle=`hsl(${p.hue},52%,42%)`; ctx.fillRect(-bs/2,-bs/2,bs,bs);
+      ctx.fillStyle=`hsl(${p.hue},42%,60%)`;
+      ctx.beginPath(); ctx.moveTo(-bs/2,-bs/2); ctx.lineTo(bs/2,-bs/2);
+      ctx.lineTo(bs/2+bh*.55,-bs/2-bh*.55); ctx.lineTo(-bs/2+bh*.55,-bs/2-bh*.55);
+      ctx.closePath(); ctx.fill();
+      ctx.fillStyle=`hsl(${p.hue},48%,30%)`;
+      ctx.beginPath(); ctx.moveTo(bs/2,-bs/2); ctx.lineTo(bs/2,bs/2);
+      ctx.lineTo(bs/2+bh*.55,bs/2-bh*.55); ctx.lineTo(bs/2+bh*.55,-bs/2-bh*.55);
+      ctx.closePath(); ctx.fill();
+      ctx.restore(); ctx.globalAlpha=1;
+    } else if (t==='triforce') {
+      ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.rot);
+      ctx.globalAlpha=p.op*p.life;
+      const tr=p.r;
+      ctx.beginPath();
+      ctx.moveTo(0,-tr); ctx.lineTo(tr*.866,tr*.5); ctx.lineTo(-tr*.866,tr*.5);
+      ctx.closePath();
+      ctx.strokeStyle=`hsl(${p.hue},90%,70%)`; ctx.lineWidth=1.4; ctx.stroke();
+      ctx.beginPath(); ctx.arc(0,-tr*.2,tr*.28,0,Math.PI*2);
+      ctx.fillStyle=`hsla(${p.hue},100%,80%,${p.life*.28})`; ctx.fill();
+      ctx.restore(); ctx.globalAlpha=1;
     }
   }
 
@@ -665,6 +937,93 @@ const THEME_PARTICLES = {
   bi:          { type:'sparkle', count:65 },
   lesbian:     { type:'sparkle', count:65 },
   plage:       { type:'shell',   count:38 },
+  smario:      { type:'coin',      count:65 },
+  sdk:         { type:'leaf',      count:45 },
+  slink:       { type:'triforce',  count:50 },
+  ssamus:      { type:'ring',      count:55 },
+  sdsamus:     { type:'ring',      count:55 },
+  syoshi:      { type:'petal',     count:50 },
+  skirby:      { type:'star',      count:55 },
+  sfox:        { type:'ring',      count:60 },
+  spikachu:    { type:'bolt',      count:70 },
+  sluigi:      { type:'ghost',     count:20 },
+  sness:       { type:'aura',      count:45 },
+  sfalcon:     { type:'flame',     count:100 },
+  sjigglypuff: { type:'note',      count:40 },
+  speach:      { type:'petal',     count:50 },
+  sdaisy:      { type:'petal',     count:50 },
+  sbowser:     { type:'flame',     count:110 },
+  siceclimbers:{ type:'flake',     count:50 },
+  ssheik:      { type:'kunai',     count:45 },
+  szelda:      { type:'triforce',  count:45 },
+  sdrmario:    { type:'pixel',     count:55 },
+  spichu:      { type:'bolt',      count:65 },
+  sfalco:      { type:'ring',      count:55 },
+  smarth:      { type:'sparkle',   count:55 },
+  slucina:     { type:'sparkle',   count:55 },
+  sylink:      { type:'leaf',      count:40 },
+  sganondorf:  { type:'aura',      count:40 },
+  smewtwo:     { type:'aura',      count:40 },
+  sroy:        { type:'flame',     count:100 },
+  schrom:      { type:'sparkle',   count:55 },
+  sgamewatch:  { type:'pixel',     count:55 },
+  smetaknight: { type:'feather',   count:40 },
+  spit:        { type:'feather',   count:40 },
+  sdarkpit:    { type:'feather',   count:40 },
+  szss:        { type:'ring',      count:55 },
+  swario:      { type:'coin',      count:60 },
+  ssnake:      { type:'smoke',     count:50 },
+  sike:        { type:'flame',     count:110 },
+  spktrainer:  { type:'ring',      count:50 },
+  sdiddy:      { type:'leaf',      count:40 },
+  slucas:      { type:'aura',      count:40 },
+  ssonic:      { type:'ring',      count:65 },
+  sdedede:     { type:'star',      count:50 },
+  solimar:     { type:'petal',     count:50 },
+  slucario:    { type:'aura',      count:40 },
+  srob:        { type:'ring',      count:55 },
+  stoonlink:   { type:'leaf',      count:40 },
+  swolf:       { type:'shuriken',  count:45 },
+  svilager:    { type:'petal',     count:45 },
+  smegaman:    { type:'pixel',     count:55 },
+  swiifit:     { type:'ring',      count:50 },
+  srosalina:   { type:'star',      count:55 },
+  slittlemac:  { type:'ring',      count:55 },
+  sgreninja:   { type:'shuriken',  count:45 },
+  spalutena:   { type:'feather',   count:40 },
+  spacman:     { type:'pixel',     count:60 },
+  srobin:      { type:'rune',      count:40 },
+  sshulk:      { type:'ring',      count:55 },
+  sbowserjr:   { type:'smoke',     count:50 },
+  sduckhunt:   { type:'feather',   count:40 },
+  sryu:        { type:'ring',      count:55 },
+  sken:        { type:'flame',     count:100 },
+  scloud:      { type:'rune',      count:40 },
+  scorrin:     { type:'feather',   count:40 },
+  sbayonetta:  { type:'feather',   count:40 },
+  sinkling:    { type:'ink',       count:45 },
+  sridley:     { type:'flame',     count:110 },
+  ssimon:      { type:'cross',     count:45 },
+  srichter:    { type:'cross',     count:45 },
+  skrool:      { type:'coin',      count:60 },
+  sisabelle:   { type:'heart',     count:45 },
+  sincineroar: { type:'flame',     count:110 },
+  spiranha:    { type:'petal',     count:50 },
+  sjoker:      { type:'shuriken',  count:45 },
+  shero:       { type:'rune',      count:40 },
+  sbanjo:      { type:'feather',   count:40 },
+  sterry:      { type:'ring',      count:55 },
+  sbyleth:     { type:'rune',      count:40 },
+  sminmin:     { type:'spring',    count:45 },
+  ssteve:      { type:'block',     count:45 },
+  ssephiroth:  { type:'feather',   count:40 },
+  spyra:       { type:'flame',     count:100 },
+  smythra:     { type:'bolt',      count:65 },
+  skazuya:     { type:'aura',      count:40 },
+  ssora:       { type:'star',      count:55 },
+  smii_brawl:  { type:'ring',      count:50 },
+  smii_sword:  { type:'sparkle',   count:50 },
+  smii_gun:    { type:'ring',      count:50 },
 };
 
 function renderPlayerName(elId, player) {
@@ -720,7 +1079,16 @@ function update(s) {
   ['default', 'cyberpunk', 'synthwave', 'midnight', 'egypt', 'city', 'eco', 'water', 'fire',
    'pkpsy', 'pktenebres', 'pkelectrik', 'pkfee', 'pkspectre', 'pkdragon', 'pkglace', 'pkcombat',
    'pkpoison', 'pksol', 'pkvol', 'pkinsecte', 'pkroche', 'pkacier', 'pknormal', 'pkplante', 'pkfeu', 'pkeau',
-   'rainbow', 'trans', 'pan', 'bi', 'lesbian', 'plage'].forEach(t => {
+   'rainbow', 'trans', 'pan', 'bi', 'lesbian', 'plage',
+   'smario','sdk','slink','ssamus','sdsamus','syoshi','skirby','sfox','spikachu','sluigi',
+   'sness','sfalcon','sjigglypuff','speach','sdaisy','sbowser','siceclimbers','ssheik','szelda','sdrmario',
+   'spichu','sfalco','smarth','slucina','sylink','sganondorf','smewtwo','sroy','schrom','sgamewatch',
+   'smetaknight','spit','sdarkpit','szss','swario','ssnake','sike','spktrainer','sdiddy','slucas',
+   'ssonic','sdedede','solimar','slucario','srob','stoonlink','swolf','svilager','smegaman','swiifit',
+   'srosalina','slittlemac','sgreninja','spalutena','spacman','srobin','sshulk','sbowserjr','sduckhunt','sryu',
+   'sken','scloud','scorrin','sbayonetta','sinkling','sridley','ssimon','srichter','skrool','sisabelle',
+   'sincineroar','spiranha','sjoker','shero','sbanjo','sterry','sbyleth','sminmin','ssteve','ssephiroth',
+   'spyra','smythra','skazuya','ssora','smii_brawl','smii_sword','smii_gun'].forEach(t => {
     sb.classList.toggle('theme-' + t, (s.overlayTheme || 'default') === t);
   });
 
