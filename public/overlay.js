@@ -83,6 +83,24 @@ const PS = (() => {
       vy:-(0.7+Math.random()*3), life:0.4+Math.random()*0.6,
       decay:0.007+Math.random()*0.013, hue:5+Math.random()*40 };
   }
+  function mkFlame(W, H) {
+    const NUM_COLS = 10;
+    const col = Math.floor(Math.random() * NUM_COLS);
+    const colX = W * (0.04 + col * (0.92 / (NUM_COLS - 1)));
+    // Colonne pulsante : hauteur modulée par sin(temps + phase de la colonne)
+    const colPhase = col * (Math.PI * 2 / NUM_COLS);
+    const power = 0.45 + 0.55 * Math.pow(Math.max(0, Math.sin(Date.now()*0.0008 + colPhase)), 1.4);
+    const baseH = 14 + Math.random() * 52;
+    const h = baseH * (0.28 + power * 0.72);
+    const w = h * (0.20 + Math.random() * 0.16);
+    return { t:'flame', col, colX,
+      x: colX + (Math.random()-0.5)*w*1.6, y: H + 4 + Math.random()*10,
+      h, w, vy: -(0.7 + Math.random()*2.6),
+      wb: Math.random()*Math.PI*2, wbs: 0.022+Math.random()*0.048,
+      wba: 1.5 + Math.random()*4.5,
+      life: 0.65+Math.random()*0.35, decay: 0.005+Math.random()*0.011,
+      hue: 3+Math.random()*28 };
+  }
   function mkRain(W, H) {
     return { t:'rain', x:Math.random()*(W+120)-60, y:-30-Math.random()*H,
       len:10+Math.random()*18, vx:-2, vy:15+Math.random()*9,
@@ -155,7 +173,7 @@ const PS = (() => {
   }
   const FAC = { snow:mkSnow, fire:mkFire, rain:mkRain, sand:mkSand,
                 leaf:mkLeaf, bubble:mkBubble, sparkle:mkSparkle, data:mkData,
-                flake:mkFlake, bolt:mkBolt, pride:mkPride, shell:mkShell };
+                flake:mkFlake, bolt:mkBolt, pride:mkPride, shell:mkShell, flame:mkFlame };
 
   // ── Update ─────────────────────────────────────────────────
   function upd(p, W, H) {
@@ -195,6 +213,13 @@ const PS = (() => {
     } else if (t==='pride') {
       p.phase += p.speed;
       p.hue = (p.hue + 0.35) % 360;
+    } else if (t==='flame') {
+      p.wb += p.wbs;
+      // sway autour de la colonne
+      p.x = p.colX + Math.sin(p.wb) * p.wba + (p.x - p.colX) * 0.92;
+      p.y += p.vy;
+      p.life -= p.decay;
+      if (p.life <= 0 || p.y < -(p.h * 2)) Object.assign(p, mkFlame(W, H));
     } else if (t==='shell') {
       p.x += p.vx; p.y += p.vy; p.rot += p.spin;
       if (p.kind === 3) { p.phase += p.speed; }
@@ -264,6 +289,52 @@ const PS = (() => {
       ctx.globalAlpha = p.op * 0.25;
       ctx.fillRect(p.x-1, p.y-2, p.w+2, 3);
       ctx.globalAlpha = 1;
+    } else if (t==='flame') {
+      const al = Math.max(0, p.life);
+      const fh = p.h * (0.35 + al * 0.65);  // hauteur décroit avec life
+      const fw = p.w * (0.30 + al * 0.70);
+      if (fh < 1) { ctx.globalAlpha = 1; return; }
+      ctx.save();
+      ctx.translate(p.x, p.y);
+
+      // Dégradé de chaleur : rouge profond (base) → orange → jaune → blanc (pointe)
+      const grd = ctx.createLinearGradient(0, 0, 0, -fh);
+      grd.addColorStop(0.00, `hsla(${p.hue},    100%, 40%, ${al*0.97})`);
+      grd.addColorStop(0.20, `hsla(${p.hue+10}, 100%, 50%, ${al*0.92})`);
+      grd.addColorStop(0.50, `hsla(${p.hue+25}, 100%, 62%, ${al*0.72})`);
+      grd.addColorStop(0.78, `hsla(${p.hue+48}, 100%, 80%, ${al*0.38})`);
+      grd.addColorStop(1.00, `hsla(55, 100%, 96%, 0)`);
+
+      // Forme flamme (bezier téardrop) — corps extérieur
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      ctx.bezierCurveTo(-fw,       -fh*0.18, -fw*0.88, -fh*0.62, 0, -fh);
+      ctx.bezierCurveTo( fw*0.88,  -fh*0.62,  fw,      -fh*0.18, 0,  0);
+      ctx.fillStyle = grd;
+      ctx.fill();
+
+      // Noyau chaud intérieur (plus lumineux)
+      const cw = fw*0.48, ch = fh*0.68;
+      const crd = ctx.createLinearGradient(0, -fh*0.05, 0, -fh*0.68);
+      crd.addColorStop(0.0, `hsla(${p.hue+8},  100%, 65%, ${al*0.72})`);
+      crd.addColorStop(0.5, `hsla(48, 100%, 88%, ${al*0.45})`);
+      crd.addColorStop(1.0, `hsla(55, 100%, 96%, 0)`);
+      ctx.beginPath();
+      ctx.moveTo(0, -fh*0.04);
+      ctx.bezierCurveTo(-cw, -fh*0.22, -cw*0.75, -fh*0.52, 0, -fh*0.68);
+      ctx.bezierCurveTo( cw*0.75,-fh*0.52,  cw,  -fh*0.22, 0, -fh*0.04);
+      ctx.fillStyle = crd;
+      ctx.fill();
+
+      // Halo de braise à la base
+      const hrd = ctx.createRadialGradient(0, 0, 0, 0, 0, fw*1.6);
+      hrd.addColorStop(0,   `hsla(${p.hue+5}, 100%, 55%, ${al*0.40})`);
+      hrd.addColorStop(0.5, `hsla(${p.hue+18},100%, 45%, ${al*0.12})`);
+      hrd.addColorStop(1,   `hsla(${p.hue},   100%, 40%, 0)`);
+      ctx.beginPath(); ctx.arc(0, 0, fw*1.6, 0, Math.PI*2);
+      ctx.fillStyle = hrd; ctx.fill();
+
+      ctx.restore();
     } else if (t==='shell') {
       ctx.save();
       ctx.translate(p.x, p.y);
@@ -477,7 +548,7 @@ const THEME_PARTICLES = {
   city:        { type:'rain',    count:75 },
   eco:         { type:'leaf',    count:38 },
   water:       { type:'bubble',  count:55 },
-  fire:        { type:'fire',    count:80 },
+  fire:        { type:'flame',   count:130 },
   pkpsy:       { type:'sparkle', count:60 },
   pktenebres:  { type:'data',    count:45 },
   pkelectrik:  { type:'bolt',    count:70 },
