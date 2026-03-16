@@ -214,6 +214,19 @@ const PS = (() => {
   function mkBlock(W,H){return{t:'block',x:Math.random()*W,y:Math.random()*H,s:5+Math.random()*9,vy:(Math.random()-.5)*.35,vx:(Math.random()-.5)*.35,rot:Math.random()*Math.PI*2,spin:(Math.random()-.5)*.012,op:0.45+Math.random()*.5,hue:28+Math.random()*22,life:1,decay:0.003+Math.random()*.005};}
   function mkTriforce(W,H){return{t:'triforce',x:Math.random()*W,y:Math.random()*H,r:4+Math.random()*10,rot:Math.random()*Math.PI*2,spin:(Math.random()-.5)*.01,vy:-(0.12+Math.random()*.28),vx:(Math.random()-.5)*.22,op:0.4+Math.random()*.55,hue:45+Math.random()*15,life:1,decay:0.003+Math.random()*.005};}
   function mkKeyblade(W,H){return{t:'keyblade',x:Math.random()*W,y:Math.random()*H,len:16+Math.random()*16,rot:Math.random()*Math.PI*2,spin:(Math.random()-.5)*.010,vx:(Math.random()-.5)*.28,vy:(Math.random()-.5)*.28,op:0.45+Math.random()*.50,life:1,decay:0.0018+Math.random()*.0032};}
+  function mkOrdnance(W,H){
+    // kind : 0=grenade, 1=missile, 2=explosion
+    const kind=Math.floor(Math.random()*3);
+    const dir=Math.random()>.5?1:-1;
+    return{t:'ordnance',x:Math.random()*W,y:Math.random()*H,kind,
+      rot:kind===1?0:Math.random()*Math.PI*2,
+      spin:kind===2?0:(Math.random()-.5)*(kind===1?.008:.04),
+      vx:kind===1?dir*(1.1+Math.random()*1.4):(Math.random()-.5)*.5,
+      vy:kind===1?(Math.random()-.5)*.3:(Math.random()-.5)*.45,
+      size:kind===2?(10+Math.random()*14):(7+Math.random()*9),
+      life:1, decay:kind===2?(.018+Math.random()*.026):(.003+Math.random()*.004),
+      rays:kind===2?(6+Math.floor(Math.random()*5)):0,
+      op:0.65+Math.random()*.35, dir};}
   function mkPikmin(W,H){
     // 5 types : Rouge, Jaune, Bleu, Blanc, Violet
     const cols=[[218,48,32],[232,192,28],[52,102,210],[232,232,232],[102,32,155]];
@@ -231,7 +244,7 @@ const PS = (() => {
                 pixel:mkPixel, star:mkStar, aura:mkAura, rune:mkRune, smoke:mkSmoke,
                 ink:mkInk, heart:mkHeart, kunai:mkKunai, shuriken:mkShuriken,
                 cross:mkCross, spring:mkSpring, block:mkBlock, triforce:mkTriforce,
-                keyblade:mkKeyblade, pikmin:mkPikmin };
+                keyblade:mkKeyblade, pikmin:mkPikmin, ordnance:mkOrdnance };
 
   // ── Update ─────────────────────────────────────────────────
   function upd(p, W, H) {
@@ -353,6 +366,12 @@ const PS = (() => {
       if (p.life<=0) Object.assign(p, mkKeyblade(W,H));
       if (p.x<-35) p.x=W+35; if (p.x>W+35) p.x=-35;
       if (p.y<-35) p.y=H+35; if (p.y>H+35) p.y=-35;
+    } else if (t==='ordnance') {
+      p.rot+=p.spin; p.x+=p.vx; p.y+=p.vy; p.life-=p.decay;
+      if (p.life<=0) Object.assign(p, mkOrdnance(W,H));
+      if (p.x>W+30) { p.x=-30; p.y=Math.random()*H; }
+      if (p.x<-30)  { p.x=W+30; p.y=Math.random()*H; }
+      if (p.y>H+30) p.y=-30; if (p.y<-30) p.y=H+30;
     } else if (t==='pikmin') {
       p.bob+=p.bobSpd; p.x+=p.vx; p.y+=p.vy+Math.sin(p.bob*2)*0.14;
       p.life-=p.decay;
@@ -1043,6 +1062,183 @@ const PS = (() => {
       ctx.restore();
 
       ctx.restore(); ctx.globalAlpha=1;
+    } else if (t==='ordnance') {
+      const al=p.op*p.life; const s=p.size;
+      ctx.save(); ctx.globalAlpha=al;
+
+      if (p.kind===0) {
+        // ── GRENADE (style ananas militaire) ──────────────────
+        ctx.translate(p.x, p.y); ctx.rotate(p.rot);
+
+        // Halo de danger
+        const hrd=ctx.createRadialGradient(0,0,0,0,0,s*1.4);
+        hrd.addColorStop(0,`rgba(80,120,40,${al*.18})`);
+        hrd.addColorStop(1,`rgba(60,90,30,0)`);
+        ctx.beginPath(); ctx.arc(0,0,s*1.4,0,Math.PI*2); ctx.fillStyle=hrd; ctx.fill();
+
+        // Corps principal (ovale olive)
+        const grd=ctx.createLinearGradient(-s*.5,0,s*.5,0);
+        grd.addColorStop(0,  `rgba(55,78,35,${al})`);
+        grd.addColorStop(0.4,`rgba(80,108,48,${al})`);
+        grd.addColorStop(0.7,`rgba(68,95,40,${al})`);
+        grd.addColorStop(1,  `rgba(45,65,28,${al})`);
+        ctx.beginPath(); ctx.ellipse(0,s*.05,s*.52,s*.64,0,0,Math.PI*2);
+        ctx.fillStyle=grd; ctx.fill();
+
+        // Segments (lignes horizontales + verticales = pineapple)
+        ctx.strokeStyle=`rgba(38,55,22,${al*.75})`; ctx.lineWidth=s*.06;
+        // 3 bandes horizontales
+        for(let i=-1;i<=1;i++){
+          const py=i*s*.24, rx=Math.sqrt(Math.max(0,1-(py/(s*.64))*(py/(s*.64))))*s*.52;
+          ctx.beginPath(); ctx.moveTo(-rx*.9,py); ctx.lineTo(rx*.9,py); ctx.stroke();
+        }
+        // 4 bandes verticales
+        for(let i=-1;i<=1;i+=.67){
+          const px=i*s*.35, ry=Math.sqrt(Math.max(0,1-(px/(s*.52))*(px/(s*.52))))*s*.64;
+          ctx.beginPath(); ctx.moveTo(px,-ry*.85); ctx.lineTo(px,ry*.85); ctx.stroke();
+        }
+
+        // Reflet sur le corps
+        ctx.beginPath(); ctx.ellipse(-s*.14,-s*.18,s*.18,s*.10,-0.5,0,Math.PI*2);
+        ctx.fillStyle=`rgba(130,165,90,${al*.35})`; ctx.fill();
+
+        // Col (cylindre du dessus)
+        ctx.fillStyle=`rgba(50,65,30,${al})`;
+        ctx.beginPath(); ctx.ellipse(0,-s*.64,s*.16,s*.10,0,0,Math.PI*2); ctx.fill();
+        ctx.fillRect(-s*.16,-s*.78,s*.32,s*.16);
+        ctx.beginPath(); ctx.ellipse(0,-s*.78,s*.16,s*.10,0,0,Math.PI*2);
+        ctx.fillStyle=`rgba(65,82,38,${al})`; ctx.fill();
+
+        // Levier de sécurité (petite languette)
+        ctx.fillStyle=`rgba(90,110,55,${al})`;
+        ctx.fillRect(s*.14,-s*.82,s*.28,s*.08);
+        ctx.beginPath(); ctx.arc(s*.42,-s*.78,s*.06,0,Math.PI*2);
+        ctx.fillStyle=`rgba(75,95,45,${al})`; ctx.fill();
+
+        // Anneau de goupille (cercle au-dessus)
+        ctx.strokeStyle=`rgba(180,170,140,${al})`;
+        ctx.lineWidth=s*.07; ctx.lineCap='round';
+        ctx.beginPath(); ctx.arc(-s*.04,-s*.84,s*.14,-Math.PI*.9,Math.PI*.1);
+        ctx.stroke();
+        // Petit maillon de chaîne
+        ctx.beginPath(); ctx.arc(-s*.17,-s*.84,s*.05,0,Math.PI*2); ctx.stroke();
+
+      } else if (p.kind===1) {
+        // ── MISSILE (style NIKITA / roquette) ─────────────────
+        // Le missile vole horizontalement dans la direction p.dir
+        ctx.translate(p.x, p.y);
+        ctx.scale(p.dir, 1); // flip gauche/droite
+
+        const len=s*3.2, rad=s*.28;
+
+        // Trainée de fumée derrière
+        for(let i=1;i<=4;i++){
+          const sx=-len*.55-i*s*.5;
+          ctx.beginPath(); ctx.arc(sx, (Math.sin(i*1.8)*s*.18), s*.22*(1-i*.18), 0, Math.PI*2);
+          ctx.fillStyle=`rgba(160,150,120,${al*.18/i})`; ctx.fill();
+        }
+
+        // Corps principal (cylindre)
+        const brd=ctx.createLinearGradient(0,-rad,0,rad);
+        brd.addColorStop(0,`rgba(70,70,70,${al})`);
+        brd.addColorStop(0.4,`rgba(105,105,105,${al})`);
+        brd.addColorStop(1,`rgba(50,50,50,${al})`);
+        ctx.beginPath();
+        ctx.moveTo(-len*.5,-rad); ctx.lineTo(len*.32,-rad);
+        ctx.lineTo(len*.32,rad);  ctx.lineTo(-len*.5,rad);
+        ctx.closePath(); ctx.fillStyle=brd; ctx.fill();
+
+        // Bandes militaires (2 bandes jaunes/oranges)
+        ctx.fillStyle=`rgba(210,160,30,${al*.8})`;
+        ctx.fillRect(-s*.2,-rad,s*.12,rad*2);
+        ctx.fillRect(s*.15,-rad,s*.12,rad*2);
+
+        // Reflet métallique sur le corps
+        ctx.beginPath();
+        ctx.moveTo(-len*.48,-rad*.7); ctx.lineTo(len*.30,-rad*.7);
+        ctx.lineTo(len*.30,-rad*.3); ctx.lineTo(-len*.48,-rad*.3);
+        ctx.closePath(); ctx.fillStyle=`rgba(180,180,180,${al*.22})`; ctx.fill();
+
+        // Nez conique (avant = droite)
+        ctx.beginPath();
+        ctx.moveTo(len*.32,-rad); ctx.lineTo(len*.55, 0); ctx.lineTo(len*.32,rad);
+        ctx.closePath();
+        const nrd=ctx.createLinearGradient(len*.32,0,len*.55,0);
+        nrd.addColorStop(0,`rgba(100,100,100,${al})`);
+        nrd.addColorStop(1,`rgba(200,80,30,${al})`);
+        ctx.fillStyle=nrd; ctx.fill();
+        // Pointe lumineuse
+        ctx.beginPath(); ctx.arc(len*.52,0,s*.06,0,Math.PI*2);
+        ctx.fillStyle=`rgba(255,150,60,${al*.7})`; ctx.fill();
+
+        // Ailerons arrière (3 petites nageoires)
+        ctx.fillStyle=`rgba(55,55,55,${al})`;
+        // Aileron haut
+        ctx.beginPath();
+        ctx.moveTo(-len*.5,0); ctx.lineTo(-len*.5,-rad*2.4); ctx.lineTo(-len*.3,-rad);
+        ctx.closePath(); ctx.fill();
+        // Aileron bas
+        ctx.beginPath();
+        ctx.moveTo(-len*.5,0); ctx.lineTo(-len*.5,rad*2.4); ctx.lineTo(-len*.3,rad);
+        ctx.closePath(); ctx.fill();
+        // Aileron central (petit)
+        ctx.beginPath();
+        ctx.moveTo(-len*.5,0); ctx.lineTo(-len*.44,-rad*1.5); ctx.lineTo(-len*.36,-rad*.2);
+        ctx.closePath(); ctx.fillStyle=`rgba(75,75,75,${al})`; ctx.fill();
+
+        // Flamme de propulsion (arrière = gauche)
+        const frd=ctx.createLinearGradient(-len*.5,0,-len*.72,0);
+        frd.addColorStop(0,`rgba(255,200,50,${al*.9})`);
+        frd.addColorStop(0.4,`rgba(255,100,20,${al*.6})`);
+        frd.addColorStop(1,`rgba(255,60,0,0)`);
+        ctx.beginPath();
+        ctx.moveTo(-len*.5,-rad*.6);
+        ctx.quadraticCurveTo(-len*.68,0,-len*.5,rad*.6);
+        ctx.closePath(); ctx.fillStyle=frd; ctx.fill();
+
+      } else {
+        // ── EXPLOSION ─────────────────────────────────────────
+        ctx.translate(p.x, p.y);
+        const er=s*(1.8-p.life*.8); // rayon qui s'étend
+        const af=Math.max(0,p.life);
+
+        // Onde de choc (anneau extérieur)
+        ctx.beginPath(); ctx.arc(0,0,er*1.35,0,Math.PI*2);
+        ctx.strokeStyle=`rgba(255,180,60,${af*.35})`; ctx.lineWidth=s*.18; ctx.stroke();
+
+        // Boule de feu centrale
+        const fgrd=ctx.createRadialGradient(0,0,0,0,0,er*.9);
+        fgrd.addColorStop(0,  `rgba(255,255,200,${af*.95})`);
+        fgrd.addColorStop(0.2,`rgba(255,230,80,${af*.85})`);
+        fgrd.addColorStop(0.5,`rgba(255,120,20,${af*.65})`);
+        fgrd.addColorStop(0.8,`rgba(180,50,10,${af*.35})`);
+        fgrd.addColorStop(1,  `rgba(80,20,5,0)`);
+        ctx.beginPath(); ctx.arc(0,0,er*.9,0,Math.PI*2);
+        ctx.fillStyle=fgrd; ctx.fill();
+
+        // Rayons (éclats de l'explosion)
+        ctx.lineCap='round';
+        for(let i=0;i<p.rays;i++){
+          const a=(i/p.rays)*Math.PI*2+(p.life*2);
+          const r1=er*.45, r2=er*(1.1+Math.sin(i*3.7)*.35);
+          const lw=s*(0.14+Math.sin(i*2.1)*.07);
+          const hue=20+Math.sin(i*1.4)*25;
+          ctx.beginPath();
+          ctx.moveTo(Math.cos(a)*r1, Math.sin(a)*r1);
+          ctx.lineTo(Math.cos(a)*r2, Math.sin(a)*r2);
+          ctx.strokeStyle=`hsla(${hue},100%,${55+af*30}%,${af*.75})`;
+          ctx.lineWidth=lw*(0.4+af*.6); ctx.stroke();
+        }
+
+        // Fumée noire (quelques cercles sombres)
+        for(let i=0;i<4;i++){
+          const sa=(i/4)*Math.PI*2+1.1;
+          const sr=er*(0.55+i*.18);
+          ctx.beginPath(); ctx.arc(Math.cos(sa)*sr,Math.sin(sa)*sr,s*(0.22+i*.06),0,Math.PI*2);
+          ctx.fillStyle=`rgba(30,20,10,${(1-af)*.35})`; ctx.fill();
+        }
+      }
+      ctx.restore(); ctx.globalAlpha=1;
     }
   }
 
@@ -1153,7 +1349,7 @@ const THEME_PARTICLES = {
   sdarkpit:    { type:'feather',   count:40 },
   szss:        { type:'ring',      count:55 },
   swario:      { type:'coin',      count:60 },
-  ssnake:      { type:'smoke',     count:50 },
+  ssnake:      { type:'ordnance',  count:22 },
   sike:        { type:'flame',     count:110 },
   spktrainer:  { type:'ring',      count:50 },
   sdiddy:      { type:'leaf',      count:40 },

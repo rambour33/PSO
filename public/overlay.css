@@ -2220,12 +2220,29 @@ body {
 #scoreboard.theme-swario .event-bar,#scoreboard.theme-swario .player-block,#scoreboard.theme-swario .score-center{border-color:#FFD70055;box-shadow:0 0 8px #FFD70022}
 #scoreboard.theme-swario .logo-zone{filter:drop-shadow(0 0 6px #FFD700)}
 
-/* ── ssnake ── */
-@keyframes ssnake-glow{0%,100%{box-shadow:0 0 18px #44554455,0 0 4px #44554433 inset}50%{box-shadow:0 0 36px #44554488,0 0 10px #44554455 inset}}
-#scoreboard.theme-ssnake{background:radial-gradient(ellipse at 50% 110%,#44554422 0%,#050505 65%)}
-#scoreboard.theme-ssnake::before{content:'';position:absolute;inset:0;pointer-events:none;z-index:0;background:radial-gradient(ellipse at 20% 80%,#44554418 0%,transparent 60%),radial-gradient(ellipse at 80% 20%,#44554412 0%,transparent 50%);animation:ssnake-glow 3s ease-in-out infinite}
-#scoreboard.theme-ssnake .event-bar,#scoreboard.theme-ssnake .player-block,#scoreboard.theme-ssnake .score-center{border-color:#44554455;box-shadow:0 0 8px #44554422}
-#scoreboard.theme-ssnake .logo-zone{filter:drop-shadow(0 0 6px #445544)}
+/* ── ssnake — Metal Gear ── */
+@keyframes ssnake-danger{
+  0%,100%{box-shadow:0 0 16px #3A5030 44,0 0 5px #D2A02015 inset;}
+  40%    {box-shadow:0 0 30px #4A6438 66,0 0 10px #FF601022 inset;}
+  70%    {box-shadow:0 0 22px #D2503020 55,0 0 6px #44554418 inset;}
+}
+#scoreboard.theme-ssnake{
+  background: radial-gradient(ellipse at 50% 110%,#3A503020 0%,#050505 65%);
+}
+#scoreboard.theme-ssnake::before{
+  content:'';position:absolute;inset:0;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(ellipse at 15% 85%,#3A503018 0%,transparent 52%),
+    radial-gradient(ellipse at 85% 20%,#D2A02012 0%,transparent 44%),
+    radial-gradient(ellipse at 50% 50%,#2A3A2208 0%,transparent 65%);
+  animation:ssnake-danger 4s ease-in-out infinite;
+}
+#scoreboard.theme-ssnake .event-bar,
+#scoreboard.theme-ssnake .player-block,
+#scoreboard.theme-ssnake .score-center{
+  border-color:#4A643855;box-shadow:0 0 8px #3A503022,0 0 2px #D2A02012 inset;
+}
+#scoreboard.theme-ssnake .logo-zone{filter:drop-shadow(0 0 5px #4A6438) drop-shadow(0 0 3px #D2A020);}
 
 /* ── sike ── */
 @keyframes sike-glow{0%,100%{box-shadow:0 0 18px #2244CC55,0 0 4px #2244CC33 inset}50%{box-shadow:0 0 36px #2244CC88,0 0 10px #2244CC55 inset}}
