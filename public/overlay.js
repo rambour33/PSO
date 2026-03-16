@@ -1973,7 +1973,9 @@ function update(s) {
   }
 
   // Canvas particules
-  if (isDual) {
+  if (s.particlesEnabled === false) {
+    if (PS.type) PS.stop();
+  } else if (isDual) {
     const k1 = s.player1.character?.id ? 's' + s.player1.character.id : 'default';
     const k2 = s.player2.character?.id ? 's' + s.player2.character.id : 'default';
     const tp1 = THEME_PARTICLES[k1];
