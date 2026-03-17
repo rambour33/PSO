@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>H2H Overlay</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Russo+One&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="h2h.css" />
+</head>
+<body>
+  <div id="h2h-overlay" class="h2h-overlay hidden">
+
+    <!-- Header VS -->
+    <div class="h2h-header">
+      <div class="h2h-player-side left">
+        <div class="h2h-color-bar left" id="h2h-bar1"></div>
+        <div class="h2h-player-name-wrap">
+          <span class="h2h-tag" id="h2h-tag1"></span>
+          <span class="h2h-name" id="h2h-name1">JOUEUR 1</span>
+        </div>
+      </div>
+      <div class="h2h-vs-center">
+        <div class="h2h-vs-text">VS</div>
+        <div class="h2h-event-name" id="h2h-event"></div>
+      </div>
+      <div class="h2h-player-side right">
+        <div class="h2h-player-name-wrap right">
+          <span class="h2h-tag" id="h2h-tag2"></span>
+          <span class="h2h-name" id="h2h-name2">JOUEUR 2</span>
+        </div>
+        <div class="h2h-color-bar right" id="h2h-bar2"></div>
+      </div>
+    </div>
+
+    <!-- Stats tournoi en cours -->
+    <div class="h2h-stats-row">
+      <div class="h2h-stats-block left" id="h2h-stats1"></div>
+      <div class="h2h-stats-divider">
+        <div class="h2h-section-label">STATS TOURNOI</div>
+      </div>
+      <div class="h2h-stats-block right" id="h2h-stats2"></div>
+    </div>
+
+    <!-- H2H Record -->
+    <div class="h2h-record-row" id="h2h-record-row">
+      <div class="h2h-record-wins left" id="h2h-wins1">0</div>
+      <div class="h2h-record-center">
+        <div class="h2h-section-label">FACE À FACE</div>
+        <div class="h2h-record-bar-wrap">
+          <div class="h2h-record-bar-p1" id="h2h-bar-p1"></div>
+          <div class="h2h-record-bar-p2" id="h2h-bar-p2"></div>
+        </div>
+        <div class="h2h-record-label" id="h2h-record-label">0 – 0</div>
+      </div>
+      <div class="h2h-record-wins right" id="h2h-wins2">0</div>
+    </div>
+
+    <!-- Top persos H2H -->
+    <div class="h2h-chars-row" id="h2h-chars-row">
+      <div class="h2h-chars-block" id="h2h-chars1"></div>
+      <div class="h2h-chars-divider">
+        <div class="h2h-section-label">PERSOS H2H</div>
+      </div>
+      <div class="h2h-chars-block right" id="h2h-chars2"></div>
+    </div>
+
+    <!-- Historique des sets H2H -->
+    <div class="h2h-sets-section">
+      <div class="h2h-section-label padded">HISTORIQUE DES MATCHS</div>
+      <div class="h2h-sets-list" id="h2h-sets-list"></div>
+    </div>
+
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="h2h.js"></script>
+</body>
+</html>

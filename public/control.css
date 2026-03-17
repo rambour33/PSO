@@ -1884,6 +1884,36 @@ kbd {
   justify-content: center;
 }
 
+/* ── Player Stats Preview ────────────────────────────────────── */
+
+.ps-preview {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 10px 12px;
+  margin-top: 6px;
+}
+
+.ps-preview-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ps-preview-row {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.ps-preview-row strong {
+  color: var(--text-primary);
+  font-size: 13px;
+}
+
+.ps-preview-row b {
+  color: var(--accent);
+}
+
 /* ── Flag Picker ─────────────────────────────────────────────── */
 
 .flag-picker-group { margin-top: 6px; }

@@ -26,6 +26,9 @@
       <a href="/overlay" target="_blank" class="btn btn-outline">Scoreboard ↗</a>
       <a href="/stageveto" target="_blank" class="btn btn-outline">Stage Veto ↗</a>
       <a href="/vs-screen" target="_blank" class="btn btn-outline">VS Screen ↗</a>
+      <a href="/player-stats" target="_blank" class="btn btn-outline">Stats ↗</a>
+      <a href="/tournament-history" target="_blank" class="btn btn-outline">Historique ↗</a>
+      <a href="/h2h" target="_blank" class="btn btn-outline">H2H ↗</a>
       <button id="btn-vs-trigger" class="btn btn-primary" title="Déclenche l'animation d'entrée sur la VS Screen">⚔ VS Anim</button>
       <button id="btn-visibility" class="btn btn-primary">Masquer</button>
     </div>
@@ -1498,6 +1501,108 @@
       <div id="sgg-sets-list" class="sgg-sets-list"></div>
     </section>
 
+    <!-- H2H -->
+    <section class="section" id="h2h-section" style="display:none">
+      <div class="section-header">
+        <h2>Comparaison H2H</h2>
+        <a href="/h2h" target="_blank" class="btn btn-outline btn-sm">Overlay ↗</a>
+      </div>
+      <p class="hint">Cliquez sur <strong>→ H2H</strong> sur un set, ou sélectionnez manuellement deux joueurs.</p>
+
+      <!-- Sélection manuelle -->
+      <div class="form-group" style="margin-top:8px">
+        <label>Joueur 1</label>
+        <div style="display:flex;gap:6px">
+          <input type="text" id="h2h-search1" placeholder="Filtrer…" style="width:110px;flex-shrink:0" />
+          <select id="h2h-select1" class="input-name" style="flex:1">
+            <option value="">-- Joueur 1 --</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Joueur 2</label>
+        <div style="display:flex;gap:6px">
+          <input type="text" id="h2h-search2" placeholder="Filtrer…" style="width:110px;flex-shrink:0" />
+          <select id="h2h-select2" class="input-name" style="flex:1">
+            <option value="">-- Joueur 2 --</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group" style="margin-top:4px">
+        <div style="display:flex;gap:10px;align-items:center;margin-bottom:6px">
+          <span id="h2h-p1-display" style="flex:1;font-size:12px;color:var(--text-secondary)">—</span>
+          <span style="font-size:12px;color:var(--text-secondary)">VS</span>
+          <span id="h2h-p2-display" style="flex:1;text-align:right;font-size:12px;color:var(--text-secondary)">—</span>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;margin-bottom:6px">
+          <label style="font-size:12px;flex-shrink:0">Couleur J1</label>
+          <input type="color" id="h2h-color1" value="#E83030" />
+          <label style="font-size:12px;flex-shrink:0;margin-left:8px">Couleur J2</label>
+          <input type="color" id="h2h-color2" value="#3070E8" />
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+          <input type="checkbox" id="h2h-limit-toggle" checked style="cursor:pointer" />
+          <label for="h2h-limit-toggle" style="font-size:12px;cursor:pointer">Limiter aux 40 derniers tournois</label>
+        </div>
+        <button class="btn btn-primary btn-sm" id="h2h-load-btn" style="width:100%" disabled>Charger le H2H</button>
+      </div>
+      <p class="hint" id="h2h-status"></p>
+      <div id="h2h-preview" class="ps-preview" style="display:none"></div>
+      <div id="h2h-send-section" style="display:none;margin-top:8px">
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-primary" id="h2h-send-btn" style="flex:1">Envoyer à l'overlay</button>
+          <button class="btn btn-outline" id="h2h-hide-btn">Masquer</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Stats joueur -->
+    <section class="section" id="ps-section" style="display:none">
+      <div class="section-header">
+        <h2>Stats Joueur</h2>
+        <a href="/player-stats" target="_blank" class="btn btn-outline btn-sm">Overlay ↗</a>
+      </div>
+      <div class="form-group">
+        <label>Rechercher un joueur</label>
+        <input type="text" id="ps-entrant-search" placeholder="Filtrer…" style="width:100%;margin-bottom:6px" />
+        <select id="ps-entrant-select" class="input-name" style="width:100%">
+          <option value="">-- Choisir un joueur --</option>
+        </select>
+      </div>
+      <div class="form-group" style="display:flex;align-items:center;gap:10px">
+        <label style="flex-shrink:0">Couleur joueur</label>
+        <input type="color" id="ps-color" value="#E8B830" />
+        <button class="btn btn-primary btn-sm" id="ps-load-btn" style="flex:1">Charger les stats</button>
+      </div>
+      <p class="hint" id="ps-status"></p>
+
+      <!-- Preview -->
+      <div id="ps-preview" class="ps-preview" style="display:none"></div>
+
+      <!-- Actions stats -->
+      <div id="ps-send-section" style="display:none;margin-top:8px">
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-primary" id="ps-send-btn" style="flex:1">Envoyer aux stats</button>
+          <button class="btn btn-outline" id="ps-hide-btn">Masquer</button>
+        </div>
+      </div>
+
+      <!-- Historique anciens tournois -->
+      <div id="ps-history-section" style="display:none;margin-top:12px;border-top:1px solid rgba(255,255,255,0.06);padding-top:12px">
+        <div class="section-header" style="margin-bottom:8px">
+          <h2 style="font-size:13px">Historique anciens tournois</h2>
+          <a href="/tournament-history" target="_blank" class="btn btn-outline btn-sm">Overlay ↗</a>
+        </div>
+        <p class="hint" id="ps-history-status"></p>
+        <div style="display:flex;gap:8px;margin-top:4px">
+          <button class="btn btn-outline" id="ps-history-load-btn" style="flex:1">Charger l'historique</button>
+          <button class="btn btn-primary" id="ps-history-send-btn" style="flex:1" disabled>Envoyer</button>
+          <button class="btn btn-outline" id="ps-history-hide-btn">Masquer</button>
+        </div>
+      </div>
+    </section>
+
   </div><!-- /tab-startgg -->
 
   <!-- STAGE PICKER MODAL -->
@@ -1540,6 +1645,8 @@
 <script src="/socket.io/socket.io.js"></script>
 <script src="control.js"></script>
 <script src="startgg-ui.js"></script>
+<script src="player-stats-control.js"></script>
+<script src="h2h-control.js"></script>
 <script src="flag-picker.js"></script>
 </body>
 </html>

@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Historique Tournois</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Russo+One&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="tournament-history.css" />
+</head>
+<body>
+  <div id="history-overlay" class="history-overlay hidden">
+
+    <!-- En-tête joueur -->
+    <div class="history-header">
+      <div class="history-color-bar" id="history-color-bar"></div>
+      <div class="history-player-info">
+        <span class="history-player-tag" id="history-tag"></span>
+        <span class="history-player-name" id="history-name">JOUEUR</span>
+      </div>
+      <div class="history-title">ANCIENS TOURNOIS</div>
+    </div>
+
+    <!-- Liste des tournois -->
+    <div class="history-tournaments" id="history-tournaments">
+      <div class="history-empty">Aucun historique disponible</div>
+    </div>
+
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="tournament-history.js"></script>
+</body>
+</html>
