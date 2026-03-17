@@ -24,7 +24,7 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
-app.use(express.json());
+app.use(express.json({ limit: '25mb' }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 // ─── State ────────────────────────────────────────────────────────────────────
@@ -52,7 +52,10 @@ let matchState = {
   particleOpacity: 100,
   particleCountScale: 100,
   particlesEnabled: true,
-  visible: true
+  visible: true,
+  sbScale: 100,
+  sbX: 0,
+  sbY: 0
 };
 
 let characterList = [
@@ -446,6 +449,50 @@ app.get('/api/startgg/event/:id/sets', async (req, res) => {
     if (!data.event) return res.status(404).json({ error: 'Évènement introuvable' });
     res.json(data.event);
   } catch (e) { res.status(400).json({ error: e.message }); }
+});
+
+// ─── VS Background API ───────────────────────────────────────────────────────
+
+const BG_DIR = path.join(__dirname, 'public', 'background');
+const BG_EXTS = ['.png', '.jpg', '.jpeg', '.webp'];
+
+function getVsBgUrl() {
+  if (!fs.existsSync(BG_DIR)) return null;
+  for (const ext of BG_EXTS) {
+    if (fs.existsSync(path.join(BG_DIR, 'vs-background' + ext)))
+      return '/background/vs-background' + ext;
+  }
+  return null;
+}
+
+app.get('/api/vs-background', (req, res) => {
+  res.json({ url: getVsBgUrl() });
+});
+
+app.post('/api/vs-background', (req, res) => {
+  const { filename, data } = req.body;
+  if (!data) return res.status(400).json({ error: 'data required' });
+  const ext = (path.extname(filename || '').toLowerCase()) || '.png';
+  if (!BG_EXTS.includes(ext)) return res.status(400).json({ error: 'Format non supporté' });
+  if (!fs.existsSync(BG_DIR)) fs.mkdirSync(BG_DIR, { recursive: true });
+  // Supprimer l'ancien fichier quelle que soit son extension
+  BG_EXTS.forEach(e => {
+    const old = path.join(BG_DIR, 'vs-background' + e);
+    if (fs.existsSync(old)) fs.unlinkSync(old);
+  });
+  fs.writeFileSync(path.join(BG_DIR, 'vs-background' + ext), Buffer.from(data, 'base64'));
+  const url = '/background/vs-background' + ext;
+  io.emit('vsBgUpdate', { url });
+  res.json({ url });
+});
+
+app.delete('/api/vs-background', (req, res) => {
+  BG_EXTS.forEach(e => {
+    const f = path.join(BG_DIR, 'vs-background' + e);
+    if (fs.existsSync(f)) fs.unlinkSync(f);
+  });
+  io.emit('vsBgUpdate', { url: null });
+  res.json({ ok: true });
 });
 
 // ─── Flags API ───────────────────────────────────────────────────────────────
