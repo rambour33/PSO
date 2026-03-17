@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Player Stats Overlay</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Russo+One&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="player-stats.css" />
+</head>
+<body>
+  <div id="stats-overlay" class="stats-overlay hidden">
+
+    <!-- En-tête joueur -->
+    <div class="stats-header">
+      <div class="stats-player-color-bar" id="stats-color-bar"></div>
+      <div class="stats-player-info">
+        <span class="stats-player-tag" id="stats-tag"></span>
+        <span class="stats-player-name" id="stats-name">JOUEUR</span>
+      </div>
+      <div class="stats-event-name" id="stats-event"></div>
+    </div>
+
+    <!-- Winrate -->
+    <div class="stats-section stats-winrate-section">
+      <div class="stats-section-label">WINRATE</div>
+      <div class="stats-winrate-content">
+        <div class="stats-winrate-bar-wrap">
+          <div class="stats-winrate-bar" id="stats-wr-bar"></div>
+        </div>
+        <div class="stats-winrate-numbers">
+          <span class="stats-wr-pct" id="stats-wr-pct">0%</span>
+          <span class="stats-wr-record" id="stats-wr-record">0V – 0D</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Top 3 personnages -->
+    <div class="stats-section stats-chars-section">
+      <div class="stats-section-label">PERSONNAGES LES PLUS JOUÉS</div>
+      <div class="stats-chars-list" id="stats-chars-list">
+        <div class="stats-char-row placeholder">
+          <div class="stats-char-icon"></div>
+          <div class="stats-char-info"><span class="stats-char-name">—</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Prochain match -->
+    <div class="stats-section stats-next-section" id="stats-next-section" style="display:none">
+      <div class="stats-section-label">PROCHAIN MATCH</div>
+      <div class="stats-next-match" id="stats-next-match"></div>
+    </div>
+
+    <!-- Tous les matchs joués -->
+    <div class="stats-section stats-results-section">
+      <div class="stats-section-label">MATCHS JOUÉS</div>
+      <div class="stats-results-list" id="stats-results-list">
+        <div class="stats-result-row placeholder">—</div>
+      </div>
+    </div>
+
+
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="player-stats.js"></script>
+</body>
+</html>

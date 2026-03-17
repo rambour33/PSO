@@ -1,0 +1,391 @@
+/* ─── H2H Overlay ─────────────────────────────────────────────────────────── */
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: transparent;
+  font-family: 'Inter', sans-serif;
+  color: #F0EEF8;
+  overflow: hidden;
+}
+
+.h2h-overlay {
+  width: 860px;
+  background: #0E0E12;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.75);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+.h2h-overlay.hidden {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-8px);
+}
+
+.h2h-section-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: #5A5A7A;
+  text-transform: uppercase;
+}
+
+.h2h-section-label.padded { padding: 8px 16px 4px; }
+
+/* ─── Header ───────────────────────────────────────────────────────────────── */
+
+.h2h-header {
+  display: flex;
+  align-items: stretch;
+  background: #16161E;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  min-height: 58px;
+}
+
+.h2h-player-side {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  padding: 10px 16px;
+}
+
+.h2h-player-side.right {
+  flex-direction: row-reverse;
+  text-align: right;
+}
+
+.h2h-color-bar {
+  width: 4px;
+  min-height: 38px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.h2h-player-name-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.h2h-player-name-wrap.right { align-items: flex-end; }
+
+.h2h-tag {
+  font-family: 'Russo One', sans-serif;
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  line-height: 1;
+}
+.h2h-tag:empty { display: none; }
+
+.h2h-name {
+  font-family: 'Russo One', sans-serif;
+  font-size: 20px;
+  color: #F0EEF8;
+  letter-spacing: 1px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 260px;
+}
+
+.h2h-vs-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 20px;
+  flex-shrink: 0;
+}
+
+.h2h-vs-text {
+  font-family: 'Russo One', sans-serif;
+  font-size: 22px;
+  color: #5A5A7A;
+  letter-spacing: 3px;
+}
+
+.h2h-event-name {
+  font-size: 9px;
+  color: #5A5A7A;
+  letter-spacing: 1px;
+  margin-top: 2px;
+  white-space: nowrap;
+}
+
+/* ─── Stats tournoi en cours ───────────────────────────────────────────────── */
+
+.h2h-stats-row {
+  display: flex;
+  align-items: stretch;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.h2h-stats-block {
+  flex: 1;
+  padding: 10px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.h2h-stats-block.right { align-items: flex-end; }
+
+.h2h-stats-divider {
+  width: 1px;
+  background: rgba(255,255,255,0.05);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 20px;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.h2h-stats-wr {
+  font-family: 'Russo One', sans-serif;
+  font-size: 22px;
+  line-height: 1;
+}
+
+.h2h-stats-record {
+  font-size: 11px;
+  color: #8888AA;
+}
+
+.h2h-stats-chars {
+  display: flex;
+  gap: 6px;
+  margin-top: 2px;
+}
+
+.h2h-stats-block.right .h2h-stats-chars { flex-direction: row-reverse; }
+
+.h2h-char-icon {
+  width: 32px;
+  height: 32px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 5px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.h2h-char-icon img { width: 100%; height: 100%; object-fit: contain; }
+
+/* ─── H2H Record bar ───────────────────────────────────────────────────────── */
+
+.h2h-record-row {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  padding: 10px 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.h2h-record-wins {
+  font-family: 'Russo One', sans-serif;
+  font-size: 32px;
+  min-width: 60px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.h2h-record-center {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 0 16px;
+}
+
+.h2h-record-bar-wrap {
+  width: 100%;
+  height: 8px;
+  border-radius: 4px;
+  overflow: hidden;
+  display: flex;
+  background: rgba(255,255,255,0.06);
+}
+
+.h2h-record-bar-p1 {
+  height: 100%;
+  border-radius: 4px 0 0 4px;
+  transition: width 0.6s ease;
+}
+
+.h2h-record-bar-p2 {
+  height: 100%;
+  border-radius: 0 4px 4px 0;
+  transition: width 0.6s ease;
+}
+
+.h2h-record-label {
+  font-family: 'Russo One', sans-serif;
+  font-size: 12px;
+  color: #8888AA;
+  letter-spacing: 2px;
+}
+
+/* ─── Persos H2H ───────────────────────────────────────────────────────────── */
+
+.h2h-chars-row {
+  display: flex;
+  align-items: stretch;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.h2h-chars-block {
+  flex: 1;
+  padding: 8px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.h2h-chars-block.right { align-items: flex-end; }
+
+.h2h-chars-divider {
+  width: 1px;
+  background: rgba(255,255,255,0.05);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 20px;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.h2h-char-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.h2h-chars-block.right .h2h-char-row { flex-direction: row-reverse; }
+
+.h2h-char-row-icon {
+  width: 30px;
+  height: 30px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 5px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.h2h-char-row-icon img { width: 100%; height: 100%; object-fit: contain; }
+
+.h2h-char-row-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: #F0EEF8;
+}
+
+.h2h-char-row-games {
+  font-size: 10px;
+  color: #5A5A7A;
+}
+
+/* ─── Sets H2H ─────────────────────────────────────────────────────────────── */
+
+.h2h-sets-section {
+  padding-bottom: 4px;
+}
+
+.h2h-sets-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 0 12px 8px;
+}
+
+.h2h-set-row {
+  display: grid;
+  grid-template-columns: 1fr 90px 1fr;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  background: rgba(255,255,255,0.02);
+  font-size: 11px;
+}
+
+.h2h-set-row.current-event {
+  background: rgba(232,184,48,0.05);
+  border: 1px solid rgba(232,184,48,0.12);
+}
+
+.h2h-set-left {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.h2h-set-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  justify-content: flex-end;
+}
+
+.h2h-set-badge {
+  width: 18px;
+  height: 18px;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Russo One', sans-serif;
+  font-size: 9px;
+  flex-shrink: 0;
+}
+
+.h2h-set-badge.win  { background: rgba(76,175,80,0.22);  color: #4CAF50; }
+.h2h-set-badge.loss { background: rgba(244,67,54,0.22);   color: #F44336; }
+
+.h2h-set-score {
+  font-weight: 700;
+  color: #F0EEF8;
+}
+
+.h2h-set-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+}
+
+.h2h-set-round {
+  font-size: 10px;
+  font-weight: 600;
+  color: #C0BECE;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 88px;
+}
+
+.h2h-set-tournament {
+  font-size: 9px;
+  color: #5A5A7A;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 88px;
+}
+
+.h2h-no-h2h {
+  padding: 10px 16px;
+  font-size: 11px;
+  color: #5A5A7A;
+  text-align: center;
+}

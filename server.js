@@ -166,6 +166,19 @@ let castersState = {
   ],
 };
 
+let playerStatsState = {
+  visible: false,
+  playerName: '',
+  playerTag: '',
+  playerColor: '#E8B830',
+  eventName: '',
+  wins: 0,
+  losses: 0,
+  topCharacters: [],  // [{ name, image, games }]
+  allMatches: [],   // [{ round, opponentName, opponentTag, result, score, opponentScore }]
+  nextMatch: null,  // { round, opponentName, opponentTag, state } ou null
+};
+
 // ─── Veto helpers ─────────────────────────────────────────────────────────────
 
 function generateVetoSequence(pattern, firstBanner) {
@@ -217,8 +230,16 @@ app.get('/stageveto', (req, res) => res.sendFile(path.join(__dirname, 'public', 
 app.get('/casters', (req, res) => res.sendFile(path.join(__dirname, 'public', 'casters.html')));
 app.get('/control', (req, res) => res.sendFile(path.join(__dirname, 'public', 'control.html')));
 app.get('/vs-screen', (req, res) => res.sendFile(path.join(__dirname, 'public', 'vs-screen.html')));
+app.get('/player-stats', (req, res) => res.sendFile(path.join(__dirname, 'public', 'player-stats.html')));
 
 app.get('/api/casters', (req, res) => res.json(castersState));
+
+app.get('/api/player-stats', (req, res) => res.json(playerStatsState));
+app.post('/api/player-stats', (req, res) => {
+  playerStatsState = { ...playerStatsState, ...req.body };
+  io.emit('playerStatsUpdate', playerStatsState);
+  res.json(playerStatsState);
+});
 
 app.get('/api/state', (req, res) => res.json(matchState));
 app.post('/api/state', (req, res) => {
@@ -280,6 +301,9 @@ io.on('connection', (socket) => {
   socket.emit('rulesetUpdate', rulesetState);
   socket.emit('characterUpdate', characterList);
   socket.emit('castersUpdate', castersState);
+  socket.emit('playerStatsUpdate', playerStatsState);
+  socket.emit('tournamentHistoryUpdate', tournamentHistoryState);
+  socket.emit('h2hUpdate', h2hState);
 
   // Déclenche l'animation d'entrée sur la VS screen
   socket.on('triggerVsScreen', () => {
@@ -451,6 +475,585 @@ app.get('/api/startgg/event/:id/sets', async (req, res) => {
   } catch (e) { res.status(400).json({ error: e.message }); }
 });
 
+// Mapping start.gg SSBU character IDs → internal character IDs
+const SSBU_CHAR_MAP = {
+  1260:'mario', 1261:'donkey_kong', 1262:'link', 1263:'samus', 1264:'dark_samus',
+  1265:'yoshi', 1266:'kirby', 1267:'fox', 1268:'pikachu', 1269:'luigi',
+  1270:'ness', 1271:'captain_falcon', 1272:'jigglypuff', 1273:'peach', 1274:'daisy',
+  1275:'bowser', 1276:'ice_climbers', 1277:'sheik', 1278:'zelda', 1279:'dr_mario',
+  1280:'pichu', 1281:'falco', 1282:'marth', 1283:'lucina', 1284:'young_link',
+  1285:'ganondorf', 1286:'mewtwo', 1287:'roy', 1288:'chrom', 1289:'mr_game_watch',
+  1290:'meta_knight', 1291:'pit', 1292:'dark_pit', 1293:'zero_suit_samus', 1294:'wario',
+  1295:'snake', 1296:'ike', 1297:'pokemon_trainer', 1298:'diddy_kong', 1299:'lucas',
+  1300:'sonic', 1301:'king_dedede', 1302:'olimar', 1303:'lucario', 1304:'rob',
+  1305:'toon_link', 1306:'wolf', 1307:'villager', 1308:'mega_man', 1309:'wii_fit_trainer',
+  1310:'rosalina', 1311:'little_mac', 1312:'greninja', 1313:'mii_brawler',
+  1314:'mii_swordfighter', 1315:'mii_gunner', 1316:'palutena', 1317:'pac_man',
+  1318:'robin', 1319:'shulk', 1320:'bowser_jr', 1321:'duck_hunt', 1322:'ryu',
+  1323:'ken', 1324:'cloud', 1325:'corrin', 1326:'bayonetta', 1327:'inkling',
+  1328:'ridley', 1329:'simon', 1330:'richter', 1331:'king_k_rool', 1332:'isabelle',
+  1333:'incineroar', 1334:'piranha_plant', 1335:'joker', 1336:'hero',
+  1337:'banjo_kazooie', 1338:'terry', 1339:'byleth', 1340:'min_min', 1341:'steve',
+  1342:'sephiroth', 1343:'pyra_mythra', 1344:'pyra_mythra', 1345:'kazuya', 1346:'sora',
+};
+
+app.get('/api/startgg/event/:id/player-stats/:entrantId', async (req, res) => {
+  try {
+    // IDs kept as strings — start.gg GraphQL ID type accepts both string and int
+    const eventId  = req.params.id;
+    const entrantId = req.params.entrantId;
+
+    let allSets = [];
+    let page = 1;
+    let totalPages = 1;
+    let eventName = '';
+    let playerName = '';
+    let playerTag = '';
+    let playerId = null;
+
+    while (page <= totalPages) {
+      const data = await startggQuery(`
+        query PlayerStats($eventId: ID!, $entrantId: ID!, $page: Int!) {
+          event(id: $eventId) {
+            id name
+            sets(
+              filters: { entrantIds: [$entrantId] }
+              perPage: 50
+              page: $page
+              sortType: RECENT
+            ) {
+              pageInfo { total totalPages }
+              nodes {
+                id fullRoundText state winnerId
+                slots {
+                  entrant {
+                    id name
+                    participants { gamerTag prefix player { id } }
+                  }
+                  standing { stats { score { value } } }
+                }
+                games {
+                  winnerId
+                  selections {
+                    entrant { id }
+                    selectionType
+                    selectionValue
+                  }
+                }
+              }
+            }
+          }
+        }
+      `, { eventId, entrantId, page });
+
+      if (!data.event) return res.status(404).json({ error: 'Évènement introuvable' });
+      eventName = data.event.name;
+      totalPages = data.event.sets?.pageInfo?.totalPages || 1;
+      allSets = allSets.concat(data.event.sets?.nodes || []);
+      page++;
+    }
+
+    // Séparer sets terminés (state 3) et prochain match (state 1=appelé, 2=actif)
+    const completedSets = allSets.filter(s => s.state === 3);
+    const upcomingSets  = allSets.filter(s => s.state === 1 || s.state === 2);
+
+    // Extract player name + playerId depuis les sets terminés ou à venir
+    const allForInfo = [...completedSets, ...upcomingSets];
+    for (const set of allForInfo) {
+      const mySlot = (set.slots || []).find(s => String(s.entrant?.id) === String(entrantId));
+      if (mySlot?.entrant?.participants?.[0]) {
+        playerName = mySlot.entrant.participants[0].gamerTag || mySlot.entrant.name || '';
+        playerTag  = mySlot.entrant.participants[0].prefix || '';
+        playerId   = mySlot.entrant.participants[0].player?.id || null;
+        break;
+      }
+    }
+
+    // Compute wins/losses sur sets terminés
+    let wins = 0, losses = 0;
+    for (const set of completedSets) {
+      if (String(set.winnerId) === String(entrantId)) wins++;
+      else losses++;
+    }
+
+    // Compute top characters from game-level selections
+    const charCounts = {};
+    for (const set of completedSets) {
+      for (const game of (set.games || [])) {
+        for (const sel of (game.selections || [])) {
+          if (String(sel.entrant?.id) === String(entrantId) && sel.selectionType === 'CHARACTER') {
+            const charId = sel.selectionValue;
+            charCounts[charId] = (charCounts[charId] || 0) + 1;
+          }
+        }
+      }
+    }
+
+    const topCharacters = Object.entries(charCounts)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 3)
+      .map(([charId, games]) => {
+        const internalId = SSBU_CHAR_MAP[parseInt(charId)];
+        const charEntry  = internalId ? characterList.find(c => c.id === internalId) : null;
+        return {
+          charId: parseInt(charId),
+          name:  charEntry?.name || `Perso #${charId}`,
+          image: internalId ? `/Stock Icons/chara_2_${internalId}_00.png` : '',
+          games,
+        };
+      });
+
+    // Tous les matchs joués (les plus récents en premier)
+    function slotInfo(set) {
+      const mySlot  = (set.slots || []).find(s => String(s.entrant?.id) === String(entrantId));
+      const oppSlot = (set.slots || []).find(s => String(s.entrant?.id) !== String(entrantId));
+      return { mySlot, oppSlot };
+    }
+
+    const allMatches = completedSets.map(set => {
+      const { mySlot, oppSlot } = slotInfo(set);
+      const isWin    = String(set.winnerId) === String(entrantId);
+      const myScore  = mySlot?.standing?.stats?.score?.value ?? null;
+      const oppScore = oppSlot?.standing?.stats?.score?.value ?? null;
+      const oppName  = oppSlot?.entrant?.participants?.[0]?.gamerTag
+                     || oppSlot?.entrant?.name || '?';
+      const oppTag   = oppSlot?.entrant?.participants?.[0]?.prefix || '';
+      return {
+        round:        set.fullRoundText || '',
+        opponentName: oppName,
+        opponentTag:  oppTag,
+        result:       isWin ? 'W' : 'L',
+        score:        myScore  !== null ? Math.max(0, myScore)  : undefined,
+        opponentScore: oppScore !== null ? Math.max(0, oppScore) : undefined,
+      };
+    });
+
+    // Prochain match (premier set appelé ou actif)
+    let nextMatch = null;
+    if (upcomingSets.length > 0) {
+      const next = upcomingSets[0];
+      const { oppSlot } = slotInfo(next);
+      const oppName = oppSlot?.entrant?.participants?.[0]?.gamerTag
+                    || oppSlot?.entrant?.name || 'TBD';
+      const oppTag  = oppSlot?.entrant?.participants?.[0]?.prefix || '';
+      nextMatch = {
+        round:        next.fullRoundText || '',
+        opponentName: oppName,
+        opponentTag:  oppTag,
+        state:        next.state,
+      };
+    }
+
+    res.json({ playerName, playerTag, eventName, wins, losses, topCharacters, allMatches, nextMatch });
+  } catch (e) {
+    console.error('[player-stats]', e.message);
+    res.status(400).json({ error: e.message });
+  }
+});
+
+// ─── H2H State & API ─────────────────────────────────────────────────────────
+
+let h2hState = {
+  visible: false,
+  player1: { name: '', tag: '', color: '#E83030', currentStats: { wins:0, losses:0, winRate:0, topChars:[] } },
+  player2: { name: '', tag: '', color: '#3070E8', currentStats: { wins:0, losses:0, winRate:0, topChars:[] } },
+  h2h: { player1Wins:0, player2Wins:0, totalSets:0, topCharsP1:[], topCharsP2:[], sets:[] },
+};
+
+app.get('/h2h', (req, res) =>
+  res.sendFile(path.join(__dirname, 'public', 'h2h.html')));
+
+app.get('/api/h2h', (req, res) => res.json(h2hState));
+app.post('/api/h2h', (req, res) => {
+  h2hState = { ...h2hState, ...req.body };
+  io.emit('h2hUpdate', h2hState);
+  res.json(h2hState);
+});
+
+// Calcule et retourne les stats H2H pour deux entrants d'un même event
+app.get('/api/startgg/event/:eventId/h2h/:entrant1Id/:entrant2Id', async (req, res) => {
+  try {
+    const { eventId, entrant1Id, entrant2Id } = req.params;
+    const tournamentLimit = req.query.limitTournaments ? parseInt(req.query.limitTournaments) : null;
+
+    // ── Helpers ──────────────────────────────────────────────────────────────
+
+    function extractInfo(slots, entrantId) {
+      const slot = (slots || []).find(s => String(s.entrant?.id) === String(entrantId));
+      if (!slot) return null;
+      const p = slot.entrant?.participants?.[0];
+      return {
+        name:     p?.gamerTag || slot.entrant?.name || '',
+        tag:      p?.prefix   || '',
+        playerId: p?.player?.id || null,
+      };
+    }
+
+    function mapChars(counts) {
+      return Object.entries(counts)
+        .sort((a, b) => b[1] - a[1]).slice(0, 3)
+        .map(([id, games]) => {
+          const internal = SSBU_CHAR_MAP[parseInt(id)];
+          const entry    = internal ? characterList.find(c => c.id === internal) : null;
+          return {
+            name:  entry?.name || `Perso #${id}`,
+            image: internal ? `/Stock Icons/chara_2_${internal}_00.png` : '',
+            games,
+          };
+        });
+    }
+
+    function computeStats(entrantId, sets) {
+      let wins = 0, losses = 0;
+      const chars = {};
+      for (const set of sets) {
+        if (String(set.winnerId) === String(entrantId)) wins++; else losses++;
+        for (const game of (set.games || []))
+          for (const sel of (game.selections || []))
+            if (String(sel.entrant?.id) === String(entrantId) && sel.selectionType === 'CHARACTER')
+              chars[sel.selectionValue] = (chars[sel.selectionValue] || 0) + 1;
+      }
+      return { wins, losses, winRate: wins + losses > 0 ? Math.round(wins / (wins + losses) * 100) : 0, topChars: mapChars(chars) };
+    }
+
+    // ── 1. Sets du tournoi en cours pour les deux entrants ───────────────────
+
+    let page = 1, totalPages = 1;
+    let allCurrentSets = [];
+    let p1Info = null, p2Info = null;
+    let eventName = '';
+
+    while (page <= totalPages) {
+      const d = await startggQuery(`
+        query CurrentSets($eventId: ID!, $e1: ID!, $e2: ID!, $page: Int!) {
+          event(id: $eventId) {
+            name
+            sets(filters: { entrantIds: [$e1, $e2] }, perPage: 50, page: $page) {
+              pageInfo { totalPages }
+              nodes {
+                id fullRoundText state winnerId
+                slots {
+                  entrant { id name participants { gamerTag prefix player { id } } }
+                  standing { stats { score { value } } }
+                }
+                games {
+                  winnerId
+                  selections { entrant { id } selectionType selectionValue }
+                }
+              }
+            }
+          }
+        }
+      `, { eventId, e1: entrant1Id, e2: entrant2Id, page });
+
+      if (!d.event) return res.status(404).json({ error: 'Évènement introuvable' });
+      eventName  = d.event.name;
+      totalPages = d.event.sets?.pageInfo?.totalPages || 1;
+      allCurrentSets = allCurrentSets.concat(d.event.sets?.nodes || []);
+      page++;
+    }
+
+    const completedCurrent = allCurrentSets.filter(s => s.state === 3);
+
+    // Extraire infos joueurs depuis n'importe quel set
+    for (const set of completedCurrent) {
+      if (!p1Info) p1Info = extractInfo(set.slots, entrant1Id);
+      if (!p2Info) p2Info = extractInfo(set.slots, entrant2Id);
+      if (p1Info && p2Info) break;
+    }
+    // Fallback : chercher dans les sets non terminés si un des joueurs est inconnu
+    if (!p1Info || !p2Info) {
+      for (const set of allCurrentSets) {
+        if (!p1Info) p1Info = extractInfo(set.slots, entrant1Id);
+        if (!p2Info) p2Info = extractInfo(set.slots, entrant2Id);
+        if (p1Info && p2Info) break;
+      }
+    }
+    if (!p1Info || !p2Info)
+      return res.status(404).json({ error: 'Infos joueurs introuvables dans cet évènement' });
+
+    // Stats individuelles dans le tournoi en cours
+    const p1CurrentSets = completedCurrent.filter(s =>
+      (s.slots||[]).some(sl => String(sl.entrant?.id) === String(entrant1Id)));
+    const p2CurrentSets = completedCurrent.filter(s =>
+      (s.slots||[]).some(sl => String(sl.entrant?.id) === String(entrant2Id)));
+
+    // H2H dans le tournoi en cours (sets où les deux joueurs s'affrontent)
+    const h2hCurrentSets = completedCurrent.filter(s => {
+      const ids = (s.slots||[]).map(sl => String(sl.entrant?.id));
+      return ids.includes(String(entrant1Id)) && ids.includes(String(entrant2Id));
+    });
+
+    // ── 2. H2H historique via player.sets paginé ─────────────────────────────
+
+    const historicalH2H = [];
+
+    if (p1Info.playerId) {
+      let page = 1;
+      const seenTournaments = new Set();
+      let stopPaging = false;
+      while (!stopPaging) {
+        const stData = await startggQuery(`
+          query P1Sets($playerId: ID!, $page: Int!) {
+            player(id: $playerId) {
+              sets(page: $page, perPage: 20, filters: { state: [3] }) {
+                pageInfo { totalPages }
+                nodes {
+                  id fullRoundText winnerId
+                  event { id name tournament { id name } }
+                  slots {
+                    entrant { id name participants { gamerTag prefix } }
+                    standing { stats { score { value } } }
+                  }
+                  games {
+                    winnerId
+                    selections { entrant { id } selectionType selectionValue }
+                  }
+                }
+              }
+            }
+          }
+        `, { playerId: p1Info.playerId, page });
+
+        const setsPage  = stData.player?.sets;
+        const nodes     = setsPage?.nodes || [];
+        const totalPages = setsPage?.pageInfo?.totalPages || 1;
+
+        for (const set of nodes) {
+          if (String(set.event?.id) === String(eventId)) continue;
+          const tId = set.event?.tournament?.id || set.event?.id;
+          if (tId) seenTournaments.add(String(tId));
+          if (tournamentLimit && seenTournaments.size > tournamentLimit) {
+            stopPaging = true;
+            break;
+          }
+          const p1Slot  = (set.slots||[]).find(sl => {
+            const tag = sl.entrant?.participants?.[0]?.gamerTag || sl.entrant?.name || '';
+            return tag.toLowerCase() === p1Info.name.toLowerCase();
+          });
+          const oppSlot = (set.slots||[]).find(sl => {
+            const tag = sl.entrant?.participants?.[0]?.gamerTag || sl.entrant?.name || '';
+            return tag.toLowerCase() === p2Info.name.toLowerCase();
+          });
+          if (!p1Slot || !oppSlot) continue;
+          historicalH2H.push({
+            set,
+            p1EntrantId:    p1Slot.entrant?.id,
+            p2EntrantId:    oppSlot.entrant?.id,
+            tournamentName: set.event?.tournament?.name || set.event?.name || '',
+            eventName:      set.event?.name || '',
+          });
+        }
+
+        if (page >= totalPages) break;
+        page++;
+      }
+    }
+
+    // ── 3. Compiler tous les sets H2H ────────────────────────────────────────
+
+    const allH2H = [
+      ...h2hCurrentSets.map(set => ({
+        set, p1EntrantId: entrant1Id, p2EntrantId: entrant2Id,
+        tournamentName: eventName, eventName, isCurrent: true,
+      })),
+      ...historicalH2H.map(h => ({ ...h, isCurrent: false })),
+    ];
+
+    let h2hWins1 = 0, h2hWins2 = 0;
+    const h2hChars1 = {}, h2hChars2 = {};
+
+    const h2hSets = allH2H.map(({ set, p1EntrantId, p2EntrantId, tournamentName, eventName: evName, isCurrent }) => {
+      const p1Slot = (set.slots||[]).find(sl => String(sl.entrant?.id) === String(p1EntrantId));
+      const p2Slot = (set.slots||[]).find(sl => String(sl.entrant?.id) !== String(p1EntrantId));
+      const p1Won  = String(set.winnerId) === String(p1EntrantId);
+      if (p1Won) h2hWins1++; else h2hWins2++;
+
+      for (const game of (set.games||[])) {
+        for (const sel of (game.selections||[])) {
+          if (sel.selectionType !== 'CHARACTER') continue;
+          const bucket = String(sel.entrant?.id) === String(p1EntrantId) ? h2hChars1 : h2hChars2;
+          bucket[sel.selectionValue] = (bucket[sel.selectionValue] || 0) + 1;
+        }
+      }
+
+      const s1 = p1Slot?.standing?.stats?.score?.value ?? null;
+      const s2 = p2Slot?.standing?.stats?.score?.value ?? null;
+      return {
+        tournamentName,
+        eventName: evName,
+        isCurrent,
+        round:   set.fullRoundText || '',
+        winner:  p1Won ? 1 : 2,
+        score1:  s1 !== null ? Math.max(0, s1) : undefined,
+        score2:  s2 !== null ? Math.max(0, s2) : undefined,
+      };
+    });
+
+    res.json({
+      eventName,
+      player1: { name: p1Info.name, tag: p1Info.tag, currentStats: computeStats(entrant1Id, p1CurrentSets) },
+      player2: { name: p2Info.name, tag: p2Info.tag, currentStats: computeStats(entrant2Id, p2CurrentSets) },
+      h2h: {
+        player1Wins: h2hWins1,
+        player2Wins: h2hWins2,
+        totalSets:   h2hWins1 + h2hWins2,
+        topCharsP1:  mapChars(h2hChars1),
+        topCharsP2:  mapChars(h2hChars2),
+        sets: h2hSets,
+      },
+    });
+  } catch (e) {
+    console.error('[h2h]', e.message);
+    res.status(400).json({ error: e.message });
+  }
+});
+
+// ─── Tournament History State & API ──────────────────────────────────────────
+
+let tournamentHistoryState = {
+  visible: false,
+  playerName: '',
+  playerTag: '',
+  playerColor: '#E8B830',
+  tournaments: [], // [{ tournamentName, eventName, placement, numEntrants, startAt, sets[] }]
+};
+
+app.get('/tournament-history', (req, res) =>
+  res.sendFile(path.join(__dirname, 'public', 'tournament-history.html')));
+
+app.get('/api/tournament-history', (req, res) => res.json(tournamentHistoryState));
+app.post('/api/tournament-history', (req, res) => {
+  tournamentHistoryState = { ...tournamentHistoryState, ...req.body };
+  io.emit('tournamentHistoryUpdate', tournamentHistoryState);
+  res.json(tournamentHistoryState);
+});
+
+// Récupère l'historique des anciens tournois via entrantId + eventId
+app.get('/api/startgg/event/:id/player-history/:entrantId', async (req, res) => {
+  try {
+    const eventId   = req.params.id;
+    const entrantId = req.params.entrantId;
+
+    // 1) Récupérer le playerId depuis les sets du tournoi en cours
+    let playerId   = null;
+    let playerName = '';
+    let playerTag  = '';
+
+    const setsData = await startggQuery(`
+      query GetPlayerId($eventId: ID!, $entrantId: ID!) {
+        event(id: $eventId) {
+          sets(filters: { entrantIds: [$entrantId] }, perPage: 1, page: 1) {
+            nodes {
+              slots {
+                entrant {
+                  id name
+                  participants { gamerTag prefix player { id } }
+                }
+              }
+            }
+          }
+        }
+      }
+    `, { eventId, entrantId });
+
+    const firstSet = setsData.event?.sets?.nodes?.[0];
+    if (firstSet) {
+      const mySlot = (firstSet.slots || []).find(s => String(s.entrant?.id) === String(entrantId));
+      if (mySlot?.entrant?.participants?.[0]) {
+        playerName = mySlot.entrant.participants[0].gamerTag || mySlot.entrant.name || '';
+        playerTag  = mySlot.entrant.participants[0].prefix || '';
+        playerId   = mySlot.entrant.participants[0].player?.id || null;
+      }
+    }
+
+    if (!playerId) return res.status(404).json({ error: 'playerId introuvable pour cet entrant' });
+
+    // 2) Récupérer les standings récents (hors tournoi en cours)
+    const standingsData = await startggQuery(`
+      query PlayerStandings($playerId: ID!) {
+        player(id: $playerId) {
+          recentStandings(limit: 15) {
+            placement
+            entrant {
+              id
+              event {
+                id name numEntrants
+                tournament { name startAt }
+              }
+            }
+          }
+        }
+      }
+    `, { playerId });
+
+    const standings = (standingsData.player?.recentStandings || [])
+      .filter(s => String(s.entrant?.event?.id) !== String(eventId));
+
+    // 3) Pour chaque tournoi, récupérer les sets joués
+    const tournaments = [];
+    for (const standing of standings.slice(0, 8)) {
+      const evId  = standing.entrant?.event?.id;
+      const entId = standing.entrant?.id;
+      if (!evId || !entId) continue;
+
+      try {
+        const evSets = await startggQuery(`
+          query EventHistory($eventId: ID!, $entrantId: ID!) {
+            event(id: $eventId) {
+              sets(
+                filters: { entrantIds: [$entrantId], state: [3] }
+                perPage: 50
+                sortType: RECENT
+              ) {
+                nodes {
+                  id fullRoundText winnerId
+                  slots {
+                    entrant { id name participants { gamerTag prefix } }
+                    standing { stats { score { value } } }
+                  }
+                }
+              }
+            }
+          }
+        `, { eventId: evId, entrantId: entId });
+
+        const sets = (evSets.event?.sets?.nodes || []).map(set => {
+          const mySlot  = (set.slots || []).find(s => String(s.entrant?.id) === String(entId));
+          const oppSlot = (set.slots || []).find(s => String(s.entrant?.id) !== String(entId));
+          const isWin   = String(set.winnerId) === String(entId);
+          const myScore  = mySlot?.standing?.stats?.score?.value ?? null;
+          const oppScore = oppSlot?.standing?.stats?.score?.value ?? null;
+          return {
+            round:        set.fullRoundText || '',
+            opponentName: oppSlot?.entrant?.participants?.[0]?.gamerTag || oppSlot?.entrant?.name || '?',
+            opponentTag:  oppSlot?.entrant?.participants?.[0]?.prefix || '',
+            result:       isWin ? 'W' : 'L',
+            score:        myScore  !== null ? Math.max(0, myScore)  : undefined,
+            opponentScore: oppScore !== null ? Math.max(0, oppScore) : undefined,
+          };
+        });
+
+        tournaments.push({
+          tournamentName: standing.entrant?.event?.tournament?.name || standing.entrant?.event?.name || '',
+          eventName:      standing.entrant?.event?.name || '',
+          placement:      standing.placement || null,
+          numEntrants:    standing.entrant?.event?.numEntrants || null,
+          startAt:        standing.entrant?.event?.tournament?.startAt || null,
+          sets,
+        });
+      } catch (e) {
+        console.error('[history] sets error for event', evId, e.message);
+      }
+    }
+
+    res.json({ playerName, playerTag, tournaments });
+  } catch (e) {
+    console.error('[player-history]', e.message);
+    res.status(400).json({ error: e.message });
+  }
+});
+
 // ─── VS Background API ───────────────────────────────────────────────────────
 
 const BG_DIR = path.join(__dirname, 'public', 'background');
@@ -523,6 +1126,9 @@ server.listen(PORT, () => {
   console.log('   Overlay slim       → http://localhost:' + PORT + '/overlay-slim');
   console.log('   Overlay veto       → http://localhost:' + PORT + '/stageveto');
   console.log('   Overlay casters    → http://localhost:' + PORT + '/casters');
+  console.log('   Overlay stats      → http://localhost:' + PORT + '/player-stats');
+  console.log('   Overlay historique → http://localhost:' + PORT + '/tournament-history');
+  console.log('   Overlay H2H        → http://localhost:' + PORT + '/h2h');
   console.log('   Contrôle           → http://localhost:' + PORT + '/control');
   console.log('');
 });

@@ -1,0 +1,220 @@
+/* ─── Tournament History Overlay ──────────────────────────────────────────── */
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: transparent;
+  font-family: 'Inter', sans-serif;
+  color: #F0EEF8;
+  overflow: hidden;
+}
+
+.history-overlay {
+  width: 480px;
+  background: #0E0E12;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.7);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+.history-overlay.hidden {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-8px);
+}
+
+/* ─── Header ───────────────────────────────────────────────────────────────── */
+
+.history-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: #16161E;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.history-color-bar {
+  width: 4px;
+  height: 40px;
+  border-radius: 2px;
+  background: #E8B830;
+  flex-shrink: 0;
+}
+
+.history-player-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.history-player-tag {
+  font-family: 'Russo One', sans-serif;
+  font-size: 10px;
+  color: #E8B830;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  line-height: 1;
+}
+.history-player-tag:empty { display: none; }
+
+.history-player-name {
+  font-family: 'Russo One', sans-serif;
+  font-size: 18px;
+  color: #F0EEF8;
+  letter-spacing: 1px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.1;
+}
+
+.history-title {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: #5A5A7A;
+  text-transform: uppercase;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+/* ─── Tournaments list ─────────────────────────────────────────────────────── */
+
+.history-tournaments {
+  display: flex;
+  flex-direction: column;
+}
+
+.history-empty {
+  padding: 16px;
+  text-align: center;
+  font-size: 12px;
+  color: #5A5A7A;
+}
+
+/* ─── Single tournament block ──────────────────────────────────────────────── */
+
+.history-tournament {
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+.history-tournament:last-child { border-bottom: none; }
+
+.history-tournament-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 16px 7px;
+  background: rgba(255,255,255,0.02);
+}
+
+.history-tournament-placement {
+  font-family: 'Russo One', sans-serif;
+  font-size: 15px;
+  min-width: 34px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.history-tournament-placement.top1  { color: #FFD700; }
+.history-tournament-placement.top2  { color: #C0C0C0; }
+.history-tournament-placement.top3  { color: #CD7F32; }
+.history-tournament-placement.top8  { color: #7EC8E3; }
+.history-tournament-placement.other { color: #5A5A7A; }
+
+.history-tournament-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.history-tournament-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: #F0EEF8;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+}
+
+.history-tournament-event {
+  font-size: 10px;
+  color: #5A5A7A;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+  margin-top: 1px;
+}
+
+.history-tournament-meta {
+  font-size: 10px;
+  color: #5A5A7A;
+  text-align: right;
+  flex-shrink: 0;
+  line-height: 1.4;
+}
+
+/* ─── Sets inside a tournament ─────────────────────────────────────────────── */
+
+.history-sets {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 4px 12px 8px 16px;
+}
+
+.history-set-row {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 3px 6px;
+  border-radius: 4px;
+  background: rgba(255,255,255,0.02);
+  font-size: 11px;
+}
+
+.history-set-badge {
+  width: 17px;
+  height: 17px;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Russo One', sans-serif;
+  font-size: 9px;
+  flex-shrink: 0;
+}
+
+.history-set-badge.win  { background: rgba(76,175,80,0.22);  color: #4CAF50; }
+.history-set-badge.loss { background: rgba(244,67,54,0.22);   color: #F44336; }
+
+.history-set-score {
+  font-weight: 700;
+  color: #F0EEF8;
+  flex-shrink: 0;
+  min-width: 26px;
+  font-size: 11px;
+}
+
+.history-set-opponent {
+  flex: 1;
+  color: #C0BECE;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.history-set-round {
+  font-size: 9px;
+  color: #5A5A7A;
+  flex-shrink: 0;
+  max-width: 100px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: right;
+}
