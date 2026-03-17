@@ -1868,6 +1868,15 @@ function update(s) {
   prevState = s;
 }
 
+// ── Custom background ─────────────────────────────────────────
+const vsCustomBg = $('vs-custom-bg');
+
+function setCustomBg(url) {
+  vsCustomBg.style.backgroundImage = url ? `url('${url}?t=${Date.now()}')` : '';
+}
+
+socket.on('vsBgUpdate', ({ url }) => setCustomBg(url));
+
 // ── vsScreen trigger (animation + flash) ─────────────────────
 socket.on('vsScreenTrigger', () => {
   doFlash();
@@ -1883,8 +1892,13 @@ socket.on('stateUpdate', s => {
 async function init() {
   initParticles();
   try {
-    const res = await fetch('/api/state');
-    const s = await res.json();
+    const [stateRes, bgRes] = await Promise.all([
+      fetch('/api/state'),
+      fetch('/api/vs-background'),
+    ]);
+    const s = await stateRes.json();
+    const { url } = await bgRes.json();
+    setCustomBg(url);
     update(s);
     triggerAnimation();
   } catch(e) {

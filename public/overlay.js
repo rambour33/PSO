@@ -79,6 +79,7 @@ const PS = (() => {
   let canvas, ctx, rafId = null, _type = null, _dualKey = null;
   let _opacityScale = 1.0, _countScale = 1.0;
   let _lastType = null, _lastCount = 0, _lastType2 = null, _lastCount2 = 0;
+  let _n1 = 0; // number of player-1 particles (dual mode)
   const pts = [];
 
   // ── Factories ──────────────────────────────────────────────
@@ -1591,7 +1592,25 @@ const PS = (() => {
   function tick() {
     const W=canvas.width, H=canvas.height;
     ctx.clearRect(0,0,W,H);
-    for (const p of pts) { upd(p,W,H); drw(p); }
+    if (_type === '__dual__') {
+      const half = Math.floor(W / 2);
+      // Player 1 — clipped to left half, upd sees W=half directly
+      ctx.save();
+      ctx.beginPath(); ctx.rect(0, 0, half, H); ctx.clip();
+      for (let i = 0; i < _n1; i++) { upd(pts[i], half, H); drw(pts[i]); }
+      ctx.restore();
+      // Player 2 — clipped to right half, translate so upd sees W=half
+      ctx.save();
+      ctx.beginPath(); ctx.rect(half, 0, W - half, H); ctx.clip();
+      for (let i = _n1; i < pts.length; i++) {
+        const p = pts[i];
+        p.x -= half; upd(p, W - half, H); p.x += half;
+        drw(p);
+      }
+      ctx.restore();
+    } else {
+      for (const p of pts) { upd(p, W, H); drw(p); }
+    }
     rafId = requestAnimationFrame(tick);
   }
 
@@ -1630,10 +1649,15 @@ const PS = (() => {
     const n1 = Math.max(1, Math.round(count1 * _countScale));
     const n2 = Math.max(1, Math.round(count2 * _countScale));
     if (type1 && FAC[type1]) {
-      for (let i = 0; i < n1; i++) { const p = FAC[type1](half, H); pts.push(p); }
+      for (let i = 0; i < n1; i++) pts.push(FAC[type1](half, H));
     }
+    _n1 = pts.length;
     if (type2 && FAC[type2]) {
-      for (let i = 0; i < n2; i++) { const p = FAC[type2](half, H); p.x += half; pts.push(p); }
+      for (let i = 0; i < n2; i++) {
+        const p = FAC[type2](half, H);
+        p.x += half;
+        pts.push(p);
+      }
     }
     tick();
   }
@@ -1947,16 +1971,19 @@ function update(s) {
   // ── Dual character theme — CSS vars ─────────────────────────
   const isDual = (s.overlayTheme || 'default') === 'dual';
   if (isDual) {
-    const k1 = s.player1.character?.id ? 's' + s.player1.character.id : 'default';
-    const k2 = s.player2.character?.id ? 's' + s.player2.character.id : 'default';
-    const c1 = CHAR_THEME_COLORS[k1] || CHAR_THEME_COLORS.default;
-    const c2 = CHAR_THEME_COLORS[k2] || CHAR_THEME_COLORS.default;
-    sb.style.setProperty('--p1-theme-primary', c1.primary);
-    sb.style.setProperty('--p1-theme-glow',    c1.glow);
-    sb.style.setProperty('--p1-theme-bg',      c1.bg);
-    sb.style.setProperty('--p2-theme-primary', c2.primary);
-    sb.style.setProperty('--p2-theme-glow',    c2.glow);
-    sb.style.setProperty('--p2-theme-bg',      c2.bg);
+    const kA = s.player1.character?.id ? 's' + s.player1.character.id : 'default';
+    const kB = s.player2.character?.id ? 's' + s.player2.character.id : 'default';
+    // kLeft/kRight follow visual position (respects swap)
+    const kLeft  = s.swapped ? kB : kA;
+    const kRight = s.swapped ? kA : kB;
+    const cLeft  = CHAR_THEME_COLORS[kLeft]  || CHAR_THEME_COLORS.default;
+    const cRight = CHAR_THEME_COLORS[kRight] || CHAR_THEME_COLORS.default;
+    sb.style.setProperty('--p1-theme-primary', cLeft.primary);
+    sb.style.setProperty('--p1-theme-glow',    cLeft.glow);
+    sb.style.setProperty('--p1-theme-bg',      cLeft.bg);
+    sb.style.setProperty('--p2-theme-primary', cRight.primary);
+    sb.style.setProperty('--p2-theme-glow',    cRight.glow);
+    sb.style.setProperty('--p2-theme-bg',      cRight.bg);
   }
 
   // Logo particules
@@ -1976,17 +2003,20 @@ function update(s) {
   if (s.particlesEnabled === false) {
     if (PS.type) PS.stop();
   } else if (isDual) {
-    const k1 = s.player1.character?.id ? 's' + s.player1.character.id : 'default';
-    const k2 = s.player2.character?.id ? 's' + s.player2.character.id : 'default';
-    const tp1 = THEME_PARTICLES[k1];
-    const tp2 = THEME_PARTICLES[k2];
-    const type1  = tp1?.type  || 'sparkle';
-    const count1 = Math.round((tp1?.count || 40) * 0.55);
-    const type2  = tp2?.type  || 'sparkle';
-    const count2 = Math.round((tp2?.count || 40) * 0.55);
-    const key = `${type1}|${count1}|${type2}|${count2}`;
+    const kA = s.player1.character?.id ? 's' + s.player1.character.id : 'default';
+    const kB = s.player2.character?.id ? 's' + s.player2.character.id : 'default';
+    // Respect visual swap: left side first in startDual
+    const kLeft  = s.swapped ? kB : kA;
+    const kRight = s.swapped ? kA : kB;
+    const tpLeft  = THEME_PARTICLES[kLeft];
+    const tpRight = THEME_PARTICLES[kRight];
+    const typeLeft   = tpLeft?.type   || 'sparkle';
+    const countLeft  = Math.round((tpLeft?.count  || 40) * 0.55);
+    const typeRight  = tpRight?.type  || 'sparkle';
+    const countRight = Math.round((tpRight?.count || 40) * 0.55);
+    const key = `${typeLeft}|${countLeft}|${typeRight}|${countRight}`;
     if (PS.type !== '__dual__' || PS.dualKey !== key) {
-      PS.startDual(type1, count1, type2, count2);
+      PS.startDual(typeLeft, countLeft, typeRight, countRight);
     }
   } else {
     const tpConf = THEME_PARTICLES[s.overlayTheme || 'default'];
@@ -2010,6 +2040,10 @@ function update(s) {
   if (PS.opacity !== pOp) PS.setOpacity(pOp);
   const pScale = (s.particleCountScale ?? 100) / 100;
   if (Math.abs(PS.countScale - pScale) > 0.001) PS.setCountScale(pScale);
+
+  sb.style.setProperty('--sb-scale', (s.sbScale ?? 100) / 100);
+  sb.style.setProperty('--sb-x', (s.sbX ?? 0) + 'px');
+  sb.style.setProperty('--sb-y', (s.sbY ?? 0) + 'px');
 
   sb.style.setProperty('--event-text-size', `${s.eventTextSize ?? 12}px`);
   sb.style.setProperty('--event-text-color', s.eventTextColor || '#5A5A7A');

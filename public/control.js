@@ -140,6 +140,20 @@ function syncFromState(s) {
   if (sbColorEl) sbColorEl.value = s.sbBgColor || '#0E0E12';
   if (sbOpacityEl) sbOpacityEl.value = s.sbBgOpacity ?? 100;
 
+  // Scoreboard scale/position
+  const sbScale = s.sbScale ?? 100;
+  const sbX = s.sbX ?? 0;
+  const sbY = s.sbY ?? 0;
+  const scaleR = document.getElementById('sb-scale-range');
+  const scaleN = document.getElementById('sb-scale-num');
+  const xR = document.getElementById('sb-x-range');
+  const xN = document.getElementById('sb-x-num');
+  const yR = document.getElementById('sb-y-range');
+  const yN = document.getElementById('sb-y-num');
+  if (scaleR) { scaleR.value = sbScale; scaleN.value = sbScale; }
+  if (xR) { xR.value = sbX; xN.value = sbX; }
+  if (yR) { yR.value = sbY; yN.value = sbY; }
+
   // Swap button
   document.getElementById('btn-swap').classList.toggle('active', !!s.swapped);
 
@@ -207,6 +221,9 @@ function buildStateFromForm() {
     particleOpacity:    parseInt(document.getElementById('particle-opacity-num')?.value ?? 100),
     particleCountScale: parseInt(document.getElementById('particle-count-num')?.value ?? 100),
     particlesEnabled:   state.particlesEnabled !== false,
+    sbScale: parseInt(document.getElementById('sb-scale-num')?.value ?? 100),
+    sbX:     parseInt(document.getElementById('sb-x-num')?.value ?? 0),
+    sbY:     parseInt(document.getElementById('sb-y-num')?.value ?? 0),
   };
 }
 
@@ -872,6 +889,8 @@ document.getElementById('stage-modal').addEventListener('click', (e) => {
 // Internal representation: [{player:1, count:2}, {player:2, count:2}]
 let banBuilderG1 = [];
 let banBuilderG2 = [];
+let banPickG1 = false;
+let banPickG2 = false;
 
 function parseBanPattern(str) {
   return str.split('-').map(n => parseInt(n)).filter(n => n > 0);
@@ -901,6 +920,8 @@ function renderBanBuilder(key) {
   countEl.style.color = remaining === 0 ? 'var(--gold)' : remaining < 0 ? 'var(--danger)' : 'var(--text-muted)';
 
   stepsEl.innerHTML = '';
+
+  const hasPick = key === 'g1' ? banPickG1 : banPickG2;
 
   builder.forEach((step, i) => {
     if (i > 0) {
@@ -940,14 +961,42 @@ function renderBanBuilder(key) {
     block.appendChild(del);
     stepsEl.appendChild(block);
   });
+
+  // Pick terminal block
+  if (hasPick) {
+    if (builder.length > 0) {
+      const arrow = document.createElement('span');
+      arrow.className = 'ban-seq-arrow';
+      arrow.textContent = '→';
+      stepsEl.appendChild(arrow);
+    }
+    const block = document.createElement('div');
+    block.className = 'ban-seq-block pick';
+    const label = document.createElement('span');
+    label.textContent = '✓ Map jouée';
+    const del = document.createElement('button');
+    del.textContent = '×';
+    del.className = 'ban-seq-del';
+    del.addEventListener('click', () => {
+      if (key === 'g1') banPickG1 = false; else banPickG2 = false;
+      onBuilderChange(key);
+    });
+    block.appendChild(label);
+    block.appendChild(del);
+    stepsEl.appendChild(block);
+  }
+
+  // Enable/disable the pick button
+  const pickBtn = document.querySelector(`.ban-seq-btn.pick[data-builder="${key}"]`);
+  if (pickBtn) pickBtn.disabled = hasPick;
 }
 
 function onBuilderChange(key) {
   const builder = key === 'g1' ? banBuilderG1 : banBuilderG2;
   const pattern = builderToPattern(builder);
   document.getElementById(`ban-pattern-${key}`).value = pattern;
-  if (key === 'g1') rulesetState.banPatternGame1 = pattern;
-  else rulesetState.banPatternGame2 = pattern;
+  if (key === 'g1') { rulesetState.banPatternGame1 = pattern; rulesetState.pickG1 = banPickG1; }
+  else { rulesetState.banPatternGame2 = pattern; rulesetState.pickG2 = banPickG2; }
   renderBanBuilder(key);
   updateBanPreview();
 }
@@ -971,6 +1020,8 @@ function syncBanUI() {
   const first = rulesetState.firstBanner || 1;
   banBuilderG1 = patternToBuilder(rulesetState.banPatternGame1 || '2-2', first);
   banBuilderG2 = patternToBuilder(rulesetState.banPatternGame2 || '1', first);
+  banPickG1 = !!rulesetState.pickG1;
+  banPickG2 = !!rulesetState.pickG2;
   document.getElementById('stage-clause').checked = !!rulesetState.stageClause;
   document.querySelectorAll('.ban-first-btn').forEach(b => {
     b.classList.toggle('active', parseInt(b.dataset.first) === first);
@@ -980,7 +1031,7 @@ function syncBanUI() {
   updateBanPreview();
 }
 
-document.querySelectorAll('.ban-seq-btn').forEach(btn => {
+document.querySelectorAll('.ban-seq-btn:not(.pick)').forEach(btn => {
   btn.addEventListener('click', () => {
     const key = btn.dataset.builder;
     const player = parseInt(btn.dataset.player);
@@ -988,6 +1039,14 @@ document.querySelectorAll('.ban-seq-btn').forEach(btn => {
     const last = builder[builder.length - 1];
     if (last && last.player === player) last.count++;
     else builder.push({ player, count: 1 });
+    onBuilderChange(key);
+  });
+});
+
+document.querySelectorAll('.ban-seq-btn.pick').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const key = btn.dataset.builder;
+    if (key === 'g1') banPickG1 = true; else banPickG2 = true;
     onBuilderChange(key);
   });
 });
@@ -1097,7 +1156,6 @@ function renderSavedRulesets(list) {
 document.getElementById('btn-ruleset-save').addEventListener('click', () => {
   const name = document.getElementById('ruleset-save-name').value.trim();
   if (!name) { setStatus('Nom requis', 'error'); return; }
-  rulesetState.bansPerPlayer = parseInt(document.getElementById('bans-per-player').value) || 2;
   fetch('/api/rulesets/saved', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -1257,6 +1315,24 @@ document.getElementById('logo-particles-num').addEventListener('change', functio
   emitState(buildStateFromForm());
 });
 
+// Scoreboard scale/position sliders — sync range ↔ number and emit
+[
+  { id: 'sb-scale', min: 50,   max: 200 },
+  { id: 'sb-x',    min: -960,  max: 960 },
+  { id: 'sb-y',    min: -200,  max: 600 },
+].forEach(({ id, min, max }) => {
+  document.getElementById(id + '-range').addEventListener('input', function () {
+    document.getElementById(id + '-num').value = this.value;
+    emitState(buildStateFromForm());
+  });
+  document.getElementById(id + '-num').addEventListener('change', function () {
+    let v = Math.min(max, Math.max(min, parseInt(this.value) || 0));
+    this.value = v;
+    document.getElementById(id + '-range').value = v;
+    emitState(buildStateFromForm());
+  });
+});
+
 // Flag position sliders — sync range ↔ number and emit
 ['p1-flag-x', 'p1-flag-y', 'p2-flag-x', 'p2-flag-y'].forEach(id => {
   document.getElementById(id + '-range').addEventListener('input', function () {
@@ -1276,6 +1352,64 @@ document.getElementById('btn-apply-logo').addEventListener('click', () => {
   updateLogoPreview();
   setStatus('Logo appliqué !');
 });
+
+// ── VS Screen background ───────────────────────────────────────
+
+(function () {
+  const fileInput   = document.getElementById('vs-bg-file');
+  const previewWrap = document.getElementById('vs-bg-preview-wrap');
+  const previewImg  = document.getElementById('vs-bg-preview');
+  const clearBtn    = document.getElementById('btn-vs-bg-clear');
+  const statusEl    = document.getElementById('vs-bg-status');
+
+  function showPreview(url) {
+    previewImg.src = url;
+    previewWrap.style.display = 'block';
+  }
+  function hidePreview() {
+    previewWrap.style.display = 'none';
+    previewImg.src = '';
+  }
+
+  // Charger le background existant au démarrage
+  fetch('/api/vs-background').then(r => r.json()).then(({ url }) => {
+    if (url) showPreview(url + '?t=' + Date.now());
+  });
+
+  fileInput.addEventListener('change', () => {
+    const file = fileInput.files[0];
+    if (!file) return;
+    statusEl.textContent = 'Envoi en cours…';
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      const dataUrl = e.target.result;
+      const base64  = dataUrl.split(',')[1];
+      try {
+        const res = await fetch('/api/vs-background', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ filename: file.name, data: base64 }),
+        });
+        const { url, error } = await res.json();
+        if (error) { statusEl.textContent = 'Erreur : ' + error; return; }
+        showPreview(url + '?t=' + Date.now());
+        statusEl.textContent = 'Background appliqué !';
+        setTimeout(() => { statusEl.textContent = ''; }, 2000);
+      } catch (err) {
+        statusEl.textContent = 'Erreur réseau';
+      }
+    };
+    reader.readAsDataURL(file);
+    fileInput.value = '';
+  });
+
+  clearBtn.addEventListener('click', async () => {
+    await fetch('/api/vs-background', { method: 'DELETE' });
+    hidePreview();
+    statusEl.textContent = 'Background supprimé';
+    setTimeout(() => { statusEl.textContent = ''; }, 2000);
+  });
+})();
 
 // Boutons copie dans tab customisation
 document.querySelectorAll('.obs-url-item .btn-copy[data-url]').forEach(btn => {
@@ -1359,6 +1493,17 @@ document.getElementById('casters-bg-opacity').addEventListener('input', (e) => {
 // ── Thèmes ────────────────────────────────────────────────────
 
 const THEMES = {
+  dual: {
+    sbBgColor:       '#0A0A0E',
+    sbBgOpacity:     100,
+    eventTextColor:  '#E8B830',
+    eventTextSize:   12,
+    tagColor:        '#E8B830',
+    nameColor:       '#F0EEF8',
+    pronounsColor:   '#5A5A7A',
+    castersBgColor:  '#0A0A0E',
+    castersBgOpacity: 100,
+  },
   default: {
     sbBgColor:       '#0E0E12',
     sbBgOpacity:     100,

@@ -19,6 +19,15 @@ html, body {
   font-family: 'Russo One', sans-serif;
 }
 
+/* ── Background custom uploadé ───────────────────── */
+#vs-custom-bg {
+  position: absolute; inset: 0;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  z-index: 0;
+}
+
 /* ── Background (stage image) ─────────────────────── */
 #vs-bg {
   position: absolute; inset: 0;
@@ -112,10 +121,10 @@ html, body {
 /* ── Art du personnage ────────────────────────────── */
 .vs-char-wrap {
   position: absolute;
-  bottom: 120px;
+  bottom: 0;
   left: -40px;
   width: 820px;
-  height: 860px;
+  height: 1080px;
   display: flex;
   align-items: flex-end;
   justify-content: flex-start;
@@ -130,10 +139,10 @@ html, body {
   left: auto;
   right: -40px;
   justify-content: flex-end;
-  transform: translateX(120px) scaleX(-1);
+  transform: translateX(120px);
 }
 .vs-char-wrap.vs-flip.vs-in {
-  transform: translateX(0) scaleX(-1);
+  transform: translateX(0);
 }
 .vs-char-wrap.vs-in:not(.vs-flip) {
   transform: translateX(0);
@@ -142,9 +151,12 @@ html, body {
 .vs-char-wrap.vs-in.vs-flip {
   opacity: 1;
 }
+.vs-char-wrap:not(.vs-flip) .vs-char-img {
+  transform: scaleX(-1);
+}
 
 .vs-char-img {
-  max-height: 860px;
+  max-height: 1080px;
   max-width: 780px;
   object-fit: contain;
   object-position: bottom center;

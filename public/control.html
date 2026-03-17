@@ -314,6 +314,7 @@
           <div class="ban-seq-add-row">
             <button class="ban-seq-btn p1" data-builder="g1" data-player="1">+ J1</button>
             <button class="ban-seq-btn p2" data-builder="g1" data-player="2">+ J2</button>
+            <button class="ban-seq-btn pick" data-builder="g1">+ Map sélectionnée</button>
           </div>
           <input type="hidden" id="ban-pattern-g1" value="2-2" />
         </div>
@@ -327,6 +328,7 @@
           <div class="ban-seq-add-row">
             <button class="ban-seq-btn p1" data-builder="g2" data-player="1">+ J1</button>
             <button class="ban-seq-btn p2" data-builder="g2" data-player="2">+ J2</button>
+            <button class="ban-seq-btn pick" data-builder="g2">+ Map sélectionnée</button>
           </div>
           <input type="hidden" id="ban-pattern-g2" value="1" />
         </div>
@@ -381,6 +383,31 @@
           <div class="theme-btn-row">
             <button class="overlay-style-btn theme-btn active" data-style="full">Full ▬</button>
             <button class="overlay-style-btn theme-btn" data-style="slim">Slim —</button>
+          </div>
+        </div>
+
+        <div class="custom-card">
+          <h3>Position &amp; Taille</h3>
+          <div class="form-group" style="margin-bottom:12px">
+            <label>Taille <span class="hint">50 – 200 %</span></label>
+            <div class="logo-particles-row">
+              <input type="range" id="sb-scale-range" min="50" max="200" value="100" step="1" />
+              <input type="number" id="sb-scale-num" min="50" max="200" value="100" step="1" style="width:60px" />
+            </div>
+          </div>
+          <div class="form-group" style="margin-bottom:12px">
+            <label>Axe X <span class="hint">−960 – 960 px</span></label>
+            <div class="logo-particles-row">
+              <input type="range" id="sb-x-range" min="-960" max="960" value="0" step="1" />
+              <input type="number" id="sb-x-num" min="-960" max="960" value="0" step="1" style="width:66px" />
+            </div>
+          </div>
+          <div class="form-group" style="margin:0">
+            <label>Axe Y <span class="hint">−200 – 600 px</span></label>
+            <div class="logo-particles-row">
+              <input type="range" id="sb-y-range" min="-200" max="600" value="0" step="1" />
+              <input type="number" id="sb-y-num" min="-200" max="600" value="0" step="1" style="width:66px" />
+            </div>
           </div>
         </div>
         <div class="custom-card">
@@ -537,6 +564,27 @@
     </section>
 
     <section class="section">
+      <div class="section-header"><h2>VS Screen</h2></div>
+      <div class="custom-grid">
+        <div class="custom-card">
+          <h3>Background (1920×1080)</h3>
+          <p class="hint" style="margin-bottom:10px">PNG, JPG ou WebP. Affiché derrière le fond de scène floutée.</p>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <label class="btn btn-outline" style="cursor:pointer;text-align:center">
+              Choisir une image
+              <input type="file" id="vs-bg-file" accept="image/png,image/jpeg,image/webp" style="display:none" />
+            </label>
+            <div id="vs-bg-preview-wrap" style="display:none;position:relative">
+              <img id="vs-bg-preview" style="width:100%;border-radius:6px;border:1px solid var(--border);display:block" alt="aperçu" />
+              <button id="btn-vs-bg-clear" class="btn btn-sm" style="margin-top:6px;width:100%;background:rgba(220,50,50,0.15);color:#e05050;border:1px solid rgba(220,50,50,0.3)">Supprimer</button>
+            </div>
+            <p id="vs-bg-status" class="hint" style="text-align:center"></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
       <div class="section-header"><h2>Thèmes</h2></div>
       <div class="themes-grid" id="themes-grid">
 
@@ -549,7 +597,7 @@
             <div style="position:absolute;left:50%;top:0;bottom:0;width:1px;background:rgba(255,255,255,0.25)"></div>
             <span style="position:relative;font-family:'Russo One',sans-serif;font-size:11px;letter-spacing:1px;background:linear-gradient(135deg,#E52222,#1A6BFF);-webkit-background-clip:text;-webkit-text-fill-color:transparent">DUAL PERSO</span>
           </div>
-          <div class="theme-preset-name">Dual Personnages <span style="font-size:10px;opacity:0.6">(auto)</span></div>
+          <div class="theme-preset-name">Dual Personnages</div>
         </div>
 
         <!-- ── Ambiances ── -->
