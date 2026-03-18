@@ -2817,7 +2817,7 @@ body {
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   TRANSPARENT THEME
+   TRANSPARENT THEME  (basé sur la disposition Slim)
    ═══════════════════════════════════════════════════════════════ */
 
 #scoreboard.theme-transparent {
@@ -2832,171 +2832,121 @@ body {
   align-items: flex-start;
 }
 
-/* Masquer tous les éléments de structure */
-#scoreboard.theme-transparent .event-bar,
-#scoreboard.theme-transparent .slim-layout,
-#scoreboard.theme-transparent .series-dots,
-#scoreboard.theme-transparent .score-vs,
-#scoreboard.theme-transparent .center-logo-area,
-#scoreboard.theme-transparent .char-placeholder,
+/* Masquer la disposition full et tous les éléments de chrome */
+#scoreboard.theme-transparent .full-layout,
 #scoreboard.theme-transparent #theme-logo-bg,
-#scoreboard.theme-transparent #particle-canvas {
+#scoreboard.theme-transparent #particle-canvas,
+#scoreboard.theme-transparent .slim-center-logo,
+#scoreboard.theme-transparent .slim-icon-sep {
   display: none !important;
 }
 
-/* Supprimer les stries animées des pseudo-éléments */
-#scoreboard.theme-transparent .player-left::after,
-#scoreboard.theme-transparent .player-right::after,
-#scoreboard.theme-transparent .score-center::after,
+/* ── Barre événement — transparente, positionnée librement ───── */
+
+#scoreboard.theme-transparent .event-bar {
+  display: flex !important;
+  position: absolute !important;
+  left: var(--tp-event-x, 720px) !important;
+  top:  var(--tp-event-y, 0px)   !important;
+  background: transparent !important;
+  border: none !important;
+  clip-path: none !important;
+  white-space: nowrap;
+  text-shadow: 0 2px 10px rgba(0,0,0,1), 0 0 4px rgba(0,0,0,1);
+}
+
+/* Supprimer les stries animées */
 #scoreboard.theme-transparent .slim-bar::before {
   display: none !important;
-  background: none !important;
   animation: none !important;
 }
 
-/* Stopper l'animation glow sur le portrait */
-#scoreboard.theme-transparent .player-character {
-  animation: none !important;
-}
+/* ── Slim layout — canvas complet ────────────────────────────── */
 
-/* Full layout — canvas complet */
-#scoreboard.theme-transparent .full-layout {
+#scoreboard.theme-transparent .slim-layout {
+  display: block !important;
   position: absolute !important;
   inset: 0 !important;
-  background: transparent !important;
 }
 
-#scoreboard.theme-transparent .players-container {
+#scoreboard.theme-transparent .slim-bar {
   position: absolute !important;
-  inset: 0 !important;
+  left: 0 !important; top: 0 !important;
+  width: 1920px !important; height: 1080px !important;
   display: block !important;
   background: transparent !important;
   border: none !important;
+  overflow: visible !important;
 }
 
-/* Blocs joueurs — étendus sur tout le canvas */
-#scoreboard.theme-transparent #player1-block,
-#scoreboard.theme-transparent #player2-block {
+#scoreboard.theme-transparent #player1-block-slim,
+#scoreboard.theme-transparent #player2-block-slim {
   position: absolute !important;
-  left: 0 !important;
-  top: 0 !important;
-  width: 1920px !important;
-  height: 1080px !important;
+  left: 0 !important; top: 0 !important;
+  width: 1920px !important; height: 1080px !important;
+  display: block !important;
   background: transparent !important;
   border: none !important;
   overflow: visible !important;
-  min-width: 0 !important;
-  flex: none !important;
-}
-
-#scoreboard.theme-transparent .player-info {
-  position: absolute !important;
-  left: 0 !important;
-  top: 0 !important;
-  width: 100% !important;
-  height: 100% !important;
-  background: transparent !important;
-  overflow: visible !important;
-}
-
-/* ── Personnage ──────────────────────────────────────────────── */
-
-#scoreboard.theme-transparent #p1-character {
-  position: absolute !important;
-  left: var(--tp-p1-char-x, 560px) !important;
-  top:  var(--tp-p1-char-y, 28px)  !important;
-  width: 300px !important;
-  height: auto !important;
-  overflow: visible !important;
-  background: transparent !important;
-  border: none !important;
-}
-
-#scoreboard.theme-transparent #p2-character {
-  position: absolute !important;
-  left: var(--tp-p2-char-x, 1260px) !important;
-  top:  var(--tp-p2-char-y, 28px)   !important;
-  width: 300px !important;
-  height: auto !important;
-  overflow: visible !important;
-  background: transparent !important;
-  border: none !important;
-}
-
-#scoreboard.theme-transparent .player-character img {
-  width: 300px !important;
-  height: auto !important;
-  object-fit: contain !important;
-  object-position: top center !important;
-  filter: drop-shadow(0 4px 24px rgba(0,0,0,0.85));
-}
-
-/* ── Nom / Tag ───────────────────────────────────────────────── */
-
-#scoreboard.theme-transparent #p1-name {
-  position: absolute !important;
-  left: var(--tp-p1-name-x, 680px) !important;
-  top:  var(--tp-p1-name-y, 60px)  !important;
   padding: 0 !important;
+  gap: 0 !important;
+}
+
+/* ── Icône de stock ──────────────────────────────────────────── */
+
+#scoreboard.theme-transparent #p1-stock-icon {
+  position: absolute !important;
+  left: var(--tp-p1-icon-x, 631px) !important;
+  top:  var(--tp-p1-icon-y, 28px)  !important;
+  width: 64px !important; height: 64px !important;
+}
+
+#scoreboard.theme-transparent #p2-stock-icon {
+  position: absolute !important;
+  left: var(--tp-p2-icon-x, 1222px) !important;
+  top:  var(--tp-p2-icon-y, 28px)   !important;
+  width: 64px !important; height: 64px !important;
+}
+
+/* ── Nom ─────────────────────────────────────────────────────── */
+
+#scoreboard.theme-transparent #p1-name-slim {
+  position: absolute !important;
+  left: var(--tp-p1-name-x, 724px) !important;
+  top:  var(--tp-p1-name-y, 50px)  !important;
   white-space: nowrap !important;
-  text-align: left !important;
+  text-shadow: 0 2px 12px rgba(0,0,0,1), 0 0 4px rgba(0,0,0,1);
 }
 
-#scoreboard.theme-transparent #p2-name {
+#scoreboard.theme-transparent #p2-name-slim {
   position: absolute !important;
-  left: var(--tp-p2-name-x, 1060px) !important;
-  top:  var(--tp-p2-name-y, 60px)   !important;
-  padding: 0 !important;
+  left: var(--tp-p2-name-x, 1056px) !important;
+  top:  var(--tp-p2-name-y, 50px)   !important;
   white-space: nowrap !important;
-  text-align: left !important;
+  text-shadow: 0 2px 12px rgba(0,0,0,1), 0 0 4px rgba(0,0,0,1);
 }
 
-#scoreboard.theme-transparent .player-name-text {
-  text-shadow: 0 2px 14px rgba(0,0,0,1), 0 0 4px rgba(0,0,0,1);
-}
+/* ── Scores ──────────────────────────────────────────────────── */
 
-#scoreboard.theme-transparent .player-tag {
-  text-shadow: 0 1px 8px rgba(0,0,0,1);
-}
-
-/* ── Drapeau ─────────────────────────────────────────────────── */
-
-#scoreboard.theme-transparent #p1-flag-img {
+#scoreboard.theme-transparent .slim-scores {
   position: absolute !important;
-  left:   var(--tp-p1-flag-x, 828px) !important;
-  top:    var(--tp-p1-flag-y, 94px)  !important;
-  right:  auto !important;
-  bottom: auto !important;
-  transform: none !important;
-}
-
-#scoreboard.theme-transparent #p2-flag-img {
-  position: absolute !important;
-  left:   var(--tp-p2-flag-x, 1040px) !important;
-  top:    var(--tp-p2-flag-y, 94px)   !important;
-  right:  auto !important;
-  bottom: auto !important;
-  transform: none !important;
-}
-
-/* ── Score ───────────────────────────────────────────────────── */
-
-#scoreboard.theme-transparent .score-center {
-  position: absolute !important;
-  left:   var(--tp-score-x, 880px) !important;
+  left:   var(--tp-score-x, 886px) !important;
   top:    var(--tp-score-y, 28px)  !important;
-  width: auto !important;
   flex: none !important;
-  background: transparent !important;
-  border: none !important;
-}
-
-#scoreboard.theme-transparent .score-box {
   background: transparent !important;
   border: none !important;
   box-shadow: none !important;
 }
 
-#scoreboard.theme-transparent .score {
+#scoreboard.theme-transparent .slim-scores::before,
+#scoreboard.theme-transparent .slim-scores::after {
+  display: none !important;
+}
+
+#scoreboard.theme-transparent .slim-score {
   text-shadow: 0 3px 18px rgba(0,0,0,0.9), 0 0 5px rgba(0,0,0,1);
+}
+
+#scoreboard.theme-transparent .slim-vs {
+  text-shadow: 0 2px 8px rgba(0,0,0,0.9);
 }

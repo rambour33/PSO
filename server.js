@@ -4,7 +4,19 @@ const { Server } = require('socket.io');
 const path = require('path');
 const fs = require('fs');
 
-const RULESETS_FILE = path.join(__dirname, 'data', 'rulesets.json');
+const RULESETS_FILE      = path.join(__dirname, 'data', 'rulesets.json');
+const THEME_PRESETS_FILE = path.join(__dirname, 'data', 'theme-presets.json');
+
+function loadThemePresets() {
+  try {
+    if (!fs.existsSync(THEME_PRESETS_FILE)) return [];
+    return JSON.parse(fs.readFileSync(THEME_PRESETS_FILE, 'utf8'));
+  } catch { return []; }
+}
+
+function saveThemePresets(list) {
+  fs.writeFileSync(THEME_PRESETS_FILE, JSON.stringify(list, null, 2));
+}
 
 function loadRulesets() {
   try {
@@ -57,13 +69,12 @@ let matchState = {
   sbX: 0,
   sbY: 0,
   transparentPositions: {
-    p1Char: { x: 560,  y: 28 },
-    p1Name: { x: 680,  y: 60 },
-    p1Flag: { x: 828,  y: 94 },
-    p2Char: { x: 1260, y: 28 },
-    p2Name: { x: 1060, y: 60 },
-    p2Flag: { x: 1040, y: 94 },
-    score:  { x: 880,  y: 28 },
+    event:  { x: 720,  y: 0  },
+    p1Icon: { x: 631,  y: 28 },
+    p1Name: { x: 724,  y: 50 },
+    score:  { x: 886,  y: 28 },
+    p2Name: { x: 1056, y: 50 },
+    p2Icon: { x: 1222, y: 28 },
   }
 };
 
@@ -299,6 +310,25 @@ app.post('/api/rulesets/saved', (req, res) => {
 app.delete('/api/rulesets/saved/:name', (req, res) => {
   const list = loadRulesets().filter(r => r.name !== decodeURIComponent(req.params.name));
   saveRulesets(list);
+  res.json(list);
+});
+
+// ── Theme presets ──────────────────────────────────────────────────────────────
+
+app.get('/api/theme-presets', (req, res) => res.json(loadThemePresets()));
+
+app.post('/api/theme-presets', (req, res) => {
+  const { name, preset } = req.body;
+  if (!name) return res.status(400).json({ error: 'name required' });
+  const list = loadThemePresets().filter(p => p.name !== name);
+  list.push({ name, preset });
+  saveThemePresets(list);
+  res.json(list);
+});
+
+app.delete('/api/theme-presets/:name', (req, res) => {
+  const list = loadThemePresets().filter(p => p.name !== decodeURIComponent(req.params.name));
+  saveThemePresets(list);
   res.json(list);
 });
 

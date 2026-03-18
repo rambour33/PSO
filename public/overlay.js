@@ -2229,13 +2229,12 @@ function update(s) {
       sb.style.setProperty('--tp-' + varSuffix + '-x', (p.x ?? dx) + 'px');
       sb.style.setProperty('--tp-' + varSuffix + '-y', (p.y ?? dy) + 'px');
     }
-    setTP('p1-char', 'p1Char', 560,  28);
-    setTP('p1-name', 'p1Name', 680,  60);
-    setTP('p1-flag', 'p1Flag', 828,  94);
-    setTP('p2-char', 'p2Char', 1260, 28);
-    setTP('p2-name', 'p2Name', 1060, 60);
-    setTP('p2-flag', 'p2Flag', 1040, 94);
-    setTP('score',   'score',  880,  28);
+    setTP('event',   'event',  720,  0);
+    setTP('p1-icon', 'p1Icon', 631,  28);
+    setTP('p1-name', 'p1Name', 724,  50);
+    setTP('score',   'score',  886,  28);
+    setTP('p2-name', 'p2Name', 1056, 50);
+    setTP('p2-icon', 'p2Icon', 1222, 28);
   }
 
   currentState = JSON.parse(JSON.stringify(s));

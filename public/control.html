@@ -607,41 +607,40 @@
           <p style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">Position des éléments (px)</p>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
 
-            <!-- J1 -->
-            <div style="grid-column:1/-1;font-size:11px;color:var(--gold);text-transform:uppercase;letter-spacing:1px;margin-top:4px">Joueur 1</div>
-            <div class="tp-pos-row"><span class="tp-pos-label">Personnage</span>
-              <label>X<input type="number" class="tp-input" id="tp-p1Char-x" value="560"/></label>
-              <label>Y<input type="number" class="tp-input" id="tp-p1Char-y" value="28"/></label>
-            </div>
-            <div class="tp-pos-row"><span class="tp-pos-label">Nom / Tag</span>
-              <label>X<input type="number" class="tp-input" id="tp-p1Name-x" value="680"/></label>
-              <label>Y<input type="number" class="tp-input" id="tp-p1Name-y" value="60"/></label>
-            </div>
-            <div class="tp-pos-row"><span class="tp-pos-label">Drapeau</span>
-              <label>X<input type="number" class="tp-input" id="tp-p1Flag-x" value="828"/></label>
-              <label>Y<input type="number" class="tp-input" id="tp-p1Flag-y" value="94"/></label>
+            <!-- Événement -->
+            <div style="grid-column:1/-1;font-size:11px;color:var(--gold);text-transform:uppercase;letter-spacing:1px;margin-top:4px">Événement</div>
+            <div class="tp-pos-row"><span class="tp-pos-label">Barre événement</span>
+              <label>X<input type="number" class="tp-input" id="tp-event-x" value="720"/></label>
+              <label>Y<input type="number" class="tp-input" id="tp-event-y" value="0"/></label>
             </div>
 
-            <!-- J2 -->
-            <div style="grid-column:1/-1;font-size:11px;color:var(--gold);text-transform:uppercase;letter-spacing:1px;margin-top:8px">Joueur 2</div>
-            <div class="tp-pos-row"><span class="tp-pos-label">Personnage</span>
-              <label>X<input type="number" class="tp-input" id="tp-p2Char-x" value="1260"/></label>
-              <label>Y<input type="number" class="tp-input" id="tp-p2Char-y" value="28"/></label>
+            <!-- J1 -->
+            <div style="grid-column:1/-1;font-size:11px;color:var(--gold);text-transform:uppercase;letter-spacing:1px;margin-top:8px">Joueur 1</div>
+            <div class="tp-pos-row"><span class="tp-pos-label">Icône perso</span>
+              <label>X<input type="number" class="tp-input" id="tp-p1Icon-x" value="631"/></label>
+              <label>Y<input type="number" class="tp-input" id="tp-p1Icon-y" value="28"/></label>
             </div>
-            <div class="tp-pos-row"><span class="tp-pos-label">Nom / Tag</span>
-              <label>X<input type="number" class="tp-input" id="tp-p2Name-x" value="1060"/></label>
-              <label>Y<input type="number" class="tp-input" id="tp-p2Name-y" value="60"/></label>
-            </div>
-            <div class="tp-pos-row"><span class="tp-pos-label">Drapeau</span>
-              <label>X<input type="number" class="tp-input" id="tp-p2Flag-x" value="1040"/></label>
-              <label>Y<input type="number" class="tp-input" id="tp-p2Flag-y" value="94"/></label>
+            <div class="tp-pos-row"><span class="tp-pos-label">Nom</span>
+              <label>X<input type="number" class="tp-input" id="tp-p1Name-x" value="724"/></label>
+              <label>Y<input type="number" class="tp-input" id="tp-p1Name-y" value="50"/></label>
             </div>
 
             <!-- Score -->
             <div style="grid-column:1/-1;font-size:11px;color:var(--gold);text-transform:uppercase;letter-spacing:1px;margin-top:8px">Score</div>
             <div class="tp-pos-row"><span class="tp-pos-label">Score VS</span>
-              <label>X<input type="number" class="tp-input" id="tp-score-x" value="880"/></label>
+              <label>X<input type="number" class="tp-input" id="tp-score-x" value="886"/></label>
               <label>Y<input type="number" class="tp-input" id="tp-score-y" value="28"/></label>
+            </div>
+
+            <!-- J2 -->
+            <div style="grid-column:1/-1;font-size:11px;color:var(--gold);text-transform:uppercase;letter-spacing:1px;margin-top:8px">Joueur 2</div>
+            <div class="tp-pos-row"><span class="tp-pos-label">Nom</span>
+              <label>X<input type="number" class="tp-input" id="tp-p2Name-x" value="1056"/></label>
+              <label>Y<input type="number" class="tp-input" id="tp-p2Name-y" value="50"/></label>
+            </div>
+            <div class="tp-pos-row"><span class="tp-pos-label">Icône perso</span>
+              <label>X<input type="number" class="tp-input" id="tp-p2Icon-x" value="1222"/></label>
+              <label>Y<input type="number" class="tp-input" id="tp-p2Icon-y" value="28"/></label>
             </div>
 
           </div>
@@ -1471,6 +1470,19 @@
             </div>
           </div>
         </div>
+      </div>
+    </section>
+
+    <!-- Sauvegarde de thème -->
+    <section class="section">
+      <div class="section-header"><h2>Thèmes sauvegardés</h2></div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <p class="hint">Sauvegarde le thème actuel : couleurs, positions, opacité, style d'affichage, positions transparentes.</p>
+        <div style="display:flex;gap:6px">
+          <input type="text" id="theme-preset-save-name" placeholder="Nom du thème…" style="flex:1" />
+          <button id="btn-theme-preset-save" class="btn btn-primary btn-sm">Enregistrer</button>
+        </div>
+        <div id="saved-theme-presets-list"></div>
       </div>
     </section>
 
