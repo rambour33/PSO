@@ -910,18 +910,18 @@ function renderBanBuilder(key) {
   const builder = key === 'g1' ? banBuilderG1 : banBuilderG2;
   const stepsEl = document.getElementById(`ban-seq-${key}`);
   const countEl = document.getElementById(`ban-builder-${key}-count`);
-  const total = rulesetState.stages.length;
+  const total    = rulesetState.stages.length;
+  const hasPick  = key === 'g1' ? banPickG1 : banPickG2;
+  const maxBans  = Math.max(0, total - (hasPick ? 1 : 0));
   const allocated = builder.reduce((s, b) => s + b.count, 0);
-  const remaining = total > 0 ? total - 1 - allocated : 0;
+  const remaining = maxBans - allocated;
 
   countEl.textContent = total > 0
-    ? `${allocated}/${total - 1} bans — ${remaining >= 0 ? remaining + ' restant(s)' : Math.abs(remaining) + ' en trop'}`
+    ? `${allocated}/${maxBans} bans${hasPick ? ' + 1 pick' : ''} — ${remaining >= 0 ? remaining + ' restant(s)' : Math.abs(remaining) + ' en trop'}`
     : 'Aucun stage dans le ruleset';
   countEl.style.color = remaining === 0 ? 'var(--gold)' : remaining < 0 ? 'var(--danger)' : 'var(--text-muted)';
 
   stepsEl.innerHTML = '';
-
-  const hasPick = key === 'g1' ? banPickG1 : banPickG2;
 
   builder.forEach((step, i) => {
     if (i > 0) {
@@ -943,11 +943,12 @@ function renderBanBuilder(key) {
     });
 
     const label = document.createElement('span');
-    label.textContent = `J${step.player} ×${step.count}`;
+    label.textContent = `${step.player === 1 ? 'Gagnant' : 'Perdant'} ×${step.count}`;
 
     const plus = document.createElement('button');
     plus.textContent = '+';
     plus.className = 'ban-seq-adj';
+    plus.disabled = remaining <= 0;
     plus.addEventListener('click', () => { step.count++; onBuilderChange(key); });
 
     const del = document.createElement('button');
@@ -986,9 +987,12 @@ function renderBanBuilder(key) {
     stepsEl.appendChild(block);
   }
 
-  // Enable/disable the pick button
+  // Enable/disable add buttons
   const pickBtn = document.querySelector(`.ban-seq-btn.pick[data-builder="${key}"]`);
-  if (pickBtn) pickBtn.disabled = hasPick;
+  if (pickBtn) pickBtn.disabled = hasPick || (remaining <= 0 && !hasPick);
+  document.querySelectorAll(`.ban-seq-btn:not(.pick)[data-builder="${key}"]`).forEach(b => {
+    b.disabled = remaining <= 0;
+  });
 }
 
 function onBuilderChange(key) {
@@ -2827,6 +2831,18 @@ const THEMES = {
 };
 
 function applyTheme(key) {
+  // Thème transparent — pas de couleurs à appliquer, juste changer la clé
+  if (key === 'transparent') {
+    state.overlayTheme = 'transparent';
+    emitState(buildStateFromForm());
+    document.querySelectorAll('.theme-preset-card').forEach(c => {
+      c.classList.toggle('active', c.dataset.theme === 'transparent');
+    });
+    const tpPanel = document.getElementById('transparent-pos-panel');
+    if (tpPanel) tpPanel.style.display = 'block';
+    setStatus('Thème "Transparent" appliqué');
+    return;
+  }
   const t = THEMES[key];
   if (!t) return;
 
@@ -2863,6 +2879,10 @@ function applyTheme(key) {
   document.querySelectorAll('.theme-preset-card').forEach(c => {
     c.classList.toggle('active', c.dataset.theme === key);
   });
+
+  // Show/hide transparent position panel
+  const tpPanel = document.getElementById('transparent-pos-panel');
+  if (tpPanel) tpPanel.style.display = key === 'transparent' ? 'block' : 'none';
 
   setStatus(`Thème "${key}" appliqué`);
 }
@@ -2987,3 +3007,50 @@ document.addEventListener('keydown', (e) => {
       break;
   }
 });
+
+// ── Transparent theme — position inputs ──────────────────────
+(function() {
+  const TP_KEYS = [
+    { key: 'p1Char', xId: 'tp-p1Char-x', yId: 'tp-p1Char-y' },
+    { key: 'p1Name', xId: 'tp-p1Name-x', yId: 'tp-p1Name-y' },
+    { key: 'p1Flag', xId: 'tp-p1Flag-x', yId: 'tp-p1Flag-y' },
+    { key: 'p2Char', xId: 'tp-p2Char-x', yId: 'tp-p2Char-y' },
+    { key: 'p2Name', xId: 'tp-p2Name-x', yId: 'tp-p2Name-y' },
+    { key: 'p2Flag', xId: 'tp-p2Flag-x', yId: 'tp-p2Flag-y' },
+    { key: 'score',  xId: 'tp-score-x',  yId: 'tp-score-y'  },
+  ];
+
+  function emitTpPositions() {
+    const positions = {};
+    TP_KEYS.forEach(({ key, xId, yId }) => {
+      positions[key] = {
+        x: parseInt(document.getElementById(xId)?.value ?? 0),
+        y: parseInt(document.getElementById(yId)?.value ?? 0),
+      };
+    });
+    state.transparentPositions = positions;
+    emitState(buildStateFromForm());
+  }
+
+  TP_KEYS.forEach(({ xId, yId }) => {
+    document.getElementById(xId)?.addEventListener('input', emitTpPositions);
+    document.getElementById(yId)?.addEventListener('input', emitTpPositions);
+  });
+
+  // Sync inputs when state is loaded (e.g. on page load)
+  const _origSync = typeof syncUI === 'function' ? syncUI : null;
+  socket.on('stateUpdate', function(s) {
+    if (!s.transparentPositions) return;
+    TP_KEYS.forEach(({ key, xId, yId }) => {
+      const p = s.transparentPositions[key];
+      if (!p) return;
+      const xEl = document.getElementById(xId);
+      const yEl = document.getElementById(yId);
+      if (xEl && document.activeElement !== xEl) xEl.value = p.x;
+      if (yEl && document.activeElement !== yEl) yEl.value = p.y;
+    });
+    // Show panel if transparent theme is active
+    const tpPanel = document.getElementById('transparent-pos-panel');
+    if (tpPanel && s.overlayTheme === 'transparent') tpPanel.style.display = 'block';
+  });
+})();

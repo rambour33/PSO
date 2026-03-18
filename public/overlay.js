@@ -1946,6 +1946,7 @@ function update(s) {
   const prev = currentState;
 
   const sb = document.getElementById('scoreboard');
+  const isTransparent = (s.overlayTheme || 'default') === 'transparent';
   sb.classList.toggle('hidden', !s.visible);
   sb.classList.toggle('swapped', !!s.swapped);
   sb.classList.toggle('style-slim', s.overlayStyle === 'slim');
@@ -1964,7 +1965,7 @@ function update(s) {
    'sken','scloud','scorrin','sbayonetta','sinkling','sridley','ssimon','srichter','skrool','sisabelle',
    'sincineroar','spiranha','sjoker','shero','sbanjo','sterry','sbyleth','sminmin','ssteve','ssephiroth',
    'spyra','smythra','skazuya','ssora','smii_brawl','smii_sword','smii_gun',
-   'dual'].forEach(t => {
+   'dual','transparent'].forEach(t => {
     sb.classList.toggle('theme-' + t, (s.overlayTheme || 'default') === t);
   });
 
@@ -2219,6 +2220,23 @@ function update(s) {
   const max = getFormatMax(s.format, s.customWins);
   renderDots('p1-dots', s.player1.score, max, s.player1.color);
   renderDots('p2-dots', s.player2.score, max, s.player2.color);
+
+  // ── Transparent theme — positions CSS vars ───────────────────
+  if (isTransparent) {
+    const pos = s.transparentPositions || {};
+    function setTP(varSuffix, key, dx, dy) {
+      const p = pos[key] || {};
+      sb.style.setProperty('--tp-' + varSuffix + '-x', (p.x ?? dx) + 'px');
+      sb.style.setProperty('--tp-' + varSuffix + '-y', (p.y ?? dy) + 'px');
+    }
+    setTP('p1-char', 'p1Char', 560,  28);
+    setTP('p1-name', 'p1Name', 680,  60);
+    setTP('p1-flag', 'p1Flag', 828,  94);
+    setTP('p2-char', 'p2Char', 1260, 28);
+    setTP('p2-name', 'p2Name', 1060, 60);
+    setTP('p2-flag', 'p2Flag', 1040, 94);
+    setTP('score',   'score',  880,  28);
+  }
 
   currentState = JSON.parse(JSON.stringify(s));
 }

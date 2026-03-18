@@ -307,6 +307,17 @@
       <div class="section-header"><h2>Ruleset &amp; Banlist</h2></div>
       <div class="ruleset-card">
 
+        <!-- Liste des stages + ajout -->
+        <div id="ruleset-stages-list" class="ruleset-stages-list" style="grid-column:1/-1"></div>
+        <div class="add-stage-form" style="grid-column:1/-1">
+          <h4>Ajouter un stage</h4>
+          <div class="stage-type-row">
+            <label><input type="radio" name="stage-type" value="starter" checked /> Starter</label>
+            <label><input type="radio" name="stage-type" value="counterpick" /> Counterpick</label>
+          </div>
+          <button id="btn-open-stage-picker" class="btn btn-outline btn-full">Choisir un stage…</button>
+        </div>
+
         <!-- Séquences de bans -->
         <div class="ban-builder-block">
           <div class="ban-builder-title">
@@ -315,8 +326,8 @@
           </div>
           <div class="ban-seq-steps" id="ban-seq-g1"></div>
           <div class="ban-seq-add-row">
-            <button class="ban-seq-btn p1" data-builder="g1" data-player="1">+ J1</button>
-            <button class="ban-seq-btn p2" data-builder="g1" data-player="2">+ J2</button>
+            <button class="ban-seq-btn p1" data-builder="g1" data-player="1">+ Gagnant</button>
+            <button class="ban-seq-btn p2" data-builder="g1" data-player="2">+ Perdant</button>
             <button class="ban-seq-btn pick" data-builder="g1">+ Map sélectionnée</button>
           </div>
           <input type="hidden" id="ban-pattern-g1" value="2-2" />
@@ -329,8 +340,8 @@
           </div>
           <div class="ban-seq-steps" id="ban-seq-g2"></div>
           <div class="ban-seq-add-row">
-            <button class="ban-seq-btn p1" data-builder="g2" data-player="1">+ J1</button>
-            <button class="ban-seq-btn p2" data-builder="g2" data-player="2">+ J2</button>
+            <button class="ban-seq-btn p1" data-builder="g2" data-player="1">+ Gagnant</button>
+            <button class="ban-seq-btn p2" data-builder="g2" data-player="2">+ Perdant</button>
             <button class="ban-seq-btn pick" data-builder="g2">+ Map sélectionnée</button>
           </div>
           <input type="hidden" id="ban-pattern-g2" value="1" />
@@ -343,16 +354,6 @@
           <span>Stage clause <span style="font-size:10px;color:var(--text-muted)">(pas de répétition)</span></span>
         </label>
 
-        <!-- Liste des stages + ajout -->
-        <div id="ruleset-stages-list" class="ruleset-stages-list" style="grid-column:1/-1"></div>
-        <div class="add-stage-form" style="grid-column:1/-1">
-          <h4>Ajouter un stage</h4>
-          <div class="stage-type-row">
-            <label><input type="radio" name="stage-type" value="starter" checked /> Starter</label>
-            <label><input type="radio" name="stage-type" value="counterpick" /> Counterpick</label>
-          </div>
-          <button id="btn-open-stage-picker" class="btn btn-outline btn-full">Choisir un stage…</button>
-        </div>
         <button id="btn-save-ruleset" class="btn btn-primary btn-full" style="grid-column:1/-1">Appliquer le ruleset</button>
 
         <!-- Sauvegarde -->
@@ -590,6 +591,61 @@
     <section class="section">
       <div class="section-header"><h2>Thèmes</h2></div>
       <div class="themes-grid" id="themes-grid">
+
+        <!-- ── Transparent ── -->
+        <div class="themes-group-label" style="grid-column:1/-1">Spécial</div>
+
+        <div class="theme-preset-card" data-theme="transparent" style="grid-column:span 2">
+          <div class="theme-preset-preview" style="background:repeating-conic-gradient(#444 0% 25%,#222 0% 50%) 0 0/14px 14px;border:1px dashed rgba(255,255,255,0.25)">
+            <span style="font-family:'Russo One',sans-serif;font-size:11px;letter-spacing:2px;color:#fff;text-shadow:0 1px 6px #000">TRANSPARENT</span>
+          </div>
+          <div class="theme-preset-name">Transparent (libre)</div>
+        </div>
+
+        <!-- Panel positions transparent -->
+        <div id="transparent-pos-panel" style="grid-column:1/-1;display:none;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px;margin-top:4px">
+          <p style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">Position des éléments (px)</p>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+
+            <!-- J1 -->
+            <div style="grid-column:1/-1;font-size:11px;color:var(--gold);text-transform:uppercase;letter-spacing:1px;margin-top:4px">Joueur 1</div>
+            <div class="tp-pos-row"><span class="tp-pos-label">Personnage</span>
+              <label>X<input type="number" class="tp-input" id="tp-p1Char-x" value="560"/></label>
+              <label>Y<input type="number" class="tp-input" id="tp-p1Char-y" value="28"/></label>
+            </div>
+            <div class="tp-pos-row"><span class="tp-pos-label">Nom / Tag</span>
+              <label>X<input type="number" class="tp-input" id="tp-p1Name-x" value="680"/></label>
+              <label>Y<input type="number" class="tp-input" id="tp-p1Name-y" value="60"/></label>
+            </div>
+            <div class="tp-pos-row"><span class="tp-pos-label">Drapeau</span>
+              <label>X<input type="number" class="tp-input" id="tp-p1Flag-x" value="828"/></label>
+              <label>Y<input type="number" class="tp-input" id="tp-p1Flag-y" value="94"/></label>
+            </div>
+
+            <!-- J2 -->
+            <div style="grid-column:1/-1;font-size:11px;color:var(--gold);text-transform:uppercase;letter-spacing:1px;margin-top:8px">Joueur 2</div>
+            <div class="tp-pos-row"><span class="tp-pos-label">Personnage</span>
+              <label>X<input type="number" class="tp-input" id="tp-p2Char-x" value="1260"/></label>
+              <label>Y<input type="number" class="tp-input" id="tp-p2Char-y" value="28"/></label>
+            </div>
+            <div class="tp-pos-row"><span class="tp-pos-label">Nom / Tag</span>
+              <label>X<input type="number" class="tp-input" id="tp-p2Name-x" value="1060"/></label>
+              <label>Y<input type="number" class="tp-input" id="tp-p2Name-y" value="60"/></label>
+            </div>
+            <div class="tp-pos-row"><span class="tp-pos-label">Drapeau</span>
+              <label>X<input type="number" class="tp-input" id="tp-p2Flag-x" value="1040"/></label>
+              <label>Y<input type="number" class="tp-input" id="tp-p2Flag-y" value="94"/></label>
+            </div>
+
+            <!-- Score -->
+            <div style="grid-column:1/-1;font-size:11px;color:var(--gold);text-transform:uppercase;letter-spacing:1px;margin-top:8px">Score</div>
+            <div class="tp-pos-row"><span class="tp-pos-label">Score VS</span>
+              <label>X<input type="number" class="tp-input" id="tp-score-x" value="880"/></label>
+              <label>Y<input type="number" class="tp-input" id="tp-score-y" value="28"/></label>
+            </div>
+
+          </div>
+        </div>
 
         <!-- ── Dual ── -->
         <div class="themes-group-label">Dynamique</div>
