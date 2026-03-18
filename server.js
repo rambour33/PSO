@@ -55,7 +55,16 @@ let matchState = {
   visible: true,
   sbScale: 100,
   sbX: 0,
-  sbY: 0
+  sbY: 0,
+  transparentPositions: {
+    p1Char: { x: 560,  y: 28 },
+    p1Name: { x: 680,  y: 60 },
+    p1Flag: { x: 828,  y: 94 },
+    p2Char: { x: 1260, y: 28 },
+    p2Name: { x: 1060, y: 60 },
+    p2Flag: { x: 1040, y: 94 },
+    score:  { x: 880,  y: 28 },
+  }
 };
 
 let characterList = [
