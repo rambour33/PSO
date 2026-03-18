@@ -3011,13 +3011,12 @@ document.addEventListener('keydown', (e) => {
 // ── Transparent theme — position inputs ──────────────────────
 (function() {
   const TP_KEYS = [
-    { key: 'p1Char', xId: 'tp-p1Char-x', yId: 'tp-p1Char-y' },
+    { key: 'event',  xId: 'tp-event-x',  yId: 'tp-event-y'  },
+    { key: 'p1Icon', xId: 'tp-p1Icon-x', yId: 'tp-p1Icon-y' },
     { key: 'p1Name', xId: 'tp-p1Name-x', yId: 'tp-p1Name-y' },
-    { key: 'p1Flag', xId: 'tp-p1Flag-x', yId: 'tp-p1Flag-y' },
-    { key: 'p2Char', xId: 'tp-p2Char-x', yId: 'tp-p2Char-y' },
-    { key: 'p2Name', xId: 'tp-p2Name-x', yId: 'tp-p2Name-y' },
-    { key: 'p2Flag', xId: 'tp-p2Flag-x', yId: 'tp-p2Flag-y' },
     { key: 'score',  xId: 'tp-score-x',  yId: 'tp-score-y'  },
+    { key: 'p2Name', xId: 'tp-p2Name-x', yId: 'tp-p2Name-y' },
+    { key: 'p2Icon', xId: 'tp-p2Icon-x', yId: 'tp-p2Icon-y' },
   ];
 
   function emitTpPositions() {
@@ -3054,3 +3053,125 @@ document.addEventListener('keydown', (e) => {
     if (tpPanel && s.overlayTheme === 'transparent') tpPanel.style.display = 'block';
   });
 })();
+
+// ── Theme presets ─────────────────────────────────────────────
+
+const THEME_PRESET_FIELDS = [
+  'overlayTheme','overlayStyle',
+  'sbBgColor','sbBgOpacity',
+  'eventTextColor','eventTextSize',
+  'tagColor','nameColor','pronounsColor',
+  'sbScale','sbX','sbY',
+  'particleOpacity','particleCountScale','particlesEnabled','logoParticleCount',
+  'transparentPositions',
+];
+
+function buildThemePreset() {
+  const s = buildStateFromForm();
+  const preset = {};
+  THEME_PRESET_FIELDS.forEach(k => { if (s[k] !== undefined) preset[k] = s[k]; });
+  return preset;
+}
+
+function applyThemePreset(preset) {
+  if (preset.overlayTheme !== undefined) {
+    state.overlayTheme = preset.overlayTheme;
+    applyTheme(preset.overlayTheme);
+  }
+  if (preset.overlayStyle !== undefined) {
+    document.querySelectorAll('.overlay-style-btn').forEach(b => {
+      b.classList.toggle('active', b.dataset.style === preset.overlayStyle);
+    });
+  }
+  const setInput = (id, val) => { const el = document.getElementById(id); if (el && val !== undefined) el.value = val; };
+  setInput('sb-bg-color',    preset.sbBgColor);
+  setInput('sb-bg-opacity',  preset.sbBgOpacity);
+  setInput('event-text-color', preset.eventTextColor);
+  setInput('event-text-size',  preset.eventTextSize);
+  setInput('tag-color',      preset.tagColor);
+  setInput('name-color',     preset.nameColor);
+  setInput('pronouns-color', preset.pronounsColor);
+  setInput('sb-scale-range', preset.sbScale);  setInput('sb-scale-num', preset.sbScale);
+  setInput('sb-x-range',     preset.sbX);      setInput('sb-x-num', preset.sbX);
+  setInput('sb-y-range',     preset.sbY);      setInput('sb-y-num', preset.sbY);
+  setInput('particle-opacity-num',    preset.particleOpacity);
+  setInput('particle-count-num',      preset.particleCountScale);
+  if (preset.transparentPositions) {
+    state.transparentPositions = preset.transparentPositions;
+    const TP_MAP = {
+      event:  ['tp-event-x',  'tp-event-y'],
+      p1Icon: ['tp-p1Icon-x', 'tp-p1Icon-y'],
+      p1Name: ['tp-p1Name-x', 'tp-p1Name-y'],
+      score:  ['tp-score-x',  'tp-score-y'],
+      p2Name: ['tp-p2Name-x', 'tp-p2Name-y'],
+      p2Icon: ['tp-p2Icon-x', 'tp-p2Icon-y'],
+    };
+    Object.entries(TP_MAP).forEach(([key, [xId, yId]]) => {
+      const p = preset.transparentPositions[key];
+      if (!p) return;
+      setInput(xId, p.x); setInput(yId, p.y);
+    });
+  }
+  emitState(buildStateFromForm());
+}
+
+function renderSavedThemePresets(list) {
+  const container = document.getElementById('saved-theme-presets-list');
+  if (!container) return;
+  container.innerHTML = '';
+  if (!list.length) {
+    container.innerHTML = '<div style="font-size:12px;color:var(--text-muted);text-align:center;padding:8px">Aucun thème sauvegardé</div>';
+    return;
+  }
+  list.forEach(({ name, preset }) => {
+    const row = document.createElement('div');
+    row.style.cssText = 'display:flex;align-items:center;gap:6px;padding:5px 0;border-bottom:1px solid var(--border)';
+
+    const themeChip = document.createElement('span');
+    themeChip.style.cssText = 'font-size:10px;color:var(--text-muted);background:var(--surface2);border-radius:3px;padding:1px 5px;flex-shrink:0';
+    themeChip.textContent = preset.overlayTheme || 'default';
+
+    const label = document.createElement('span');
+    label.style.cssText = 'flex:1;font-size:12px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap';
+    label.textContent = name;
+
+    const loadBtn = document.createElement('button');
+    loadBtn.className = 'btn btn-outline btn-sm';
+    loadBtn.textContent = 'Charger';
+    loadBtn.addEventListener('click', () => {
+      applyThemePreset(preset);
+      setStatus(`Thème "${name}" chargé`);
+    });
+
+    const delBtn = document.createElement('button');
+    delBtn.style.cssText = 'background:none;border:none;color:var(--danger);cursor:pointer;font-size:16px;line-height:1;padding:0 2px;flex-shrink:0';
+    delBtn.textContent = '×';
+    delBtn.addEventListener('click', () => {
+      fetch(`/api/theme-presets/${encodeURIComponent(name)}`, { method: 'DELETE' })
+        .then(r => r.json()).then(renderSavedThemePresets);
+      setStatus(`Thème "${name}" supprimé`);
+    });
+
+    row.appendChild(themeChip);
+    row.appendChild(label);
+    row.appendChild(loadBtn);
+    row.appendChild(delBtn);
+    container.appendChild(row);
+  });
+}
+
+document.getElementById('btn-theme-preset-save')?.addEventListener('click', () => {
+  const name = document.getElementById('theme-preset-save-name').value.trim();
+  if (!name) { setStatus('Nom requis', 'error'); return; }
+  fetch('/api/theme-presets', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name, preset: buildThemePreset() }),
+  }).then(r => r.json()).then(list => {
+    renderSavedThemePresets(list);
+    document.getElementById('theme-preset-save-name').value = '';
+    setStatus(`Thème "${name}" enregistré`);
+  });
+});
+
+fetch('/api/theme-presets').then(r => r.json()).then(renderSavedThemePresets);
