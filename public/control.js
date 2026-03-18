@@ -3162,16 +3162,22 @@ function renderSavedThemePresets(list) {
 
 document.getElementById('btn-theme-preset-save')?.addEventListener('click', () => {
   const name = document.getElementById('theme-preset-save-name').value.trim();
-  if (!name) { setStatus('Nom requis', 'error'); return; }
+  if (!name) { setStatus('Nom requis pour enregistrer'); return; }
   fetch('/api/theme-presets', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ name, preset: buildThemePreset() }),
-  }).then(r => r.json()).then(list => {
-    renderSavedThemePresets(list);
-    document.getElementById('theme-preset-save-name').value = '';
-    setStatus(`Thème "${name}" enregistré`);
-  });
+  })
+    .then(r => r.json())
+    .then(list => {
+      renderSavedThemePresets(list);
+      document.getElementById('theme-preset-save-name').value = '';
+      setStatus(`Thème "${name}" enregistré`);
+    })
+    .catch(err => setStatus('Erreur lors de la sauvegarde : ' + err.message));
 });
 
-fetch('/api/theme-presets').then(r => r.json()).then(renderSavedThemePresets);
+fetch('/api/theme-presets')
+  .then(r => r.json())
+  .then(renderSavedThemePresets)
+  .catch(() => {});

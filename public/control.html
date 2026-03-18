@@ -1430,6 +1430,17 @@
           </div>
           <div class="theme-preset-name">Mii Gunner</div>
         </div>
+
+        <!-- ── Sauvegarde ── -->
+        <div class="themes-group-label" style="grid-column:1/-1;margin-top:8px">Enregistrer</div>
+        <div style="grid-column:1/-1;display:flex;flex-direction:column;gap:8px">
+          <div style="display:flex;gap:6px">
+            <input type="text" id="theme-preset-save-name" placeholder="Nom du thème à sauvegarder…" style="flex:1" />
+            <button id="btn-theme-preset-save" class="btn btn-primary btn-sm">💾 Enregistrer</button>
+          </div>
+          <div id="saved-theme-presets-list"></div>
+        </div>
+
       </div>
     </section>
 
@@ -1470,19 +1481,6 @@
             </div>
           </div>
         </div>
-      </div>
-    </section>
-
-    <!-- Sauvegarde de thème -->
-    <section class="section">
-      <div class="section-header"><h2>Thèmes sauvegardés</h2></div>
-      <div style="display:flex;flex-direction:column;gap:10px">
-        <p class="hint">Sauvegarde le thème actuel : couleurs, positions, opacité, style d'affichage, positions transparentes.</p>
-        <div style="display:flex;gap:6px">
-          <input type="text" id="theme-preset-save-name" placeholder="Nom du thème…" style="flex:1" />
-          <button id="btn-theme-preset-save" class="btn btn-primary btn-sm">Enregistrer</button>
-        </div>
-        <div id="saved-theme-presets-list"></div>
       </div>
     </section>
 
