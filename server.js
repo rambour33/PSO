@@ -255,6 +255,46 @@ app.get('/twitch-layout', (req, res) => res.sendFile(path.join(__dirname, 'publi
 app.get('/twitch-viewer', (req, res) => res.sendFile(path.join(__dirname, 'public', 'twitch-viewer.html')));
 app.get('/ticker', (req, res) => res.sendFile(path.join(__dirname, 'public', 'ticker.html')));
 app.get('/frames', (req, res) => res.sendFile(path.join(__dirname, 'public', 'frames.html')));
+app.get('/super-overlay', (req, res) => res.sendFile(path.join(__dirname, 'public', 'super-overlay.html')));
+
+// ─── Super Overlay ──────────────────────────────────────────────────────────────
+
+let superState = {
+  bgColor: 'transparent',
+  layers: [
+    { id: 'overlay',            label: 'Overlay principal',  url: '/overlay',            visible: false, x: 0, y: 0, opacity: 1.0, order: 0  },
+    { id: 'stageveto',          label: 'Stage Veto',         url: '/stageveto',          visible: false, x: 0, y: 0, opacity: 1.0, order: 1  },
+    { id: 'casters',            label: 'Casters',            url: '/casters',            visible: false, x: 0, y: 0, opacity: 1.0, order: 2  },
+    { id: 'vs-screen',          label: 'VS Screen',          url: '/vs-screen',          visible: false, x: 0, y: 0, opacity: 1.0, order: 3  },
+    { id: 'player-stats',       label: 'Stats joueurs',      url: '/player-stats',       visible: false, x: 0, y: 0, opacity: 1.0, order: 4  },
+    { id: 'twitch-layout',      label: 'Twitch Layout',      url: '/twitch-layout',      visible: false, x: 0, y: 0, opacity: 1.0, order: 5  },
+    { id: 'twitch-viewer',      label: 'Viewers Twitch',     url: '/twitch-viewer',      visible: false, x: 0, y: 0, opacity: 1.0, order: 6  },
+    { id: 'ticker',             label: 'Bandeau',            url: '/ticker',             visible: false, x: 0, y: 0, opacity: 1.0, order: 7  },
+    { id: 'frames',             label: 'Cadres',             url: '/frames',             visible: false, x: 0, y: 0, opacity: 1.0, order: 8  },
+    { id: 'h2h',                label: 'H2H',                url: '/h2h',                visible: false, x: 0, y: 0, opacity: 1.0, order: 9  },
+    { id: 'tournament-history', label: 'Historique tournoi', url: '/tournament-history', visible: false, x: 0, y: 0, opacity: 1.0, order: 10 },
+  ],
+};
+
+app.get('/api/super', (req, res) => res.json(superState));
+
+app.post('/api/super', (req, res) => {
+  const { bgColor, layers } = req.body;
+  if (bgColor !== undefined) superState.bgColor = String(bgColor);
+  if (Array.isArray(layers)) {
+    layers.forEach(incoming => {
+      const t = superState.layers.find(l => l.id === incoming.id);
+      if (!t) return;
+      if (incoming.visible  !== undefined) t.visible  = !!incoming.visible;
+      if (incoming.x        !== undefined) t.x        = Number(incoming.x);
+      if (incoming.y        !== undefined) t.y        = Number(incoming.y);
+      if (incoming.opacity  !== undefined) t.opacity  = Math.max(0, Math.min(1, Number(incoming.opacity)));
+      if (incoming.order    !== undefined) t.order    = Number(incoming.order);
+    });
+  }
+  io.emit('superUpdate', superState);
+  res.json({ ok: true });
+});
 
 // ─── Cadres (multi-frame overlay) ─────────────────────────────────────────────
 
@@ -509,6 +549,7 @@ io.on('connection', (socket) => {
   socket.emit('twitch-viewers', { viewers: twitchState.viewers, live: twitchState.live, channel: twitchState.channel });
   socket.emit('tickerUpdate', tickerState);
   socket.emit('framesUpdate', framesState);
+  socket.emit('superUpdate', superState);
 
   // Déclenche l'animation d'entrée sur la VS screen
   socket.on('triggerVsScreen', () => {

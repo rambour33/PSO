@@ -3629,8 +3629,455 @@ document.getElementById('btn-copy-frames-url')?.addEventListener('click', () => 
     .catch(() => { el.select(); document.execCommand('copy'); setStatus('URL cadres copiée'); });
 });
 
+// ── Studio / Super Overlay ────────────────────────────────────────
+
+// Fix URL
+(function () {
+  const el = document.getElementById('super-url');
+  if (el) el.value = window.location.origin + '/super-overlay';
+})();
+
+/* Couleur associée à chaque calque */
+const LAYER_COLORS = {
+  'overlay':            '#E8B830',
+  'stageveto':          '#00F5FF',
+  'casters':            '#FF6EC7',
+  'vs-screen':          '#4488FF',
+  'player-stats':       '#6BC96C',
+  'twitch-layout':      '#FF8C00',
+  'twitch-viewer':      '#9B59D0',
+  'ticker':             '#FF4500',
+  'frames':             '#29B6F6',
+  'h2h':                '#FFD700',
+  'tournament-history': '#FF218C',
+};
+
+let superLocal = { bgColor: 'transparent', layers: [] };
+let studioScale = 0.5;
+
+/* ── Envoi au serveur ────────────────────────────────────────── */
+let _superDebounce = null;
+function superSend() {
+  clearTimeout(_superDebounce);
+  _superDebounce = setTimeout(() => {
+    fetch('/api/super', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(superLocal),
+    }).catch(e => setStatus('Erreur Studio : ' + e.message));
+  }, 120);
+}
+
+/* ── Calcul du scale selon la largeur du container ──────────── */
+function recalcStudioScale() {
+  const container = document.getElementById('studio-canvas-container');
+  const wrap      = document.getElementById('studio-canvas-wrap');
+  const inner     = document.getElementById('studio-canvas-inner');
+  if (!container || !wrap || !inner) return;
+
+  const availW  = container.offsetWidth;
+  studioScale   = Math.min(availW / 1920, 1);
+
+  wrap.style.width  = (1920 * studioScale) + 'px';
+  wrap.style.height = (1080 * studioScale) + 'px';
+  inner.style.transform = `scale(${studioScale})`;
+}
+
+/* ── Rendu de la liste de calques ──────────────────────────── */
+function renderLayerList() {
+  const list = document.getElementById('studio-layer-list');
+  if (!list) return;
+
+  const sorted = superLocal.layers.slice().sort((a, b) => a.order - b.order);
+  list.innerHTML = '';
+
+  sorted.forEach(layer => {
+    const color = LAYER_COLORS[layer.id] || '#888';
+    const li = document.createElement('li');
+    li.className   = 'studio-layer-item' + (layer.visible ? '' : ' sli-disabled');
+    li.draggable   = true;
+    li.dataset.id  = layer.id;
+
+    li.innerHTML = `
+      <span class="sli-drag" title="Glisser pour réordonner">⠿</span>
+      <span class="sli-dot" style="background:${color}"></span>
+      <label class="sli-vis-wrap" title="Visible dans le Super Overlay">
+        <input type="checkbox" class="sli-vis" data-id="${layer.id}" ${layer.visible ? 'checked' : ''} />
+        <span style="font-size:11px;">${layer.visible ? 'ON' : 'OFF'}</span>
+      </label>
+      <span class="sli-name">${layer.label}</span>
+    `;
+
+    list.appendChild(li);
+  });
+
+  bindListDrag();
+  bindVisToggles();
+}
+
+/* ── Drag-to-reorder la liste ──────────────────────────────── */
+let _dragListEl = null;
+
+function bindListDrag() {
+  const list = document.getElementById('studio-layer-list');
+  if (!list) return;
+
+  list.querySelectorAll('.studio-layer-item').forEach(li => {
+    li.addEventListener('dragstart', e => {
+      _dragListEl = li;
+      li.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+    });
+    li.addEventListener('dragend', () => {
+      li.classList.remove('dragging');
+      _dragListEl = null;
+      // Réindexer l'order selon position DOM
+      const items = [...list.querySelectorAll('.studio-layer-item')];
+      items.forEach((item, idx) => {
+        const layer = superLocal.layers.find(l => l.id === item.dataset.id);
+        if (layer) layer.order = idx;
+      });
+      superSend();
+      renderCanvas();
+      renderLayerControls();
+    });
+    li.addEventListener('dragover', e => {
+      e.preventDefault();
+      if (!_dragListEl || li === _dragListEl) return;
+      li.classList.add('drag-over');
+      const rect = li.getBoundingClientRect();
+      if (e.clientY < rect.top + rect.height / 2) {
+        list.insertBefore(_dragListEl, li);
+      } else {
+        list.insertBefore(_dragListEl, li.nextSibling);
+      }
+    });
+    li.addEventListener('dragleave', () => li.classList.remove('drag-over'));
+    li.addEventListener('drop', e => {
+      e.preventDefault();
+      li.classList.remove('drag-over');
+    });
+  });
+}
+
+/* ── Toggles de visibilité dans la liste ──────────────────── */
+function bindVisToggles() {
+  document.querySelectorAll('.sli-vis').forEach(chk => {
+    chk.addEventListener('change', () => {
+      const layer = superLocal.layers.find(l => l.id === chk.dataset.id);
+      if (!layer) return;
+      layer.visible = chk.checked;
+
+      // Mettre à jour le label ON/OFF
+      const li = chk.closest('.studio-layer-item');
+      if (li) {
+        li.classList.toggle('sli-disabled', !chk.checked);
+        const span = chk.nextElementSibling;
+        if (span) span.textContent = chk.checked ? 'ON' : 'OFF';
+      }
+
+      superSend();
+      renderCanvas();
+      renderLayerControls();
+    });
+  });
+}
+
+/* ── Rendu du canvas (iframes + handles) ────────────────────── */
+function renderCanvas() {
+  const inner     = document.getElementById('studio-canvas-inner');
+  const dragLayer = document.getElementById('studio-drag-layer');
+  if (!inner || !dragLayer) return;
+
+  recalcStudioScale();
+
+  const sorted = superLocal.layers.slice().sort((a, b) => a.order - b.order);
+
+  /* ── Iframes ── */
+  sorted.forEach((layer, idx) => {
+    let wrap = document.getElementById('sc-wrap-' + layer.id);
+    if (!wrap) {
+      wrap = document.createElement('div');
+      wrap.id        = 'sc-wrap-' + layer.id;
+      wrap.className = 'sc-iframe-wrap';
+      wrap.style.cssText = 'position:absolute;width:1920px;height:1080px;pointer-events:none;';
+
+      const iframe = document.createElement('iframe');
+      iframe.src       = layer.url;
+      iframe.scrolling = 'no';
+      iframe.title     = layer.label;
+      iframe.style.cssText = 'width:1920px;height:1080px;border:none;pointer-events:none;';
+      wrap.appendChild(iframe);
+      inner.appendChild(wrap);
+    }
+    wrap.style.left    = layer.x + 'px';
+    wrap.style.top     = layer.y + 'px';
+    wrap.style.zIndex  = idx;
+    wrap.style.opacity = layer.visible ? (layer.opacity ?? 1) : 0.12;
+    wrap.style.filter  = layer.visible ? 'none' : 'grayscale(100%)';
+  });
+
+  /* ── Handles (en coords écran) ── */
+  dragLayer.innerHTML = '';
+  sorted.filter(l => l.visible).forEach((layer, i) => {
+    const color  = LAYER_COLORS[layer.id] || '#888';
+    const handle = document.createElement('div');
+    handle.className   = 'sc-handle';
+    handle.id          = 'sc-handle-' + layer.id;
+    handle.dataset.id  = layer.id;
+    handle.style.left  = (layer.x * studioScale + 6 + i * 2) + 'px';
+    handle.style.top   = (layer.y * studioScale + 6 + i * 2) + 'px';
+    handle.style.background = color;
+    handle.innerHTML   = `<span class="sc-handle-icon"></span>${layer.label}`;
+    dragLayer.appendChild(handle);
+  });
+
+  bindHandleDrag();
+}
+
+/* ── Drag des handles dans le canvas ───────────────────────── */
+let _dragging = null;
+let _dragStart = null;
+
+function bindHandleDrag() {
+  document.querySelectorAll('.sc-handle').forEach(handle => {
+    handle.addEventListener('mousedown', e => {
+      _dragging  = handle.dataset.id;
+      const layer = superLocal.layers.find(l => l.id === _dragging);
+      if (!layer) return;
+      _dragStart = { mx: e.clientX, my: e.clientY, lx: layer.x, ly: layer.y };
+      e.preventDefault();
+      e.stopPropagation();
+    });
+  });
+}
+
+document.addEventListener('mousemove', e => {
+  if (!_dragging || !_dragStart) return;
+  const layer = superLocal.layers.find(l => l.id === _dragging);
+  if (!layer) return;
+
+  const dx = (e.clientX - _dragStart.mx) / studioScale;
+  const dy = (e.clientY - _dragStart.my) / studioScale;
+  layer.x  = Math.round(_dragStart.lx + dx);
+  layer.y  = Math.round(_dragStart.ly + dy);
+
+  /* Déplacer le handle */
+  const handle = document.getElementById('sc-handle-' + _dragging);
+  if (handle) {
+    handle.style.left = (layer.x * studioScale + 6) + 'px';
+    handle.style.top  = (layer.y * studioScale + 6) + 'px';
+  }
+  /* Déplacer l'iframe dans le canvas */
+  const wrap = document.getElementById('sc-wrap-' + _dragging);
+  if (wrap) { wrap.style.left = layer.x + 'px'; wrap.style.top = layer.y + 'px'; }
+
+  /* Sync les inputs */
+  const xi = document.querySelector(`.sc-x-input[data-id="${_dragging}"]`);
+  const yi = document.querySelector(`.sc-y-input[data-id="${_dragging}"]`);
+  if (xi) xi.value = layer.x;
+  if (yi) yi.value = layer.y;
+});
+
+document.addEventListener('mouseup', () => {
+  if (_dragging) { superSend(); _dragging = null; _dragStart = null; }
+});
+
+/* ── Contrôles par calque visible ──────────────────────────── */
+function renderLayerControls() {
+  const container = document.getElementById('studio-layer-controls');
+  if (!container) return;
+
+  const visible = superLocal.layers
+    .filter(l => l.visible)
+    .sort((a, b) => a.order - b.order);
+
+  if (!visible.length) { container.innerHTML = ''; return; }
+
+  // Garder les valeurs des inputs actifs pendant le rendu
+  const focused = document.activeElement?.dataset?.id;
+
+  container.innerHTML = '';
+
+  const wrap = document.createElement('div');
+  wrap.className = 'custom-card';
+  wrap.style.padding = '10px 14px';
+
+  const title = document.createElement('h3');
+  title.style.marginBottom = '10px';
+  title.textContent = 'Position & opacité des calques actifs';
+  wrap.appendChild(title);
+
+  visible.forEach(layer => {
+    const color = LAYER_COLORS[layer.id] || '#888';
+    const row   = document.createElement('div');
+    row.className = 'studio-ctrl-card';
+
+    row.innerHTML = `
+      <span class="studio-ctrl-dot" style="background:${color}"></span>
+      <span class="studio-ctrl-name">${layer.label}</span>
+
+      <span class="studio-ctrl-field">
+        <label>X</label>
+        <input type="number" class="sc-x-input" data-id="${layer.id}" value="${layer.x}" min="-1920" max="1920" />
+      </span>
+      <span class="studio-ctrl-field">
+        <label>Y</label>
+        <input type="number" class="sc-y-input" data-id="${layer.id}" value="${layer.y}" min="-1080" max="1080" />
+      </span>
+      <span class="studio-ctrl-field" style="flex:1;min-width:160px;">
+        <label>Opacité</label>
+        <input type="range" class="sc-opacity" data-id="${layer.id}" min="0" max="1" step="0.05" value="${layer.opacity ?? 1}" />
+        <span class="studio-ctrl-opacity-val" id="sc-opval-${layer.id}">${Math.round((layer.opacity ?? 1) * 100)}%</span>
+      </span>
+      <button class="btn btn-outline btn-sm sc-reset-pos" data-id="${layer.id}" title="Remettre à X=0 Y=0">↺ 0,0</button>
+    `;
+    wrap.appendChild(row);
+  });
+  container.appendChild(wrap);
+
+  bindLayerControlInputs();
+}
+
+function bindLayerControlInputs() {
+  document.querySelectorAll('.sc-x-input').forEach(el => {
+    el.addEventListener('change', () => {
+      const layer = superLocal.layers.find(l => l.id === el.dataset.id);
+      if (!layer) return;
+      layer.x = Number(el.value);
+      updateCanvasLayerPos(layer);
+      superSend();
+    });
+  });
+  document.querySelectorAll('.sc-y-input').forEach(el => {
+    el.addEventListener('change', () => {
+      const layer = superLocal.layers.find(l => l.id === el.dataset.id);
+      if (!layer) return;
+      layer.y = Number(el.value);
+      updateCanvasLayerPos(layer);
+      superSend();
+    });
+  });
+  document.querySelectorAll('.sc-opacity').forEach(el => {
+    el.addEventListener('input', () => {
+      const layer = superLocal.layers.find(l => l.id === el.dataset.id);
+      if (!layer) return;
+      layer.opacity = Number(el.value);
+      const val = document.getElementById('sc-opval-' + el.dataset.id);
+      if (val) val.textContent = Math.round(layer.opacity * 100) + '%';
+      const wrap = document.getElementById('sc-wrap-' + el.dataset.id);
+      if (wrap) wrap.style.opacity = layer.opacity;
+      superSend();
+    });
+  });
+  document.querySelectorAll('.sc-reset-pos').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const layer = superLocal.layers.find(l => l.id === btn.dataset.id);
+      if (!layer) return;
+      layer.x = 0; layer.y = 0;
+      const xi = document.querySelector(`.sc-x-input[data-id="${btn.dataset.id}"]`);
+      const yi = document.querySelector(`.sc-y-input[data-id="${btn.dataset.id}"]`);
+      if (xi) xi.value = 0;
+      if (yi) yi.value = 0;
+      updateCanvasLayerPos(layer);
+      superSend();
+    });
+  });
+}
+
+function updateCanvasLayerPos(layer) {
+  const wrap   = document.getElementById('sc-wrap-' + layer.id);
+  const handle = document.getElementById('sc-handle-' + layer.id);
+  if (wrap)   { wrap.style.left = layer.x + 'px'; wrap.style.top = layer.y + 'px'; }
+  if (handle) { handle.style.left = (layer.x * studioScale + 6) + 'px'; handle.style.top = (layer.y * studioScale + 6) + 'px'; }
+}
+
+/* ── Bouton "Tout masquer" ───────────────────────────────────── */
+document.getElementById('btn-super-none')?.addEventListener('click', () => {
+  superLocal.layers.forEach(l => { l.visible = false; });
+  superSend();
+  renderLayerList();
+  renderCanvas();
+  renderLayerControls();
+});
+
+/* ── Réinitialiser toutes les positions ─────────────────────── */
+document.getElementById('btn-reset-all-pos')?.addEventListener('click', () => {
+  superLocal.layers.forEach(l => { l.x = 0; l.y = 0; });
+  superSend();
+  renderCanvas();
+  renderLayerControls();
+});
+
+/* ── Fond du Super Overlay ──────────────────────────────────── */
+document.querySelectorAll('.so-bg-preset').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.so-bg-preset').forEach(b => b.classList.remove('active-sep'));
+    btn.classList.add('active-sep');
+    superLocal.bgColor = btn.dataset.bg;
+    superSend();
+  });
+});
+document.getElementById('so-bg-color-picker')?.addEventListener('input', function () {
+  document.querySelectorAll('.so-bg-preset').forEach(b => b.classList.remove('active-sep'));
+  superLocal.bgColor = this.value;
+  superSend();
+});
+
+/* ── Copier URL ──────────────────────────────────────────────── */
+document.getElementById('btn-copy-super-url')?.addEventListener('click', () => {
+  const el = document.getElementById('super-url');
+  if (!el) return;
+  navigator.clipboard.writeText(el.value)
+    .then(() => setStatus('URL Super Overlay copiée'))
+    .catch(() => { el.select(); document.execCommand('copy'); setStatus('URL Super Overlay copiée'); });
+});
+
+/* ── Mise à jour globale depuis le serveur ──────────────────── */
+function updateStudioUI(s) {
+  superLocal = Object.assign(superLocal, s);
+  renderLayerList();
+  renderCanvas();
+  renderLayerControls();
+
+  // Sync fond
+  document.querySelectorAll('.so-bg-preset').forEach(btn => {
+    btn.classList.toggle('active-sep', btn.dataset.bg === s.bgColor);
+  });
+}
+
+/* ── Init ────────────────────────────────────────────────────── */
+fetch('/api/super').then(r => r.json()).then(updateStudioUI).catch(() => {});
+
+// Recalcul scale si le panneau est redimensionné
+if (typeof ResizeObserver !== 'undefined') {
+  const ro = new ResizeObserver(() => {
+    recalcStudioScale();
+    // Repositionner les handles
+    superLocal.layers.filter(l => l.visible).forEach((layer, i) => {
+      const handle = document.getElementById('sc-handle-' + layer.id);
+      if (handle) {
+        handle.style.left = (layer.x * studioScale + 6 + i * 2) + 'px';
+        handle.style.top  = (layer.y * studioScale + 6 + i * 2) + 'px';
+      }
+    });
+  });
+  const container = document.getElementById('studio-canvas-container');
+  if (container) ro.observe(container);
+}
+
+// Recalcul quand on entre dans l'onglet Studio
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    if (btn.dataset.tab === 'studio') {
+      setTimeout(() => { recalcStudioScale(); renderCanvas(); }, 80);
+    }
+  });
+});
+
 // Réception Socket.IO
 if (typeof socket !== 'undefined') {
   socket.on('tickerUpdate', updateTickerUI);
   socket.on('framesUpdate', updateFramesUI);
+  socket.on('superUpdate', updateStudioUI);
 }
