@@ -99,10 +99,12 @@
     if (data.error) { showStatus('Erreur : ' + data.error, true); return; }
 
     allEntrants = (data.entrants?.nodes || []).map(e => ({
-      id: e.id,
-      name: e.name,
-      tag: e.participants?.[0]?.gamerTag || e.name,
-      prefix: e.participants?.[0]?.prefix || ''
+      id:       e.id,
+      name:     e.name,
+      tag:      e.participants?.[0]?.gamerTag || e.name,
+      prefix:   e.participants?.[0]?.prefix || '',
+      playerId: e.participants?.[0]?.player?.id || null,
+      userSlug: e.participants?.[0]?.player?.user?.slug || null,
     }));
     const total = data.entrants?.pageInfo?.total || allEntrants.length;
     document.getElementById('sgg-entrants-count').textContent = `${total} participants`;
@@ -216,12 +218,6 @@
             data-round="${s.fullRoundText || ''}">
             Appliquer au scoreboard
           </button>
-          <button class="btn btn-outline btn-sm sgg-h2h-set"
-            data-p1tag="${p1Tag}" data-p1name="${p1Name}"
-            data-p2tag="${p2Tag}" data-p2name="${p2Name}"
-            data-e1id="${e1Id}" data-e2id="${e2Id}">
-            → H2H
-          </button>
         </div>
       `;
       container.appendChild(card);
@@ -238,17 +234,6 @@
       });
     });
 
-    container.querySelectorAll('.sgg-h2h-set').forEach(btn => {
-      btn.addEventListener('click', () => {
-        if (typeof window.triggerH2HFromSet === 'function') {
-          window.triggerH2HFromSet(
-            btn.dataset.p1tag, btn.dataset.p1name,
-            btn.dataset.p2tag, btn.dataset.p2name,
-            btn.dataset.e1id,  btn.dataset.e2id
-          );
-        }
-      });
-    });
   }
 
   function applySet(p1tag, p1name, p2tag, p2name, p1score, p2score, round) {

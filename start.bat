@@ -15,11 +15,6 @@ if not exist "node_modules\" (
     echo Installation des dependances...
     npm install
 )
-echo.
-echo  Scoreboard OBS : http://localhost:3002/overlay
-echo  Stage Veto OBS : http://localhost:3002/stageveto
-echo  Controle       : http://localhost:3002/control
-echo.
 start "" "http://localhost:3002/control"
 node server.js
 pause

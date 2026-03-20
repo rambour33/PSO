@@ -12,7 +12,7 @@ let state = {
 };
 let vetoState = null;
 let characterList = [];
-let rulesetState = { stages: [], banPatternGame1: '2-2', banPatternGame2: '1', firstBanner: 1, stageClause: false };
+let rulesetState = { stages: [], banPatternGame1: '2-2', banPatternGame2: '1', firstBanner: 1, stageClause: false, pickG1: true, pickG2: true };
 let activePickPlayer = null; // 1 or 2
 
 // ── Status messages ───────────────────────────────────────────
@@ -74,6 +74,7 @@ function syncFromState(s) {
   document.getElementById('particle-count-range').value = pCt;
   document.getElementById('particle-count-num').value   = pCt;
   updateParticlesToggle(s.particlesEnabled !== false);
+  updateHidePlayerColorsBtn(s.hidePlayerColors === true);
   updateLogoPreview();
 
   // Format buttons
@@ -221,6 +222,7 @@ function buildStateFromForm() {
     particleOpacity:    parseInt(document.getElementById('particle-opacity-num')?.value ?? 100),
     particleCountScale: parseInt(document.getElementById('particle-count-num')?.value ?? 100),
     particlesEnabled:   state.particlesEnabled !== false,
+    hidePlayerColors:   state.hidePlayerColors === true,
     sbScale: parseInt(document.getElementById('sb-scale-num')?.value ?? 100),
     sbX:     parseInt(document.getElementById('sb-x-num')?.value ?? 0),
     sbY:     parseInt(document.getElementById('sb-y-num')?.value ?? 0),
@@ -912,24 +914,42 @@ function renderBanBuilder(key) {
   const countEl = document.getElementById(`ban-builder-${key}-count`);
   const total    = rulesetState.stages.length;
   const hasPick  = key === 'g1' ? banPickG1 : banPickG2;
-  const maxBans  = Math.max(0, total - (hasPick ? 1 : 0));
+  const maxBans  = Math.max(0, total - 1);
   const allocated = builder.reduce((s, b) => s + b.count, 0);
   const remaining = maxBans - allocated;
 
   countEl.textContent = total > 0
-    ? `${allocated}/${maxBans} bans${hasPick ? ' + 1 pick' : ''} — ${remaining >= 0 ? remaining + ' restant(s)' : Math.abs(remaining) + ' en trop'}`
+    ? `${allocated}/${maxBans} bans${hasPick ? ' + map sélectionnée' : ''} — ${remaining >= 0 ? remaining + ' restant(s)' : Math.abs(remaining) + ' en trop'}`
     : 'Aucun stage dans le ruleset';
-  countEl.style.color = remaining === 0 ? 'var(--gold)' : remaining < 0 ? 'var(--danger)' : 'var(--text-muted)';
+  countEl.style.color = remaining < 0 ? 'var(--danger)' : remaining === 0 ? 'var(--gold)' : 'var(--text-muted)';
 
   stepsEl.innerHTML = '';
 
+  // Pick block — rendered FIRST
+  if (hasPick) {
+    const block = document.createElement('div');
+    block.className = 'ban-seq-block pick';
+    const label = document.createElement('span');
+    label.textContent = '✓ Map sélectionnée';
+    const del = document.createElement('button');
+    del.textContent = '×';
+    del.className = 'ban-seq-del';
+    del.addEventListener('click', () => {
+      if (key === 'g1') banPickG1 = false; else banPickG2 = false;
+      onBuilderChange(key);
+    });
+    block.appendChild(label);
+    block.appendChild(del);
+    stepsEl.appendChild(block);
+  }
+
+  // Ban steps after
   builder.forEach((step, i) => {
-    if (i > 0) {
-      const arrow = document.createElement('span');
-      arrow.className = 'ban-seq-arrow';
-      arrow.textContent = '→';
-      stepsEl.appendChild(arrow);
-    }
+    const arrow = document.createElement('span');
+    arrow.className = 'ban-seq-arrow';
+    arrow.textContent = '→';
+    stepsEl.appendChild(arrow);
+
     const block = document.createElement('div');
     block.className = `ban-seq-block p${step.player}`;
 
@@ -963,33 +983,9 @@ function renderBanBuilder(key) {
     stepsEl.appendChild(block);
   });
 
-  // Pick terminal block
-  if (hasPick) {
-    if (builder.length > 0) {
-      const arrow = document.createElement('span');
-      arrow.className = 'ban-seq-arrow';
-      arrow.textContent = '→';
-      stepsEl.appendChild(arrow);
-    }
-    const block = document.createElement('div');
-    block.className = 'ban-seq-block pick';
-    const label = document.createElement('span');
-    label.textContent = '✓ Map jouée';
-    const del = document.createElement('button');
-    del.textContent = '×';
-    del.className = 'ban-seq-del';
-    del.addEventListener('click', () => {
-      if (key === 'g1') banPickG1 = false; else banPickG2 = false;
-      onBuilderChange(key);
-    });
-    block.appendChild(label);
-    block.appendChild(del);
-    stepsEl.appendChild(block);
-  }
-
   // Enable/disable add buttons
   const pickBtn = document.querySelector(`.ban-seq-btn.pick[data-builder="${key}"]`);
-  if (pickBtn) pickBtn.disabled = hasPick || (remaining <= 0 && !hasPick);
+  if (pickBtn) pickBtn.disabled = hasPick;
   document.querySelectorAll(`.ban-seq-btn:not(.pick)[data-builder="${key}"]`).forEach(b => {
     b.disabled = remaining <= 0;
   });
@@ -1012,10 +1008,9 @@ function updateBanPreview() {
   const preview = document.getElementById('ban-pattern-preview');
   const msgs = [];
   if (total > 0) {
-    if (a1 + 1 === total) msgs.push(`Jeu 1 : ✓ ${a1} bans → 1 stage sélectionné`);
-    else msgs.push(`Jeu 1 : ${a1} bans / ${total - 1} requis`);
-    if (a2 + 1 === total) msgs.push(`Jeux suivants : ✓ ${a2} bans → 1 stage sélectionné`);
-    else msgs.push(`Jeux suivants : ${a2} bans / ${total - 1} requis`);
+    const max = total - 1;
+    msgs.push(a1 <= max ? `Jeu 1 : ${a1}/${max} bans` : `Jeu 1 : ⚠ ${a1} bans (max ${max})`);
+    msgs.push(a2 <= max ? `Jeux suivants : ${a2}/${max} bans` : `Jeux suivants : ⚠ ${a2} bans (max ${max})`);
   }
   preview.textContent = msgs.join('   ·   ');
 }
@@ -1024,8 +1019,8 @@ function syncBanUI() {
   const first = rulesetState.firstBanner || 1;
   banBuilderG1 = patternToBuilder(rulesetState.banPatternGame1 || '2-2', first);
   banBuilderG2 = patternToBuilder(rulesetState.banPatternGame2 || '1', first);
-  banPickG1 = !!rulesetState.pickG1;
-  banPickG2 = !!rulesetState.pickG2;
+  banPickG1 = rulesetState.pickG1 !== false;
+  banPickG2 = rulesetState.pickG2 !== false;
   document.getElementById('stage-clause').checked = !!rulesetState.stageClause;
   document.querySelectorAll('.ban-first-btn').forEach(b => {
     b.classList.toggle('active', parseInt(b.dataset.first) === first);
@@ -1289,6 +1284,27 @@ document.getElementById('btn-particles-toggle').addEventListener('click', () => 
   state.particlesEnabled = state.particlesEnabled === false;
   emitState(buildStateFromForm());
   setStatus(state.particlesEnabled === false ? 'Particules désactivées' : 'Particules activées');
+});
+
+function updateHidePlayerColorsBtn(hidden) {
+  const btn = document.getElementById('btn-hide-player-colors');
+  if (!btn) return;
+  if (hidden) {
+    btn.textContent = '🎨 Couleurs joueurs : OFF';
+    btn.classList.add('btn-danger');
+    btn.classList.remove('btn-outline');
+  } else {
+    btn.textContent = '🎨 Couleurs joueurs : ON';
+    btn.classList.remove('btn-danger');
+    btn.classList.add('btn-outline');
+  }
+}
+
+document.getElementById('btn-hide-player-colors').addEventListener('click', () => {
+  state.hidePlayerColors = !state.hidePlayerColors;
+  updateHidePlayerColorsBtn(state.hidePlayerColors);
+  emitState(buildStateFromForm());
+  setStatus(state.hidePlayerColors ? 'Couleurs joueurs masquées' : 'Couleurs joueurs visibles');
 });
 
 // Particules — opacité & quantité — sync slider ↔ number
@@ -1869,6 +1885,171 @@ const THEMES = {
     nameColor:       '#FFF0E8',
     pronounsColor:   '#D461A6',
     castersBgColor:  '#0A0200',
+    castersBgOpacity: 95,
+  },
+  flag_fr: {
+    sbBgColor:       '#000510',
+    sbBgOpacity:     95,
+    eventTextColor:  '#4D8FFF',
+    eventTextSize:   13,
+    tagColor:        '#4D8FFF',
+    nameColor:       '#FFFFFF',
+    pronounsColor:   '#EF4135',
+    castersBgColor:  '#000510',
+    castersBgOpacity: 95,
+  },
+  flag_ch: {
+    sbBgColor:       '#0D0002',
+    sbBgOpacity:     95,
+    eventTextColor:  '#FF3040',
+    eventTextSize:   13,
+    tagColor:        '#FF3040',
+    nameColor:       '#FFFFFF',
+    pronounsColor:   '#FF8090',
+    castersBgColor:  '#0D0002',
+    castersBgOpacity: 95,
+  },
+  flag_be: {
+    sbBgColor:       '#0A0800',
+    sbBgOpacity:     95,
+    eventTextColor:  '#FFD700',
+    eventTextSize:   13,
+    tagColor:        '#FFD700',
+    nameColor:       '#FFFFFF',
+    pronounsColor:   '#CC1010',
+    castersBgColor:  '#0A0800',
+    castersBgOpacity: 95,
+  },
+  flag_es: {
+    sbBgColor:       '#0E0200',
+    sbBgOpacity:     95,
+    eventTextColor:  '#FF4422',
+    eventTextSize:   13,
+    tagColor:        '#FF4422',
+    nameColor:       '#FFE040',
+    pronounsColor:   '#CC2010',
+    castersBgColor:  '#0E0200',
+    castersBgOpacity: 95,
+  },
+  flag_it: {
+    sbBgColor:       '#000E04',
+    sbBgOpacity:     95,
+    eventTextColor:  '#00CC55',
+    eventTextSize:   13,
+    tagColor:        '#00CC55',
+    nameColor:       '#FFFFFF',
+    pronounsColor:   '#CE2B37',
+    castersBgColor:  '#000E04',
+    castersBgOpacity: 95,
+  },
+  flag_de: {
+    sbBgColor:       '#0A0800',
+    sbBgOpacity:     95,
+    eventTextColor:  '#FFD700',
+    eventTextSize:   13,
+    tagColor:        '#FFD700',
+    nameColor:       '#FFFFFF',
+    pronounsColor:   '#CC2020',
+    castersBgColor:  '#0A0800',
+    castersBgOpacity: 95,
+  },
+  flag_nl: {
+    sbBgColor:       '#0A0300',
+    sbBgOpacity:     95,
+    eventTextColor:  '#FF7700',
+    eventTextSize:   13,
+    tagColor:        '#FF7700',
+    nameColor:       '#FFFFFF',
+    pronounsColor:   '#CC2020',
+    castersBgColor:  '#0A0300',
+    castersBgOpacity: 95,
+  },
+  flag_pt: {
+    sbBgColor:       '#000800',
+    sbBgOpacity:     95,
+    eventTextColor:  '#00CC55',
+    eventTextSize:   13,
+    tagColor:        '#00CC55',
+    nameColor:       '#FFFFFF',
+    pronounsColor:   '#CC1020',
+    castersBgColor:  '#000800',
+    castersBgOpacity: 95,
+  },
+  flag_at: {
+    sbBgColor:       '#0D0001',
+    sbBgOpacity:     95,
+    eventTextColor:  '#FF4455',
+    eventTextSize:   13,
+    tagColor:        '#FF4455',
+    nameColor:       '#FFFFFF',
+    pronounsColor:   '#FF8090',
+    castersBgColor:  '#0D0001',
+    castersBgOpacity: 95,
+  },
+  flag_ca: {
+    sbBgColor:       '#0D0001',
+    sbBgOpacity:     95,
+    eventTextColor:  '#FF3333',
+    eventTextSize:   13,
+    tagColor:        '#FF3333',
+    nameColor:       '#FFFFFF',
+    pronounsColor:   '#FF7777',
+    castersBgColor:  '#0D0001',
+    castersBgOpacity: 95,
+  },
+  flag_us: {
+    sbBgColor:       '#000510',
+    sbBgOpacity:     95,
+    eventTextColor:  '#4477FF',
+    eventTextSize:   13,
+    tagColor:        '#4477FF',
+    nameColor:       '#FFFFFF',
+    pronounsColor:   '#CC2020',
+    castersBgColor:  '#000510',
+    castersBgOpacity: 95,
+  },
+  flag_mx: {
+    sbBgColor:       '#000E04',
+    sbBgOpacity:     95,
+    eventTextColor:  '#00CC55',
+    eventTextSize:   13,
+    tagColor:        '#00CC55',
+    nameColor:       '#FFFFFF',
+    pronounsColor:   '#CE112D',
+    castersBgColor:  '#000E04',
+    castersBgOpacity: 95,
+  },
+  flag_eu: {
+    sbBgColor:       '#000214',
+    sbBgOpacity:     95,
+    eventTextColor:  '#FFD700',
+    eventTextSize:   13,
+    tagColor:        '#FFD700',
+    nameColor:       '#FFFFFF',
+    pronounsColor:   '#4477FF',
+    castersBgColor:  '#000214',
+    castersBgOpacity: 95,
+  },
+  flag_br: {
+    sbBgColor:       '#000A00',
+    sbBgOpacity:     95,
+    eventTextColor:  '#FFD700',
+    eventTextSize:   13,
+    tagColor:        '#FFD700',
+    nameColor:       '#FFFFFF',
+    pronounsColor:   '#009C3B',
+    castersBgColor:  '#000A00',
+    castersBgOpacity: 95,
+  },
+  flag_jp: {
+    sbBgColor:       '#0D0001',
+    sbBgOpacity:     95,
+    eventTextColor:  '#FF0000',
+    eventTextSize:   13,
+    tagColor:        '#FF0000',
+    nameColor:       '#FFFFFF',
+    pronounsColor:   '#FF6070',
+    castersBgColor:  '#0D0001',
     castersBgOpacity: 95,
   },
   smario: {
@@ -3181,3 +3362,1173 @@ fetch('/api/theme-presets')
   .then(r => r.json())
   .then(renderSavedThemePresets)
   .catch(() => {});
+
+<<<<<<< Updated upstream
+// ── Onglet Twitch Layout ──────────────────────────────────────────
+
+// Copier l'URL de l'overlay
+document.getElementById('btn-copy-twitch-url')?.addEventListener('click', () => {
+  const input = document.getElementById('twitch-layout-url');
+  if (!input) return;
+  input.select();
+  navigator.clipboard.writeText(input.value).then(() => {
+    setStatus('URL copiée dans le presse-papiers');
+  }).catch(() => {
+    document.execCommand('copy');
+    setStatus('URL copiée');
+  });
+});
+
+// Mettre à jour l'URL avec le bon host/port au chargement
+(function () {
+  const input = document.getElementById('twitch-layout-url');
+  if (input) input.value = window.location.origin + '/twitch-layout';
+})();
+
+// Sliders du cadre (coin size, épaisseur, opacité bg) → injectés via postMessage dans l'iframe
+function sendTwitchOption(key, value) {
+  const iframe = document.getElementById('twitch-layout-preview');
+  if (iframe && iframe.contentWindow) {
+    iframe.contentWindow.postMessage({ type: 'twitch-option', key, value }, '*');
+  }
+}
+
+function syncTwitchSlider(rangeId, numId, cssVar, transform) {
+  const range = document.getElementById(rangeId);
+  const num   = document.getElementById(numId);
+  if (!range || !num) return;
+  const apply = (v) => {
+    const val = transform ? transform(v) : v + 'px';
+    sendTwitchOption(cssVar, val);
+  };
+  range.addEventListener('input', () => { num.value = range.value; apply(range.value); });
+  num.addEventListener('input',   () => { range.value = num.value; apply(num.value);   });
+}
+
+syncTwitchSlider('tw-corner-size',  'tw-corner-size-num',  '--tw-corner-size',  v => v + 'px');
+syncTwitchSlider('tw-corner-thick', 'tw-corner-thick-num', '--tw-corner-thick', v => v + 'px');
+syncTwitchSlider('tw-bg-opacity',   'tw-bg-opacity-num',   '--tw-bg-opacity',   v => (v / 100).toFixed(2));
+
+// Checkboxes de visibilité des éléments
+const TW_CHECKBOXES = [
+  { id: 'tw-show-corners',   selector: '.corner',       prop: 'display', on: 'block',  off: 'none'   },
+  { id: 'tw-show-scanline',  selector: '.scan-line',    prop: 'display', on: 'block',  off: 'none'   },
+  { id: 'tw-show-sidelines', selector: '.side-line',    prop: 'display', on: 'block',  off: 'none'   },
+  { id: 'tw-show-glow',      selector: '.ambient-glow', prop: 'display', on: 'block',  off: 'none'   },
+  { id: 'tw-show-chars',     selector: '.player-character', prop: 'display', on: 'block', off: 'none' },
+];
+
+TW_CHECKBOXES.forEach(({ id, selector, prop, on, off }) => {
+  const cb = document.getElementById(id);
+  if (!cb) return;
+  cb.addEventListener('change', () => {
+    sendTwitchOption('selector-' + selector, cb.checked ? on : off);
+  });
+});
+
+// ── Config Twitch viewers ─────────────────────────────────────────
+
+// Mettre à jour l'URL viewer avec le bon host
+(function () {
+  const input = document.getElementById('twitch-viewer-url');
+  if (input) input.value = window.location.origin + '/twitch-viewer';
+})();
+
+// Copier URL viewer
+document.getElementById('btn-copy-viewer-url')?.addEventListener('click', () => {
+  const input = document.getElementById('twitch-viewer-url');
+  if (!input) return;
+  navigator.clipboard.writeText(input.value).then(() => setStatus('URL viewers copiée')).catch(() => {
+    input.select(); document.execCommand('copy'); setStatus('URL viewers copiée');
+  });
+});
+
+// Charger la config Twitch au démarrage
+fetch('/api/twitch/config')
+  .then(r => r.json())
+  .then(cfg => {
+    const chEl = document.getElementById('tw-channel');
+    const ciEl = document.getElementById('tw-client-id');
+    if (chEl) chEl.value = cfg.channel || '';
+    if (ciEl) ciEl.value = cfg.clientId || '';
+    updateTwitchDisplay({ viewers: cfg.viewers, live: cfg.live });
+  })
+  .catch(() => {});
+
+// Sauvegarder config
+document.getElementById('btn-tw-save')?.addEventListener('click', () => {
+  const channel      = document.getElementById('tw-channel')?.value.trim() || '';
+  const clientId     = document.getElementById('tw-client-id')?.value.trim() || '';
+  const clientSecret = document.getElementById('tw-client-secret')?.value || '';
+  fetch('/api/twitch/config', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ channel, clientId, clientSecret }),
+  })
+    .then(r => r.json())
+    .then(() => setStatus('Config Twitch sauvegardée'))
+    .catch(e => setStatus('Erreur : ' + e.message));
+});
+
+// Actualisation manuelle
+document.getElementById('btn-tw-refresh')?.addEventListener('click', () => {
+  fetch('/api/twitch/config')
+    .then(r => r.json())
+    .then(cfg => { updateTwitchDisplay({ viewers: cfg.viewers, live: cfg.live }); setStatus('Viewers actualisés'); })
+    .catch(e => setStatus('Erreur : ' + e.message));
+});
+
+// Afficher le compteur dans le panneau
+function updateTwitchDisplay({ viewers, live }) {
+  const dot    = document.getElementById('tw-live-dot');
+  const label  = document.getElementById('tw-live-label');
+  const count  = document.getElementById('tw-viewer-count');
+  if (!dot || !label || !count) return;
+
+  if (live) {
+    dot.style.background = '#FF0000';
+    label.textContent    = 'EN DIRECT';
+    label.style.color    = '#FF4444';
+  } else {
+    dot.style.background = '#555';
+    label.textContent    = viewers === null ? '–' : 'HORS LIGNE';
+    label.style.color    = 'var(--text-muted)';
+  }
+
+  if (viewers === null || viewers === undefined) {
+    count.textContent = '–';
+  } else if (viewers >= 1000) {
+    count.textContent = (viewers / 1000).toFixed(1).replace('.0', '') + 'k';
+  } else {
+    count.textContent = String(viewers);
+  }
+}
+
+// Mise à jour via Socket.IO
+if (typeof socket !== 'undefined') {
+  socket.on('twitch-viewers', updateTwitchDisplay);
+}
+
+// ── Titre du stream ───────────────────────────────────────────────
+
+// Fix URL
+(function () {
+  const el = document.getElementById('title-url');
+  if (el) el.value = window.location.origin + '/stream-title';
+})();
+
+let titleLocal = {
+  visible: false, title: '', subtitle: '', tag: 'LIVE',
+  showTag: false, showSubtitle: true,
+  position: 'tl', x: 60, y: 60,
+  maxWidth: 700, fontSize: 38, fontSizeSub: 17,
+  bgOpacity: 94, animation: 'slide', align: 'left',
+};
+
+function titleSend(patch) {
+  if (patch) Object.assign(titleLocal, patch);
+  fetch('/api/title', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(titleLocal),
+  }).catch(e => setStatus('Erreur Titre : ' + e.message));
+}
+
+/* Mise à jour UI depuis état */
+function updateTitleUI(s) {
+  Object.assign(titleLocal, s);
+
+  const btn = document.getElementById('btn-title-toggle');
+  if (btn) {
+    btn.textContent = s.visible ? '⏸ Masquer le titre' : '▶ Afficher le titre';
+    btn.classList.toggle('btn-danger', !!s.visible);
+    btn.classList.toggle('btn-primary', !s.visible);
+  }
+
+  function syncInput(id, val) {
+    const el = document.getElementById(id);
+    if (el && document.activeElement !== el) el.value = val;
+  }
+  function syncCheck(id, val) {
+    const el = document.getElementById(id);
+    if (el) el.checked = !!val;
+  }
+
+  syncInput('title-text-input', s.title || '');
+  syncInput('title-sub-input',  s.subtitle || '');
+  syncInput('title-tag-input',  s.tag || 'LIVE');
+  syncCheck('title-showsub',    s.showSubtitle);
+  syncCheck('title-showtag',    s.showTag);
+  syncInput('title-x', s.x);
+  syncInput('title-y', s.y);
+
+  syncInput('title-fs-range',    s.fontSize);
+  syncInput('title-fs-num',      s.fontSize);
+  syncInput('title-fssub-range', s.fontSizeSub);
+  syncInput('title-fssub-num',   s.fontSizeSub);
+  syncInput('title-mw-range',    s.maxWidth);
+  syncInput('title-mw-num',      s.maxWidth);
+  syncInput('title-bg-range',    s.bgOpacity);
+  syncInput('title-bg-num',      s.bgOpacity);
+
+  document.querySelectorAll('.title-pos-btn').forEach(b =>
+    b.classList.toggle('active-sep', b.dataset.pos === s.position));
+  document.querySelectorAll('.title-align-btn').forEach(b =>
+    b.classList.toggle('active-sep', b.dataset.align === s.align));
+  document.querySelectorAll('.title-anim-btn').forEach(b =>
+    b.classList.toggle('active-sep', b.dataset.anim === s.animation));
+}
+
+/* Charger l'état initial */
+fetch('/api/title').then(r => r.json()).then(updateTitleUI).catch(() => {});
+
+/* Bouton ON/OFF */
+document.getElementById('btn-title-toggle')?.addEventListener('click', () => {
+  titleLocal.visible = !titleLocal.visible;
+  titleSend();
+  updateTitleUI({ visible: titleLocal.visible });
+});
+
+/* Boutons position */
+document.querySelectorAll('.title-pos-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    titleLocal.position = btn.dataset.pos;
+    document.querySelectorAll('.title-pos-btn').forEach(b => b.classList.remove('active-sep'));
+    btn.classList.add('active-sep');
+    titleSend();
+  });
+});
+
+/* Boutons tag preset */
+document.querySelectorAll('.title-tag-preset').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const inp = document.getElementById('title-tag-input');
+    if (inp) inp.value = btn.dataset.tag;
+  });
+});
+
+/* Bouton Appliquer textes */
+document.getElementById('btn-title-texts')?.addEventListener('click', () => {
+  titleSend({
+    title:        document.getElementById('title-text-input')?.value || '',
+    subtitle:     document.getElementById('title-sub-input')?.value  || '',
+    tag:          (document.getElementById('title-tag-input')?.value || 'LIVE').toUpperCase(),
+    showSubtitle: document.getElementById('title-showsub')?.checked ?? true,
+    showTag:      document.getElementById('title-showtag')?.checked ?? false,
+  });
+  setStatus('Textes mis à jour');
+});
+
+/* Boutons alignement */
+document.querySelectorAll('.title-align-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.title-align-btn').forEach(b => b.classList.remove('active-sep'));
+    btn.classList.add('active-sep');
+    titleSend({ align: btn.dataset.align });
+  });
+});
+
+/* Boutons animation */
+document.querySelectorAll('.title-anim-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.title-anim-btn').forEach(b => b.classList.remove('active-sep'));
+    btn.classList.add('active-sep');
+    titleSend({ animation: btn.dataset.anim });
+  });
+});
+
+/* Sliders synchro (range ↔ number) */
+(function () {
+  const pairs = [
+    ['title-fs-range',    'title-fs-num',    'fontSize'],
+    ['title-fssub-range', 'title-fssub-num', 'fontSizeSub'],
+    ['title-mw-range',    'title-mw-num',    'maxWidth'],
+    ['title-bg-range',    'title-bg-num',    'bgOpacity'],
+  ];
+  pairs.forEach(([rid, nid, key]) => {
+    const range = document.getElementById(rid);
+    const num   = document.getElementById(nid);
+    if (!range || !num) return;
+    let _t = null;
+    function onVal(v) {
+      clearTimeout(_t);
+      _t = setTimeout(() => titleSend({ [key]: Number(v) }), 250);
+    }
+    range.addEventListener('input', () => { num.value = range.value; onVal(range.value); });
+    num.addEventListener('input',   () => { range.value = num.value; onVal(num.value); });
+  });
+
+  /* Position X/Y custom */
+  ['title-x', 'title-y'].forEach(id => {
+    document.getElementById(id)?.addEventListener('change', () => {
+      titleSend({
+        x: Number(document.getElementById('title-x')?.value || 60),
+        y: Number(document.getElementById('title-y')?.value || 60),
+      });
+    });
+  });
+})();
+
+/* Bouton Appliquer style */
+document.getElementById('btn-title-style')?.addEventListener('click', () => {
+  titleSend({
+    fontSize:    Number(document.getElementById('title-fs-num')?.value    || 38),
+    fontSizeSub: Number(document.getElementById('title-fssub-num')?.value || 17),
+    maxWidth:    Number(document.getElementById('title-mw-num')?.value    || 700),
+    bgOpacity:   Number(document.getElementById('title-bg-num')?.value    || 94),
+  });
+  setStatus('Style mis à jour');
+});
+
+/* Copier URL */
+document.getElementById('btn-copy-title-url')?.addEventListener('click', () => {
+  const el = document.getElementById('title-url');
+  if (!el) return;
+  navigator.clipboard.writeText(el.value)
+    .then(() => setStatus('URL titre copiée'))
+    .catch(() => { el.select(); document.execCommand('copy'); setStatus('URL titre copiée'); });
+});
+
+// ── Bandeau / Ticker ──────────────────────────────────────────────
+
+// Corriger l'URL avec le bon host
+(function () {
+  const el = document.getElementById('ticker-url');
+  if (el) el.value = window.location.origin + '/ticker';
+})();
+
+// État local du ticker
+let tickerLocal = {
+  visible: false, position: 'bottom', label: 'INFO',
+  separator: '◆', speed: 80, messages: [],
+};
+
+function tickerSend(patch) {
+  Object.assign(tickerLocal, patch);
+  fetch('/api/ticker', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(tickerLocal),
+  }).catch(e => setStatus('Erreur bandeau : ' + e.message));
+}
+
+function updateTickerUI(s) {
+  tickerLocal = Object.assign(tickerLocal, s);
+
+  // Bouton toggle
+  const btn = document.getElementById('btn-ticker-toggle');
+  if (btn) {
+    btn.textContent = s.visible ? '⏸ Masquer le bandeau' : '▶ Afficher le bandeau';
+    btn.classList.toggle('btn-danger', !!s.visible);
+    btn.classList.toggle('btn-primary', !s.visible);
+  }
+
+  // Position buttons
+  document.querySelectorAll('.ticker-pos-btn').forEach(b => {
+    b.classList.toggle('active-sep', b.dataset.pos === s.position);
+  });
+
+  // Label
+  const labelEl = document.getElementById('ticker-label');
+  if (labelEl && document.activeElement !== labelEl) labelEl.value = s.label || 'INFO';
+
+  // Messages
+  const ta = document.getElementById('ticker-messages');
+  if (ta && document.activeElement !== ta) ta.value = (s.messages || []).join('\n');
+  updateMsgCount(s.messages || []);
+
+  // Speed
+  const sr = document.getElementById('ticker-speed-range');
+  const sn = document.getElementById('ticker-speed-num');
+  if (sr && document.activeElement !== sr) sr.value = s.speed || 80;
+  if (sn && document.activeElement !== sn) sn.value = s.speed || 80;
+
+  // Séparateurs
+  document.querySelectorAll('.ticker-sep-btn').forEach(b => {
+    b.classList.toggle('active-sep', b.dataset.sep === s.separator);
+  });
+}
+
+function updateMsgCount(msgs) {
+  const el = document.getElementById('ticker-msg-count');
+  if (el) el.textContent = `${msgs.filter(m => m.trim()).length} message(s)`;
+}
+
+// Charger l'état initial
+fetch('/api/ticker').then(r => r.json()).then(updateTickerUI).catch(() => {});
+
+// Bouton ON/OFF
+document.getElementById('btn-ticker-toggle')?.addEventListener('click', () => {
+  tickerSend({ visible: !tickerLocal.visible });
+  updateTickerUI({ visible: !tickerLocal.visible });
+});
+
+// Boutons position
+document.querySelectorAll('.ticker-pos-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    tickerSend({ position: btn.dataset.pos });
+    updateTickerUI({ position: btn.dataset.pos });
+  });
+});
+
+// Enregistrer messages
+document.getElementById('btn-ticker-save')?.addEventListener('click', () => {
+  const ta = document.getElementById('ticker-messages');
+  const msgs = ta ? ta.value.split('\n').map(l => l.trim()).filter(Boolean) : [];
+  const label = (document.getElementById('ticker-label')?.value || 'INFO').toUpperCase();
+  tickerSend({ messages: msgs, label });
+  updateMsgCount(msgs);
+  setStatus('Bandeau mis à jour');
+});
+
+// Textarea : compter messages en temps réel
+document.getElementById('ticker-messages')?.addEventListener('input', () => {
+  const ta = document.getElementById('ticker-messages');
+  updateMsgCount(ta.value.split('\n'));
+});
+
+// Boutons séparateur
+document.querySelectorAll('.ticker-sep-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.ticker-sep-btn').forEach(b => b.classList.remove('active-sep'));
+    btn.classList.add('active-sep');
+    tickerSend({ separator: btn.dataset.sep });
+  });
+});
+// Séparateur custom
+document.getElementById('ticker-sep-custom')?.addEventListener('change', function () {
+  if (!this.value) return;
+  document.querySelectorAll('.ticker-sep-btn').forEach(b => b.classList.remove('active-sep'));
+  tickerSend({ separator: this.value });
+});
+
+// Vitesse
+(function () {
+  const range = document.getElementById('ticker-speed-range');
+  const num   = document.getElementById('ticker-speed-num');
+  if (!range || !num) return;
+  let _debounce = null;
+  function onSpeed(v) {
+    clearTimeout(_debounce);
+    _debounce = setTimeout(() => tickerSend({ speed: Number(v) }), 300);
+  }
+  range.addEventListener('input', () => { num.value = range.value; onSpeed(range.value); });
+  num.addEventListener('input',   () => { range.value = num.value; onSpeed(num.value); });
+})();
+
+// Copier URL
+document.getElementById('btn-copy-ticker-url')?.addEventListener('click', () => {
+  const el = document.getElementById('ticker-url');
+  if (!el) return;
+  navigator.clipboard.writeText(el.value).then(() => setStatus('URL bandeau copiée')).catch(() => {
+    el.select(); document.execCommand('copy'); setStatus('URL bandeau copiée');
+  });
+});
+
+// ── Cadres (Frames) ───────────────────────────────────────────────
+
+// Corriger URL avec le bon host
+(function () {
+  const el = document.getElementById('frames-url');
+  if (el) el.value = window.location.origin + '/frames';
+})();
+
+let framesLocal = {
+  count: 1,
+  frames: [
+    { visible: true, x: 40,  y: 40,  width: 560, height: 420, label: '', showBg: false },
+    { visible: true, x: 640, y: 40,  width: 560, height: 420, label: '', showBg: false },
+    { visible: true, x: 640, y: 500, width: 560, height: 420, label: '', showBg: false },
+  ],
+};
+
+function framesSend(patch) {
+  if (patch) Object.assign(framesLocal, patch);
+  fetch('/api/frames', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(framesLocal),
+  }).catch(e => setStatus('Erreur cadres : ' + e.message));
+}
+
+function framesUpdateCards(count) {
+  document.querySelectorAll('.frame-card').forEach((card, i) => {
+    card.style.display = i < count ? '' : 'none';
+  });
+  document.querySelectorAll('.frames-count-btn').forEach(b => {
+    b.classList.toggle('active-sep', Number(b.dataset.count) === count);
+  });
+}
+
+function updateFramesUI(s) {
+  framesLocal = Object.assign(framesLocal, s);
+  framesUpdateCards(s.count || 1);
+  (s.frames || []).forEach((f, idx) => {
+    function setVal(sel, val) {
+      const el = document.querySelector(sel + `[data-idx="${idx}"]`);
+      if (el && document.activeElement !== el) el.value = val;
+    }
+    function setChecked(sel, val) {
+      const el = document.querySelector(sel + `[data-idx="${idx}"]`);
+      if (el) el.checked = !!val;
+    }
+    setVal('.frame-x', f.x);
+    setVal('.frame-y', f.y);
+    setVal('.frame-w', f.width);
+    setVal('.frame-h', f.height);
+    setVal('.frame-label', f.label);
+    setChecked('.frame-visible-toggle', f.visible);
+    setChecked('.frame-showbg', f.showBg);
+  });
+}
+
+// Charger l'état initial
+fetch('/api/frames').then(r => r.json()).then(updateFramesUI).catch(() => {});
+
+// Boutons count
+document.querySelectorAll('.frames-count-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const count = Number(btn.dataset.count);
+    framesLocal.count = count;
+    framesUpdateCards(count);
+    framesSend();
+  });
+});
+
+// Bouton Appliquer par cadre
+document.querySelectorAll('.frame-save-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const idx = Number(btn.dataset.idx);
+    const get = (sel) => {
+      const el = document.querySelector(sel + `[data-idx="${idx}"]`);
+      return el ? el.value : '';
+    };
+    const getChecked = (sel) => {
+      const el = document.querySelector(sel + `[data-idx="${idx}"]`);
+      return el ? el.checked : false;
+    };
+    framesLocal.frames[idx] = {
+      visible: getChecked('.frame-visible-toggle'),
+      x:       Number(get('.frame-x')),
+      y:       Number(get('.frame-y')),
+      width:   Number(get('.frame-w')),
+      height:  Number(get('.frame-h')),
+      label:   get('.frame-label'),
+      showBg:  getChecked('.frame-showbg'),
+    };
+    framesSend();
+    setStatus(`Cadre ${idx + 1} appliqué`);
+  });
+});
+
+// Toggle visibilité en temps réel (sans attendre "Appliquer")
+document.querySelectorAll('.frame-visible-toggle').forEach(chk => {
+  chk.addEventListener('change', () => {
+    const idx = Number(chk.dataset.idx);
+    framesLocal.frames[idx].visible = chk.checked;
+    framesSend();
+  });
+});
+
+// Boutons ratio
+document.querySelectorAll('.frame-ratio-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const idx = Number(btn.dataset.idx);
+    const [rw, rh] = btn.dataset.ratio.split('/').map(Number);
+    const wEl = document.querySelector(`.frame-w[data-idx="${idx}"]`);
+    const hEl = document.querySelector(`.frame-h[data-idx="${idx}"]`);
+    if (!wEl || !hEl) return;
+    const w = Number(wEl.value) || 560;
+    hEl.value = Math.round(w * rh / rw);
+  });
+});
+
+// Presets disposition
+const PRESETS = {
+  'preset-cam-bl': {
+    count: 1,
+    frames: [{ visible:true, x:40,  y:740, width:400, height:225, label:'', showBg:false }],
+  },
+  'preset-cam-br': {
+    count: 1,
+    frames: [{ visible:true, x:1480,y:740, width:400, height:225, label:'', showBg:false }],
+  },
+  'preset-2side': {
+    count: 2,
+    frames: [
+      { visible:true, x:60,   y:200, width:840, height:472, label:'', showBg:false },
+      { visible:true, x:1020, y:200, width:840, height:472, label:'', showBg:false },
+    ],
+  },
+  'preset-3col': {
+    count: 3,
+    frames: [
+      { visible:true, x:60,   y:240, width:560, height:315, label:'', showBg:false },
+      { visible:true, x:680,  y:240, width:560, height:315, label:'', showBg:false },
+      { visible:true, x:1300, y:240, width:560, height:315, label:'', showBg:false },
+    ],
+  },
+};
+
+Object.keys(PRESETS).forEach(id => {
+  document.getElementById(id)?.addEventListener('click', () => {
+    const p = PRESETS[id];
+    // Fusionner : on écrase les cadres concernés
+    p.frames.forEach((f, i) => { framesLocal.frames[i] = Object.assign({}, framesLocal.frames[i], f); });
+    framesLocal.count = p.count;
+    updateFramesUI(framesLocal);
+    framesSend();
+    setStatus('Disposition appliquée');
+  });
+});
+
+// Copier URL
+document.getElementById('btn-copy-frames-url')?.addEventListener('click', () => {
+  const el = document.getElementById('frames-url');
+  if (!el) return;
+  navigator.clipboard.writeText(el.value)
+    .then(() => setStatus('URL cadres copiée'))
+    .catch(() => { el.select(); document.execCommand('copy'); setStatus('URL cadres copiée'); });
+});
+
+// ── Studio / Super Overlay ────────────────────────────────────────
+
+// Fix URL
+(function () {
+  const el = document.getElementById('super-url');
+  if (el) el.value = window.location.origin + '/super-overlay';
+})();
+
+/* Couleur associée à chaque calque */
+const LAYER_COLORS = {
+  'overlay':            '#E8B830',
+  'stageveto':          '#00F5FF',
+  'casters':            '#FF6EC7',
+  'vs-screen':          '#4488FF',
+  'player-stats':       '#6BC96C',
+  'twitch-layout':      '#FF8C00',
+  'twitch-viewer':      '#9B59D0',
+  'ticker':             '#FF4500',
+  'frames':             '#29B6F6',
+  'h2h':                '#FFD700',
+  'tournament-history': '#FF218C',
+  'stream-title':       '#A8FF78',
+};
+
+let superLocal = { bgColor: 'transparent', layers: [] };
+let studioScale = 0.5;
+
+/* ── Envoi au serveur ────────────────────────────────────────── */
+let _superDebounce = null;
+function superSend() {
+  clearTimeout(_superDebounce);
+  _superDebounce = setTimeout(() => {
+    fetch('/api/super', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(superLocal),
+    }).catch(e => setStatus('Erreur Studio : ' + e.message));
+  }, 120);
+}
+
+/* ── Calcul du scale selon la largeur du container ──────────── */
+function recalcStudioScale() {
+  const container = document.getElementById('studio-canvas-container');
+  const wrap      = document.getElementById('studio-canvas-wrap');
+  const inner     = document.getElementById('studio-canvas-inner');
+  if (!container || !wrap || !inner) return;
+
+  const availW  = container.offsetWidth;
+  studioScale   = Math.min(availW / 1920, 1);
+
+  wrap.style.width  = (1920 * studioScale) + 'px';
+  wrap.style.height = (1080 * studioScale) + 'px';
+  inner.style.transform = `scale(${studioScale})`;
+}
+
+/* ── Rendu de la liste de calques ──────────────────────────── */
+function renderLayerList() {
+  const list = document.getElementById('studio-layer-list');
+  if (!list) return;
+
+  const sorted = superLocal.layers.slice().sort((a, b) => a.order - b.order);
+  list.innerHTML = '';
+
+  sorted.forEach(layer => {
+    const color = LAYER_COLORS[layer.id] || '#888';
+    const li = document.createElement('li');
+    li.className   = 'studio-layer-item' + (layer.visible ? '' : ' sli-disabled');
+    li.draggable   = true;
+    li.dataset.id  = layer.id;
+
+    li.innerHTML = `
+      <span class="sli-drag" title="Glisser pour réordonner">⠿</span>
+      <span class="sli-dot" style="background:${color}"></span>
+      <label class="sli-vis-wrap" title="Visible dans le Super Overlay">
+        <input type="checkbox" class="sli-vis" data-id="${layer.id}" ${layer.visible ? 'checked' : ''} />
+        <span style="font-size:11px;">${layer.visible ? 'ON' : 'OFF'}</span>
+      </label>
+      <span class="sli-name">${layer.label}</span>
+    `;
+
+    list.appendChild(li);
+  });
+
+  bindListDrag();
+  bindVisToggles();
+}
+
+/* ── Drag-to-reorder la liste ──────────────────────────────── */
+let _dragListEl = null;
+
+function bindListDrag() {
+  const list = document.getElementById('studio-layer-list');
+  if (!list) return;
+
+  list.querySelectorAll('.studio-layer-item').forEach(li => {
+    li.addEventListener('dragstart', e => {
+      _dragListEl = li;
+      li.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+    });
+    li.addEventListener('dragend', () => {
+      li.classList.remove('dragging');
+      _dragListEl = null;
+      // Réindexer l'order selon position DOM
+      const items = [...list.querySelectorAll('.studio-layer-item')];
+      items.forEach((item, idx) => {
+        const layer = superLocal.layers.find(l => l.id === item.dataset.id);
+        if (layer) layer.order = idx;
+      });
+      superSend();
+      renderCanvas();
+      renderLayerControls();
+    });
+    li.addEventListener('dragover', e => {
+      e.preventDefault();
+      if (!_dragListEl || li === _dragListEl) return;
+      li.classList.add('drag-over');
+      const rect = li.getBoundingClientRect();
+      if (e.clientY < rect.top + rect.height / 2) {
+        list.insertBefore(_dragListEl, li);
+      } else {
+        list.insertBefore(_dragListEl, li.nextSibling);
+      }
+    });
+    li.addEventListener('dragleave', () => li.classList.remove('drag-over'));
+    li.addEventListener('drop', e => {
+      e.preventDefault();
+      li.classList.remove('drag-over');
+    });
+  });
+}
+
+/* ── Toggles de visibilité dans la liste ──────────────────── */
+function bindVisToggles() {
+  document.querySelectorAll('.sli-vis').forEach(chk => {
+    chk.addEventListener('change', () => {
+      const layer = superLocal.layers.find(l => l.id === chk.dataset.id);
+      if (!layer) return;
+      layer.visible = chk.checked;
+
+      // Mettre à jour le label ON/OFF
+      const li = chk.closest('.studio-layer-item');
+      if (li) {
+        li.classList.toggle('sli-disabled', !chk.checked);
+        const span = chk.nextElementSibling;
+        if (span) span.textContent = chk.checked ? 'ON' : 'OFF';
+      }
+
+      superSend();
+      renderCanvas();
+      renderLayerControls();
+    });
+  });
+}
+
+/* ── Rendu du canvas (iframes + handles) ────────────────────── */
+function renderCanvas() {
+  const inner     = document.getElementById('studio-canvas-inner');
+  const dragLayer = document.getElementById('studio-drag-layer');
+  if (!inner || !dragLayer) return;
+
+  recalcStudioScale();
+
+  const sorted = superLocal.layers.slice().sort((a, b) => a.order - b.order);
+
+  /* ── Iframes ── */
+  sorted.forEach((layer, idx) => {
+    let wrap = document.getElementById('sc-wrap-' + layer.id);
+    if (!wrap) {
+      wrap = document.createElement('div');
+      wrap.id        = 'sc-wrap-' + layer.id;
+      wrap.className = 'sc-iframe-wrap';
+      wrap.style.cssText = 'position:absolute;width:1920px;height:1080px;pointer-events:none;';
+
+      const iframe = document.createElement('iframe');
+      iframe.src       = layer.url;
+      iframe.scrolling = 'no';
+      iframe.title     = layer.label;
+      iframe.style.cssText = 'width:1920px;height:1080px;border:none;pointer-events:none;';
+      wrap.appendChild(iframe);
+      inner.appendChild(wrap);
+    }
+    wrap.style.left    = layer.x + 'px';
+    wrap.style.top     = layer.y + 'px';
+    wrap.style.zIndex  = idx;
+    wrap.style.opacity = layer.visible ? (layer.opacity ?? 1) : 0.12;
+    wrap.style.filter  = layer.visible ? 'none' : 'grayscale(100%)';
+  });
+
+  /* ── Handles (en coords écran) ── */
+  dragLayer.innerHTML = '';
+  sorted.filter(l => l.visible).forEach((layer, i) => {
+    const color  = LAYER_COLORS[layer.id] || '#888';
+    const handle = document.createElement('div');
+    handle.className   = 'sc-handle';
+    handle.id          = 'sc-handle-' + layer.id;
+    handle.dataset.id  = layer.id;
+    handle.style.left  = (layer.x * studioScale + 6 + i * 2) + 'px';
+    handle.style.top   = (layer.y * studioScale + 6 + i * 2) + 'px';
+    handle.style.background = color;
+    handle.innerHTML   = `<span class="sc-handle-icon"></span>${layer.label}`;
+    dragLayer.appendChild(handle);
+  });
+
+  bindHandleDrag();
+}
+
+/* ── Drag des handles dans le canvas ───────────────────────── */
+let _dragging = null;
+let _dragStart = null;
+
+function bindHandleDrag() {
+  document.querySelectorAll('.sc-handle').forEach(handle => {
+    handle.addEventListener('mousedown', e => {
+      _dragging  = handle.dataset.id;
+      const layer = superLocal.layers.find(l => l.id === _dragging);
+      if (!layer) return;
+      _dragStart = { mx: e.clientX, my: e.clientY, lx: layer.x, ly: layer.y };
+      e.preventDefault();
+      e.stopPropagation();
+    });
+  });
+}
+
+document.addEventListener('mousemove', e => {
+  if (!_dragging || !_dragStart) return;
+  const layer = superLocal.layers.find(l => l.id === _dragging);
+  if (!layer) return;
+
+  const dx = (e.clientX - _dragStart.mx) / studioScale;
+  const dy = (e.clientY - _dragStart.my) / studioScale;
+  layer.x  = Math.round(_dragStart.lx + dx);
+  layer.y  = Math.round(_dragStart.ly + dy);
+
+  /* Déplacer le handle */
+  const handle = document.getElementById('sc-handle-' + _dragging);
+  if (handle) {
+    handle.style.left = (layer.x * studioScale + 6) + 'px';
+    handle.style.top  = (layer.y * studioScale + 6) + 'px';
+  }
+  /* Déplacer l'iframe dans le canvas */
+  const wrap = document.getElementById('sc-wrap-' + _dragging);
+  if (wrap) { wrap.style.left = layer.x + 'px'; wrap.style.top = layer.y + 'px'; }
+
+  /* Sync les inputs */
+  const xi = document.querySelector(`.sc-x-input[data-id="${_dragging}"]`);
+  const yi = document.querySelector(`.sc-y-input[data-id="${_dragging}"]`);
+  if (xi) xi.value = layer.x;
+  if (yi) yi.value = layer.y;
+});
+
+document.addEventListener('mouseup', () => {
+  if (_dragging) { superSend(); _dragging = null; _dragStart = null; }
+});
+
+/* ── Contrôles par calque visible ──────────────────────────── */
+function renderLayerControls() {
+  const container = document.getElementById('studio-layer-controls');
+  if (!container) return;
+
+  const visible = superLocal.layers
+    .filter(l => l.visible)
+    .sort((a, b) => a.order - b.order);
+
+  if (!visible.length) { container.innerHTML = ''; return; }
+
+  // Garder les valeurs des inputs actifs pendant le rendu
+  const focused = document.activeElement?.dataset?.id;
+
+  container.innerHTML = '';
+
+  const wrap = document.createElement('div');
+  wrap.className = 'custom-card';
+  wrap.style.padding = '10px 14px';
+
+  const title = document.createElement('h3');
+  title.style.marginBottom = '10px';
+  title.textContent = 'Position & opacité des calques actifs';
+  wrap.appendChild(title);
+
+  visible.forEach(layer => {
+    const color = LAYER_COLORS[layer.id] || '#888';
+    const row   = document.createElement('div');
+    row.className = 'studio-ctrl-card';
+
+    row.innerHTML = `
+      <span class="studio-ctrl-dot" style="background:${color}"></span>
+      <span class="studio-ctrl-name">${layer.label}</span>
+
+      <span class="studio-ctrl-field">
+        <label>X</label>
+        <input type="number" class="sc-x-input" data-id="${layer.id}" value="${layer.x}" min="-1920" max="1920" />
+      </span>
+      <span class="studio-ctrl-field">
+        <label>Y</label>
+        <input type="number" class="sc-y-input" data-id="${layer.id}" value="${layer.y}" min="-1080" max="1080" />
+      </span>
+      <span class="studio-ctrl-field" style="flex:1;min-width:160px;">
+        <label>Opacité</label>
+        <input type="range" class="sc-opacity" data-id="${layer.id}" min="0" max="1" step="0.05" value="${layer.opacity ?? 1}" />
+        <span class="studio-ctrl-opacity-val" id="sc-opval-${layer.id}">${Math.round((layer.opacity ?? 1) * 100)}%</span>
+      </span>
+      <button class="btn btn-outline btn-sm sc-reset-pos" data-id="${layer.id}" title="Remettre à X=0 Y=0">↺ 0,0</button>
+    `;
+    wrap.appendChild(row);
+  });
+  container.appendChild(wrap);
+
+  bindLayerControlInputs();
+}
+
+function bindLayerControlInputs() {
+  document.querySelectorAll('.sc-x-input').forEach(el => {
+    el.addEventListener('change', () => {
+      const layer = superLocal.layers.find(l => l.id === el.dataset.id);
+      if (!layer) return;
+      layer.x = Number(el.value);
+      updateCanvasLayerPos(layer);
+      superSend();
+    });
+  });
+  document.querySelectorAll('.sc-y-input').forEach(el => {
+    el.addEventListener('change', () => {
+      const layer = superLocal.layers.find(l => l.id === el.dataset.id);
+      if (!layer) return;
+      layer.y = Number(el.value);
+      updateCanvasLayerPos(layer);
+      superSend();
+    });
+  });
+  document.querySelectorAll('.sc-opacity').forEach(el => {
+    el.addEventListener('input', () => {
+      const layer = superLocal.layers.find(l => l.id === el.dataset.id);
+      if (!layer) return;
+      layer.opacity = Number(el.value);
+      const val = document.getElementById('sc-opval-' + el.dataset.id);
+      if (val) val.textContent = Math.round(layer.opacity * 100) + '%';
+      const wrap = document.getElementById('sc-wrap-' + el.dataset.id);
+      if (wrap) wrap.style.opacity = layer.opacity;
+      superSend();
+    });
+  });
+  document.querySelectorAll('.sc-reset-pos').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const layer = superLocal.layers.find(l => l.id === btn.dataset.id);
+      if (!layer) return;
+      layer.x = 0; layer.y = 0;
+      const xi = document.querySelector(`.sc-x-input[data-id="${btn.dataset.id}"]`);
+      const yi = document.querySelector(`.sc-y-input[data-id="${btn.dataset.id}"]`);
+      if (xi) xi.value = 0;
+      if (yi) yi.value = 0;
+      updateCanvasLayerPos(layer);
+      superSend();
+    });
+  });
+}
+
+function updateCanvasLayerPos(layer) {
+  const wrap   = document.getElementById('sc-wrap-' + layer.id);
+  const handle = document.getElementById('sc-handle-' + layer.id);
+  if (wrap)   { wrap.style.left = layer.x + 'px'; wrap.style.top = layer.y + 'px'; }
+  if (handle) { handle.style.left = (layer.x * studioScale + 6) + 'px'; handle.style.top = (layer.y * studioScale + 6) + 'px'; }
+}
+
+/* ── Bouton "Tout masquer" ───────────────────────────────────── */
+document.getElementById('btn-super-none')?.addEventListener('click', () => {
+  superLocal.layers.forEach(l => { l.visible = false; });
+  superSend();
+  renderLayerList();
+  renderCanvas();
+  renderLayerControls();
+});
+
+/* ── Réinitialiser toutes les positions ─────────────────────── */
+document.getElementById('btn-reset-all-pos')?.addEventListener('click', () => {
+  superLocal.layers.forEach(l => { l.x = 0; l.y = 0; });
+  superSend();
+  renderCanvas();
+  renderLayerControls();
+});
+
+/* ── Fond du Super Overlay ──────────────────────────────────── */
+document.querySelectorAll('.so-bg-preset').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.so-bg-preset').forEach(b => b.classList.remove('active-sep'));
+    btn.classList.add('active-sep');
+    superLocal.bgColor = btn.dataset.bg;
+    superSend();
+  });
+});
+document.getElementById('so-bg-color-picker')?.addEventListener('input', function () {
+  document.querySelectorAll('.so-bg-preset').forEach(b => b.classList.remove('active-sep'));
+  superLocal.bgColor = this.value;
+  superSend();
+});
+
+/* ── Copier URL ──────────────────────────────────────────────── */
+document.getElementById('btn-copy-super-url')?.addEventListener('click', () => {
+  const el = document.getElementById('super-url');
+  if (!el) return;
+  navigator.clipboard.writeText(el.value)
+    .then(() => setStatus('URL Super Overlay copiée'))
+    .catch(() => { el.select(); document.execCommand('copy'); setStatus('URL Super Overlay copiée'); });
+});
+
+/* ── Mise à jour globale depuis le serveur ──────────────────── */
+function updateStudioUI(s) {
+  superLocal = Object.assign(superLocal, s);
+  renderLayerList();
+  renderCanvas();
+  renderLayerControls();
+
+  // Sync fond
+  document.querySelectorAll('.so-bg-preset').forEach(btn => {
+    btn.classList.toggle('active-sep', btn.dataset.bg === s.bgColor);
+  });
+}
+
+/* ── Init ────────────────────────────────────────────────────── */
+fetch('/api/super').then(r => r.json()).then(updateStudioUI).catch(() => {});
+
+// Recalcul scale si le panneau est redimensionné
+if (typeof ResizeObserver !== 'undefined') {
+  const ro = new ResizeObserver(() => {
+    recalcStudioScale();
+    // Repositionner les handles
+    superLocal.layers.filter(l => l.visible).forEach((layer, i) => {
+      const handle = document.getElementById('sc-handle-' + layer.id);
+      if (handle) {
+        handle.style.left = (layer.x * studioScale + 6 + i * 2) + 'px';
+        handle.style.top  = (layer.y * studioScale + 6 + i * 2) + 'px';
+      }
+    });
+  });
+  const container = document.getElementById('studio-canvas-container');
+  if (container) ro.observe(container);
+}
+
+// Recalcul quand on entre dans l'onglet Studio
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    if (btn.dataset.tab === 'studio') {
+      setTimeout(() => { recalcStudioScale(); renderCanvas(); }, 80);
+    }
+  });
+});
+
+// Réception Socket.IO
+if (typeof socket !== 'undefined') {
+  socket.on('titleUpdate',  updateTitleUI);
+  socket.on('tickerUpdate', updateTickerUI);
+  socket.on('framesUpdate', updateFramesUI);
+  socket.on('superUpdate', updateStudioUI);
+}
+=======
+/* ═══════════════════════════════════════════════════════════════
+   TWITCH CHAT CONTROL
+═══════════════════════════════════════════════════════════════ */
+
+(function() {
+  function syncRangeNum(rangeId, numId, display) {
+    const range = document.getElementById(rangeId);
+    const num   = numId ? document.getElementById(numId) : null;
+    const lbl   = display ? document.getElementById(display) : null;
+    if (!range) return;
+    function update(v) {
+      range.value = v;
+      if (num) num.value = v;
+      if (lbl) lbl.textContent = v;
+    }
+    range.addEventListener('input', () => { if (num) num.value = range.value; if (lbl) lbl.textContent = range.value; });
+    if (num) num.addEventListener('input', () => { range.value = num.value; if (lbl) lbl.textContent = num.value; });
+    return update;
+  }
+
+  const setX   = syncRangeNum('chat-pos-x', 'chat-pos-x-num');
+  const setY   = syncRangeNum('chat-pos-y', 'chat-pos-y-num');
+  const setW   = syncRangeNum('chat-width', null, 'chat-width-val');
+  const setMH  = syncRangeNum('chat-maxh', null, 'chat-maxh-val');
+  const setMax = syncRangeNum('chat-max-msg', null, 'chat-max-msg-val');
+  const setPB  = syncRangeNum('chat-particle-border', null, 'chat-particle-border-val');
+
+  // Load initial state
+  fetch('/api/twitch-chat').then(r => r.json()).then(s => {
+    document.getElementById('chat-channel-input').value = s.channel || '';
+    if (setX)   setX(s.x     || 0);
+    if (setY)   setY(s.y     || 0);
+    if (setW)   setW(s.width || 360);
+    if (setMH)  setMH(s.maxHeight || 600);
+    if (setMax) setMax(s.maxMessages || 15);
+    if (setPB)  setPB(s.particleBorder ?? 28);
+    const tToggle = document.getElementById('chat-transparent-toggle');
+    if (tToggle) tToggle.checked = !!s.transparentMode;
+  }).catch(() => {});
+
+  function postChatState(extra) {
+    const body = {
+      channel:     (document.getElementById('chat-channel-input')?.value || '').trim(),
+      maxMessages:    parseInt(document.getElementById('chat-max-msg')?.value) || 15,
+      particleBorder:  parseInt(document.getElementById('chat-particle-border')?.value) ?? 28,
+      transparentMode: !!document.getElementById('chat-transparent-toggle')?.checked,
+      width:       parseInt(document.getElementById('chat-width')?.value) || 360,
+      maxHeight:   parseInt(document.getElementById('chat-maxh')?.value) || 600,
+      x:           parseInt(document.getElementById('chat-pos-x')?.value) || 0,
+      y:           parseInt(document.getElementById('chat-pos-y')?.value) || 0,
+      ...extra,
+    };
+    return fetch('/api/twitch-chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    }).then(r => r.json());
+  }
+
+  document.getElementById('chat-connect-btn')?.addEventListener('click', () => {
+    const chan = (document.getElementById('chat-channel-input')?.value || '').trim();
+    if (!chan) { document.getElementById('chat-status').textContent = 'Entrez un nom de canal.'; return; }
+    postChatState({ visible: true }).then(() => {
+      document.getElementById('chat-status').textContent = `Connexion à #${chan}…`;
+    });
+  });
+
+  document.getElementById('chat-hide-btn')?.addEventListener('click', () => {
+    postChatState({ visible: false }).then(() => {
+      document.getElementById('chat-status').textContent = 'Chat masqué.';
+    });
+  });
+
+  document.getElementById('chat-pos-apply-btn')?.addEventListener('click', () => {
+    postChatState({}).then(() => {
+      document.getElementById('chat-status').textContent = 'Position appliquée.';
+    });
+  });
+
+  // Live update on slider changes
+  ['chat-width','chat-maxh','chat-max-msg','chat-particle-border'].forEach(id => {
+    document.getElementById(id)?.addEventListener('change', () => postChatState({}));
+  });
+  document.getElementById('chat-transparent-toggle')?.addEventListener('change', () => postChatState({}));
+})();
+>>>>>>> Stashed changes

@@ -1,0 +1,50 @@
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: transparent;
+  width: 1920px;
+  height: 1080px;
+  overflow: hidden;
+}
+
+/* Fond plein (optionnel) */
+#so-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  transition: background 0.4s;
+}
+
+/* Conteneur calques */
+#so-root {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
+/* Chaque calque */
+.so-layer {
+  position: absolute;
+  width: 1920px;
+  height: 1080px;
+  pointer-events: none;
+  transition:
+    opacity 0.35s,
+    left   0.4s cubic-bezier(.22,.68,0,1.2),
+    top    0.4s cubic-bezier(.22,.68,0,1.2);
+}
+
+.so-layer iframe {
+  width: 1920px;
+  height: 1080px;
+  border: none;
+  display: block;
+  pointer-events: none;
+}
+
+/* Calque masqué */
+.so-layer.so-hidden {
+  opacity: 0 !important;
+  pointer-events: none;
+}
