@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>PSO – Cadres</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Russo+One&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="frames.css" />
+</head>
+<body>
+
+  <div id="frames-root">
+
+    <!-- Cadre 1 -->
+    <div class="pso-frame" id="frame-0" data-index="0">
+      <div class="frame-glow"></div>
+      <div class="frame-inner">
+        <!-- Coins -->
+        <span class="fc fc-tl"></span>
+        <span class="fc fc-tr"></span>
+        <span class="fc fc-bl"></span>
+        <span class="fc fc-br"></span>
+        <!-- Ticks de milieu -->
+        <span class="ft ft-t"></span>
+        <span class="ft ft-b"></span>
+        <span class="ft ft-l"></span>
+        <span class="ft ft-r"></span>
+        <!-- Label -->
+        <div class="frame-label" id="frame-label-0"></div>
+        <!-- Accent coin coupé -->
+        <div class="frame-cut-tl"></div>
+        <div class="frame-cut-br"></div>
+      </div>
+    </div>
+
+    <!-- Cadre 2 -->
+    <div class="pso-frame" id="frame-1" data-index="1">
+      <div class="frame-glow"></div>
+      <div class="frame-inner">
+        <span class="fc fc-tl"></span>
+        <span class="fc fc-tr"></span>
+        <span class="fc fc-bl"></span>
+        <span class="fc fc-br"></span>
+        <span class="ft ft-t"></span>
+        <span class="ft ft-b"></span>
+        <span class="ft ft-l"></span>
+        <span class="ft ft-r"></span>
+        <div class="frame-label" id="frame-label-1"></div>
+        <div class="frame-cut-tl"></div>
+        <div class="frame-cut-br"></div>
+      </div>
+    </div>
+
+    <!-- Cadre 3 -->
+    <div class="pso-frame" id="frame-2" data-index="2">
+      <div class="frame-glow"></div>
+      <div class="frame-inner">
+        <span class="fc fc-tl"></span>
+        <span class="fc fc-tr"></span>
+        <span class="fc fc-bl"></span>
+        <span class="fc fc-br"></span>
+        <span class="ft ft-t"></span>
+        <span class="ft ft-b"></span>
+        <span class="ft ft-l"></span>
+        <span class="ft ft-r"></span>
+        <div class="frame-label" id="frame-label-2"></div>
+        <div class="frame-cut-tl"></div>
+        <div class="frame-cut-br"></div>
+      </div>
+    </div>
+
+  </div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="frames.js"></script>
+</body>
+</html>
