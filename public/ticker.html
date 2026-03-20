@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>PSO – Bandeau</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Russo+One&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="ticker.css" />
+</head>
+<body>
+
+<div id="ticker-root" class="ticker-root position-bottom">
+
+  <!-- Ligne décorative supérieure -->
+  <div class="ticker-border-top"></div>
+
+  <!-- Corps du bandeau -->
+  <div class="ticker-body">
+
+    <!-- Badge label (gauche) -->
+    <div class="ticker-label" id="ticker-label">
+      <span class="label-dot"></span>
+      <span class="label-text" id="label-text">INFO</span>
+    </div>
+
+    <!-- Séparateur vertical -->
+    <div class="ticker-sep-v"></div>
+
+    <!-- Zone de défilement -->
+    <div class="ticker-track-wrap">
+      <div class="ticker-track" id="ticker-track">
+        <!-- Rempli dynamiquement par ticker.js -->
+      </div>
+    </div>
+
+    <!-- Dégradé de fondu droit -->
+    <div class="ticker-fade"></div>
+
+  </div>
+
+  <!-- Ligne décorative inférieure -->
+  <div class="ticker-border-bottom"></div>
+
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="ticker.js"></script>
+</body>
+</html>

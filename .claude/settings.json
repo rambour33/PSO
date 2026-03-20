@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(curl -sL https://developer.start.gg/reference/player.doc.html)",
+      "Bash(curl -sL https://developer.start.gg/reference/user.doc.html)",
+      "Bash(curl -sL https://developer.start.gg/reference/event.doc.html)",
+      "Bash(xargs grep:*)",
+      "Read(//p/PSO 2/PSO/**)"
+    ]
+  }
+}

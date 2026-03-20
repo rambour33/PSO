@@ -3,6 +3,7 @@ const http = require('http');
 const { Server } = require('socket.io');
 const path = require('path');
 const fs = require('fs');
+const net = require('net');
 
 const RULESETS_FILE      = path.join(__dirname, 'data', 'rulesets.json');
 const THEME_PRESETS_FILE = path.join(__dirname, 'data', 'theme-presets.json');
@@ -64,6 +65,7 @@ let matchState = {
   particleOpacity: 100,
   particleCountScale: 100,
   particlesEnabled: true,
+  hidePlayerColors: false,
   visible: true,
   sbScale: 100,
   sbX: 0,
@@ -173,6 +175,8 @@ let rulesetState = {
   banPatternGame2: '1',
   firstBanner: 1,
   stageClause: false,
+  pickG1: true,
+  pickG2: true,
 };
 
 let castersState = {
@@ -184,6 +188,18 @@ let castersState = {
     { name: '', twitter: '', twitch: '', youtube: '' },
     { name: '', twitter: '', twitch: '', youtube: '' },
   ],
+};
+
+let twitchChatState = {
+  visible: false,
+  channel: '',
+  maxMessages: 15,
+  x: 0,
+  y: 0,
+  width: 360,
+  maxHeight: 600,
+  particleBorder: 28,
+  transparentMode: false,
 };
 
 let playerStatsState = {
@@ -251,6 +267,385 @@ app.get('/casters', (req, res) => res.sendFile(path.join(__dirname, 'public', 'c
 app.get('/control', (req, res) => res.sendFile(path.join(__dirname, 'public', 'control.html')));
 app.get('/vs-screen', (req, res) => res.sendFile(path.join(__dirname, 'public', 'vs-screen.html')));
 app.get('/player-stats', (req, res) => res.sendFile(path.join(__dirname, 'public', 'player-stats.html')));
+<<<<<<< Updated upstream
+app.get('/twitch-layout', (req, res) => res.sendFile(path.join(__dirname, 'public', 'twitch-layout.html')));
+app.get('/twitch-viewer', (req, res) => res.sendFile(path.join(__dirname, 'public', 'twitch-viewer.html')));
+app.get('/ticker', (req, res) => res.sendFile(path.join(__dirname, 'public', 'ticker.html')));
+app.get('/frames', (req, res) => res.sendFile(path.join(__dirname, 'public', 'frames.html')));
+app.get('/stream-title',  (req, res) => res.sendFile(path.join(__dirname, 'public', 'stream-title.html')));
+app.get('/super-overlay', (req, res) => res.sendFile(path.join(__dirname, 'public', 'super-overlay.html')));
+
+// ─── Titre du stream ──────────────────────────────────────────────────────────
+
+let titleState = {
+  visible:     false,
+  title:       '',
+  subtitle:    '',
+  tag:         'LIVE',
+  showTag:     false,
+  showSubtitle:true,
+  position:    'tl',      // tl, tc, tr, ml, mc, mr, bl, bc, br, custom
+  x:           60,
+  y:           60,
+  maxWidth:    700,
+  fontSize:    38,
+  fontSizeSub: 17,
+  bgOpacity:   94,        // 0-100
+  animation:   'slide',   // slide, drop, bounce, fade, none
+  align:       'left',    // left, center, right
+};
+
+app.get('/api/title', (req, res) => res.json(titleState));
+
+app.post('/api/title', (req, res) => {
+  const bools   = ['visible','showTag','showSubtitle'];
+  const numbers = ['x','y','maxWidth','fontSize','fontSizeSub','bgOpacity'];
+  const strings = ['title','subtitle','tag','position','animation','align'];
+  bools.forEach(k   => { if (req.body[k] !== undefined) titleState[k] = !!req.body[k]; });
+  numbers.forEach(k => { if (req.body[k] !== undefined) titleState[k] = Number(req.body[k]); });
+  strings.forEach(k => { if (req.body[k] !== undefined) titleState[k] = String(req.body[k]); });
+  io.emit('titleUpdate', titleState);
+  res.json({ ok: true });
+});
+
+// ─── Super Overlay ──────────────────────────────────────────────────────────────
+
+let superState = {
+  bgColor: 'transparent',
+  layers: [
+    { id: 'overlay',            label: 'Overlay principal',  url: '/overlay',            visible: false, x: 0, y: 0, opacity: 1.0, order: 0  },
+    { id: 'stageveto',          label: 'Stage Veto',         url: '/stageveto',          visible: false, x: 0, y: 0, opacity: 1.0, order: 1  },
+    { id: 'casters',            label: 'Casters',            url: '/casters',            visible: false, x: 0, y: 0, opacity: 1.0, order: 2  },
+    { id: 'vs-screen',          label: 'VS Screen',          url: '/vs-screen',          visible: false, x: 0, y: 0, opacity: 1.0, order: 3  },
+    { id: 'player-stats',       label: 'Stats joueurs',      url: '/player-stats',       visible: false, x: 0, y: 0, opacity: 1.0, order: 4  },
+    { id: 'twitch-layout',      label: 'Twitch Layout',      url: '/twitch-layout',      visible: false, x: 0, y: 0, opacity: 1.0, order: 5  },
+    { id: 'twitch-viewer',      label: 'Viewers Twitch',     url: '/twitch-viewer',      visible: false, x: 0, y: 0, opacity: 1.0, order: 6  },
+    { id: 'ticker',             label: 'Bandeau',            url: '/ticker',             visible: false, x: 0, y: 0, opacity: 1.0, order: 7  },
+    { id: 'frames',             label: 'Cadres',             url: '/frames',             visible: false, x: 0, y: 0, opacity: 1.0, order: 8  },
+    { id: 'h2h',                label: 'H2H',                url: '/h2h',                visible: false, x: 0, y: 0, opacity: 1.0, order: 9  },
+    { id: 'tournament-history', label: 'Historique tournoi', url: '/tournament-history', visible: false, x: 0, y: 0, opacity: 1.0, order: 10 },
+    { id: 'stream-title',       label: 'Titre du stream',   url: '/stream-title',       visible: false, x: 0, y: 0, opacity: 1.0, order: 11 },
+  ],
+};
+
+app.get('/api/super', (req, res) => res.json(superState));
+
+app.post('/api/super', (req, res) => {
+  const { bgColor, layers } = req.body;
+  if (bgColor !== undefined) superState.bgColor = String(bgColor);
+  if (Array.isArray(layers)) {
+    layers.forEach(incoming => {
+      const t = superState.layers.find(l => l.id === incoming.id);
+      if (!t) return;
+      if (incoming.visible  !== undefined) t.visible  = !!incoming.visible;
+      if (incoming.x        !== undefined) t.x        = Number(incoming.x);
+      if (incoming.y        !== undefined) t.y        = Number(incoming.y);
+      if (incoming.opacity  !== undefined) t.opacity  = Math.max(0, Math.min(1, Number(incoming.opacity)));
+      if (incoming.order    !== undefined) t.order    = Number(incoming.order);
+    });
+  }
+  io.emit('superUpdate', superState);
+  res.json({ ok: true });
+});
+
+// ─── Cadres (multi-frame overlay) ─────────────────────────────────────────────
+
+let framesState = {
+  count: 1,
+  frames: [
+    { visible: true, x: 40,  y: 40,  width: 560, height: 420, label: '', showBg: false },
+    { visible: true, x: 640, y: 40,  width: 560, height: 420, label: '', showBg: false },
+    { visible: true, x: 640, y: 500, width: 560, height: 420, label: '', showBg: false },
+  ],
+};
+
+app.get('/api/frames', (req, res) => res.json(framesState));
+
+app.post('/api/frames', (req, res) => {
+  const { count, frames } = req.body;
+  if (count !== undefined) framesState.count = Math.max(1, Math.min(3, Number(count)));
+  if (Array.isArray(frames)) {
+    frames.forEach((f, i) => {
+      if (!framesState.frames[i]) return;
+      const t = framesState.frames[i];
+      if (f.visible  !== undefined) t.visible  = !!f.visible;
+      if (f.x        !== undefined) t.x        = Number(f.x);
+      if (f.y        !== undefined) t.y        = Number(f.y);
+      if (f.width    !== undefined) t.width    = Math.max(50, Number(f.width));
+      if (f.height   !== undefined) t.height   = Math.max(50, Number(f.height));
+      if (f.label    !== undefined) t.label    = String(f.label).slice(0, 40);
+      if (f.showBg   !== undefined) t.showBg   = !!f.showBg;
+    });
+  }
+  io.emit('framesUpdate', framesState);
+  res.json({ ok: true });
+});
+
+// ─── Ticker (bandeau défilant) ─────────────────────────────────────────────────
+
+let tickerState = {
+  visible:   false,
+  position:  'bottom',   // 'top' | 'bottom'
+  label:     'INFO',
+  separator: '◆',
+  speed:     80,          // px/s
+  messages:  [],
+};
+
+app.get('/api/ticker', (req, res) => res.json(tickerState));
+
+app.post('/api/ticker', (req, res) => {
+  const { visible, position, label, separator, speed, messages } = req.body;
+  if (visible   !== undefined) tickerState.visible   = !!visible;
+  if (position  !== undefined) tickerState.position  = position;
+  if (label     !== undefined) tickerState.label     = String(label).slice(0, 20);
+  if (separator !== undefined) tickerState.separator = String(separator).slice(0, 8);
+  if (speed     !== undefined) tickerState.speed     = Math.max(20, Math.min(400, Number(speed)));
+  if (messages  !== undefined) tickerState.messages  = (Array.isArray(messages) ? messages : []).map(m => String(m).trim()).filter(Boolean);
+  io.emit('tickerUpdate', tickerState);
+  res.json({ ok: true });
+});
+
+// ─── Twitch Viewers ────────────────────────────────────────────────────────────
+
+let twitchState = {
+  channel: '',
+  clientId: '',
+  clientSecret: '',
+  viewers: null,      // null = hors ligne / inconnu
+  live: false,
+  _token: null,
+  _tokenExpiry: 0,
+};
+
+async function twitchGetToken() {
+  if (twitchState._token && Date.now() < twitchState._tokenExpiry - 60000) {
+    return twitchState._token;
+  }
+  const { clientId, clientSecret } = twitchState;
+  if (!clientId || !clientSecret) throw new Error('Identifiants Twitch manquants');
+  const res = await fetch(
+    `https://id.twitch.tv/oauth2/token?client_id=${encodeURIComponent(clientId)}&client_secret=${encodeURIComponent(clientSecret)}&grant_type=client_credentials`,
+    { method: 'POST' }
+  );
+  const data = await res.json();
+  if (!data.access_token) throw new Error('Token Twitch invalide : ' + JSON.stringify(data));
+  twitchState._token = data.access_token;
+  twitchState._tokenExpiry = Date.now() + (data.expires_in || 3600) * 1000;
+  return twitchState._token;
+}
+
+async function twitchFetchViewers() {
+  const { channel, clientId } = twitchState;
+  if (!channel || !clientId) return;
+  try {
+    const token = await twitchGetToken();
+    const res = await fetch(
+      `https://api.twitch.tv/helix/streams?user_login=${encodeURIComponent(channel)}`,
+      { headers: { 'Client-Id': clientId, 'Authorization': `Bearer ${token}` } }
+    );
+    const data = await res.json();
+    const stream = data.data && data.data[0];
+    const viewers = stream ? stream.viewer_count : null;
+    const live    = !!stream;
+    if (viewers !== twitchState.viewers || live !== twitchState.live) {
+      twitchState.viewers = viewers;
+      twitchState.live    = live;
+      io.emit('twitch-viewers', { viewers, live, channel });
+    }
+  } catch (e) {
+    console.error('[twitch viewers]', e.message);
+  }
+}
+
+let _twitchInterval = null;
+
+function twitchStartPolling() {
+  if (_twitchInterval) clearInterval(_twitchInterval);
+  twitchFetchViewers();
+  _twitchInterval = setInterval(twitchFetchViewers, 60000);
+}
+
+// Routes config Twitch
+app.get('/api/twitch/config', (req, res) => {
+  const cfg = getConfig();
+  res.json({
+    channel:      cfg.twitchChannel      || '',
+    clientId:     cfg.twitchClientId     || '',
+    hasSecret:    !!cfg.twitchClientSecret,
+    viewers:      twitchState.viewers,
+    live:         twitchState.live,
+  });
+});
+
+app.post('/api/twitch/config', (req, res) => {
+  const { channel, clientId, clientSecret } = req.body;
+  const cfg = getConfig();
+  if (channel    !== undefined) { cfg.twitchChannel      = channel;      twitchState.channel      = channel; }
+  if (clientId   !== undefined) { cfg.twitchClientId     = clientId;     twitchState.clientId     = clientId; }
+  if (clientSecret !== undefined && clientSecret !== '') {
+    cfg.twitchClientSecret = clientSecret;
+    twitchState.clientSecret = clientSecret;
+  }
+  twitchState._token       = null; // reset token
+  twitchState._tokenExpiry = 0;
+  saveConfig(cfg);
+  if (twitchState.channel && twitchState.clientId && twitchState.clientSecret) {
+    twitchStartPolling();
+  }
+  res.json({ ok: true });
+});
+
+// Initialisation au démarrage
+(function () {
+  const cfg = getConfig();
+  twitchState.channel      = cfg.twitchChannel      || '';
+  twitchState.clientId     = cfg.twitchClientId     || '';
+  twitchState.clientSecret = cfg.twitchClientSecret || '';
+  if (twitchState.channel && twitchState.clientId && twitchState.clientSecret) {
+    twitchStartPolling();
+  }
+})();
+=======
+app.get('/twitch-chat', (req, res) => res.sendFile(path.join(__dirname, 'public', 'twitch-chat.html')));
+
+// ── Twitch IRC (TCP natif) ────────────────────────────────────────────────────
+
+let _ircSocket = null;
+let _ircChannel = '';
+let _ircBuffer  = '';
+
+function ircDisconnect() {
+  if (_ircSocket) { try { _ircSocket.destroy(); } catch {} _ircSocket = null; }
+  _ircChannel = '';
+  _ircBuffer  = '';
+  twitchChatState.connected = false;
+}
+
+function ircConnect(channel) {
+  ircDisconnect();
+  if (!channel) return;
+  const chan = channel.toLowerCase();
+  const sock = net.createConnection(6667, 'irc.chat.twitch.tv');
+  _ircSocket = sock;
+
+  sock.on('connect', () => {
+    sock.write(`PASS SCHMOOPIIE\r\n`);
+    sock.write(`NICK justinfan${Math.floor(Math.random() * 80000 + 10000)}\r\n`);
+    sock.write(`CAP REQ :twitch.tv/tags twitch.tv/commands\r\n`);
+    sock.write(`JOIN #${chan}\r\n`);
+    _ircChannel = chan;
+    twitchChatState.connected = true;
+    io.emit('twitchChatUpdate', twitchChatState);
+  });
+
+  sock.on('data', chunk => {
+    _ircBuffer += chunk.toString('utf8');
+    const lines = _ircBuffer.split('\r\n');
+    _ircBuffer = lines.pop();
+    lines.forEach(ircHandleLine);
+  });
+
+  sock.on('error', () => {
+    twitchChatState.connected = false;
+    io.emit('twitchChatUpdate', twitchChatState);
+    if (_ircSocket === sock) _ircSocket = null;
+  });
+
+  sock.on('close', () => {
+    twitchChatState.connected = false;
+    io.emit('twitchChatUpdate', twitchChatState);
+    if (_ircSocket === sock) _ircSocket = null;
+  });
+}
+
+function ircHandleLine(line) {
+  if (!line) return;
+  if (line.startsWith('PING')) {
+    if (_ircSocket) _ircSocket.write('PONG :tmi.twitch.tv\r\n');
+    return;
+  }
+
+  let rest = line;
+  const tags = {};
+
+  if (rest.startsWith('@')) {
+    const sp = rest.indexOf(' ');
+    rest.slice(1, sp).split(';').forEach(p => {
+      const eq = p.indexOf('=');
+      tags[p.slice(0, eq)] = eq >= 0 ? p.slice(eq + 1) : '';
+    });
+    rest = rest.slice(sp + 1);
+  }
+
+  if (!rest.startsWith(':')) return;
+  const parts   = rest.slice(1).split(' ');
+  const prefix  = parts[0];
+  const command = parts[1];
+
+  if (command === 'PRIVMSG') {
+    const chan    = parts[2];
+    const trIdx   = rest.indexOf(` :`, rest.indexOf(chan));
+    let   message = trIdx >= 0 ? rest.slice(trIdx + 2) : '';
+    const isAction = message.startsWith('\x01ACTION ') && message.endsWith('\x01');
+    if (isAction) message = message.slice(8, -1);
+
+    const username = prefix.split('!')[0];
+    const emotes = {};
+    (tags['emotes'] || '').split('/').filter(Boolean).forEach(p => {
+      const [id, pos] = p.split(':');
+      if (id && pos) emotes[id] = pos.split(',');
+    });
+    const badges = {};
+    (tags['badges'] || '').split(',').filter(Boolean).forEach(b => {
+      const [name, ver] = b.split('/');
+      if (name) badges[name] = ver || '1';
+    });
+
+    io.emit('twitchChatMessage', {
+      displayName: tags['display-name'] || username,
+      color:       tags['color'] || null,
+      badges,
+      emotes,
+      message,
+      isAction,
+    });
+  }
+
+  if (command === 'USERNOTICE') {
+    const trIdx  = rest.indexOf(' :');
+    const notice = trIdx >= 0 ? rest.slice(trIdx + 2) : '';
+    const msgId  = tags['msg-id'] || '';
+    const login  = tags['login'] || tags['display-name'] || '';
+    let text = '';
+    if (msgId === 'sub' || msgId === 'resub') {
+      const months = tags['msg-param-cumulative-months'] || '';
+      text = `⭐ ${login} est abonné${months ? ` depuis ${months} mois` : ''} !${notice ? '  ' + notice : ''}`;
+    } else if (msgId === 'subgift') {
+      const recipient = tags['msg-param-recipient-display-name'] || tags['msg-param-recipient-user-name'] || '';
+      text = `🎁 ${login} offre un abonnement à ${recipient} !`;
+    } else if (msgId === 'raid') {
+      const viewers = tags['msg-param-viewerCount'] || '';
+      text = `🚀 ${login} raid avec ${viewers} viewers !`;
+    }
+    if (text) io.emit('twitchChatNotice', { text });
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+
+app.get('/api/twitch-chat', (req, res) => res.json(twitchChatState));
+app.post('/api/twitch-chat', (req, res) => {
+  const prev = twitchChatState.channel;
+  twitchChatState = { ...twitchChatState, ...req.body };
+  if (twitchChatState.channel !== prev || (twitchChatState.visible && !twitchChatState.connected)) {
+    if (twitchChatState.channel) ircConnect(twitchChatState.channel);
+    else ircDisconnect();
+  }
+  io.emit('twitchChatUpdate', twitchChatState);
+  res.json(twitchChatState);
+});
+>>>>>>> Stashed changes
 
 app.get('/api/casters', (req, res) => res.json(castersState));
 
@@ -342,7 +737,15 @@ io.on('connection', (socket) => {
   socket.emit('castersUpdate', castersState);
   socket.emit('playerStatsUpdate', playerStatsState);
   socket.emit('tournamentHistoryUpdate', tournamentHistoryState);
+<<<<<<< Updated upstream
   socket.emit('h2hUpdate', h2hState);
+  socket.emit('twitch-viewers', { viewers: twitchState.viewers, live: twitchState.live, channel: twitchState.channel });
+  socket.emit('tickerUpdate', tickerState);
+  socket.emit('framesUpdate', framesState);
+  socket.emit('superUpdate', superState);
+  socket.emit('titleUpdate', titleState);
+=======
+>>>>>>> Stashed changes
 
   // Déclenche l'animation d'entrée sur la VS screen
   socket.on('triggerVsScreen', () => {
@@ -480,7 +883,7 @@ app.get('/api/startgg/event/:id/entrants', async (req, res) => {
             pageInfo { total totalPages }
             nodes {
               id name
-              participants { gamerTag prefix }
+              participants { gamerTag prefix player { id user { slug } } }
             }
           }
         }
@@ -686,264 +1089,6 @@ app.get('/api/startgg/event/:id/player-stats/:entrantId', async (req, res) => {
     res.json({ playerName, playerTag, eventName, wins, losses, topCharacters, allMatches, nextMatch });
   } catch (e) {
     console.error('[player-stats]', e.message);
-    res.status(400).json({ error: e.message });
-  }
-});
-
-// ─── H2H State & API ─────────────────────────────────────────────────────────
-
-let h2hState = {
-  visible: false,
-  player1: { name: '', tag: '', color: '#E83030', currentStats: { wins:0, losses:0, winRate:0, topChars:[] } },
-  player2: { name: '', tag: '', color: '#3070E8', currentStats: { wins:0, losses:0, winRate:0, topChars:[] } },
-  h2h: { player1Wins:0, player2Wins:0, totalSets:0, topCharsP1:[], topCharsP2:[], sets:[] },
-};
-
-app.get('/h2h', (req, res) =>
-  res.sendFile(path.join(__dirname, 'public', 'h2h.html')));
-
-app.get('/api/h2h', (req, res) => res.json(h2hState));
-app.post('/api/h2h', (req, res) => {
-  h2hState = { ...h2hState, ...req.body };
-  io.emit('h2hUpdate', h2hState);
-  res.json(h2hState);
-});
-
-// Calcule et retourne les stats H2H pour deux entrants d'un même event
-app.get('/api/startgg/event/:eventId/h2h/:entrant1Id/:entrant2Id', async (req, res) => {
-  try {
-    const { eventId, entrant1Id, entrant2Id } = req.params;
-    const tournamentLimit = req.query.limitTournaments ? parseInt(req.query.limitTournaments) : null;
-
-    // ── Helpers ──────────────────────────────────────────────────────────────
-
-    function extractInfo(slots, entrantId) {
-      const slot = (slots || []).find(s => String(s.entrant?.id) === String(entrantId));
-      if (!slot) return null;
-      const p = slot.entrant?.participants?.[0];
-      return {
-        name:     p?.gamerTag || slot.entrant?.name || '',
-        tag:      p?.prefix   || '',
-        playerId: p?.player?.id || null,
-      };
-    }
-
-    function mapChars(counts) {
-      return Object.entries(counts)
-        .sort((a, b) => b[1] - a[1]).slice(0, 3)
-        .map(([id, games]) => {
-          const internal = SSBU_CHAR_MAP[parseInt(id)];
-          const entry    = internal ? characterList.find(c => c.id === internal) : null;
-          return {
-            name:  entry?.name || `Perso #${id}`,
-            image: internal ? `/Stock Icons/chara_2_${internal}_00.png` : '',
-            games,
-          };
-        });
-    }
-
-    function computeStats(entrantId, sets) {
-      let wins = 0, losses = 0;
-      const chars = {};
-      for (const set of sets) {
-        if (String(set.winnerId) === String(entrantId)) wins++; else losses++;
-        for (const game of (set.games || []))
-          for (const sel of (game.selections || []))
-            if (String(sel.entrant?.id) === String(entrantId) && sel.selectionType === 'CHARACTER')
-              chars[sel.selectionValue] = (chars[sel.selectionValue] || 0) + 1;
-      }
-      return { wins, losses, winRate: wins + losses > 0 ? Math.round(wins / (wins + losses) * 100) : 0, topChars: mapChars(chars) };
-    }
-
-    // ── 1. Sets du tournoi en cours pour les deux entrants ───────────────────
-
-    let page = 1, totalPages = 1;
-    let allCurrentSets = [];
-    let p1Info = null, p2Info = null;
-    let eventName = '';
-
-    while (page <= totalPages) {
-      const d = await startggQuery(`
-        query CurrentSets($eventId: ID!, $e1: ID!, $e2: ID!, $page: Int!) {
-          event(id: $eventId) {
-            name
-            sets(filters: { entrantIds: [$e1, $e2] }, perPage: 50, page: $page) {
-              pageInfo { totalPages }
-              nodes {
-                id fullRoundText state winnerId
-                slots {
-                  entrant { id name participants { gamerTag prefix player { id } } }
-                  standing { stats { score { value } } }
-                }
-                games {
-                  winnerId
-                  selections { entrant { id } selectionType selectionValue }
-                }
-              }
-            }
-          }
-        }
-      `, { eventId, e1: entrant1Id, e2: entrant2Id, page });
-
-      if (!d.event) return res.status(404).json({ error: 'Évènement introuvable' });
-      eventName  = d.event.name;
-      totalPages = d.event.sets?.pageInfo?.totalPages || 1;
-      allCurrentSets = allCurrentSets.concat(d.event.sets?.nodes || []);
-      page++;
-    }
-
-    const completedCurrent = allCurrentSets.filter(s => s.state === 3);
-
-    // Extraire infos joueurs depuis n'importe quel set
-    for (const set of completedCurrent) {
-      if (!p1Info) p1Info = extractInfo(set.slots, entrant1Id);
-      if (!p2Info) p2Info = extractInfo(set.slots, entrant2Id);
-      if (p1Info && p2Info) break;
-    }
-    // Fallback : chercher dans les sets non terminés si un des joueurs est inconnu
-    if (!p1Info || !p2Info) {
-      for (const set of allCurrentSets) {
-        if (!p1Info) p1Info = extractInfo(set.slots, entrant1Id);
-        if (!p2Info) p2Info = extractInfo(set.slots, entrant2Id);
-        if (p1Info && p2Info) break;
-      }
-    }
-    if (!p1Info || !p2Info)
-      return res.status(404).json({ error: 'Infos joueurs introuvables dans cet évènement' });
-
-    // Stats individuelles dans le tournoi en cours
-    const p1CurrentSets = completedCurrent.filter(s =>
-      (s.slots||[]).some(sl => String(sl.entrant?.id) === String(entrant1Id)));
-    const p2CurrentSets = completedCurrent.filter(s =>
-      (s.slots||[]).some(sl => String(sl.entrant?.id) === String(entrant2Id)));
-
-    // H2H dans le tournoi en cours (sets où les deux joueurs s'affrontent)
-    const h2hCurrentSets = completedCurrent.filter(s => {
-      const ids = (s.slots||[]).map(sl => String(sl.entrant?.id));
-      return ids.includes(String(entrant1Id)) && ids.includes(String(entrant2Id));
-    });
-
-    // ── 2. H2H historique via player.sets paginé ─────────────────────────────
-
-    const historicalH2H = [];
-
-    if (p1Info.playerId) {
-      let page = 1;
-      const seenTournaments = new Set();
-      let stopPaging = false;
-      while (!stopPaging) {
-        const stData = await startggQuery(`
-          query P1Sets($playerId: ID!, $page: Int!) {
-            player(id: $playerId) {
-              sets(page: $page, perPage: 20, filters: { state: [3] }) {
-                pageInfo { totalPages }
-                nodes {
-                  id fullRoundText winnerId
-                  event { id name tournament { id name } }
-                  slots {
-                    entrant { id name participants { gamerTag prefix } }
-                    standing { stats { score { value } } }
-                  }
-                  games {
-                    winnerId
-                    selections { entrant { id } selectionType selectionValue }
-                  }
-                }
-              }
-            }
-          }
-        `, { playerId: p1Info.playerId, page });
-
-        const setsPage  = stData.player?.sets;
-        const nodes     = setsPage?.nodes || [];
-        const totalPages = setsPage?.pageInfo?.totalPages || 1;
-
-        for (const set of nodes) {
-          if (String(set.event?.id) === String(eventId)) continue;
-          const tId = set.event?.tournament?.id || set.event?.id;
-          if (tId) seenTournaments.add(String(tId));
-          if (tournamentLimit && seenTournaments.size > tournamentLimit) {
-            stopPaging = true;
-            break;
-          }
-          const p1Slot  = (set.slots||[]).find(sl => {
-            const tag = sl.entrant?.participants?.[0]?.gamerTag || sl.entrant?.name || '';
-            return tag.toLowerCase() === p1Info.name.toLowerCase();
-          });
-          const oppSlot = (set.slots||[]).find(sl => {
-            const tag = sl.entrant?.participants?.[0]?.gamerTag || sl.entrant?.name || '';
-            return tag.toLowerCase() === p2Info.name.toLowerCase();
-          });
-          if (!p1Slot || !oppSlot) continue;
-          historicalH2H.push({
-            set,
-            p1EntrantId:    p1Slot.entrant?.id,
-            p2EntrantId:    oppSlot.entrant?.id,
-            tournamentName: set.event?.tournament?.name || set.event?.name || '',
-            eventName:      set.event?.name || '',
-          });
-        }
-
-        if (page >= totalPages) break;
-        page++;
-      }
-    }
-
-    // ── 3. Compiler tous les sets H2H ────────────────────────────────────────
-
-    const allH2H = [
-      ...h2hCurrentSets.map(set => ({
-        set, p1EntrantId: entrant1Id, p2EntrantId: entrant2Id,
-        tournamentName: eventName, eventName, isCurrent: true,
-      })),
-      ...historicalH2H.map(h => ({ ...h, isCurrent: false })),
-    ];
-
-    let h2hWins1 = 0, h2hWins2 = 0;
-    const h2hChars1 = {}, h2hChars2 = {};
-
-    const h2hSets = allH2H.map(({ set, p1EntrantId, p2EntrantId, tournamentName, eventName: evName, isCurrent }) => {
-      const p1Slot = (set.slots||[]).find(sl => String(sl.entrant?.id) === String(p1EntrantId));
-      const p2Slot = (set.slots||[]).find(sl => String(sl.entrant?.id) !== String(p1EntrantId));
-      const p1Won  = String(set.winnerId) === String(p1EntrantId);
-      if (p1Won) h2hWins1++; else h2hWins2++;
-
-      for (const game of (set.games||[])) {
-        for (const sel of (game.selections||[])) {
-          if (sel.selectionType !== 'CHARACTER') continue;
-          const bucket = String(sel.entrant?.id) === String(p1EntrantId) ? h2hChars1 : h2hChars2;
-          bucket[sel.selectionValue] = (bucket[sel.selectionValue] || 0) + 1;
-        }
-      }
-
-      const s1 = p1Slot?.standing?.stats?.score?.value ?? null;
-      const s2 = p2Slot?.standing?.stats?.score?.value ?? null;
-      return {
-        tournamentName,
-        eventName: evName,
-        isCurrent,
-        round:   set.fullRoundText || '',
-        winner:  p1Won ? 1 : 2,
-        score1:  s1 !== null ? Math.max(0, s1) : undefined,
-        score2:  s2 !== null ? Math.max(0, s2) : undefined,
-      };
-    });
-
-    res.json({
-      eventName,
-      player1: { name: p1Info.name, tag: p1Info.tag, currentStats: computeStats(entrant1Id, p1CurrentSets) },
-      player2: { name: p2Info.name, tag: p2Info.tag, currentStats: computeStats(entrant2Id, p2CurrentSets) },
-      h2h: {
-        player1Wins: h2hWins1,
-        player2Wins: h2hWins2,
-        totalSets:   h2hWins1 + h2hWins2,
-        topCharsP1:  mapChars(h2hChars1),
-        topCharsP2:  mapChars(h2hChars2),
-        sets: h2hSets,
-      },
-    });
-  } catch (e) {
-    console.error('[h2h]', e.message);
     res.status(400).json({ error: e.message });
   }
 });
@@ -1167,7 +1312,6 @@ server.listen(PORT, () => {
   console.log('   Overlay casters    → http://localhost:' + PORT + '/casters');
   console.log('   Overlay stats      → http://localhost:' + PORT + '/player-stats');
   console.log('   Overlay historique → http://localhost:' + PORT + '/tournament-history');
-  console.log('   Overlay H2H        → http://localhost:' + PORT + '/h2h');
+  console.log('   Overlay chat       → http://localhost:' + PORT + '/twitch-chat');
   console.log('   Contrôle           → http://localhost:' + PORT + '/control');
-  console.log('');
 });
