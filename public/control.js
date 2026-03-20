@@ -3327,6 +3327,186 @@ if (typeof socket !== 'undefined') {
   socket.on('twitch-viewers', updateTwitchDisplay);
 }
 
+// ── Titre du stream ───────────────────────────────────────────────
+
+// Fix URL
+(function () {
+  const el = document.getElementById('title-url');
+  if (el) el.value = window.location.origin + '/stream-title';
+})();
+
+let titleLocal = {
+  visible: false, title: '', subtitle: '', tag: 'LIVE',
+  showTag: false, showSubtitle: true,
+  position: 'tl', x: 60, y: 60,
+  maxWidth: 700, fontSize: 38, fontSizeSub: 17,
+  bgOpacity: 94, animation: 'slide', align: 'left',
+};
+
+function titleSend(patch) {
+  if (patch) Object.assign(titleLocal, patch);
+  fetch('/api/title', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(titleLocal),
+  }).catch(e => setStatus('Erreur Titre : ' + e.message));
+}
+
+/* Mise à jour UI depuis état */
+function updateTitleUI(s) {
+  Object.assign(titleLocal, s);
+
+  const btn = document.getElementById('btn-title-toggle');
+  if (btn) {
+    btn.textContent = s.visible ? '⏸ Masquer le titre' : '▶ Afficher le titre';
+    btn.classList.toggle('btn-danger', !!s.visible);
+    btn.classList.toggle('btn-primary', !s.visible);
+  }
+
+  function syncInput(id, val) {
+    const el = document.getElementById(id);
+    if (el && document.activeElement !== el) el.value = val;
+  }
+  function syncCheck(id, val) {
+    const el = document.getElementById(id);
+    if (el) el.checked = !!val;
+  }
+
+  syncInput('title-text-input', s.title || '');
+  syncInput('title-sub-input',  s.subtitle || '');
+  syncInput('title-tag-input',  s.tag || 'LIVE');
+  syncCheck('title-showsub',    s.showSubtitle);
+  syncCheck('title-showtag',    s.showTag);
+  syncInput('title-x', s.x);
+  syncInput('title-y', s.y);
+
+  syncInput('title-fs-range',    s.fontSize);
+  syncInput('title-fs-num',      s.fontSize);
+  syncInput('title-fssub-range', s.fontSizeSub);
+  syncInput('title-fssub-num',   s.fontSizeSub);
+  syncInput('title-mw-range',    s.maxWidth);
+  syncInput('title-mw-num',      s.maxWidth);
+  syncInput('title-bg-range',    s.bgOpacity);
+  syncInput('title-bg-num',      s.bgOpacity);
+
+  document.querySelectorAll('.title-pos-btn').forEach(b =>
+    b.classList.toggle('active-sep', b.dataset.pos === s.position));
+  document.querySelectorAll('.title-align-btn').forEach(b =>
+    b.classList.toggle('active-sep', b.dataset.align === s.align));
+  document.querySelectorAll('.title-anim-btn').forEach(b =>
+    b.classList.toggle('active-sep', b.dataset.anim === s.animation));
+}
+
+/* Charger l'état initial */
+fetch('/api/title').then(r => r.json()).then(updateTitleUI).catch(() => {});
+
+/* Bouton ON/OFF */
+document.getElementById('btn-title-toggle')?.addEventListener('click', () => {
+  titleLocal.visible = !titleLocal.visible;
+  titleSend();
+  updateTitleUI({ visible: titleLocal.visible });
+});
+
+/* Boutons position */
+document.querySelectorAll('.title-pos-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    titleLocal.position = btn.dataset.pos;
+    document.querySelectorAll('.title-pos-btn').forEach(b => b.classList.remove('active-sep'));
+    btn.classList.add('active-sep');
+    titleSend();
+  });
+});
+
+/* Boutons tag preset */
+document.querySelectorAll('.title-tag-preset').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const inp = document.getElementById('title-tag-input');
+    if (inp) inp.value = btn.dataset.tag;
+  });
+});
+
+/* Bouton Appliquer textes */
+document.getElementById('btn-title-texts')?.addEventListener('click', () => {
+  titleSend({
+    title:        document.getElementById('title-text-input')?.value || '',
+    subtitle:     document.getElementById('title-sub-input')?.value  || '',
+    tag:          (document.getElementById('title-tag-input')?.value || 'LIVE').toUpperCase(),
+    showSubtitle: document.getElementById('title-showsub')?.checked ?? true,
+    showTag:      document.getElementById('title-showtag')?.checked ?? false,
+  });
+  setStatus('Textes mis à jour');
+});
+
+/* Boutons alignement */
+document.querySelectorAll('.title-align-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.title-align-btn').forEach(b => b.classList.remove('active-sep'));
+    btn.classList.add('active-sep');
+    titleSend({ align: btn.dataset.align });
+  });
+});
+
+/* Boutons animation */
+document.querySelectorAll('.title-anim-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.title-anim-btn').forEach(b => b.classList.remove('active-sep'));
+    btn.classList.add('active-sep');
+    titleSend({ animation: btn.dataset.anim });
+  });
+});
+
+/* Sliders synchro (range ↔ number) */
+(function () {
+  const pairs = [
+    ['title-fs-range',    'title-fs-num',    'fontSize'],
+    ['title-fssub-range', 'title-fssub-num', 'fontSizeSub'],
+    ['title-mw-range',    'title-mw-num',    'maxWidth'],
+    ['title-bg-range',    'title-bg-num',    'bgOpacity'],
+  ];
+  pairs.forEach(([rid, nid, key]) => {
+    const range = document.getElementById(rid);
+    const num   = document.getElementById(nid);
+    if (!range || !num) return;
+    let _t = null;
+    function onVal(v) {
+      clearTimeout(_t);
+      _t = setTimeout(() => titleSend({ [key]: Number(v) }), 250);
+    }
+    range.addEventListener('input', () => { num.value = range.value; onVal(range.value); });
+    num.addEventListener('input',   () => { range.value = num.value; onVal(num.value); });
+  });
+
+  /* Position X/Y custom */
+  ['title-x', 'title-y'].forEach(id => {
+    document.getElementById(id)?.addEventListener('change', () => {
+      titleSend({
+        x: Number(document.getElementById('title-x')?.value || 60),
+        y: Number(document.getElementById('title-y')?.value || 60),
+      });
+    });
+  });
+})();
+
+/* Bouton Appliquer style */
+document.getElementById('btn-title-style')?.addEventListener('click', () => {
+  titleSend({
+    fontSize:    Number(document.getElementById('title-fs-num')?.value    || 38),
+    fontSizeSub: Number(document.getElementById('title-fssub-num')?.value || 17),
+    maxWidth:    Number(document.getElementById('title-mw-num')?.value    || 700),
+    bgOpacity:   Number(document.getElementById('title-bg-num')?.value    || 94),
+  });
+  setStatus('Style mis à jour');
+});
+
+/* Copier URL */
+document.getElementById('btn-copy-title-url')?.addEventListener('click', () => {
+  const el = document.getElementById('title-url');
+  if (!el) return;
+  navigator.clipboard.writeText(el.value)
+    .then(() => setStatus('URL titre copiée'))
+    .catch(() => { el.select(); document.execCommand('copy'); setStatus('URL titre copiée'); });
+});
+
 // ── Bandeau / Ticker ──────────────────────────────────────────────
 
 // Corriger l'URL avec le bon host
@@ -3650,6 +3830,7 @@ const LAYER_COLORS = {
   'frames':             '#29B6F6',
   'h2h':                '#FFD700',
   'tournament-history': '#FF218C',
+  'stream-title':       '#A8FF78',
 };
 
 let superLocal = { bgColor: 'transparent', layers: [] };
@@ -4077,6 +4258,7 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
 
 // Réception Socket.IO
 if (typeof socket !== 'undefined') {
+  socket.on('titleUpdate',  updateTitleUI);
   socket.on('tickerUpdate', updateTickerUI);
   socket.on('framesUpdate', updateFramesUI);
   socket.on('superUpdate', updateStudioUI);

@@ -30,6 +30,7 @@
       <a href="/tournament-history" target="_blank" class="btn btn-outline">Historique ↗</a>
       <a href="/h2h" target="_blank" class="btn btn-outline">H2H ↗</a>
       <a href="/twitch-layout" target="_blank" class="btn btn-outline">Twitch Layout ↗</a>
+      <a href="/stream-title" target="_blank" class="btn btn-outline">Titre ↗</a>
       <a href="/ticker" target="_blank" class="btn btn-outline">Bandeau ↗</a>
       <a href="/frames" target="_blank" class="btn btn-outline">Cadres ↗</a>
       <a href="/super-overlay" target="_blank" class="btn btn-outline">Super Overlay ↗</a>
@@ -47,6 +48,7 @@
     <button class="tab-btn" data-tab="chars" style="display:none">Personnages</button>
     <button class="tab-btn" data-tab="startgg">start.gg</button>
     <button class="tab-btn" data-tab="twitch">Layouts Twitch</button>
+    <button class="tab-btn" data-tab="titre">Titre</button>
     <button class="tab-btn" data-tab="ticker">Bandeau</button>
     <button class="tab-btn" data-tab="frames">Cadres</button>
     <button class="tab-btn" data-tab="studio">Studio</button>
@@ -2150,6 +2152,182 @@
 
     </section>
   </div><!-- /tab-frames -->
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- TAB : TITRE DU STREAM                                       -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <div class="tab-content" id="tab-titre">
+    <section class="section">
+
+      <div class="section-header">
+        <h2>Titre du stream</h2>
+        <a href="/stream-title" target="_blank" class="btn btn-outline btn-sm">Ouvrir l'overlay ↗</a>
+      </div>
+
+      <!-- Activation -->
+      <div class="custom-card">
+        <h3>Activation</h3>
+        <button id="btn-title-toggle" class="btn btn-primary" style="min-width:200px;">▶ Afficher le titre</button>
+      </div>
+
+      <!-- Aperçu -->
+      <div class="custom-card" style="padding:0;overflow:hidden;border-radius:8px;">
+        <div style="background:#111;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;">
+          <span style="font-size:12px;font-weight:600;color:var(--text-muted);letter-spacing:1px;text-transform:uppercase;">Aperçu – s'adapte au thème actif</span>
+          <span style="font-size:11px;color:var(--text-muted)">1920 × 1080</span>
+        </div>
+        <div style="position:relative;width:100%;padding-bottom:56.25%;background:#0a0a0f;overflow:hidden;">
+          <iframe src="/stream-title" id="title-preview"
+            style="position:absolute;top:0;left:0;width:100%;height:100%;border:none;pointer-events:none;"
+            scrolling="no"></iframe>
+        </div>
+      </div>
+
+      <!-- Textes -->
+      <div class="custom-card">
+        <h3>Textes</h3>
+
+        <div class="form-group" style="margin-bottom:14px;">
+          <label>Titre principal</label>
+          <input type="text" id="title-text-input" placeholder="Nom du stream, événement…" maxlength="100" />
+        </div>
+
+        <div class="form-group" style="margin-bottom:14px;">
+          <label>Sous-titre <span class="hint">optionnel</span></label>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <input type="text" id="title-sub-input" placeholder="Saison 3 · Episode 12…" maxlength="120" style="flex:1;" />
+            <label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer;flex-shrink:0;">
+              <input type="checkbox" id="title-showsub" checked /> Afficher
+            </label>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Badge <span class="hint">texte du badge gauche</span></label>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <input type="text" id="title-tag-input" placeholder="LIVE" maxlength="12" style="width:100px;text-transform:uppercase;" />
+            <label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer;">
+              <input type="checkbox" id="title-showtag" /> Afficher
+            </label>
+            <div style="display:flex;gap:4px;">
+              <button class="btn btn-outline btn-sm title-tag-preset" data-tag="LIVE">LIVE</button>
+              <button class="btn btn-outline btn-sm title-tag-preset" data-tag="VOD">VOD</button>
+              <button class="btn btn-outline btn-sm title-tag-preset" data-tag="TOP 8">TOP 8</button>
+              <button class="btn btn-outline btn-sm title-tag-preset" data-tag="GF">GF</button>
+            </div>
+          </div>
+        </div>
+
+        <button class="btn btn-primary btn-sm" id="btn-title-texts" style="margin-top:12px;">Appliquer les textes</button>
+      </div>
+
+      <!-- Position -->
+      <div class="custom-card">
+        <h3>Position</h3>
+
+        <!-- Grille 3×3 style numpad -->
+        <div style="display:inline-grid;grid-template-columns:repeat(3,44px);grid-template-rows:repeat(3,38px);gap:4px;margin-bottom:14px;" id="title-pos-grid">
+          <button class="btn btn-outline btn-sm title-pos-btn active-sep" data-pos="tl"  title="Haut gauche">↖</button>
+          <button class="btn btn-outline btn-sm title-pos-btn"            data-pos="tc"  title="Haut centre">↑</button>
+          <button class="btn btn-outline btn-sm title-pos-btn"            data-pos="tr"  title="Haut droit">↗</button>
+          <button class="btn btn-outline btn-sm title-pos-btn"            data-pos="ml"  title="Milieu gauche">←</button>
+          <button class="btn btn-outline btn-sm title-pos-btn"            data-pos="mc"  title="Centre">⊙</button>
+          <button class="btn btn-outline btn-sm title-pos-btn"            data-pos="mr"  title="Milieu droit">→</button>
+          <button class="btn btn-outline btn-sm title-pos-btn"            data-pos="bl"  title="Bas gauche">↙</button>
+          <button class="btn btn-outline btn-sm title-pos-btn"            data-pos="bc"  title="Bas centre">↓</button>
+          <button class="btn btn-outline btn-sm title-pos-btn"            data-pos="br"  title="Bas droit">↘</button>
+        </div>
+
+        <!-- Position personnalisée -->
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+          <button class="btn btn-outline btn-sm title-pos-btn" data-pos="custom" id="btn-pos-custom">Perso</button>
+          <span style="font-size:12px;color:var(--text-muted);">X :</span>
+          <input type="number" id="title-x" value="60" min="0" max="1920" style="width:70px;" />
+          <span style="font-size:12px;color:var(--text-muted);">Y :</span>
+          <input type="number" id="title-y" value="60" min="0" max="1080" style="width:70px;" />
+        </div>
+      </div>
+
+      <!-- Style -->
+      <div class="custom-card">
+        <h3>Style</h3>
+
+        <!-- Alignement -->
+        <div class="form-group" style="margin-bottom:14px;">
+          <label>Alignement du texte</label>
+          <div style="display:flex;gap:6px;">
+            <button class="btn btn-outline btn-sm title-align-btn active-sep" data-align="left">◀ Gauche</button>
+            <button class="btn btn-outline btn-sm title-align-btn" data-align="center">▶◀ Centre</button>
+            <button class="btn btn-outline btn-sm title-align-btn" data-align="right">Droite ▶</button>
+          </div>
+        </div>
+
+        <!-- Animation d'entrée -->
+        <div class="form-group" style="margin-bottom:14px;">
+          <label>Animation d'entrée</label>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;">
+            <button class="btn btn-outline btn-sm title-anim-btn active-sep" data-anim="slide">← Glissement</button>
+            <button class="btn btn-outline btn-sm title-anim-btn" data-anim="drop">↓ Chute</button>
+            <button class="btn btn-outline btn-sm title-anim-btn" data-anim="bounce">⇢ Rebond</button>
+            <button class="btn btn-outline btn-sm title-anim-btn" data-anim="fade">Fondu</button>
+            <button class="btn btn-outline btn-sm title-anim-btn" data-anim="none">Aucune</button>
+          </div>
+        </div>
+
+        <!-- Taille de la police -->
+        <div class="form-group" style="margin-bottom:14px;">
+          <label>Taille du titre <span class="hint">20 – 96 px</span></label>
+          <div class="logo-particles-row">
+            <input type="range"  id="title-fs-range" min="20" max="96" value="38" />
+            <input type="number" id="title-fs-num"   min="20" max="96" value="38" style="width:58px;" />
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom:14px;">
+          <label>Taille du sous-titre <span class="hint">12 – 40 px</span></label>
+          <div class="logo-particles-row">
+            <input type="range"  id="title-fssub-range" min="12" max="40" value="17" />
+            <input type="number" id="title-fssub-num"   min="12" max="40" value="17" style="width:58px;" />
+          </div>
+        </div>
+
+        <!-- Largeur max -->
+        <div class="form-group" style="margin-bottom:14px;">
+          <label>Largeur max <span class="hint">200 – 1600 px</span></label>
+          <div class="logo-particles-row">
+            <input type="range"  id="title-mw-range" min="200" max="1600" value="700" />
+            <input type="number" id="title-mw-num"   min="200" max="1600" value="700" style="width:68px;" />
+          </div>
+        </div>
+
+        <!-- Opacité fond -->
+        <div class="form-group">
+          <label>Opacité du fond <span class="hint">0 = transparent · 100 = plein</span></label>
+          <div class="logo-particles-row">
+            <input type="range"  id="title-bg-range" min="0" max="100" value="94" />
+            <input type="number" id="title-bg-num"   min="0" max="100" value="94" style="width:58px;" />
+          </div>
+        </div>
+
+        <button class="btn btn-primary btn-sm" id="btn-title-style" style="margin-top:12px;">Appliquer le style</button>
+      </div>
+
+      <!-- URL OBS -->
+      <div class="custom-card">
+        <h3>Source OBS</h3>
+        <p style="font-size:13px;color:var(--text-muted);margin-bottom:10px;line-height:1.6;">
+          Ajoute une <strong>Source Navigateur</strong> · Résolution <strong>1920 × 1080</strong> · Fond transparent.
+        </p>
+        <div class="name-row" style="gap:8px;">
+          <input type="text" id="title-url" readonly
+            style="flex:1;font-size:12px;background:var(--surface2);border:1px solid var(--border);color:var(--text-muted);"
+            value="http://localhost:3002/stream-title" />
+          <button class="btn btn-primary btn-sm" id="btn-copy-title-url">Copier</button>
+        </div>
+      </div>
+
+    </section>
+  </div><!-- /tab-titre -->
 
   <!-- ═══════════════════════════════════════════════════════════ -->
   <!-- TAB : BANDEAU / TICKER                                      -->

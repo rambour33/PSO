@@ -255,7 +255,41 @@ app.get('/twitch-layout', (req, res) => res.sendFile(path.join(__dirname, 'publi
 app.get('/twitch-viewer', (req, res) => res.sendFile(path.join(__dirname, 'public', 'twitch-viewer.html')));
 app.get('/ticker', (req, res) => res.sendFile(path.join(__dirname, 'public', 'ticker.html')));
 app.get('/frames', (req, res) => res.sendFile(path.join(__dirname, 'public', 'frames.html')));
+app.get('/stream-title',  (req, res) => res.sendFile(path.join(__dirname, 'public', 'stream-title.html')));
 app.get('/super-overlay', (req, res) => res.sendFile(path.join(__dirname, 'public', 'super-overlay.html')));
+
+// ─── Titre du stream ──────────────────────────────────────────────────────────
+
+let titleState = {
+  visible:     false,
+  title:       '',
+  subtitle:    '',
+  tag:         'LIVE',
+  showTag:     false,
+  showSubtitle:true,
+  position:    'tl',      // tl, tc, tr, ml, mc, mr, bl, bc, br, custom
+  x:           60,
+  y:           60,
+  maxWidth:    700,
+  fontSize:    38,
+  fontSizeSub: 17,
+  bgOpacity:   94,        // 0-100
+  animation:   'slide',   // slide, drop, bounce, fade, none
+  align:       'left',    // left, center, right
+};
+
+app.get('/api/title', (req, res) => res.json(titleState));
+
+app.post('/api/title', (req, res) => {
+  const bools   = ['visible','showTag','showSubtitle'];
+  const numbers = ['x','y','maxWidth','fontSize','fontSizeSub','bgOpacity'];
+  const strings = ['title','subtitle','tag','position','animation','align'];
+  bools.forEach(k   => { if (req.body[k] !== undefined) titleState[k] = !!req.body[k]; });
+  numbers.forEach(k => { if (req.body[k] !== undefined) titleState[k] = Number(req.body[k]); });
+  strings.forEach(k => { if (req.body[k] !== undefined) titleState[k] = String(req.body[k]); });
+  io.emit('titleUpdate', titleState);
+  res.json({ ok: true });
+});
 
 // ─── Super Overlay ──────────────────────────────────────────────────────────────
 
@@ -273,6 +307,7 @@ let superState = {
     { id: 'frames',             label: 'Cadres',             url: '/frames',             visible: false, x: 0, y: 0, opacity: 1.0, order: 8  },
     { id: 'h2h',                label: 'H2H',                url: '/h2h',                visible: false, x: 0, y: 0, opacity: 1.0, order: 9  },
     { id: 'tournament-history', label: 'Historique tournoi', url: '/tournament-history', visible: false, x: 0, y: 0, opacity: 1.0, order: 10 },
+    { id: 'stream-title',       label: 'Titre du stream',   url: '/stream-title',       visible: false, x: 0, y: 0, opacity: 1.0, order: 11 },
   ],
 };
 
@@ -550,6 +585,7 @@ io.on('connection', (socket) => {
   socket.emit('tickerUpdate', tickerState);
   socket.emit('framesUpdate', framesState);
   socket.emit('superUpdate', superState);
+  socket.emit('titleUpdate', titleState);
 
   // Déclenche l'animation d'entrée sur la VS screen
   socket.on('triggerVsScreen', () => {

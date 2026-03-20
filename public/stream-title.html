@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>PSO – Titre du stream</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Russo+One&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="stream-title.css" />
+</head>
+<body>
+
+  <div id="title-root" class="title-root anim-slide">
+
+    <!-- Halo coloré derrière la carte -->
+    <div class="title-glow"></div>
+
+    <!-- Carte principale -->
+    <div class="title-card">
+
+      <!-- Coin coupé (décoration diagonale haut-gauche) -->
+      <div class="title-corner-cut"></div>
+
+      <!-- Barre d'accent verticale gauche -->
+      <div class="title-bar">
+        <span class="title-bar-dot"></span>
+      </div>
+
+      <!-- Corps -->
+      <div class="title-body">
+
+        <!-- Badge optionnel (LIVE, VOD, …) -->
+        <div class="title-tag" id="title-tag">LIVE</div>
+
+        <!-- Titre principal -->
+        <div class="title-text" id="title-text">Titre du stream</div>
+
+        <!-- Sous-titre -->
+        <div class="title-sub" id="title-sub">Sous-titre</div>
+
+      </div>
+
+      <!-- Coins décoratifs intérieurs -->
+      <span class="st-corner st-tl"></span>
+      <span class="st-corner st-tr"></span>
+      <span class="st-corner st-br"></span>
+
+      <!-- Ligne d'accent basse -->
+      <div class="title-bottom-line"></div>
+
+    </div>
+
+  </div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="stream-title.js"></script>
+</body>
+</html>
