@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PSO – Twitch Layout</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Russo+One&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="twitch-layout.css" />
+</head>
+<body>
+
+<div id="twitch-layout" class="twitch-layout">
+
+  <!-- ── Coins décoratifs ────────────────────────────────────── -->
+  <div class="corner corner-tl"></div>
+  <div class="corner corner-tr"></div>
+  <div class="corner corner-bl"></div>
+  <div class="corner corner-br"></div>
+
+  <!-- ── Lueur ambiante de fond ─────────────────────────────── -->
+  <div class="ambient-glow glow-left"></div>
+  <div class="ambient-glow glow-right"></div>
+
+  <!-- ── Barre de scan (effet theme) ───────────────────────── -->
+  <div class="scan-line"></div>
+
+  <!-- ── Panneau bas : joueur 1 / info / joueur 2 ──────────── -->
+  <div class="bottom-bar">
+
+    <!-- Joueur 1 -->
+    <div class="player-panel player-left" id="panel-p1">
+      <div class="panel-accent-line"></div>
+      <div class="panel-content">
+        <div class="player-tag" id="tag-p1">TAG1</div>
+        <div class="player-name" id="name-p1">Joueur 1</div>
+        <div class="player-character" id="char-p1"></div>
+      </div>
+      <div class="score-badge" id="score-p1">0</div>
+    </div>
+
+    <!-- Centre : event + round + VS -->
+    <div class="center-panel" id="center-panel">
+      <div class="event-label" id="event-label">PSO</div>
+      <div class="vs-wrapper">
+        <div class="vs-score" id="vs-score-p1">0</div>
+        <div class="vs-text">VS</div>
+        <div class="vs-score" id="vs-score-p2">0</div>
+      </div>
+      <div class="round-label" id="round-label">Pools</div>
+    </div>
+
+    <!-- Joueur 2 -->
+    <div class="player-panel player-right" id="panel-p2">
+      <div class="score-badge" id="score-p2">0</div>
+      <div class="panel-content">
+        <div class="player-tag" id="tag-p2">TAG2</div>
+        <div class="player-name" id="name-p2">Joueur 2</div>
+        <div class="player-character" id="char-p2"></div>
+      </div>
+      <div class="panel-accent-line"></div>
+    </div>
+
+  </div>
+
+  <!-- ── Lignes latérales décoratives ──────────────────────── -->
+  <div class="side-line side-left"></div>
+  <div class="side-line side-right"></div>
+
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="twitch-layout.js"></script>
+</body>
+</html>

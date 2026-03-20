@@ -29,6 +29,7 @@
       <a href="/player-stats" target="_blank" class="btn btn-outline">Stats ↗</a>
       <a href="/tournament-history" target="_blank" class="btn btn-outline">Historique ↗</a>
       <a href="/h2h" target="_blank" class="btn btn-outline">H2H ↗</a>
+      <a href="/twitch-layout" target="_blank" class="btn btn-outline">Twitch Layout ↗</a>
       <button id="btn-vs-trigger" class="btn btn-primary" title="Déclenche l'animation d'entrée sur la VS Screen">⚔ VS Anim</button>
       <button id="btn-visibility" class="btn btn-primary">Masquer</button>
     </div>
@@ -42,6 +43,7 @@
     <button class="tab-btn" data-tab="custom">Customisation</button>
     <button class="tab-btn" data-tab="chars" style="display:none">Personnages</button>
     <button class="tab-btn" data-tab="startgg">start.gg</button>
+    <button class="tab-btn" data-tab="twitch">Layouts Twitch</button>
   </nav>
 
   <!-- ═══════════════════════════════════════════════════════════ -->
@@ -1695,6 +1697,107 @@
       <div class="char-grid" id="char-grid"></div>
     </div>
   </div>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- TAB : LAYOUTS TWITCH                                        -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <div class="tab-content" id="tab-twitch">
+
+    <section class="section">
+      <div class="section-header">
+        <h2>Layouts Twitch</h2>
+        <a href="/twitch-layout" target="_blank" class="btn btn-outline btn-sm">Ouvrir l'overlay ↗</a>
+      </div>
+
+      <!-- Aperçu miniature de l'overlay -->
+      <div class="custom-card" style="padding:0;overflow:hidden;border-radius:8px;">
+        <div style="background:#111;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;">
+          <span style="font-size:12px;font-weight:600;color:var(--text-muted);letter-spacing:1px;text-transform:uppercase;">Aperçu – s'adapte au thème actif</span>
+          <span style="font-size:11px;color:var(--text-muted)">1920 × 1080</span>
+        </div>
+        <div style="position:relative;width:100%;padding-bottom:56.25%;background:#0a0a0f;overflow:hidden;">
+          <iframe
+            src="/twitch-layout"
+            style="position:absolute;top:0;left:0;width:100%;height:100%;border:none;transform-origin:top left;pointer-events:none;"
+            scrolling="no"
+            id="twitch-layout-preview"
+          ></iframe>
+        </div>
+      </div>
+
+      <!-- Infos d'utilisation OBS -->
+      <div class="custom-card">
+        <h3>Utilisation dans OBS</h3>
+        <p style="font-size:13px;color:var(--text-muted);margin-bottom:12px;line-height:1.6;">
+          Ajoute une <strong>Source Navigateur</strong> dans OBS avec l'URL ci-dessous.<br>
+          Résolution : <strong>1920 × 1080</strong> · Actualiser toutes les scènes.
+        </p>
+        <div class="name-row" style="gap:8px;">
+          <input type="text" id="twitch-layout-url" readonly
+            style="flex:1;font-size:12px;background:var(--surface2);border:1px solid var(--border);color:var(--text-muted);cursor:text;"
+            value="http://localhost:3002/twitch-layout" />
+          <button class="btn btn-primary btn-sm" id="btn-copy-twitch-url">Copier</button>
+        </div>
+      </div>
+
+      <!-- Options du cadre -->
+      <div class="custom-card">
+        <h3>Options du cadre</h3>
+
+        <div class="form-group" style="margin-bottom:14px;">
+          <label>Taille des coins <span class="hint">px</span></label>
+          <div class="logo-particles-row">
+            <input type="range" id="tw-corner-size" min="20" max="120" value="48" />
+            <input type="number" id="tw-corner-size-num" min="20" max="120" value="48" style="width:60px;" />
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom:14px;">
+          <label>Épaisseur du cadre <span class="hint">px</span></label>
+          <div class="logo-particles-row">
+            <input type="range" id="tw-corner-thick" min="1" max="8" value="3" step="1" />
+            <input type="number" id="tw-corner-thick-num" min="1" max="8" value="3" style="width:60px;" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Opacité du fond de la barre <span class="hint">0 – 100 %</span></label>
+          <div class="logo-particles-row">
+            <input type="range" id="tw-bg-opacity" min="0" max="100" value="88" />
+            <input type="number" id="tw-bg-opacity-num" min="0" max="100" value="88" style="width:60px;" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Éléments visibles -->
+      <div class="custom-card">
+        <h3>Éléments affichés</h3>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <label class="checkbox-row">
+            <input type="checkbox" id="tw-show-corners" checked />
+            <span>Coins décoratifs</span>
+          </label>
+          <label class="checkbox-row">
+            <input type="checkbox" id="tw-show-scanline" checked />
+            <span>Ligne de scan animée</span>
+          </label>
+          <label class="checkbox-row">
+            <input type="checkbox" id="tw-show-sidelines" checked />
+            <span>Lignes latérales</span>
+          </label>
+          <label class="checkbox-row">
+            <input type="checkbox" id="tw-show-glow" checked />
+            <span>Lueur ambiante</span>
+          </label>
+          <label class="checkbox-row">
+            <input type="checkbox" id="tw-show-chars" checked />
+            <span>Personnages dans la barre joueurs</span>
+          </label>
+        </div>
+      </div>
+
+    </section>
+  </div><!-- /tab-twitch -->
 
   <!-- FOOTER -->
   <footer class="footer">
