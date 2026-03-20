@@ -1,0 +1,271 @@
+@import url('https://fonts.googleapis.com/css2?family=Russo+One&family=Inter:wght@400;500;600;700&display=swap');
+
+/* ── Variables de thème ────────────────────────────────────────── */
+:root {
+  --fr-primary: #E8B830;
+  --fr-glow:    rgba(232, 184, 48, 0.55);
+  --fr-bg:      rgba(14, 14, 18, 0.0);
+  --fr-text:    #F0EEF8;
+  --fr-muted:   rgba(240, 238, 248, 0.55);
+
+  --fr-border-w:  2px;
+  --fr-corner-sz: 22px;
+  --fr-corner-w:  3px;
+  --fr-tick-sz:   10px;
+  --fr-cut:       12px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: transparent;
+  width: 1920px;
+  height: 1080px;
+  overflow: hidden;
+  font-family: 'Inter', sans-serif;
+}
+
+#frames-root {
+  position: absolute;
+  inset: 0;
+}
+
+/* ── Cadre principal ──────────────────────────────────────────── */
+.pso-frame {
+  position: absolute;
+  transition:
+    left   0.4s cubic-bezier(.22,.68,0,1.2),
+    top    0.4s cubic-bezier(.22,.68,0,1.2),
+    width  0.4s cubic-bezier(.22,.68,0,1.2),
+    height 0.4s cubic-bezier(.22,.68,0,1.2),
+    opacity 0.35s;
+  pointer-events: none;
+}
+
+.pso-frame.hidden {
+  opacity: 0;
+}
+
+/* Halo coloré derrière le cadre */
+.frame-glow {
+  position: absolute;
+  inset: -30px;
+  border-radius: 4px;
+  background: radial-gradient(
+    ellipse at 50% 50%,
+    var(--fr-glow) 0%,
+    transparent 70%
+  );
+  opacity: 0.35;
+  pointer-events: none;
+  transition: background 0.5s;
+}
+
+/* Conteneur interne = le cadre lui-même */
+.frame-inner {
+  position: absolute;
+  inset: 0;
+
+  /* Bordure en clip-path pour coins coupés */
+  border: var(--fr-border-w) solid var(--fr-primary);
+  box-shadow:
+    0 0 14px var(--fr-glow),
+    inset 0 0 14px rgba(0,0,0,0.15);
+  transition: border-color 0.5s, box-shadow 0.5s;
+
+  /* Fond semi-transparent (transparent par défaut) */
+  background: var(--fr-bg);
+
+  /* Clip : coin coupé en haut-gauche et bas-droit */
+  clip-path: polygon(
+    var(--fr-cut) 0%,
+    100% 0%,
+    100% calc(100% - var(--fr-cut)),
+    calc(100% - var(--fr-cut)) 100%,
+    0% 100%,
+    0% var(--fr-cut)
+  );
+}
+
+/* ── Coins décoratifs ──────────────────────────────────────────── */
+.fc {
+  position: absolute;
+  width:  var(--fr-corner-sz);
+  height: var(--fr-corner-sz);
+  transition: border-color 0.5s;
+}
+
+.fc-tl {
+  top: 5px; left: 5px;
+  border-top:  var(--fr-corner-w) solid var(--fr-primary);
+  border-left: var(--fr-corner-w) solid var(--fr-primary);
+}
+.fc-tr {
+  top: 5px; right: 5px;
+  border-top:   var(--fr-corner-w) solid var(--fr-primary);
+  border-right: var(--fr-corner-w) solid var(--fr-primary);
+}
+.fc-bl {
+  bottom: 5px; left: 5px;
+  border-bottom: var(--fr-corner-w) solid var(--fr-primary);
+  border-left:   var(--fr-corner-w) solid var(--fr-primary);
+}
+.fc-br {
+  bottom: 5px; right: 5px;
+  border-bottom: var(--fr-corner-w) solid var(--fr-primary);
+  border-right:  var(--fr-corner-w) solid var(--fr-primary);
+}
+
+/* ── Ticks de milieu ──────────────────────────────────────────── */
+.ft {
+  position: absolute;
+  background: var(--fr-primary);
+  opacity: 0.6;
+  transition: background 0.5s;
+}
+
+/* Ticks horizontaux (haut / bas) */
+.ft-t, .ft-b {
+  left: 50%;
+  transform: translateX(-50%);
+  width: var(--fr-tick-sz);
+  height: calc(var(--fr-border-w) + 1px);
+}
+.ft-t { top: -1px; }
+.ft-b { bottom: -1px; }
+
+/* Ticks verticaux (gauche / droite) */
+.ft-l, .ft-r {
+  top: 50%;
+  transform: translateY(-50%);
+  height: var(--fr-tick-sz);
+  width: calc(var(--fr-border-w) + 1px);
+}
+.ft-l { left: -1px; }
+.ft-r { right: -1px; }
+
+/* ── Accents coins coupés ─────────────────────────────────────── */
+.frame-cut-tl,
+.frame-cut-br {
+  position: absolute;
+  width: calc(var(--fr-cut) * 1.18);
+  height: 2px;
+  background: var(--fr-primary);
+  opacity: 0.9;
+  transition: background 0.5s;
+}
+/* Rotation 45° pour suivre le coin coupé */
+.frame-cut-tl {
+  top: calc(var(--fr-cut) / 2 - 2px);
+  left: -2px;
+  transform-origin: left center;
+  transform: rotate(-45deg);
+}
+.frame-cut-br {
+  bottom: calc(var(--fr-cut) / 2 - 2px);
+  right: -2px;
+  transform-origin: right center;
+  transform: rotate(-45deg);
+}
+
+/* ── Label optionnel ──────────────────────────────────────────── */
+.frame-label {
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  max-width: calc(100% - 30px);
+
+  padding: 4px 14px 4px 12px;
+  background: var(--fr-primary);
+  color: rgba(0,0,0,0.85);
+  font-family: 'Russo One', sans-serif;
+  font-size: 13px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+
+  opacity: 0;
+  transition: opacity 0.3s, background 0.5s, color 0.5s;
+}
+.frame-label.visible {
+  opacity: 1;
+}
+
+/* ══════════════════════════════════════════════════════════════ */
+/* ANIMATIONS PAR THÈME                                          */
+/* ══════════════════════════════════════════════════════════════ */
+
+/* Cyberpunk — scan lumineux + flicker */
+@keyframes fr-neon-scan {
+  0%   { left: -60%; }
+  100% { left: 160%; }
+}
+.pso-frame.theme-cyberpunk .frame-inner::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(0, 245, 255, 0.07) 50%,
+    transparent 100%
+  );
+  width: 60%;
+  top: 0; bottom: 0;
+  animation: fr-neon-scan 2.4s linear infinite;
+  pointer-events: none;
+}
+@keyframes fr-neon-flicker {
+  0%, 93%, 97%, 100% { opacity: 1; }
+  95%                { opacity: 0.15; }
+}
+.pso-frame.theme-cyberpunk .frame-inner {
+  animation: fr-neon-flicker 8s steps(1) infinite;
+}
+
+/* Synthwave — pulsation douce */
+@keyframes fr-sw-pulse {
+  0%, 100% { box-shadow: 0 0 14px var(--fr-glow), inset 0 0 14px rgba(0,0,0,0.15); }
+  50%       { box-shadow: 0 0 35px var(--fr-glow), inset 0 0 14px rgba(0,0,0,0.15); }
+}
+.pso-frame.theme-synthwave .frame-inner {
+  animation: fr-sw-pulse 3s ease-in-out infinite;
+}
+
+/* Fire — tremblement léger */
+@keyframes fr-fire-shake {
+  0%,100% { transform: translate(0,0); }
+  25%     { transform: translate(0.5px, -0.5px); }
+  50%     { transform: translate(-0.5px, 0.5px); }
+  75%     { transform: translate(0.5px, 0.5px); }
+}
+.pso-frame.theme-fire .frame-inner {
+  animation: fr-fire-shake 0.18s linear infinite;
+}
+
+/* Midnight — brillance lente */
+@keyframes fr-mid-glow {
+  0%, 100% { opacity: 0.3; }
+  50%       { opacity: 0.65; }
+}
+.pso-frame.theme-midnight .frame-glow {
+  animation: fr-mid-glow 4s ease-in-out infinite;
+}
+
+/* Rainbow — rotation de teinte */
+@keyframes fr-hue-rot {
+  from { filter: hue-rotate(0deg); }
+  to   { filter: hue-rotate(360deg); }
+}
+.pso-frame.theme-rainbow .frame-inner,
+.pso-frame.theme-rainbow .fc,
+.pso-frame.theme-rainbow .ft,
+.pso-frame.theme-rainbow .frame-cut-tl,
+.pso-frame.theme-rainbow .frame-cut-br {
+  animation: fr-hue-rot 4s linear infinite;
+}

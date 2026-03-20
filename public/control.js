@@ -3463,7 +3463,174 @@ document.getElementById('btn-copy-ticker-url')?.addEventListener('click', () => 
   });
 });
 
+// ── Cadres (Frames) ───────────────────────────────────────────────
+
+// Corriger URL avec le bon host
+(function () {
+  const el = document.getElementById('frames-url');
+  if (el) el.value = window.location.origin + '/frames';
+})();
+
+let framesLocal = {
+  count: 1,
+  frames: [
+    { visible: true, x: 40,  y: 40,  width: 560, height: 420, label: '', showBg: false },
+    { visible: true, x: 640, y: 40,  width: 560, height: 420, label: '', showBg: false },
+    { visible: true, x: 640, y: 500, width: 560, height: 420, label: '', showBg: false },
+  ],
+};
+
+function framesSend(patch) {
+  if (patch) Object.assign(framesLocal, patch);
+  fetch('/api/frames', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(framesLocal),
+  }).catch(e => setStatus('Erreur cadres : ' + e.message));
+}
+
+function framesUpdateCards(count) {
+  document.querySelectorAll('.frame-card').forEach((card, i) => {
+    card.style.display = i < count ? '' : 'none';
+  });
+  document.querySelectorAll('.frames-count-btn').forEach(b => {
+    b.classList.toggle('active-sep', Number(b.dataset.count) === count);
+  });
+}
+
+function updateFramesUI(s) {
+  framesLocal = Object.assign(framesLocal, s);
+  framesUpdateCards(s.count || 1);
+  (s.frames || []).forEach((f, idx) => {
+    function setVal(sel, val) {
+      const el = document.querySelector(sel + `[data-idx="${idx}"]`);
+      if (el && document.activeElement !== el) el.value = val;
+    }
+    function setChecked(sel, val) {
+      const el = document.querySelector(sel + `[data-idx="${idx}"]`);
+      if (el) el.checked = !!val;
+    }
+    setVal('.frame-x', f.x);
+    setVal('.frame-y', f.y);
+    setVal('.frame-w', f.width);
+    setVal('.frame-h', f.height);
+    setVal('.frame-label', f.label);
+    setChecked('.frame-visible-toggle', f.visible);
+    setChecked('.frame-showbg', f.showBg);
+  });
+}
+
+// Charger l'état initial
+fetch('/api/frames').then(r => r.json()).then(updateFramesUI).catch(() => {});
+
+// Boutons count
+document.querySelectorAll('.frames-count-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const count = Number(btn.dataset.count);
+    framesLocal.count = count;
+    framesUpdateCards(count);
+    framesSend();
+  });
+});
+
+// Bouton Appliquer par cadre
+document.querySelectorAll('.frame-save-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const idx = Number(btn.dataset.idx);
+    const get = (sel) => {
+      const el = document.querySelector(sel + `[data-idx="${idx}"]`);
+      return el ? el.value : '';
+    };
+    const getChecked = (sel) => {
+      const el = document.querySelector(sel + `[data-idx="${idx}"]`);
+      return el ? el.checked : false;
+    };
+    framesLocal.frames[idx] = {
+      visible: getChecked('.frame-visible-toggle'),
+      x:       Number(get('.frame-x')),
+      y:       Number(get('.frame-y')),
+      width:   Number(get('.frame-w')),
+      height:  Number(get('.frame-h')),
+      label:   get('.frame-label'),
+      showBg:  getChecked('.frame-showbg'),
+    };
+    framesSend();
+    setStatus(`Cadre ${idx + 1} appliqué`);
+  });
+});
+
+// Toggle visibilité en temps réel (sans attendre "Appliquer")
+document.querySelectorAll('.frame-visible-toggle').forEach(chk => {
+  chk.addEventListener('change', () => {
+    const idx = Number(chk.dataset.idx);
+    framesLocal.frames[idx].visible = chk.checked;
+    framesSend();
+  });
+});
+
+// Boutons ratio
+document.querySelectorAll('.frame-ratio-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const idx = Number(btn.dataset.idx);
+    const [rw, rh] = btn.dataset.ratio.split('/').map(Number);
+    const wEl = document.querySelector(`.frame-w[data-idx="${idx}"]`);
+    const hEl = document.querySelector(`.frame-h[data-idx="${idx}"]`);
+    if (!wEl || !hEl) return;
+    const w = Number(wEl.value) || 560;
+    hEl.value = Math.round(w * rh / rw);
+  });
+});
+
+// Presets disposition
+const PRESETS = {
+  'preset-cam-bl': {
+    count: 1,
+    frames: [{ visible:true, x:40,  y:740, width:400, height:225, label:'', showBg:false }],
+  },
+  'preset-cam-br': {
+    count: 1,
+    frames: [{ visible:true, x:1480,y:740, width:400, height:225, label:'', showBg:false }],
+  },
+  'preset-2side': {
+    count: 2,
+    frames: [
+      { visible:true, x:60,   y:200, width:840, height:472, label:'', showBg:false },
+      { visible:true, x:1020, y:200, width:840, height:472, label:'', showBg:false },
+    ],
+  },
+  'preset-3col': {
+    count: 3,
+    frames: [
+      { visible:true, x:60,   y:240, width:560, height:315, label:'', showBg:false },
+      { visible:true, x:680,  y:240, width:560, height:315, label:'', showBg:false },
+      { visible:true, x:1300, y:240, width:560, height:315, label:'', showBg:false },
+    ],
+  },
+};
+
+Object.keys(PRESETS).forEach(id => {
+  document.getElementById(id)?.addEventListener('click', () => {
+    const p = PRESETS[id];
+    // Fusionner : on écrase les cadres concernés
+    p.frames.forEach((f, i) => { framesLocal.frames[i] = Object.assign({}, framesLocal.frames[i], f); });
+    framesLocal.count = p.count;
+    updateFramesUI(framesLocal);
+    framesSend();
+    setStatus('Disposition appliquée');
+  });
+});
+
+// Copier URL
+document.getElementById('btn-copy-frames-url')?.addEventListener('click', () => {
+  const el = document.getElementById('frames-url');
+  if (!el) return;
+  navigator.clipboard.writeText(el.value)
+    .then(() => setStatus('URL cadres copiée'))
+    .catch(() => { el.select(); document.execCommand('copy'); setStatus('URL cadres copiée'); });
+});
+
 // Réception Socket.IO
 if (typeof socket !== 'undefined') {
   socket.on('tickerUpdate', updateTickerUI);
+  socket.on('framesUpdate', updateFramesUI);
 }

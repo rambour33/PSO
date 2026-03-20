@@ -254,6 +254,40 @@ app.get('/player-stats', (req, res) => res.sendFile(path.join(__dirname, 'public
 app.get('/twitch-layout', (req, res) => res.sendFile(path.join(__dirname, 'public', 'twitch-layout.html')));
 app.get('/twitch-viewer', (req, res) => res.sendFile(path.join(__dirname, 'public', 'twitch-viewer.html')));
 app.get('/ticker', (req, res) => res.sendFile(path.join(__dirname, 'public', 'ticker.html')));
+app.get('/frames', (req, res) => res.sendFile(path.join(__dirname, 'public', 'frames.html')));
+
+// ─── Cadres (multi-frame overlay) ─────────────────────────────────────────────
+
+let framesState = {
+  count: 1,
+  frames: [
+    { visible: true, x: 40,  y: 40,  width: 560, height: 420, label: '', showBg: false },
+    { visible: true, x: 640, y: 40,  width: 560, height: 420, label: '', showBg: false },
+    { visible: true, x: 640, y: 500, width: 560, height: 420, label: '', showBg: false },
+  ],
+};
+
+app.get('/api/frames', (req, res) => res.json(framesState));
+
+app.post('/api/frames', (req, res) => {
+  const { count, frames } = req.body;
+  if (count !== undefined) framesState.count = Math.max(1, Math.min(3, Number(count)));
+  if (Array.isArray(frames)) {
+    frames.forEach((f, i) => {
+      if (!framesState.frames[i]) return;
+      const t = framesState.frames[i];
+      if (f.visible  !== undefined) t.visible  = !!f.visible;
+      if (f.x        !== undefined) t.x        = Number(f.x);
+      if (f.y        !== undefined) t.y        = Number(f.y);
+      if (f.width    !== undefined) t.width    = Math.max(50, Number(f.width));
+      if (f.height   !== undefined) t.height   = Math.max(50, Number(f.height));
+      if (f.label    !== undefined) t.label    = String(f.label).slice(0, 40);
+      if (f.showBg   !== undefined) t.showBg   = !!f.showBg;
+    });
+  }
+  io.emit('framesUpdate', framesState);
+  res.json({ ok: true });
+});
 
 // ─── Ticker (bandeau défilant) ─────────────────────────────────────────────────
 
@@ -474,6 +508,7 @@ io.on('connection', (socket) => {
   socket.emit('h2hUpdate', h2hState);
   socket.emit('twitch-viewers', { viewers: twitchState.viewers, live: twitchState.live, channel: twitchState.channel });
   socket.emit('tickerUpdate', tickerState);
+  socket.emit('framesUpdate', framesState);
 
   // Déclenche l'animation d'entrée sur la VS screen
   socket.on('triggerVsScreen', () => {

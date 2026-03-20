@@ -31,6 +31,7 @@
       <a href="/h2h" target="_blank" class="btn btn-outline">H2H ↗</a>
       <a href="/twitch-layout" target="_blank" class="btn btn-outline">Twitch Layout ↗</a>
       <a href="/ticker" target="_blank" class="btn btn-outline">Bandeau ↗</a>
+      <a href="/frames" target="_blank" class="btn btn-outline">Cadres ↗</a>
       <button id="btn-vs-trigger" class="btn btn-primary" title="Déclenche l'animation d'entrée sur la VS Screen">⚔ VS Anim</button>
       <button id="btn-visibility" class="btn btn-primary">Masquer</button>
     </div>
@@ -46,6 +47,7 @@
     <button class="tab-btn" data-tab="startgg">start.gg</button>
     <button class="tab-btn" data-tab="twitch">Layouts Twitch</button>
     <button class="tab-btn" data-tab="ticker">Bandeau</button>
+    <button class="tab-btn" data-tab="frames">Cadres</button>
   </nav>
 
   <!-- ═══════════════════════════════════════════════════════════ -->
@@ -1847,6 +1849,221 @@
 
     </section>
   </div><!-- /tab-twitch -->
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- TAB : CADRES (FRAMES)                                       -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <div class="tab-content" id="tab-frames">
+    <section class="section">
+      <div class="section-header">
+        <h2>Cadres</h2>
+        <a href="/frames" target="_blank" class="btn btn-outline btn-sm">Ouvrir l'overlay ↗</a>
+      </div>
+
+      <!-- Nombre de cadres -->
+      <div class="custom-card">
+        <h3>Nombre de cadres</h3>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-outline frames-count-btn active-sep" data-count="1">1 cadre</button>
+          <button class="btn btn-outline frames-count-btn" data-count="2">2 cadres</button>
+          <button class="btn btn-outline frames-count-btn" data-count="3">3 cadres</button>
+        </div>
+      </div>
+
+      <!-- Presets disposition -->
+      <div class="custom-card">
+        <h3>Dispositions rapides</h3>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button class="btn btn-outline btn-sm" id="preset-cam-bl">📷 Cam bas-gauche</button>
+          <button class="btn btn-outline btn-sm" id="preset-cam-br">📷 Cam bas-droit</button>
+          <button class="btn btn-outline btn-sm" id="preset-2side">⬛⬛ 2 côte à côte</button>
+          <button class="btn btn-outline btn-sm" id="preset-3col">⬛⬛⬛ 3 colonnes</button>
+        </div>
+      </div>
+
+      <!-- Aperçu miniature -->
+      <div class="custom-card" style="padding:0;overflow:hidden;border-radius:8px;">
+        <div style="background:#111;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;">
+          <span style="font-size:12px;font-weight:600;color:var(--text-muted);letter-spacing:1px;text-transform:uppercase;">Aperçu – s'adapte au thème actif</span>
+          <span style="font-size:11px;color:var(--text-muted)">1920 × 1080</span>
+        </div>
+        <div style="position:relative;width:100%;padding-bottom:56.25%;background:#0a0a0f;overflow:hidden;">
+          <iframe src="/frames" id="frames-preview"
+            style="position:absolute;top:0;left:0;width:100%;height:100%;border:none;pointer-events:none;"
+            scrolling="no"></iframe>
+        </div>
+      </div>
+
+      <!-- Cadres individuels -->
+      <div id="frames-cards">
+
+        <!-- Cadre 1 -->
+        <div class="custom-card frame-card" id="frame-card-0">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+            <h3>Cadre 1</h3>
+            <label class="toggle-switch" title="Afficher / Masquer">
+              <input type="checkbox" class="frame-visible-toggle" data-idx="0" checked />
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <!-- Position -->
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
+            <div class="form-group">
+              <label>X <span class="hint">px depuis la gauche</span></label>
+              <input type="number" class="frame-x" data-idx="0" value="40" min="0" max="1920" />
+            </div>
+            <div class="form-group">
+              <label>Y <span class="hint">px depuis le haut</span></label>
+              <input type="number" class="frame-y" data-idx="0" value="40" min="0" max="1080" />
+            </div>
+          </div>
+          <!-- Taille -->
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
+            <div class="form-group">
+              <label>Largeur <span class="hint">px</span></label>
+              <input type="number" class="frame-w" data-idx="0" value="560" min="50" max="1920" />
+            </div>
+            <div class="form-group">
+              <label>Hauteur <span class="hint">px</span></label>
+              <input type="number" class="frame-h" data-idx="0" value="420" min="50" max="1080" />
+            </div>
+          </div>
+          <!-- Ratio rapide -->
+          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;">
+            <span style="font-size:12px;color:var(--text-muted);align-self:center;">Ratio :</span>
+            <button class="btn btn-outline btn-sm frame-ratio-btn" data-idx="0" data-ratio="16/9">16:9</button>
+            <button class="btn btn-outline btn-sm frame-ratio-btn" data-idx="0" data-ratio="4/3">4:3</button>
+            <button class="btn btn-outline btn-sm frame-ratio-btn" data-idx="0" data-ratio="1/1">1:1</button>
+            <button class="btn btn-outline btn-sm frame-ratio-btn" data-idx="0" data-ratio="9/16">9:16</button>
+          </div>
+          <!-- Options -->
+          <div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-bottom:12px;">
+            <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;">
+              <input type="checkbox" class="frame-showbg" data-idx="0" /> Fond semi-transparent
+            </label>
+          </div>
+          <!-- Label -->
+          <div class="form-group">
+            <label>Label <span class="hint">facultatif — affiché en bas du cadre</span></label>
+            <input type="text" class="frame-label" data-idx="0" placeholder="ex: Caméra 1" maxlength="40" />
+          </div>
+          <button class="btn btn-primary btn-sm frame-save-btn" data-idx="0" style="margin-top:10px;">Appliquer le cadre 1</button>
+        </div>
+
+        <!-- Cadre 2 -->
+        <div class="custom-card frame-card" id="frame-card-1" style="display:none;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+            <h3>Cadre 2</h3>
+            <label class="toggle-switch" title="Afficher / Masquer">
+              <input type="checkbox" class="frame-visible-toggle" data-idx="1" checked />
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
+            <div class="form-group">
+              <label>X</label>
+              <input type="number" class="frame-x" data-idx="1" value="640" min="0" max="1920" />
+            </div>
+            <div class="form-group">
+              <label>Y</label>
+              <input type="number" class="frame-y" data-idx="1" value="40" min="0" max="1080" />
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
+            <div class="form-group">
+              <label>Largeur <span class="hint">px</span></label>
+              <input type="number" class="frame-w" data-idx="1" value="560" min="50" max="1920" />
+            </div>
+            <div class="form-group">
+              <label>Hauteur <span class="hint">px</span></label>
+              <input type="number" class="frame-h" data-idx="1" value="420" min="50" max="1080" />
+            </div>
+          </div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;">
+            <span style="font-size:12px;color:var(--text-muted);align-self:center;">Ratio :</span>
+            <button class="btn btn-outline btn-sm frame-ratio-btn" data-idx="1" data-ratio="16/9">16:9</button>
+            <button class="btn btn-outline btn-sm frame-ratio-btn" data-idx="1" data-ratio="4/3">4:3</button>
+            <button class="btn btn-outline btn-sm frame-ratio-btn" data-idx="1" data-ratio="1/1">1:1</button>
+            <button class="btn btn-outline btn-sm frame-ratio-btn" data-idx="1" data-ratio="9/16">9:16</button>
+          </div>
+          <div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-bottom:12px;">
+            <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;">
+              <input type="checkbox" class="frame-showbg" data-idx="1" /> Fond semi-transparent
+            </label>
+          </div>
+          <div class="form-group">
+            <label>Label <span class="hint">facultatif</span></label>
+            <input type="text" class="frame-label" data-idx="1" placeholder="ex: Caméra 2" maxlength="40" />
+          </div>
+          <button class="btn btn-primary btn-sm frame-save-btn" data-idx="1" style="margin-top:10px;">Appliquer le cadre 2</button>
+        </div>
+
+        <!-- Cadre 3 -->
+        <div class="custom-card frame-card" id="frame-card-2" style="display:none;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+            <h3>Cadre 3</h3>
+            <label class="toggle-switch" title="Afficher / Masquer">
+              <input type="checkbox" class="frame-visible-toggle" data-idx="2" checked />
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
+            <div class="form-group">
+              <label>X</label>
+              <input type="number" class="frame-x" data-idx="2" value="640" min="0" max="1920" />
+            </div>
+            <div class="form-group">
+              <label>Y</label>
+              <input type="number" class="frame-y" data-idx="2" value="500" min="0" max="1080" />
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
+            <div class="form-group">
+              <label>Largeur <span class="hint">px</span></label>
+              <input type="number" class="frame-w" data-idx="2" value="560" min="50" max="1920" />
+            </div>
+            <div class="form-group">
+              <label>Hauteur <span class="hint">px</span></label>
+              <input type="number" class="frame-h" data-idx="2" value="420" min="50" max="1080" />
+            </div>
+          </div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;">
+            <span style="font-size:12px;color:var(--text-muted);align-self:center;">Ratio :</span>
+            <button class="btn btn-outline btn-sm frame-ratio-btn" data-idx="2" data-ratio="16/9">16:9</button>
+            <button class="btn btn-outline btn-sm frame-ratio-btn" data-idx="2" data-ratio="4/3">4:3</button>
+            <button class="btn btn-outline btn-sm frame-ratio-btn" data-idx="2" data-ratio="1/1">1:1</button>
+            <button class="btn btn-outline btn-sm frame-ratio-btn" data-idx="2" data-ratio="9/16">9:16</button>
+          </div>
+          <div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-bottom:12px;">
+            <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;">
+              <input type="checkbox" class="frame-showbg" data-idx="2" /> Fond semi-transparent
+            </label>
+          </div>
+          <div class="form-group">
+            <label>Label <span class="hint">facultatif</span></label>
+            <input type="text" class="frame-label" data-idx="2" placeholder="ex: Caméra 3" maxlength="40" />
+          </div>
+          <button class="btn btn-primary btn-sm frame-save-btn" data-idx="2" style="margin-top:10px;">Appliquer le cadre 3</button>
+        </div>
+
+      </div><!-- /frames-cards -->
+
+      <!-- URL OBS -->
+      <div class="custom-card">
+        <h3>Source OBS</h3>
+        <p style="font-size:13px;color:var(--text-muted);margin-bottom:10px;line-height:1.6;">
+          Ajoute une <strong>Source Navigateur</strong> · Résolution <strong>1920 × 1080</strong> · Fond transparent.
+        </p>
+        <div class="name-row" style="gap:8px;">
+          <input type="text" id="frames-url" readonly
+            style="flex:1;font-size:12px;background:var(--surface2);border:1px solid var(--border);color:var(--text-muted);"
+            value="http://localhost:3002/frames" />
+          <button class="btn btn-primary btn-sm" id="btn-copy-frames-url">Copier</button>
+        </div>
+      </div>
+
+    </section>
+  </div><!-- /tab-frames -->
 
   <!-- ═══════════════════════════════════════════════════════════ -->
   <!-- TAB : BANDEAU / TICKER                                      -->
