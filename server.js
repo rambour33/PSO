@@ -3,6 +3,7 @@ const http = require('http');
 const { Server } = require('socket.io');
 const path = require('path');
 const fs = require('fs');
+const net = require('net');
 
 const RULESETS_FILE      = path.join(__dirname, 'data', 'rulesets.json');
 const THEME_PRESETS_FILE = path.join(__dirname, 'data', 'theme-presets.json');
@@ -64,6 +65,7 @@ let matchState = {
   particleOpacity: 100,
   particleCountScale: 100,
   particlesEnabled: true,
+  hidePlayerColors: false,
   visible: true,
   sbScale: 100,
   sbX: 0,
@@ -173,6 +175,8 @@ let rulesetState = {
   banPatternGame2: '1',
   firstBanner: 1,
   stageClause: false,
+  pickG1: true,
+  pickG2: true,
 };
 
 let castersState = {
@@ -184,6 +188,18 @@ let castersState = {
     { name: '', twitter: '', twitch: '', youtube: '' },
     { name: '', twitter: '', twitch: '', youtube: '' },
   ],
+};
+
+let twitchChatState = {
+  visible: false,
+  channel: '',
+  maxMessages: 15,
+  x: 0,
+  y: 0,
+  width: 360,
+  maxHeight: 600,
+  particleBorder: 28,
+  transparentMode: false,
 };
 
 let playerStatsState = {
@@ -251,6 +267,7 @@ app.get('/casters', (req, res) => res.sendFile(path.join(__dirname, 'public', 'c
 app.get('/control', (req, res) => res.sendFile(path.join(__dirname, 'public', 'control.html')));
 app.get('/vs-screen', (req, res) => res.sendFile(path.join(__dirname, 'public', 'vs-screen.html')));
 app.get('/player-stats', (req, res) => res.sendFile(path.join(__dirname, 'public', 'player-stats.html')));
+<<<<<<< Updated upstream
 app.get('/twitch-layout', (req, res) => res.sendFile(path.join(__dirname, 'public', 'twitch-layout.html')));
 app.get('/twitch-viewer', (req, res) => res.sendFile(path.join(__dirname, 'public', 'twitch-viewer.html')));
 app.get('/ticker', (req, res) => res.sendFile(path.join(__dirname, 'public', 'ticker.html')));
@@ -489,6 +506,146 @@ app.post('/api/twitch/config', (req, res) => {
     twitchStartPolling();
   }
 })();
+=======
+app.get('/twitch-chat', (req, res) => res.sendFile(path.join(__dirname, 'public', 'twitch-chat.html')));
+
+// ── Twitch IRC (TCP natif) ────────────────────────────────────────────────────
+
+let _ircSocket = null;
+let _ircChannel = '';
+let _ircBuffer  = '';
+
+function ircDisconnect() {
+  if (_ircSocket) { try { _ircSocket.destroy(); } catch {} _ircSocket = null; }
+  _ircChannel = '';
+  _ircBuffer  = '';
+  twitchChatState.connected = false;
+}
+
+function ircConnect(channel) {
+  ircDisconnect();
+  if (!channel) return;
+  const chan = channel.toLowerCase();
+  const sock = net.createConnection(6667, 'irc.chat.twitch.tv');
+  _ircSocket = sock;
+
+  sock.on('connect', () => {
+    sock.write(`PASS SCHMOOPIIE\r\n`);
+    sock.write(`NICK justinfan${Math.floor(Math.random() * 80000 + 10000)}\r\n`);
+    sock.write(`CAP REQ :twitch.tv/tags twitch.tv/commands\r\n`);
+    sock.write(`JOIN #${chan}\r\n`);
+    _ircChannel = chan;
+    twitchChatState.connected = true;
+    io.emit('twitchChatUpdate', twitchChatState);
+  });
+
+  sock.on('data', chunk => {
+    _ircBuffer += chunk.toString('utf8');
+    const lines = _ircBuffer.split('\r\n');
+    _ircBuffer = lines.pop();
+    lines.forEach(ircHandleLine);
+  });
+
+  sock.on('error', () => {
+    twitchChatState.connected = false;
+    io.emit('twitchChatUpdate', twitchChatState);
+    if (_ircSocket === sock) _ircSocket = null;
+  });
+
+  sock.on('close', () => {
+    twitchChatState.connected = false;
+    io.emit('twitchChatUpdate', twitchChatState);
+    if (_ircSocket === sock) _ircSocket = null;
+  });
+}
+
+function ircHandleLine(line) {
+  if (!line) return;
+  if (line.startsWith('PING')) {
+    if (_ircSocket) _ircSocket.write('PONG :tmi.twitch.tv\r\n');
+    return;
+  }
+
+  let rest = line;
+  const tags = {};
+
+  if (rest.startsWith('@')) {
+    const sp = rest.indexOf(' ');
+    rest.slice(1, sp).split(';').forEach(p => {
+      const eq = p.indexOf('=');
+      tags[p.slice(0, eq)] = eq >= 0 ? p.slice(eq + 1) : '';
+    });
+    rest = rest.slice(sp + 1);
+  }
+
+  if (!rest.startsWith(':')) return;
+  const parts   = rest.slice(1).split(' ');
+  const prefix  = parts[0];
+  const command = parts[1];
+
+  if (command === 'PRIVMSG') {
+    const chan    = parts[2];
+    const trIdx   = rest.indexOf(` :`, rest.indexOf(chan));
+    let   message = trIdx >= 0 ? rest.slice(trIdx + 2) : '';
+    const isAction = message.startsWith('\x01ACTION ') && message.endsWith('\x01');
+    if (isAction) message = message.slice(8, -1);
+
+    const username = prefix.split('!')[0];
+    const emotes = {};
+    (tags['emotes'] || '').split('/').filter(Boolean).forEach(p => {
+      const [id, pos] = p.split(':');
+      if (id && pos) emotes[id] = pos.split(',');
+    });
+    const badges = {};
+    (tags['badges'] || '').split(',').filter(Boolean).forEach(b => {
+      const [name, ver] = b.split('/');
+      if (name) badges[name] = ver || '1';
+    });
+
+    io.emit('twitchChatMessage', {
+      displayName: tags['display-name'] || username,
+      color:       tags['color'] || null,
+      badges,
+      emotes,
+      message,
+      isAction,
+    });
+  }
+
+  if (command === 'USERNOTICE') {
+    const trIdx  = rest.indexOf(' :');
+    const notice = trIdx >= 0 ? rest.slice(trIdx + 2) : '';
+    const msgId  = tags['msg-id'] || '';
+    const login  = tags['login'] || tags['display-name'] || '';
+    let text = '';
+    if (msgId === 'sub' || msgId === 'resub') {
+      const months = tags['msg-param-cumulative-months'] || '';
+      text = `⭐ ${login} est abonné${months ? ` depuis ${months} mois` : ''} !${notice ? '  ' + notice : ''}`;
+    } else if (msgId === 'subgift') {
+      const recipient = tags['msg-param-recipient-display-name'] || tags['msg-param-recipient-user-name'] || '';
+      text = `🎁 ${login} offre un abonnement à ${recipient} !`;
+    } else if (msgId === 'raid') {
+      const viewers = tags['msg-param-viewerCount'] || '';
+      text = `🚀 ${login} raid avec ${viewers} viewers !`;
+    }
+    if (text) io.emit('twitchChatNotice', { text });
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+
+app.get('/api/twitch-chat', (req, res) => res.json(twitchChatState));
+app.post('/api/twitch-chat', (req, res) => {
+  const prev = twitchChatState.channel;
+  twitchChatState = { ...twitchChatState, ...req.body };
+  if (twitchChatState.channel !== prev || (twitchChatState.visible && !twitchChatState.connected)) {
+    if (twitchChatState.channel) ircConnect(twitchChatState.channel);
+    else ircDisconnect();
+  }
+  io.emit('twitchChatUpdate', twitchChatState);
+  res.json(twitchChatState);
+});
+>>>>>>> Stashed changes
 
 app.get('/api/casters', (req, res) => res.json(castersState));
 
@@ -580,12 +737,15 @@ io.on('connection', (socket) => {
   socket.emit('castersUpdate', castersState);
   socket.emit('playerStatsUpdate', playerStatsState);
   socket.emit('tournamentHistoryUpdate', tournamentHistoryState);
+<<<<<<< Updated upstream
   socket.emit('h2hUpdate', h2hState);
   socket.emit('twitch-viewers', { viewers: twitchState.viewers, live: twitchState.live, channel: twitchState.channel });
   socket.emit('tickerUpdate', tickerState);
   socket.emit('framesUpdate', framesState);
   socket.emit('superUpdate', superState);
   socket.emit('titleUpdate', titleState);
+=======
+>>>>>>> Stashed changes
 
   // Déclenche l'animation d'entrée sur la VS screen
   socket.on('triggerVsScreen', () => {
@@ -723,7 +883,7 @@ app.get('/api/startgg/event/:id/entrants', async (req, res) => {
             pageInfo { total totalPages }
             nodes {
               id name
-              participants { gamerTag prefix }
+              participants { gamerTag prefix player { id user { slug } } }
             }
           }
         }
@@ -929,264 +1089,6 @@ app.get('/api/startgg/event/:id/player-stats/:entrantId', async (req, res) => {
     res.json({ playerName, playerTag, eventName, wins, losses, topCharacters, allMatches, nextMatch });
   } catch (e) {
     console.error('[player-stats]', e.message);
-    res.status(400).json({ error: e.message });
-  }
-});
-
-// ─── H2H State & API ─────────────────────────────────────────────────────────
-
-let h2hState = {
-  visible: false,
-  player1: { name: '', tag: '', color: '#E83030', currentStats: { wins:0, losses:0, winRate:0, topChars:[] } },
-  player2: { name: '', tag: '', color: '#3070E8', currentStats: { wins:0, losses:0, winRate:0, topChars:[] } },
-  h2h: { player1Wins:0, player2Wins:0, totalSets:0, topCharsP1:[], topCharsP2:[], sets:[] },
-};
-
-app.get('/h2h', (req, res) =>
-  res.sendFile(path.join(__dirname, 'public', 'h2h.html')));
-
-app.get('/api/h2h', (req, res) => res.json(h2hState));
-app.post('/api/h2h', (req, res) => {
-  h2hState = { ...h2hState, ...req.body };
-  io.emit('h2hUpdate', h2hState);
-  res.json(h2hState);
-});
-
-// Calcule et retourne les stats H2H pour deux entrants d'un même event
-app.get('/api/startgg/event/:eventId/h2h/:entrant1Id/:entrant2Id', async (req, res) => {
-  try {
-    const { eventId, entrant1Id, entrant2Id } = req.params;
-    const tournamentLimit = req.query.limitTournaments ? parseInt(req.query.limitTournaments) : null;
-
-    // ── Helpers ──────────────────────────────────────────────────────────────
-
-    function extractInfo(slots, entrantId) {
-      const slot = (slots || []).find(s => String(s.entrant?.id) === String(entrantId));
-      if (!slot) return null;
-      const p = slot.entrant?.participants?.[0];
-      return {
-        name:     p?.gamerTag || slot.entrant?.name || '',
-        tag:      p?.prefix   || '',
-        playerId: p?.player?.id || null,
-      };
-    }
-
-    function mapChars(counts) {
-      return Object.entries(counts)
-        .sort((a, b) => b[1] - a[1]).slice(0, 3)
-        .map(([id, games]) => {
-          const internal = SSBU_CHAR_MAP[parseInt(id)];
-          const entry    = internal ? characterList.find(c => c.id === internal) : null;
-          return {
-            name:  entry?.name || `Perso #${id}`,
-            image: internal ? `/Stock Icons/chara_2_${internal}_00.png` : '',
-            games,
-          };
-        });
-    }
-
-    function computeStats(entrantId, sets) {
-      let wins = 0, losses = 0;
-      const chars = {};
-      for (const set of sets) {
-        if (String(set.winnerId) === String(entrantId)) wins++; else losses++;
-        for (const game of (set.games || []))
-          for (const sel of (game.selections || []))
-            if (String(sel.entrant?.id) === String(entrantId) && sel.selectionType === 'CHARACTER')
-              chars[sel.selectionValue] = (chars[sel.selectionValue] || 0) + 1;
-      }
-      return { wins, losses, winRate: wins + losses > 0 ? Math.round(wins / (wins + losses) * 100) : 0, topChars: mapChars(chars) };
-    }
-
-    // ── 1. Sets du tournoi en cours pour les deux entrants ───────────────────
-
-    let page = 1, totalPages = 1;
-    let allCurrentSets = [];
-    let p1Info = null, p2Info = null;
-    let eventName = '';
-
-    while (page <= totalPages) {
-      const d = await startggQuery(`
-        query CurrentSets($eventId: ID!, $e1: ID!, $e2: ID!, $page: Int!) {
-          event(id: $eventId) {
-            name
-            sets(filters: { entrantIds: [$e1, $e2] }, perPage: 50, page: $page) {
-              pageInfo { totalPages }
-              nodes {
-                id fullRoundText state winnerId
-                slots {
-                  entrant { id name participants { gamerTag prefix player { id } } }
-                  standing { stats { score { value } } }
-                }
-                games {
-                  winnerId
-                  selections { entrant { id } selectionType selectionValue }
-                }
-              }
-            }
-          }
-        }
-      `, { eventId, e1: entrant1Id, e2: entrant2Id, page });
-
-      if (!d.event) return res.status(404).json({ error: 'Évènement introuvable' });
-      eventName  = d.event.name;
-      totalPages = d.event.sets?.pageInfo?.totalPages || 1;
-      allCurrentSets = allCurrentSets.concat(d.event.sets?.nodes || []);
-      page++;
-    }
-
-    const completedCurrent = allCurrentSets.filter(s => s.state === 3);
-
-    // Extraire infos joueurs depuis n'importe quel set
-    for (const set of completedCurrent) {
-      if (!p1Info) p1Info = extractInfo(set.slots, entrant1Id);
-      if (!p2Info) p2Info = extractInfo(set.slots, entrant2Id);
-      if (p1Info && p2Info) break;
-    }
-    // Fallback : chercher dans les sets non terminés si un des joueurs est inconnu
-    if (!p1Info || !p2Info) {
-      for (const set of allCurrentSets) {
-        if (!p1Info) p1Info = extractInfo(set.slots, entrant1Id);
-        if (!p2Info) p2Info = extractInfo(set.slots, entrant2Id);
-        if (p1Info && p2Info) break;
-      }
-    }
-    if (!p1Info || !p2Info)
-      return res.status(404).json({ error: 'Infos joueurs introuvables dans cet évènement' });
-
-    // Stats individuelles dans le tournoi en cours
-    const p1CurrentSets = completedCurrent.filter(s =>
-      (s.slots||[]).some(sl => String(sl.entrant?.id) === String(entrant1Id)));
-    const p2CurrentSets = completedCurrent.filter(s =>
-      (s.slots||[]).some(sl => String(sl.entrant?.id) === String(entrant2Id)));
-
-    // H2H dans le tournoi en cours (sets où les deux joueurs s'affrontent)
-    const h2hCurrentSets = completedCurrent.filter(s => {
-      const ids = (s.slots||[]).map(sl => String(sl.entrant?.id));
-      return ids.includes(String(entrant1Id)) && ids.includes(String(entrant2Id));
-    });
-
-    // ── 2. H2H historique via player.sets paginé ─────────────────────────────
-
-    const historicalH2H = [];
-
-    if (p1Info.playerId) {
-      let page = 1;
-      const seenTournaments = new Set();
-      let stopPaging = false;
-      while (!stopPaging) {
-        const stData = await startggQuery(`
-          query P1Sets($playerId: ID!, $page: Int!) {
-            player(id: $playerId) {
-              sets(page: $page, perPage: 20, filters: { state: [3] }) {
-                pageInfo { totalPages }
-                nodes {
-                  id fullRoundText winnerId
-                  event { id name tournament { id name } }
-                  slots {
-                    entrant { id name participants { gamerTag prefix } }
-                    standing { stats { score { value } } }
-                  }
-                  games {
-                    winnerId
-                    selections { entrant { id } selectionType selectionValue }
-                  }
-                }
-              }
-            }
-          }
-        `, { playerId: p1Info.playerId, page });
-
-        const setsPage  = stData.player?.sets;
-        const nodes     = setsPage?.nodes || [];
-        const totalPages = setsPage?.pageInfo?.totalPages || 1;
-
-        for (const set of nodes) {
-          if (String(set.event?.id) === String(eventId)) continue;
-          const tId = set.event?.tournament?.id || set.event?.id;
-          if (tId) seenTournaments.add(String(tId));
-          if (tournamentLimit && seenTournaments.size > tournamentLimit) {
-            stopPaging = true;
-            break;
-          }
-          const p1Slot  = (set.slots||[]).find(sl => {
-            const tag = sl.entrant?.participants?.[0]?.gamerTag || sl.entrant?.name || '';
-            return tag.toLowerCase() === p1Info.name.toLowerCase();
-          });
-          const oppSlot = (set.slots||[]).find(sl => {
-            const tag = sl.entrant?.participants?.[0]?.gamerTag || sl.entrant?.name || '';
-            return tag.toLowerCase() === p2Info.name.toLowerCase();
-          });
-          if (!p1Slot || !oppSlot) continue;
-          historicalH2H.push({
-            set,
-            p1EntrantId:    p1Slot.entrant?.id,
-            p2EntrantId:    oppSlot.entrant?.id,
-            tournamentName: set.event?.tournament?.name || set.event?.name || '',
-            eventName:      set.event?.name || '',
-          });
-        }
-
-        if (page >= totalPages) break;
-        page++;
-      }
-    }
-
-    // ── 3. Compiler tous les sets H2H ────────────────────────────────────────
-
-    const allH2H = [
-      ...h2hCurrentSets.map(set => ({
-        set, p1EntrantId: entrant1Id, p2EntrantId: entrant2Id,
-        tournamentName: eventName, eventName, isCurrent: true,
-      })),
-      ...historicalH2H.map(h => ({ ...h, isCurrent: false })),
-    ];
-
-    let h2hWins1 = 0, h2hWins2 = 0;
-    const h2hChars1 = {}, h2hChars2 = {};
-
-    const h2hSets = allH2H.map(({ set, p1EntrantId, p2EntrantId, tournamentName, eventName: evName, isCurrent }) => {
-      const p1Slot = (set.slots||[]).find(sl => String(sl.entrant?.id) === String(p1EntrantId));
-      const p2Slot = (set.slots||[]).find(sl => String(sl.entrant?.id) !== String(p1EntrantId));
-      const p1Won  = String(set.winnerId) === String(p1EntrantId);
-      if (p1Won) h2hWins1++; else h2hWins2++;
-
-      for (const game of (set.games||[])) {
-        for (const sel of (game.selections||[])) {
-          if (sel.selectionType !== 'CHARACTER') continue;
-          const bucket = String(sel.entrant?.id) === String(p1EntrantId) ? h2hChars1 : h2hChars2;
-          bucket[sel.selectionValue] = (bucket[sel.selectionValue] || 0) + 1;
-        }
-      }
-
-      const s1 = p1Slot?.standing?.stats?.score?.value ?? null;
-      const s2 = p2Slot?.standing?.stats?.score?.value ?? null;
-      return {
-        tournamentName,
-        eventName: evName,
-        isCurrent,
-        round:   set.fullRoundText || '',
-        winner:  p1Won ? 1 : 2,
-        score1:  s1 !== null ? Math.max(0, s1) : undefined,
-        score2:  s2 !== null ? Math.max(0, s2) : undefined,
-      };
-    });
-
-    res.json({
-      eventName,
-      player1: { name: p1Info.name, tag: p1Info.tag, currentStats: computeStats(entrant1Id, p1CurrentSets) },
-      player2: { name: p2Info.name, tag: p2Info.tag, currentStats: computeStats(entrant2Id, p2CurrentSets) },
-      h2h: {
-        player1Wins: h2hWins1,
-        player2Wins: h2hWins2,
-        totalSets:   h2hWins1 + h2hWins2,
-        topCharsP1:  mapChars(h2hChars1),
-        topCharsP2:  mapChars(h2hChars2),
-        sets: h2hSets,
-      },
-    });
-  } catch (e) {
-    console.error('[h2h]', e.message);
     res.status(400).json({ error: e.message });
   }
 });
@@ -1410,7 +1312,6 @@ server.listen(PORT, () => {
   console.log('   Overlay casters    → http://localhost:' + PORT + '/casters');
   console.log('   Overlay stats      → http://localhost:' + PORT + '/player-stats');
   console.log('   Overlay historique → http://localhost:' + PORT + '/tournament-history');
-  console.log('   Overlay H2H        → http://localhost:' + PORT + '/h2h');
+  console.log('   Overlay chat       → http://localhost:' + PORT + '/twitch-chat');
   console.log('   Contrôle           → http://localhost:' + PORT + '/control');
-  console.log('');
 });
