@@ -3326,3 +3326,144 @@ function updateTwitchDisplay({ viewers, live }) {
 if (typeof socket !== 'undefined') {
   socket.on('twitch-viewers', updateTwitchDisplay);
 }
+
+// ── Bandeau / Ticker ──────────────────────────────────────────────
+
+// Corriger l'URL avec le bon host
+(function () {
+  const el = document.getElementById('ticker-url');
+  if (el) el.value = window.location.origin + '/ticker';
+})();
+
+// État local du ticker
+let tickerLocal = {
+  visible: false, position: 'bottom', label: 'INFO',
+  separator: '◆', speed: 80, messages: [],
+};
+
+function tickerSend(patch) {
+  Object.assign(tickerLocal, patch);
+  fetch('/api/ticker', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(tickerLocal),
+  }).catch(e => setStatus('Erreur bandeau : ' + e.message));
+}
+
+function updateTickerUI(s) {
+  tickerLocal = Object.assign(tickerLocal, s);
+
+  // Bouton toggle
+  const btn = document.getElementById('btn-ticker-toggle');
+  if (btn) {
+    btn.textContent = s.visible ? '⏸ Masquer le bandeau' : '▶ Afficher le bandeau';
+    btn.classList.toggle('btn-danger', !!s.visible);
+    btn.classList.toggle('btn-primary', !s.visible);
+  }
+
+  // Position buttons
+  document.querySelectorAll('.ticker-pos-btn').forEach(b => {
+    b.classList.toggle('active-sep', b.dataset.pos === s.position);
+  });
+
+  // Label
+  const labelEl = document.getElementById('ticker-label');
+  if (labelEl && document.activeElement !== labelEl) labelEl.value = s.label || 'INFO';
+
+  // Messages
+  const ta = document.getElementById('ticker-messages');
+  if (ta && document.activeElement !== ta) ta.value = (s.messages || []).join('\n');
+  updateMsgCount(s.messages || []);
+
+  // Speed
+  const sr = document.getElementById('ticker-speed-range');
+  const sn = document.getElementById('ticker-speed-num');
+  if (sr && document.activeElement !== sr) sr.value = s.speed || 80;
+  if (sn && document.activeElement !== sn) sn.value = s.speed || 80;
+
+  // Séparateurs
+  document.querySelectorAll('.ticker-sep-btn').forEach(b => {
+    b.classList.toggle('active-sep', b.dataset.sep === s.separator);
+  });
+}
+
+function updateMsgCount(msgs) {
+  const el = document.getElementById('ticker-msg-count');
+  if (el) el.textContent = `${msgs.filter(m => m.trim()).length} message(s)`;
+}
+
+// Charger l'état initial
+fetch('/api/ticker').then(r => r.json()).then(updateTickerUI).catch(() => {});
+
+// Bouton ON/OFF
+document.getElementById('btn-ticker-toggle')?.addEventListener('click', () => {
+  tickerSend({ visible: !tickerLocal.visible });
+  updateTickerUI({ visible: !tickerLocal.visible });
+});
+
+// Boutons position
+document.querySelectorAll('.ticker-pos-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    tickerSend({ position: btn.dataset.pos });
+    updateTickerUI({ position: btn.dataset.pos });
+  });
+});
+
+// Enregistrer messages
+document.getElementById('btn-ticker-save')?.addEventListener('click', () => {
+  const ta = document.getElementById('ticker-messages');
+  const msgs = ta ? ta.value.split('\n').map(l => l.trim()).filter(Boolean) : [];
+  const label = (document.getElementById('ticker-label')?.value || 'INFO').toUpperCase();
+  tickerSend({ messages: msgs, label });
+  updateMsgCount(msgs);
+  setStatus('Bandeau mis à jour');
+});
+
+// Textarea : compter messages en temps réel
+document.getElementById('ticker-messages')?.addEventListener('input', () => {
+  const ta = document.getElementById('ticker-messages');
+  updateMsgCount(ta.value.split('\n'));
+});
+
+// Boutons séparateur
+document.querySelectorAll('.ticker-sep-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.ticker-sep-btn').forEach(b => b.classList.remove('active-sep'));
+    btn.classList.add('active-sep');
+    tickerSend({ separator: btn.dataset.sep });
+  });
+});
+// Séparateur custom
+document.getElementById('ticker-sep-custom')?.addEventListener('change', function () {
+  if (!this.value) return;
+  document.querySelectorAll('.ticker-sep-btn').forEach(b => b.classList.remove('active-sep'));
+  tickerSend({ separator: this.value });
+});
+
+// Vitesse
+(function () {
+  const range = document.getElementById('ticker-speed-range');
+  const num   = document.getElementById('ticker-speed-num');
+  if (!range || !num) return;
+  let _debounce = null;
+  function onSpeed(v) {
+    clearTimeout(_debounce);
+    _debounce = setTimeout(() => tickerSend({ speed: Number(v) }), 300);
+  }
+  range.addEventListener('input', () => { num.value = range.value; onSpeed(range.value); });
+  num.addEventListener('input',   () => { range.value = num.value; onSpeed(num.value); });
+})();
+
+// Copier URL
+document.getElementById('btn-copy-ticker-url')?.addEventListener('click', () => {
+  const el = document.getElementById('ticker-url');
+  if (!el) return;
+  navigator.clipboard.writeText(el.value).then(() => setStatus('URL bandeau copiée')).catch(() => {
+    el.select(); document.execCommand('copy'); setStatus('URL bandeau copiée');
+  });
+});
+
+// Réception Socket.IO
+if (typeof socket !== 'undefined') {
+  socket.on('tickerUpdate', updateTickerUI);
+}

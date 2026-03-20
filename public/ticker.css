@@ -1,0 +1,260 @@
+@import url('https://fonts.googleapis.com/css2?family=Russo+One&family=Inter:wght@400;500;600;700&display=swap');
+
+/* ── Variables de thème ────────────────────────────────────────── */
+:root {
+  --tk-primary: #E8B830;
+  --tk-glow:    rgba(232, 184, 48, 0.5);
+  --tk-bg:      rgba(14, 14, 18, 0.94);
+  --tk-accent:  #D4001A;
+  --tk-text:    #F0EEF8;
+  --tk-muted:   rgba(240, 238, 248, 0.55);
+  --tk-height:  62px;
+  --tk-speed:   60s; /* durée totale du scroll, ajustée par JS */
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: transparent;
+  width: 1920px;
+  height: 1080px;
+  overflow: hidden;
+  font-family: 'Inter', sans-serif;
+}
+
+/* ── Racine positionnée ────────────────────────────────────────── */
+.ticker-root {
+  position: absolute;
+  left: 0;
+  right: 0;
+  transition: opacity 0.4s, transform 0.5s;
+}
+
+.ticker-root.position-bottom { bottom: 0; }
+.ticker-root.position-top    { top: 0; }
+
+.ticker-root.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ── Lignes de bordure décoratives ────────────────────────────── */
+.ticker-border-top,
+.ticker-border-bottom {
+  height: 2px;
+  background: linear-gradient(
+    to right,
+    transparent 0%,
+    var(--tk-primary) 8%,
+    var(--tk-primary) 92%,
+    transparent 100%
+  );
+  box-shadow: 0 0 8px var(--tk-glow);
+  transition: background 0.5s, box-shadow 0.5s;
+}
+
+/* ── Corps du bandeau ─────────────────────────────────────────── */
+.ticker-body {
+  height: var(--tk-height);
+  display: flex;
+  align-items: stretch;
+  background: var(--tk-bg);
+  box-shadow: 0 0 30px rgba(0,0,0,0.7), 0 0 60px rgba(0,0,0,0.3);
+  position: relative;
+  overflow: hidden;
+  transition: background 0.5s;
+}
+
+/* Reflet interne */
+.ticker-body::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(255,255,255,0.04) 0%,
+    transparent 50%,
+    rgba(0,0,0,0.08) 100%
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── Badge label ──────────────────────────────────────────────── */
+.ticker-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 20px 0 22px;
+  background: var(--tk-primary);
+  position: relative;
+  flex-shrink: 0;
+  z-index: 2;
+  clip-path: polygon(0% 0%, calc(100% - 10px) 0%, 100% 50%, calc(100% - 10px) 100%, 0% 100%);
+  transition: background 0.5s;
+}
+
+/* Halo derrière le badge */
+.ticker-label::after {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  background: var(--tk-primary);
+  filter: blur(12px);
+  opacity: 0.4;
+  z-index: -1;
+  transition: background 0.5s;
+}
+
+/* Point animé dans le badge */
+@keyframes dot-pulse {
+  0%, 100% { transform: scale(1);   opacity: 1; }
+  50%       { transform: scale(1.4); opacity: 0.6; }
+}
+.label-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.5);
+  animation: dot-pulse 2s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+.label-text {
+  font-family: 'Russo One', sans-serif;
+  font-size: 15px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: rgba(0,0,0,0.85);
+  white-space: nowrap;
+}
+
+/* ── Séparateur vertical ──────────────────────────────────────── */
+.ticker-sep-v {
+  width: 1px;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    var(--tk-primary) 30%,
+    var(--tk-primary) 70%,
+    transparent
+  );
+  opacity: 0.4;
+  flex-shrink: 0;
+  z-index: 2;
+  transition: background 0.5s;
+}
+
+/* ── Piste de défilement ──────────────────────────────────────── */
+.ticker-track-wrap {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+}
+
+@keyframes ticker-scroll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+.ticker-track {
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+  /* animation appliquée dynamiquement par JS */
+  will-change: transform;
+}
+
+/* Chaque message dans la piste */
+.ticker-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0;
+  padding: 0 6px;
+}
+
+.ticker-msg {
+  font-size: 17px;
+  font-weight: 500;
+  color: var(--tk-text);
+  letter-spacing: 0.3px;
+  transition: color 0.5s;
+}
+
+/* Séparateur entre messages */
+.ticker-dot {
+  display: inline-block;
+  margin: 0 20px;
+  color: var(--tk-primary);
+  font-size: 14px;
+  opacity: 0.8;
+  transition: color 0.5s;
+  font-family: 'Russo One', sans-serif;
+}
+
+/* ── Fondu droit ──────────────────────────────────────────────── */
+.ticker-fade {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 80px;
+  background: linear-gradient(to right, transparent, var(--tk-bg-solid, #0E0E12));
+  pointer-events: none;
+  z-index: 3;
+  transition: background 0.5s;
+}
+
+/* ══════════════════════════════════════════════════════════════ */
+/* THÈMES                                                        */
+/* ══════════════════════════════════════════════════════════════ */
+
+/* Cyberpunk */
+@keyframes neon-scan {
+  0%   { left: -100%; }
+  100% { left: 100%; }
+}
+.ticker-root.theme-cyberpunk .ticker-body::after {
+  content: '';
+  position: absolute;
+  top: 0; bottom: 0;
+  width: 60px;
+  background: linear-gradient(to right, transparent, rgba(0,245,255,0.08), transparent);
+  animation: neon-scan 3s linear infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+@keyframes neon-label-flicker {
+  0%, 92%, 96%, 100% { opacity: 1; }
+  94%                { opacity: 0.3; }
+}
+.ticker-root.theme-cyberpunk .ticker-label {
+  animation: neon-label-flicker 6s steps(1) infinite;
+}
+
+/* Synthwave */
+@keyframes sw-bg-pulse {
+  0%, 100% { box-shadow: 0 0 30px rgba(0,0,0,0.7), 0 0 12px var(--tk-glow); }
+  50%       { box-shadow: 0 0 30px rgba(0,0,0,0.7), 0 0 28px var(--tk-glow); }
+}
+.ticker-root.theme-synthwave .ticker-body {
+  animation: sw-bg-pulse 2.8s ease-in-out infinite;
+}
+
+/* Fire */
+@keyframes fire-border {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.6; }
+}
+.ticker-root.theme-fire .ticker-border-top,
+.ticker-root.theme-fire .ticker-border-bottom {
+  animation: fire-border 1.6s ease-in-out infinite;
+}
+
+/* Midnight */
+.ticker-root.theme-midnight .ticker-body {
+  background-image: linear-gradient(135deg, rgba(68,136,255,0.04) 0%, transparent 60%);
+}
