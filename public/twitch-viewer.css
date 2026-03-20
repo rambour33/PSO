@@ -1,0 +1,221 @@
+@import url('https://fonts.googleapis.com/css2?family=Russo+One&family=Inter:wght@400;500;600;700&display=swap');
+
+/* ── Variables de thème ────────────────────────────────────────── */
+:root {
+  --tv-primary: #E8B830;
+  --tv-glow:    rgba(232, 184, 48, 0.5);
+  --tv-bg:      rgba(14, 14, 18, 0.92);
+  --tv-accent:  #D4001A;
+  --tv-text:    #F0EEF8;
+  --tv-muted:   #5A5A7A;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: transparent;
+  width: 1920px;
+  height: 1080px;
+  overflow: hidden;
+  font-family: 'Inter', sans-serif;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+  padding: 32px 40px;
+}
+
+/* ── Overlay card ──────────────────────────────────────────────── */
+.viewer-overlay {
+  position: relative;
+  width: 220px;
+  padding: 18px 20px 16px;
+  background: var(--tv-bg);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-top: 2px solid var(--tv-primary);
+  clip-path: polygon(0% 0%, calc(100% - 14px) 0%, 100% 14px, 100% 100%, 14px 100%, 0% calc(100% - 14px));
+  transition: background 0.5s, border-color 0.5s, box-shadow 0.5s, opacity 0.4s;
+  box-shadow:
+    0 0 30px rgba(0,0,0,0.7),
+    0 -4px 20px var(--tv-glow),
+    inset 0 0 40px rgba(0,0,0,0.2);
+}
+
+.viewer-overlay.offline {
+  opacity: 0.5;
+}
+
+/* Fond avec légère texture */
+.overlay-bg {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(160deg, rgba(255,255,255,0.04) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+/* Lueur colorée derrière la card */
+.overlay-glow {
+  position: absolute;
+  inset: -20px;
+  background: radial-gradient(ellipse at 50% 0%, var(--tv-glow) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: -1;
+  transition: background 0.5s;
+}
+
+/* ── Coins décoratifs ──────────────────────────────────────────── */
+.deco-corner {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  pointer-events: none;
+  transition: border-color 0.5s;
+}
+.deco-tl {
+  top: 6px; left: 6px;
+  border-top: 2px solid var(--tv-primary);
+  border-left: 2px solid var(--tv-primary);
+  opacity: 0.6;
+}
+.deco-br {
+  bottom: 6px; right: 20px;
+  border-bottom: 2px solid var(--tv-primary);
+  border-right: 2px solid var(--tv-primary);
+  opacity: 0.6;
+}
+
+/* ── Contenu ───────────────────────────────────────────────────── */
+.viewer-body {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+}
+
+/* Ligne LIVE */
+.live-row {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 6px;
+}
+
+/* Point live animé */
+@keyframes live-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.6); }
+  50%       { box-shadow: 0 0 0 5px rgba(255, 0, 0, 0);  }
+}
+
+.live-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #555;
+  flex-shrink: 0;
+  transition: background 0.3s;
+}
+.viewer-overlay.live .live-dot {
+  background: #FF0000;
+  animation: live-pulse 1.6s ease-in-out infinite;
+}
+
+.live-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--tv-muted);
+  transition: color 0.3s;
+}
+.viewer-overlay.live .live-label {
+  color: #FF4444;
+}
+
+/* Ligne nombre + icône */
+.count-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.eye-icon {
+  width: 22px;
+  height: 22px;
+  color: var(--tv-primary);
+  flex-shrink: 0;
+  transition: color 0.5s;
+}
+
+@keyframes number-pop {
+  0%   { transform: scale(1); }
+  35%  { transform: scale(1.25); }
+  100% { transform: scale(1); }
+}
+
+.viewer-number {
+  font-family: 'Russo One', sans-serif;
+  font-size: 42px;
+  line-height: 1;
+  color: var(--tv-text);
+  text-shadow: 0 0 18px var(--tv-glow);
+  transition: text-shadow 0.5s;
+  letter-spacing: -1px;
+}
+.viewer-number.pop {
+  animation: number-pop 0.35s ease-out forwards;
+}
+
+/* Label "viewers" */
+.viewers-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: var(--tv-muted);
+}
+
+/* ── Barre d'accent en bas ─────────────────────────────────────── */
+.bottom-accent {
+  position: absolute;
+  bottom: 0;
+  left: 14px;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(to right, var(--tv-primary), transparent);
+  transition: background 0.5s;
+}
+
+/* ── Thèmes spécifiques ────────────────────────────────────────── */
+@keyframes neon-flicker {
+  0%, 94%, 98%, 100% { opacity: 1; }
+  96%                { opacity: 0.2; }
+}
+.viewer-overlay.theme-cyberpunk {
+  animation: neon-flicker 7s steps(1) infinite;
+}
+
+@keyframes sw-card-pulse {
+  0%, 100% { box-shadow: 0 0 20px rgba(0,0,0,0.7), 0 -4px 20px var(--tv-glow); }
+  50%       { box-shadow: 0 0 40px rgba(0,0,0,0.7), 0 -8px 35px var(--tv-glow); }
+}
+.viewer-overlay.theme-synthwave {
+  animation: sw-card-pulse 2.8s ease-in-out infinite;
+}
+
+@keyframes fire-flicker {
+  0%, 100% { --tv-glow: rgba(255,107,0,0.55); opacity: 1; }
+  33%       { opacity: 0.9; }
+  66%       { opacity: 0.95; }
+}
+.viewer-overlay.theme-fire .overlay-glow {
+  animation: fire-glow-pulse 1.8s ease-in-out infinite;
+}
+@keyframes fire-glow-pulse {
+  0%, 100% { opacity: 0.8; }
+  50%       { opacity: 1; }
+}

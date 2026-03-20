@@ -388,6 +388,88 @@ body {
   100% { transform: translateY(110px); opacity: 0; }
 }
 
+/* ── Widget compteur viewers ──────────────────────────────────── */
+
+@keyframes live-pulse {
+  0%, 100% { opacity: 1;   box-shadow: 0 0 0 0 var(--tw-glow); }
+  50%       { opacity: 0.7; box-shadow: 0 0 0 5px transparent;  }
+}
+
+@keyframes viewer-pop {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+.viewer-widget {
+  position: absolute;
+  top: 22px;
+  right: 80px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--tw-bg);
+  border: 1px solid var(--tw-border);
+  border-left: 3px solid var(--tw-primary);
+  padding: 8px 16px 8px 12px;
+  clip-path: polygon(0% 0%, calc(100% - 10px) 0%, 100% 10px, 100% 100%, 10px 100%, 0% calc(100% - 10px));
+  box-shadow: 0 0 20px rgba(0,0,0,0.5), -2px 0 10px var(--tw-glow);
+  transition: background 0.5s, border-color 0.5s, box-shadow 0.5s;
+  z-index: 15;
+}
+
+.viewer-widget.offline {
+  opacity: 0.45;
+}
+
+/* Point live */
+.viewer-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #888;
+  flex-shrink: 0;
+  transition: background 0.3s;
+}
+.viewer-widget.live .viewer-dot {
+  background: #FF0000;
+  animation: live-pulse 1.6s ease-in-out infinite;
+}
+
+/* Icône œil */
+.viewer-icon {
+  width: 18px;
+  height: 18px;
+  color: var(--tw-primary);
+  flex-shrink: 0;
+  transition: color 0.5s;
+}
+
+/* Nombre */
+.viewer-count {
+  font-family: 'Russo One', sans-serif;
+  font-size: 22px;
+  line-height: 1;
+  color: var(--tw-text);
+  text-shadow: 0 0 10px var(--tw-glow);
+  min-width: 40px;
+  transition: text-shadow 0.5s;
+}
+.viewer-count.pop {
+  animation: viewer-pop 0.35s ease-out forwards;
+}
+
+/* Label */
+.viewer-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--tw-muted);
+  align-self: flex-end;
+  margin-bottom: 2px;
+}
+
 /* ── Responsive : cacher elements quand invisible ────────────── */
 .twitch-layout.hidden * {
   animation-play-state: paused;

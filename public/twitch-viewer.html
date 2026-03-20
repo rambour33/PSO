@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PSO – Viewers Twitch</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Russo+One&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="twitch-viewer.css" />
+</head>
+<body>
+
+<div id="viewer-overlay" class="viewer-overlay offline">
+
+  <!-- Fond + effets de thème -->
+  <div class="overlay-bg"></div>
+  <div class="overlay-glow"></div>
+
+  <!-- Coin décoratif haut-gauche -->
+  <div class="deco-corner deco-tl"></div>
+  <div class="deco-corner deco-br"></div>
+
+  <!-- Contenu principal -->
+  <div class="viewer-body">
+
+    <!-- Ligne supérieure : point live + label LIVE -->
+    <div class="live-row">
+      <span class="live-dot" id="live-dot"></span>
+      <span class="live-label" id="live-label">HORS LIGNE</span>
+    </div>
+
+    <!-- Icône œil + nombre -->
+    <div class="count-row">
+      <svg class="eye-icon" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
+      </svg>
+      <span class="viewer-number" id="viewer-number">–</span>
+    </div>
+
+    <!-- Label viewers -->
+    <div class="viewers-label">viewers</div>
+
+  </div>
+
+  <!-- Barre d'accent en bas -->
+  <div class="bottom-accent"></div>
+
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="twitch-viewer.js"></script>
+</body>
+</html>
