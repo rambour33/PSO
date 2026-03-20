@@ -2105,3 +2105,19 @@ kbd {
   outline: none;
   border-color: var(--gold);
 }
+
+/* ── Ticker / Bandeau ─────────────────────────────────────────── */
+.ticker-pos-btn.active-sep,
+.ticker-sep-btn.active-sep {
+  background: var(--gold);
+  color: #000;
+  border-color: var(--gold);
+}
+
+#btn-ticker-toggle.btn-danger {
+  background: #c0392b;
+  border-color: #c0392b;
+}
+#btn-ticker-toggle.btn-danger:hover {
+  background: #a93226;
+}

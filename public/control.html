@@ -30,6 +30,7 @@
       <a href="/tournament-history" target="_blank" class="btn btn-outline">Historique ↗</a>
       <a href="/h2h" target="_blank" class="btn btn-outline">H2H ↗</a>
       <a href="/twitch-layout" target="_blank" class="btn btn-outline">Twitch Layout ↗</a>
+      <a href="/ticker" target="_blank" class="btn btn-outline">Bandeau ↗</a>
       <button id="btn-vs-trigger" class="btn btn-primary" title="Déclenche l'animation d'entrée sur la VS Screen">⚔ VS Anim</button>
       <button id="btn-visibility" class="btn btn-primary">Masquer</button>
     </div>
@@ -44,6 +45,7 @@
     <button class="tab-btn" data-tab="chars" style="display:none">Personnages</button>
     <button class="tab-btn" data-tab="startgg">start.gg</button>
     <button class="tab-btn" data-tab="twitch">Layouts Twitch</button>
+    <button class="tab-btn" data-tab="ticker">Bandeau</button>
   </nav>
 
   <!-- ═══════════════════════════════════════════════════════════ -->
@@ -1845,6 +1847,101 @@
 
     </section>
   </div><!-- /tab-twitch -->
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- TAB : BANDEAU / TICKER                                      -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <div class="tab-content" id="tab-ticker">
+    <section class="section">
+      <div class="section-header">
+        <h2>Bandeau défilant</h2>
+        <a href="/ticker" target="_blank" class="btn btn-outline btn-sm">Ouvrir l'overlay ↗</a>
+      </div>
+
+      <!-- Activation + position -->
+      <div class="custom-card">
+        <h3>Activation</h3>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+          <button id="btn-ticker-toggle" class="btn btn-primary" style="min-width:180px;">▶ Afficher le bandeau</button>
+          <div style="display:flex;gap:6px;">
+            <button id="btn-ticker-top"    class="btn btn-outline btn-sm ticker-pos-btn active-pos" data-pos="top">↑ Haut</button>
+            <button id="btn-ticker-bottom" class="btn btn-outline btn-sm ticker-pos-btn"            data-pos="bottom">↓ Bas</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Aperçu miniature -->
+      <div class="custom-card" style="padding:0;overflow:hidden;border-radius:8px;">
+        <div style="background:#111;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;">
+          <span style="font-size:12px;font-weight:600;color:var(--text-muted);letter-spacing:1px;text-transform:uppercase;">Aperçu – s'adapte au thème actif</span>
+          <span style="font-size:11px;color:var(--text-muted)">1920 × 1080</span>
+        </div>
+        <div style="position:relative;width:100%;padding-bottom:56.25%;background:#0a0a0f;overflow:hidden;">
+          <iframe src="/ticker" id="ticker-preview"
+            style="position:absolute;top:0;left:0;width:100%;height:100%;border:none;pointer-events:none;"
+            scrolling="no"></iframe>
+        </div>
+      </div>
+
+      <!-- Contenu du bandeau -->
+      <div class="custom-card">
+        <h3>Messages <span class="hint">un par ligne</span></h3>
+        <textarea id="ticker-messages" rows="6"
+          placeholder="Bienvenue sur le stream !&#10;Prochain tournoi le 15 mars&#10;Rejoins notre Discord !"
+          style="width:100%;resize:vertical;font-size:13px;line-height:1.6;"></textarea>
+        <div style="display:flex;gap:8px;margin-top:10px;align-items:center;flex-wrap:wrap;">
+          <button class="btn btn-primary btn-sm" id="btn-ticker-save">Enregistrer les messages</button>
+          <span style="font-size:12px;color:var(--text-muted);" id="ticker-msg-count">0 message(s)</span>
+        </div>
+      </div>
+
+      <!-- Options de style -->
+      <div class="custom-card">
+        <h3>Options de style</h3>
+
+        <div class="form-group" style="margin-bottom:14px;">
+          <label>Label <span class="hint">texte du badge gauche</span></label>
+          <input type="text" id="ticker-label" placeholder="INFO" maxlength="20" style="text-transform:uppercase;" />
+        </div>
+
+        <div class="form-group" style="margin-bottom:14px;">
+          <label>Séparateur entre messages</label>
+          <div style="display:flex;gap:8px;">
+            <button class="btn btn-outline btn-sm ticker-sep-btn active-sep" data-sep="◆">◆</button>
+            <button class="btn btn-outline btn-sm ticker-sep-btn" data-sep="●">●</button>
+            <button class="btn btn-outline btn-sm ticker-sep-btn" data-sep="★">★</button>
+            <button class="btn btn-outline btn-sm ticker-sep-btn" data-sep="///">//</button>
+            <button class="btn btn-outline btn-sm ticker-sep-btn" data-sep="·">·</button>
+            <input type="text" id="ticker-sep-custom" placeholder="Perso" maxlength="8"
+              style="width:70px;font-size:13px;" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Vitesse de défilement <span class="hint">20 – 400 px/s</span></label>
+          <div class="logo-particles-row">
+            <input type="range"  id="ticker-speed-range" min="20" max="400" value="80" />
+            <input type="number" id="ticker-speed-num"   min="20" max="400" value="80" style="width:60px;" />
+          </div>
+        </div>
+      </div>
+
+      <!-- URL OBS -->
+      <div class="custom-card">
+        <h3>Source OBS</h3>
+        <p style="font-size:13px;color:var(--text-muted);margin-bottom:10px;line-height:1.6;">
+          Ajoute une <strong>Source Navigateur</strong> · Résolution <strong>1920 × 1080</strong>.
+        </p>
+        <div class="name-row" style="gap:8px;">
+          <input type="text" id="ticker-url" readonly
+            style="flex:1;font-size:12px;background:var(--surface2);border:1px solid var(--border);color:var(--text-muted);"
+            value="http://localhost:3002/ticker" />
+          <button class="btn btn-primary btn-sm" id="btn-copy-ticker-url">Copier</button>
+        </div>
+      </div>
+
+    </section>
+  </div><!-- /tab-ticker -->
 
   <!-- FOOTER -->
   <footer class="footer">

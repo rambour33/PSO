@@ -253,6 +253,32 @@ app.get('/vs-screen', (req, res) => res.sendFile(path.join(__dirname, 'public', 
 app.get('/player-stats', (req, res) => res.sendFile(path.join(__dirname, 'public', 'player-stats.html')));
 app.get('/twitch-layout', (req, res) => res.sendFile(path.join(__dirname, 'public', 'twitch-layout.html')));
 app.get('/twitch-viewer', (req, res) => res.sendFile(path.join(__dirname, 'public', 'twitch-viewer.html')));
+app.get('/ticker', (req, res) => res.sendFile(path.join(__dirname, 'public', 'ticker.html')));
+
+// ─── Ticker (bandeau défilant) ─────────────────────────────────────────────────
+
+let tickerState = {
+  visible:   false,
+  position:  'bottom',   // 'top' | 'bottom'
+  label:     'INFO',
+  separator: '◆',
+  speed:     80,          // px/s
+  messages:  [],
+};
+
+app.get('/api/ticker', (req, res) => res.json(tickerState));
+
+app.post('/api/ticker', (req, res) => {
+  const { visible, position, label, separator, speed, messages } = req.body;
+  if (visible   !== undefined) tickerState.visible   = !!visible;
+  if (position  !== undefined) tickerState.position  = position;
+  if (label     !== undefined) tickerState.label     = String(label).slice(0, 20);
+  if (separator !== undefined) tickerState.separator = String(separator).slice(0, 8);
+  if (speed     !== undefined) tickerState.speed     = Math.max(20, Math.min(400, Number(speed)));
+  if (messages  !== undefined) tickerState.messages  = (Array.isArray(messages) ? messages : []).map(m => String(m).trim()).filter(Boolean);
+  io.emit('tickerUpdate', tickerState);
+  res.json({ ok: true });
+});
 
 // ─── Twitch Viewers ────────────────────────────────────────────────────────────
 
@@ -447,6 +473,7 @@ io.on('connection', (socket) => {
   socket.emit('tournamentHistoryUpdate', tournamentHistoryState);
   socket.emit('h2hUpdate', h2hState);
   socket.emit('twitch-viewers', { viewers: twitchState.viewers, live: twitchState.live, channel: twitchState.channel });
+  socket.emit('tickerUpdate', tickerState);
 
   // Déclenche l'animation d'entrée sur la VS screen
   socket.on('triggerVsScreen', () => {
