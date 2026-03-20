@@ -3243,3 +3243,86 @@ TW_CHECKBOXES.forEach(({ id, selector, prop, on, off }) => {
     sendTwitchOption('selector-' + selector, cb.checked ? on : off);
   });
 });
+
+// ── Config Twitch viewers ─────────────────────────────────────────
+
+// Mettre à jour l'URL viewer avec le bon host
+(function () {
+  const input = document.getElementById('twitch-viewer-url');
+  if (input) input.value = window.location.origin + '/twitch-viewer';
+})();
+
+// Copier URL viewer
+document.getElementById('btn-copy-viewer-url')?.addEventListener('click', () => {
+  const input = document.getElementById('twitch-viewer-url');
+  if (!input) return;
+  navigator.clipboard.writeText(input.value).then(() => setStatus('URL viewers copiée')).catch(() => {
+    input.select(); document.execCommand('copy'); setStatus('URL viewers copiée');
+  });
+});
+
+// Charger la config Twitch au démarrage
+fetch('/api/twitch/config')
+  .then(r => r.json())
+  .then(cfg => {
+    const chEl = document.getElementById('tw-channel');
+    const ciEl = document.getElementById('tw-client-id');
+    if (chEl) chEl.value = cfg.channel || '';
+    if (ciEl) ciEl.value = cfg.clientId || '';
+    updateTwitchDisplay({ viewers: cfg.viewers, live: cfg.live });
+  })
+  .catch(() => {});
+
+// Sauvegarder config
+document.getElementById('btn-tw-save')?.addEventListener('click', () => {
+  const channel      = document.getElementById('tw-channel')?.value.trim() || '';
+  const clientId     = document.getElementById('tw-client-id')?.value.trim() || '';
+  const clientSecret = document.getElementById('tw-client-secret')?.value || '';
+  fetch('/api/twitch/config', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ channel, clientId, clientSecret }),
+  })
+    .then(r => r.json())
+    .then(() => setStatus('Config Twitch sauvegardée'))
+    .catch(e => setStatus('Erreur : ' + e.message));
+});
+
+// Actualisation manuelle
+document.getElementById('btn-tw-refresh')?.addEventListener('click', () => {
+  fetch('/api/twitch/config')
+    .then(r => r.json())
+    .then(cfg => { updateTwitchDisplay({ viewers: cfg.viewers, live: cfg.live }); setStatus('Viewers actualisés'); })
+    .catch(e => setStatus('Erreur : ' + e.message));
+});
+
+// Afficher le compteur dans le panneau
+function updateTwitchDisplay({ viewers, live }) {
+  const dot    = document.getElementById('tw-live-dot');
+  const label  = document.getElementById('tw-live-label');
+  const count  = document.getElementById('tw-viewer-count');
+  if (!dot || !label || !count) return;
+
+  if (live) {
+    dot.style.background = '#FF0000';
+    label.textContent    = 'EN DIRECT';
+    label.style.color    = '#FF4444';
+  } else {
+    dot.style.background = '#555';
+    label.textContent    = viewers === null ? '–' : 'HORS LIGNE';
+    label.style.color    = 'var(--text-muted)';
+  }
+
+  if (viewers === null || viewers === undefined) {
+    count.textContent = '–';
+  } else if (viewers >= 1000) {
+    count.textContent = (viewers / 1000).toFixed(1).replace('.0', '') + 'k';
+  } else {
+    count.textContent = String(viewers);
+  }
+}
+
+// Mise à jour via Socket.IO
+if (typeof socket !== 'undefined') {
+  socket.on('twitch-viewers', updateTwitchDisplay);
+}

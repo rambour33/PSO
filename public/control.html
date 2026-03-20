@@ -1740,6 +1740,53 @@
         </div>
       </div>
 
+      <!-- Config Twitch + viewers -->
+      <div class="custom-card">
+        <h3>Connexion Twitch <span class="hint">pour le compteur de viewers</span></h3>
+
+        <div class="form-group" style="margin-bottom:12px;">
+          <label>Chaîne Twitch</label>
+          <input type="text" id="tw-channel" placeholder="votre_pseudo_twitch" />
+        </div>
+        <div class="form-group" style="margin-bottom:12px;">
+          <label>Client ID <span class="hint"><a href="https://dev.twitch.tv/console/apps" target="_blank" style="color:var(--text-muted)">dev.twitch.tv ↗</a></span></label>
+          <input type="text" id="tw-client-id" placeholder="xxxxxxxxxxxxxxxxxxxxxxxx" />
+        </div>
+        <div class="form-group" style="margin-bottom:14px;">
+          <label>Client Secret</label>
+          <input type="password" id="tw-client-secret" placeholder="••••••••••••••••••••••••" />
+          <small style="color:var(--text-muted);font-size:11px;">Laisse vide pour ne pas modifier le secret enregistré</small>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <button class="btn btn-primary btn-sm" id="btn-tw-save">Enregistrer</button>
+          <button class="btn btn-outline btn-sm" id="btn-tw-refresh">↺ Actualiser maintenant</button>
+        </div>
+
+        <!-- Affichage du compteur en temps réel -->
+        <div id="tw-viewer-display" style="margin-top:14px;padding:12px 14px;background:var(--surface2);border-radius:6px;border:1px solid var(--border);display:flex;align-items:center;gap:12px;">
+          <span id="tw-live-dot" style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#555;flex-shrink:0;"></span>
+          <span id="tw-live-label" style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);">–</span>
+          <span style="flex:1"></span>
+          <svg style="width:18px;height:18px;color:var(--accent)" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
+          </svg>
+          <span id="tw-viewer-count" style="font-family:'Russo One',sans-serif;font-size:22px;color:var(--text);">–</span>
+          <span style="font-size:11px;color:var(--text-muted);letter-spacing:1px;text-transform:uppercase;">viewers</span>
+        </div>
+
+        <!-- URL de l'overlay viewers standalone -->
+        <div style="margin-top:12px;">
+          <label style="font-size:12px;color:var(--text-muted);display:block;margin-bottom:6px;">Overlay compteur standalone (OBS)</label>
+          <div class="name-row" style="gap:8px;">
+            <input type="text" id="twitch-viewer-url" readonly
+              style="flex:1;font-size:12px;background:var(--surface2);border:1px solid var(--border);color:var(--text-muted);"
+              value="http://localhost:3002/twitch-viewer" />
+            <button class="btn btn-outline btn-sm" id="btn-copy-viewer-url">Copier</button>
+            <a href="/twitch-viewer" target="_blank" class="btn btn-outline btn-sm">↗</a>
+          </div>
+        </div>
+      </div>
+
       <!-- Options du cadre -->
       <div class="custom-card">
         <h3>Options du cadre</h3>

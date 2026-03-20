@@ -162,11 +162,45 @@
     }
   });
 
+  // ── Viewers ────────────────────────────────────────────────────
+  let prevViewers = null;
+
+  function formatViewers(n) {
+    if (n === null || n === undefined) return '–';
+    if (n >= 1000) return (n / 1000).toFixed(1).replace('.0', '') + 'k';
+    return String(n);
+  }
+
+  function updateViewers({ viewers, live }) {
+    const widget = document.getElementById('viewer-widget');
+    const count  = document.getElementById('viewer-count');
+    const dot    = document.getElementById('viewer-dot');
+    if (!widget || !count) return;
+
+    widget.classList.toggle('live',    !!live);
+    widget.classList.toggle('offline', !live);
+
+    const formatted = formatViewers(viewers);
+    if (count.textContent !== formatted) {
+      count.textContent = formatted;
+      if (prevViewers !== null) {
+        count.classList.remove('pop');
+        void count.offsetWidth;
+        count.classList.add('pop');
+      }
+    }
+    prevViewers = viewers;
+  }
+
   // ── Socket.IO ─────────────────────────────────────────────────
   const socket = io();
 
-  socket.on('state', (s) => {
+  socket.on('stateUpdate', (s) => {
     try { update(s); } catch(e) { console.error('[twitch-layout]', e); }
+  });
+
+  socket.on('twitch-viewers', (data) => {
+    try { updateViewers(data); } catch(e) { console.error('[twitch-layout viewers]', e); }
   });
 
   socket.on('connect', () => {

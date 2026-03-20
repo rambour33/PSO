@@ -252,6 +252,108 @@ app.get('/control', (req, res) => res.sendFile(path.join(__dirname, 'public', 'c
 app.get('/vs-screen', (req, res) => res.sendFile(path.join(__dirname, 'public', 'vs-screen.html')));
 app.get('/player-stats', (req, res) => res.sendFile(path.join(__dirname, 'public', 'player-stats.html')));
 app.get('/twitch-layout', (req, res) => res.sendFile(path.join(__dirname, 'public', 'twitch-layout.html')));
+app.get('/twitch-viewer', (req, res) => res.sendFile(path.join(__dirname, 'public', 'twitch-viewer.html')));
+
+// ─── Twitch Viewers ────────────────────────────────────────────────────────────
+
+let twitchState = {
+  channel: '',
+  clientId: '',
+  clientSecret: '',
+  viewers: null,      // null = hors ligne / inconnu
+  live: false,
+  _token: null,
+  _tokenExpiry: 0,
+};
+
+async function twitchGetToken() {
+  if (twitchState._token && Date.now() < twitchState._tokenExpiry - 60000) {
+    return twitchState._token;
+  }
+  const { clientId, clientSecret } = twitchState;
+  if (!clientId || !clientSecret) throw new Error('Identifiants Twitch manquants');
+  const res = await fetch(
+    `https://id.twitch.tv/oauth2/token?client_id=${encodeURIComponent(clientId)}&client_secret=${encodeURIComponent(clientSecret)}&grant_type=client_credentials`,
+    { method: 'POST' }
+  );
+  const data = await res.json();
+  if (!data.access_token) throw new Error('Token Twitch invalide : ' + JSON.stringify(data));
+  twitchState._token = data.access_token;
+  twitchState._tokenExpiry = Date.now() + (data.expires_in || 3600) * 1000;
+  return twitchState._token;
+}
+
+async function twitchFetchViewers() {
+  const { channel, clientId } = twitchState;
+  if (!channel || !clientId) return;
+  try {
+    const token = await twitchGetToken();
+    const res = await fetch(
+      `https://api.twitch.tv/helix/streams?user_login=${encodeURIComponent(channel)}`,
+      { headers: { 'Client-Id': clientId, 'Authorization': `Bearer ${token}` } }
+    );
+    const data = await res.json();
+    const stream = data.data && data.data[0];
+    const viewers = stream ? stream.viewer_count : null;
+    const live    = !!stream;
+    if (viewers !== twitchState.viewers || live !== twitchState.live) {
+      twitchState.viewers = viewers;
+      twitchState.live    = live;
+      io.emit('twitch-viewers', { viewers, live, channel });
+    }
+  } catch (e) {
+    console.error('[twitch viewers]', e.message);
+  }
+}
+
+let _twitchInterval = null;
+
+function twitchStartPolling() {
+  if (_twitchInterval) clearInterval(_twitchInterval);
+  twitchFetchViewers();
+  _twitchInterval = setInterval(twitchFetchViewers, 60000);
+}
+
+// Routes config Twitch
+app.get('/api/twitch/config', (req, res) => {
+  const cfg = getConfig();
+  res.json({
+    channel:      cfg.twitchChannel      || '',
+    clientId:     cfg.twitchClientId     || '',
+    hasSecret:    !!cfg.twitchClientSecret,
+    viewers:      twitchState.viewers,
+    live:         twitchState.live,
+  });
+});
+
+app.post('/api/twitch/config', (req, res) => {
+  const { channel, clientId, clientSecret } = req.body;
+  const cfg = getConfig();
+  if (channel    !== undefined) { cfg.twitchChannel      = channel;      twitchState.channel      = channel; }
+  if (clientId   !== undefined) { cfg.twitchClientId     = clientId;     twitchState.clientId     = clientId; }
+  if (clientSecret !== undefined && clientSecret !== '') {
+    cfg.twitchClientSecret = clientSecret;
+    twitchState.clientSecret = clientSecret;
+  }
+  twitchState._token       = null; // reset token
+  twitchState._tokenExpiry = 0;
+  saveConfig(cfg);
+  if (twitchState.channel && twitchState.clientId && twitchState.clientSecret) {
+    twitchStartPolling();
+  }
+  res.json({ ok: true });
+});
+
+// Initialisation au démarrage
+(function () {
+  const cfg = getConfig();
+  twitchState.channel      = cfg.twitchChannel      || '';
+  twitchState.clientId     = cfg.twitchClientId     || '';
+  twitchState.clientSecret = cfg.twitchClientSecret || '';
+  if (twitchState.channel && twitchState.clientId && twitchState.clientSecret) {
+    twitchStartPolling();
+  }
+})();
 
 app.get('/api/casters', (req, res) => res.json(castersState));
 
@@ -344,6 +446,7 @@ io.on('connection', (socket) => {
   socket.emit('playerStatsUpdate', playerStatsState);
   socket.emit('tournamentHistoryUpdate', tournamentHistoryState);
   socket.emit('h2hUpdate', h2hState);
+  socket.emit('twitch-viewers', { viewers: twitchState.viewers, live: twitchState.live, channel: twitchState.channel });
 
   // Déclenche l'animation d'entrée sur la VS screen
   socket.on('triggerVsScreen', () => {
