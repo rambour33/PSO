@@ -3363,7 +3363,6 @@ fetch('/api/theme-presets')
   .then(renderSavedThemePresets)
   .catch(() => {});
 
-<<<<<<< Updated upstream
 // ── Onglet Twitch Layout ──────────────────────────────────────────
 
 // Copier l'URL de l'overlay
@@ -4445,7 +4444,7 @@ if (typeof socket !== 'undefined') {
   socket.on('framesUpdate', updateFramesUI);
   socket.on('superUpdate', updateStudioUI);
 }
-=======
+
 /* ═══════════════════════════════════════════════════════════════
    TWITCH CHAT CONTROL
 ═══════════════════════════════════════════════════════════════ */
@@ -4531,4 +4530,3 @@ if (typeof socket !== 'undefined') {
   });
   document.getElementById('chat-transparent-toggle')?.addEventListener('change', () => postChatState({}));
 })();
->>>>>>> Stashed changes

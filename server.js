@@ -267,7 +267,6 @@ app.get('/casters', (req, res) => res.sendFile(path.join(__dirname, 'public', 'c
 app.get('/control', (req, res) => res.sendFile(path.join(__dirname, 'public', 'control.html')));
 app.get('/vs-screen', (req, res) => res.sendFile(path.join(__dirname, 'public', 'vs-screen.html')));
 app.get('/player-stats', (req, res) => res.sendFile(path.join(__dirname, 'public', 'player-stats.html')));
-<<<<<<< Updated upstream
 app.get('/twitch-layout', (req, res) => res.sendFile(path.join(__dirname, 'public', 'twitch-layout.html')));
 app.get('/twitch-viewer', (req, res) => res.sendFile(path.join(__dirname, 'public', 'twitch-viewer.html')));
 app.get('/ticker', (req, res) => res.sendFile(path.join(__dirname, 'public', 'ticker.html')));
@@ -506,7 +505,7 @@ app.post('/api/twitch/config', (req, res) => {
     twitchStartPolling();
   }
 })();
-=======
+
 app.get('/twitch-chat', (req, res) => res.sendFile(path.join(__dirname, 'public', 'twitch-chat.html')));
 
 // ── Twitch IRC (TCP natif) ────────────────────────────────────────────────────
@@ -645,7 +644,6 @@ app.post('/api/twitch-chat', (req, res) => {
   io.emit('twitchChatUpdate', twitchChatState);
   res.json(twitchChatState);
 });
->>>>>>> Stashed changes
 
 app.get('/api/casters', (req, res) => res.json(castersState));
 
@@ -737,15 +735,11 @@ io.on('connection', (socket) => {
   socket.emit('castersUpdate', castersState);
   socket.emit('playerStatsUpdate', playerStatsState);
   socket.emit('tournamentHistoryUpdate', tournamentHistoryState);
-<<<<<<< Updated upstream
-  socket.emit('h2hUpdate', h2hState);
   socket.emit('twitch-viewers', { viewers: twitchState.viewers, live: twitchState.live, channel: twitchState.channel });
   socket.emit('tickerUpdate', tickerState);
   socket.emit('framesUpdate', framesState);
   socket.emit('superUpdate', superState);
   socket.emit('titleUpdate', titleState);
-=======
->>>>>>> Stashed changes
 
   // Déclenche l'animation d'entrée sur la VS screen
   socket.on('triggerVsScreen', () => {
