@@ -12,7 +12,7 @@ let state = {
 };
 let vetoState = null;
 let characterList = [];
-let rulesetState = { stages: [], banPatternGame1: '2-2', banPatternGame2: '1', firstBanner: 1, stageClause: false };
+let rulesetState = { stages: [], banPatternGame1: '2-2', banPatternGame2: '1', firstBanner: 1, stageClause: false, pickG1: true, pickG2: true };
 let activePickPlayer = null; // 1 or 2
 
 // ── Status messages ───────────────────────────────────────────
@@ -74,6 +74,7 @@ function syncFromState(s) {
   document.getElementById('particle-count-range').value = pCt;
   document.getElementById('particle-count-num').value   = pCt;
   updateParticlesToggle(s.particlesEnabled !== false);
+  updateHidePlayerColorsBtn(s.hidePlayerColors === true);
   updateLogoPreview();
 
   // Format buttons
@@ -221,6 +222,7 @@ function buildStateFromForm() {
     particleOpacity:    parseInt(document.getElementById('particle-opacity-num')?.value ?? 100),
     particleCountScale: parseInt(document.getElementById('particle-count-num')?.value ?? 100),
     particlesEnabled:   state.particlesEnabled !== false,
+    hidePlayerColors:   state.hidePlayerColors === true,
     sbScale: parseInt(document.getElementById('sb-scale-num')?.value ?? 100),
     sbX:     parseInt(document.getElementById('sb-x-num')?.value ?? 0),
     sbY:     parseInt(document.getElementById('sb-y-num')?.value ?? 0),
@@ -912,24 +914,42 @@ function renderBanBuilder(key) {
   const countEl = document.getElementById(`ban-builder-${key}-count`);
   const total    = rulesetState.stages.length;
   const hasPick  = key === 'g1' ? banPickG1 : banPickG2;
-  const maxBans  = Math.max(0, total - (hasPick ? 1 : 0));
+  const maxBans  = Math.max(0, total - 1);
   const allocated = builder.reduce((s, b) => s + b.count, 0);
   const remaining = maxBans - allocated;
 
   countEl.textContent = total > 0
-    ? `${allocated}/${maxBans} bans${hasPick ? ' + 1 pick' : ''} — ${remaining >= 0 ? remaining + ' restant(s)' : Math.abs(remaining) + ' en trop'}`
+    ? `${allocated}/${maxBans} bans${hasPick ? ' + map sélectionnée' : ''} — ${remaining >= 0 ? remaining + ' restant(s)' : Math.abs(remaining) + ' en trop'}`
     : 'Aucun stage dans le ruleset';
-  countEl.style.color = remaining === 0 ? 'var(--gold)' : remaining < 0 ? 'var(--danger)' : 'var(--text-muted)';
+  countEl.style.color = remaining < 0 ? 'var(--danger)' : remaining === 0 ? 'var(--gold)' : 'var(--text-muted)';
 
   stepsEl.innerHTML = '';
 
+  // Pick block — rendered FIRST
+  if (hasPick) {
+    const block = document.createElement('div');
+    block.className = 'ban-seq-block pick';
+    const label = document.createElement('span');
+    label.textContent = '✓ Map sélectionnée';
+    const del = document.createElement('button');
+    del.textContent = '×';
+    del.className = 'ban-seq-del';
+    del.addEventListener('click', () => {
+      if (key === 'g1') banPickG1 = false; else banPickG2 = false;
+      onBuilderChange(key);
+    });
+    block.appendChild(label);
+    block.appendChild(del);
+    stepsEl.appendChild(block);
+  }
+
+  // Ban steps after
   builder.forEach((step, i) => {
-    if (i > 0) {
-      const arrow = document.createElement('span');
-      arrow.className = 'ban-seq-arrow';
-      arrow.textContent = '→';
-      stepsEl.appendChild(arrow);
-    }
+    const arrow = document.createElement('span');
+    arrow.className = 'ban-seq-arrow';
+    arrow.textContent = '→';
+    stepsEl.appendChild(arrow);
+
     const block = document.createElement('div');
     block.className = `ban-seq-block p${step.player}`;
 
@@ -963,33 +983,9 @@ function renderBanBuilder(key) {
     stepsEl.appendChild(block);
   });
 
-  // Pick terminal block
-  if (hasPick) {
-    if (builder.length > 0) {
-      const arrow = document.createElement('span');
-      arrow.className = 'ban-seq-arrow';
-      arrow.textContent = '→';
-      stepsEl.appendChild(arrow);
-    }
-    const block = document.createElement('div');
-    block.className = 'ban-seq-block pick';
-    const label = document.createElement('span');
-    label.textContent = '✓ Map jouée';
-    const del = document.createElement('button');
-    del.textContent = '×';
-    del.className = 'ban-seq-del';
-    del.addEventListener('click', () => {
-      if (key === 'g1') banPickG1 = false; else banPickG2 = false;
-      onBuilderChange(key);
-    });
-    block.appendChild(label);
-    block.appendChild(del);
-    stepsEl.appendChild(block);
-  }
-
   // Enable/disable add buttons
   const pickBtn = document.querySelector(`.ban-seq-btn.pick[data-builder="${key}"]`);
-  if (pickBtn) pickBtn.disabled = hasPick || (remaining <= 0 && !hasPick);
+  if (pickBtn) pickBtn.disabled = hasPick;
   document.querySelectorAll(`.ban-seq-btn:not(.pick)[data-builder="${key}"]`).forEach(b => {
     b.disabled = remaining <= 0;
   });
@@ -1012,10 +1008,9 @@ function updateBanPreview() {
   const preview = document.getElementById('ban-pattern-preview');
   const msgs = [];
   if (total > 0) {
-    if (a1 + 1 === total) msgs.push(`Jeu 1 : ✓ ${a1} bans → 1 stage sélectionné`);
-    else msgs.push(`Jeu 1 : ${a1} bans / ${total - 1} requis`);
-    if (a2 + 1 === total) msgs.push(`Jeux suivants : ✓ ${a2} bans → 1 stage sélectionné`);
-    else msgs.push(`Jeux suivants : ${a2} bans / ${total - 1} requis`);
+    const max = total - 1;
+    msgs.push(a1 <= max ? `Jeu 1 : ${a1}/${max} bans` : `Jeu 1 : ⚠ ${a1} bans (max ${max})`);
+    msgs.push(a2 <= max ? `Jeux suivants : ${a2}/${max} bans` : `Jeux suivants : ⚠ ${a2} bans (max ${max})`);
   }
   preview.textContent = msgs.join('   ·   ');
 }
@@ -1024,8 +1019,8 @@ function syncBanUI() {
   const first = rulesetState.firstBanner || 1;
   banBuilderG1 = patternToBuilder(rulesetState.banPatternGame1 || '2-2', first);
   banBuilderG2 = patternToBuilder(rulesetState.banPatternGame2 || '1', first);
-  banPickG1 = !!rulesetState.pickG1;
-  banPickG2 = !!rulesetState.pickG2;
+  banPickG1 = rulesetState.pickG1 !== false;
+  banPickG2 = rulesetState.pickG2 !== false;
   document.getElementById('stage-clause').checked = !!rulesetState.stageClause;
   document.querySelectorAll('.ban-first-btn').forEach(b => {
     b.classList.toggle('active', parseInt(b.dataset.first) === first);
@@ -1289,6 +1284,27 @@ document.getElementById('btn-particles-toggle').addEventListener('click', () => 
   state.particlesEnabled = state.particlesEnabled === false;
   emitState(buildStateFromForm());
   setStatus(state.particlesEnabled === false ? 'Particules désactivées' : 'Particules activées');
+});
+
+function updateHidePlayerColorsBtn(hidden) {
+  const btn = document.getElementById('btn-hide-player-colors');
+  if (!btn) return;
+  if (hidden) {
+    btn.textContent = '🎨 Couleurs joueurs : OFF';
+    btn.classList.add('btn-danger');
+    btn.classList.remove('btn-outline');
+  } else {
+    btn.textContent = '🎨 Couleurs joueurs : ON';
+    btn.classList.remove('btn-danger');
+    btn.classList.add('btn-outline');
+  }
+}
+
+document.getElementById('btn-hide-player-colors').addEventListener('click', () => {
+  state.hidePlayerColors = !state.hidePlayerColors;
+  updateHidePlayerColorsBtn(state.hidePlayerColors);
+  emitState(buildStateFromForm());
+  setStatus(state.hidePlayerColors ? 'Couleurs joueurs masquées' : 'Couleurs joueurs visibles');
 });
 
 // Particules — opacité & quantité — sync slider ↔ number
@@ -1869,6 +1885,171 @@ const THEMES = {
     nameColor:       '#FFF0E8',
     pronounsColor:   '#D461A6',
     castersBgColor:  '#0A0200',
+    castersBgOpacity: 95,
+  },
+  flag_fr: {
+    sbBgColor:       '#000510',
+    sbBgOpacity:     95,
+    eventTextColor:  '#4D8FFF',
+    eventTextSize:   13,
+    tagColor:        '#4D8FFF',
+    nameColor:       '#FFFFFF',
+    pronounsColor:   '#EF4135',
+    castersBgColor:  '#000510',
+    castersBgOpacity: 95,
+  },
+  flag_ch: {
+    sbBgColor:       '#0D0002',
+    sbBgOpacity:     95,
+    eventTextColor:  '#FF3040',
+    eventTextSize:   13,
+    tagColor:        '#FF3040',
+    nameColor:       '#FFFFFF',
+    pronounsColor:   '#FF8090',
+    castersBgColor:  '#0D0002',
+    castersBgOpacity: 95,
+  },
+  flag_be: {
+    sbBgColor:       '#0A0800',
+    sbBgOpacity:     95,
+    eventTextColor:  '#FFD700',
+    eventTextSize:   13,
+    tagColor:        '#FFD700',
+    nameColor:       '#FFFFFF',
+    pronounsColor:   '#CC1010',
+    castersBgColor:  '#0A0800',
+    castersBgOpacity: 95,
+  },
+  flag_es: {
+    sbBgColor:       '#0E0200',
+    sbBgOpacity:     95,
+    eventTextColor:  '#FF4422',
+    eventTextSize:   13,
+    tagColor:        '#FF4422',
+    nameColor:       '#FFE040',
+    pronounsColor:   '#CC2010',
+    castersBgColor:  '#0E0200',
+    castersBgOpacity: 95,
+  },
+  flag_it: {
+    sbBgColor:       '#000E04',
+    sbBgOpacity:     95,
+    eventTextColor:  '#00CC55',
+    eventTextSize:   13,
+    tagColor:        '#00CC55',
+    nameColor:       '#FFFFFF',
+    pronounsColor:   '#CE2B37',
+    castersBgColor:  '#000E04',
+    castersBgOpacity: 95,
+  },
+  flag_de: {
+    sbBgColor:       '#0A0800',
+    sbBgOpacity:     95,
+    eventTextColor:  '#FFD700',
+    eventTextSize:   13,
+    tagColor:        '#FFD700',
+    nameColor:       '#FFFFFF',
+    pronounsColor:   '#CC2020',
+    castersBgColor:  '#0A0800',
+    castersBgOpacity: 95,
+  },
+  flag_nl: {
+    sbBgColor:       '#0A0300',
+    sbBgOpacity:     95,
+    eventTextColor:  '#FF7700',
+    eventTextSize:   13,
+    tagColor:        '#FF7700',
+    nameColor:       '#FFFFFF',
+    pronounsColor:   '#CC2020',
+    castersBgColor:  '#0A0300',
+    castersBgOpacity: 95,
+  },
+  flag_pt: {
+    sbBgColor:       '#000800',
+    sbBgOpacity:     95,
+    eventTextColor:  '#00CC55',
+    eventTextSize:   13,
+    tagColor:        '#00CC55',
+    nameColor:       '#FFFFFF',
+    pronounsColor:   '#CC1020',
+    castersBgColor:  '#000800',
+    castersBgOpacity: 95,
+  },
+  flag_at: {
+    sbBgColor:       '#0D0001',
+    sbBgOpacity:     95,
+    eventTextColor:  '#FF4455',
+    eventTextSize:   13,
+    tagColor:        '#FF4455',
+    nameColor:       '#FFFFFF',
+    pronounsColor:   '#FF8090',
+    castersBgColor:  '#0D0001',
+    castersBgOpacity: 95,
+  },
+  flag_ca: {
+    sbBgColor:       '#0D0001',
+    sbBgOpacity:     95,
+    eventTextColor:  '#FF3333',
+    eventTextSize:   13,
+    tagColor:        '#FF3333',
+    nameColor:       '#FFFFFF',
+    pronounsColor:   '#FF7777',
+    castersBgColor:  '#0D0001',
+    castersBgOpacity: 95,
+  },
+  flag_us: {
+    sbBgColor:       '#000510',
+    sbBgOpacity:     95,
+    eventTextColor:  '#4477FF',
+    eventTextSize:   13,
+    tagColor:        '#4477FF',
+    nameColor:       '#FFFFFF',
+    pronounsColor:   '#CC2020',
+    castersBgColor:  '#000510',
+    castersBgOpacity: 95,
+  },
+  flag_mx: {
+    sbBgColor:       '#000E04',
+    sbBgOpacity:     95,
+    eventTextColor:  '#00CC55',
+    eventTextSize:   13,
+    tagColor:        '#00CC55',
+    nameColor:       '#FFFFFF',
+    pronounsColor:   '#CE112D',
+    castersBgColor:  '#000E04',
+    castersBgOpacity: 95,
+  },
+  flag_eu: {
+    sbBgColor:       '#000214',
+    sbBgOpacity:     95,
+    eventTextColor:  '#FFD700',
+    eventTextSize:   13,
+    tagColor:        '#FFD700',
+    nameColor:       '#FFFFFF',
+    pronounsColor:   '#4477FF',
+    castersBgColor:  '#000214',
+    castersBgOpacity: 95,
+  },
+  flag_br: {
+    sbBgColor:       '#000A00',
+    sbBgOpacity:     95,
+    eventTextColor:  '#FFD700',
+    eventTextSize:   13,
+    tagColor:        '#FFD700',
+    nameColor:       '#FFFFFF',
+    pronounsColor:   '#009C3B',
+    castersBgColor:  '#000A00',
+    castersBgOpacity: 95,
+  },
+  flag_jp: {
+    sbBgColor:       '#0D0001',
+    sbBgOpacity:     95,
+    eventTextColor:  '#FF0000',
+    eventTextSize:   13,
+    tagColor:        '#FF0000',
+    nameColor:       '#FFFFFF',
+    pronounsColor:   '#FF6070',
+    castersBgColor:  '#0D0001',
     castersBgOpacity: 95,
   },
   smario: {
@@ -3182,6 +3363,7 @@ fetch('/api/theme-presets')
   .then(renderSavedThemePresets)
   .catch(() => {});
 
+<<<<<<< Updated upstream
 // ── Onglet Twitch Layout ──────────────────────────────────────────
 
 // Copier l'URL de l'overlay
@@ -4263,3 +4445,90 @@ if (typeof socket !== 'undefined') {
   socket.on('framesUpdate', updateFramesUI);
   socket.on('superUpdate', updateStudioUI);
 }
+=======
+/* ═══════════════════════════════════════════════════════════════
+   TWITCH CHAT CONTROL
+═══════════════════════════════════════════════════════════════ */
+
+(function() {
+  function syncRangeNum(rangeId, numId, display) {
+    const range = document.getElementById(rangeId);
+    const num   = numId ? document.getElementById(numId) : null;
+    const lbl   = display ? document.getElementById(display) : null;
+    if (!range) return;
+    function update(v) {
+      range.value = v;
+      if (num) num.value = v;
+      if (lbl) lbl.textContent = v;
+    }
+    range.addEventListener('input', () => { if (num) num.value = range.value; if (lbl) lbl.textContent = range.value; });
+    if (num) num.addEventListener('input', () => { range.value = num.value; if (lbl) lbl.textContent = num.value; });
+    return update;
+  }
+
+  const setX   = syncRangeNum('chat-pos-x', 'chat-pos-x-num');
+  const setY   = syncRangeNum('chat-pos-y', 'chat-pos-y-num');
+  const setW   = syncRangeNum('chat-width', null, 'chat-width-val');
+  const setMH  = syncRangeNum('chat-maxh', null, 'chat-maxh-val');
+  const setMax = syncRangeNum('chat-max-msg', null, 'chat-max-msg-val');
+  const setPB  = syncRangeNum('chat-particle-border', null, 'chat-particle-border-val');
+
+  // Load initial state
+  fetch('/api/twitch-chat').then(r => r.json()).then(s => {
+    document.getElementById('chat-channel-input').value = s.channel || '';
+    if (setX)   setX(s.x     || 0);
+    if (setY)   setY(s.y     || 0);
+    if (setW)   setW(s.width || 360);
+    if (setMH)  setMH(s.maxHeight || 600);
+    if (setMax) setMax(s.maxMessages || 15);
+    if (setPB)  setPB(s.particleBorder ?? 28);
+    const tToggle = document.getElementById('chat-transparent-toggle');
+    if (tToggle) tToggle.checked = !!s.transparentMode;
+  }).catch(() => {});
+
+  function postChatState(extra) {
+    const body = {
+      channel:     (document.getElementById('chat-channel-input')?.value || '').trim(),
+      maxMessages:    parseInt(document.getElementById('chat-max-msg')?.value) || 15,
+      particleBorder:  parseInt(document.getElementById('chat-particle-border')?.value) ?? 28,
+      transparentMode: !!document.getElementById('chat-transparent-toggle')?.checked,
+      width:       parseInt(document.getElementById('chat-width')?.value) || 360,
+      maxHeight:   parseInt(document.getElementById('chat-maxh')?.value) || 600,
+      x:           parseInt(document.getElementById('chat-pos-x')?.value) || 0,
+      y:           parseInt(document.getElementById('chat-pos-y')?.value) || 0,
+      ...extra,
+    };
+    return fetch('/api/twitch-chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    }).then(r => r.json());
+  }
+
+  document.getElementById('chat-connect-btn')?.addEventListener('click', () => {
+    const chan = (document.getElementById('chat-channel-input')?.value || '').trim();
+    if (!chan) { document.getElementById('chat-status').textContent = 'Entrez un nom de canal.'; return; }
+    postChatState({ visible: true }).then(() => {
+      document.getElementById('chat-status').textContent = `Connexion à #${chan}…`;
+    });
+  });
+
+  document.getElementById('chat-hide-btn')?.addEventListener('click', () => {
+    postChatState({ visible: false }).then(() => {
+      document.getElementById('chat-status').textContent = 'Chat masqué.';
+    });
+  });
+
+  document.getElementById('chat-pos-apply-btn')?.addEventListener('click', () => {
+    postChatState({}).then(() => {
+      document.getElementById('chat-status').textContent = 'Position appliquée.';
+    });
+  });
+
+  // Live update on slider changes
+  ['chat-width','chat-maxh','chat-max-msg','chat-particle-border'].forEach(id => {
+    document.getElementById(id)?.addEventListener('change', () => postChatState({}));
+  });
+  document.getElementById('chat-transparent-toggle')?.addEventListener('change', () => postChatState({}));
+})();
+>>>>>>> Stashed changes

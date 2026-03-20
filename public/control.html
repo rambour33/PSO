@@ -28,12 +28,16 @@
       <a href="/vs-screen" target="_blank" class="btn btn-outline">VS Screen ↗</a>
       <a href="/player-stats" target="_blank" class="btn btn-outline">Stats ↗</a>
       <a href="/tournament-history" target="_blank" class="btn btn-outline">Historique ↗</a>
+<<<<<<< Updated upstream
       <a href="/h2h" target="_blank" class="btn btn-outline">H2H ↗</a>
       <a href="/twitch-layout" target="_blank" class="btn btn-outline">Twitch Layout ↗</a>
       <a href="/stream-title" target="_blank" class="btn btn-outline">Titre ↗</a>
       <a href="/ticker" target="_blank" class="btn btn-outline">Bandeau ↗</a>
       <a href="/frames" target="_blank" class="btn btn-outline">Cadres ↗</a>
       <a href="/super-overlay" target="_blank" class="btn btn-outline">Super Overlay ↗</a>
+=======
+      <a href="/twitch-chat" target="_blank" class="btn btn-outline">Chat ↗</a>
+>>>>>>> Stashed changes
       <button id="btn-vs-trigger" class="btn btn-primary" title="Déclenche l'animation d'entrée sur la VS Screen">⚔ VS Anim</button>
       <button id="btn-visibility" class="btn btn-primary">Masquer</button>
     </div>
@@ -42,6 +46,7 @@
   <!-- TAB NAV -->
   <nav class="tab-nav">
     <button class="tab-btn active" data-tab="match">Match</button>
+    <button class="tab-btn" data-tab="themes">Thèmes</button>
     <button class="tab-btn" data-tab="veto">Stage Veto</button>
     <button class="tab-btn" data-tab="ruleset">Ruleset</button>
     <button class="tab-btn" data-tab="custom">Customisation</button>
@@ -157,6 +162,7 @@
             <button id="btn-apply" class="btn btn-primary btn-full">Appliquer</button>
             <button id="btn-reset-score" class="btn btn-danger btn-full">Reset scores</button>
             <button id="btn-swap" class="btn btn-outline btn-full">⇄ Inverser joueurs</button>
+            <button id="btn-hide-player-colors" class="btn btn-outline btn-full">🎨 Couleurs joueurs : ON</button>
           </div>
           <div class="obs-info">
             <div class="obs-label">OBS Scoreboard</div>
@@ -384,219 +390,9 @@
   </div><!-- /tab-ruleset -->
 
   <!-- ═══════════════════════════════════════════════════════════ -->
-  <!-- TAB : CUSTOMISATION                                         -->
+  <!-- TAB : THÈMES                                                -->
   <!-- ═══════════════════════════════════════════════════════════ -->
-  <div class="tab-content" id="tab-custom">
-
-    <section class="section">
-      <div class="section-header"><h2>Scoreboard</h2></div>
-      <div class="custom-grid">
-        <div class="custom-card">
-          <h3>Style d'affichage</h3>
-          <p class="hint" style="margin-bottom:12px">Bascule entre le scoreboard complet et la version compacte.</p>
-          <div class="theme-btn-row">
-            <button class="overlay-style-btn theme-btn active" data-style="full">Full ▬</button>
-            <button class="overlay-style-btn theme-btn" data-style="slim">Slim —</button>
-          </div>
-        </div>
-
-        <div class="custom-card">
-          <h3>Position &amp; Taille</h3>
-          <div class="form-group" style="margin-bottom:12px">
-            <label>Taille <span class="hint">50 – 200 %</span></label>
-            <div class="logo-particles-row">
-              <input type="range" id="sb-scale-range" min="50" max="200" value="100" step="1" />
-              <input type="number" id="sb-scale-num" min="50" max="200" value="100" step="1" style="width:60px" />
-            </div>
-          </div>
-          <div class="form-group" style="margin-bottom:12px">
-            <label>Axe X <span class="hint">−960 – 960 px</span></label>
-            <div class="logo-particles-row">
-              <input type="range" id="sb-x-range" min="-960" max="960" value="0" step="1" />
-              <input type="number" id="sb-x-num" min="-960" max="960" value="0" step="1" style="width:66px" />
-            </div>
-          </div>
-          <div class="form-group" style="margin:0">
-            <label>Axe Y <span class="hint">−200 – 600 px</span></label>
-            <div class="logo-particles-row">
-              <input type="range" id="sb-y-range" min="-200" max="600" value="0" step="1" />
-              <input type="number" id="sb-y-num" min="-200" max="600" value="0" step="1" style="width:66px" />
-            </div>
-          </div>
-        </div>
-        <div class="custom-card">
-          <h3>Barre événement</h3>
-          <div class="form-group" style="margin-bottom:12px">
-            <label>Taille texte</label>
-            <div style="display:flex;gap:8px;align-items:center">
-              <input type="number" id="event-text-size" value="12" min="8" max="32" style="width:60px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:13px;padding:4px 6px;text-align:center" />
-              <span style="font-size:12px;color:var(--text-muted)">px</span>
-            </div>
-          </div>
-          <div class="form-group" style="margin:0">
-            <label>Couleur texte</label>
-            <input type="color" id="event-text-color" value="#EAB830" />
-          </div>
-        </div>
-
-        <div class="custom-card">
-          <h3>Textes joueurs</h3>
-          <div class="form-group" style="margin-bottom:10px">
-            <label>Tag</label>
-            <input type="color" id="tag-color" value="#E8B830" />
-          </div>
-          <div class="form-group" style="margin-bottom:10px">
-            <label>Pseudo</label>
-            <input type="color" id="name-color" value="#F0EEF8" />
-          </div>
-          <div class="form-group" style="margin:0">
-            <label>Pronoms</label>
-            <input type="color" id="pronouns-color" value="#5A5A7A" />
-          </div>
-        </div>
-
-        <div class="custom-card">
-          <h3>Fond de l'overlay</h3>
-          <div class="form-group" style="margin:0">
-            <label>Couleur</label>
-            <div style="display:flex;gap:8px;align-items:center">
-              <input type="color" id="sb-bg-color" value="#0E0E12" />
-              <input type="number" id="sb-bg-opacity" value="100" min="0" max="100" style="width:60px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:13px;padding:4px 6px;text-align:center" />
-              <span style="font-size:12px;color:var(--text-muted)">%</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="custom-card">
-          <h3>Particules</h3>
-          <div class="form-group" style="margin-bottom:14px">
-            <button id="btn-particles-toggle" class="btn btn-primary" style="width:100%">⏸ Désactiver les particules</button>
-          </div>
-          <div id="particles-controls">
-            <div class="form-group" style="margin-bottom:14px">
-              <label>Opacité <span class="hint">0 – 100 %</span></label>
-              <div class="logo-particles-row">
-                <input type="range" id="particle-opacity-range" min="0" max="100" value="100" />
-                <input type="number" id="particle-opacity-num" min="0" max="100" value="100" style="width:56px" />
-              </div>
-            </div>
-            <div class="form-group" style="margin:0">
-              <label>Quantité <span class="hint">10 – 500 %</span></label>
-              <div class="logo-particles-row">
-                <input type="range" id="particle-count-range" min="10" max="500" value="100" />
-                <input type="number" id="particle-count-num" min="10" max="500" value="100" style="width:56px" />
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="section">
-      <div class="section-header"><h2>Overlay Casters</h2></div>
-      <div class="custom-grid">
-        <div class="custom-card">
-          <h3>Disposition</h3>
-          <div class="theme-btn-row">
-            <button class="casters-layout-btn theme-btn active" data-layout="row">En ligne →</button>
-            <button class="casters-layout-btn theme-btn" data-layout="column">En colonne ↓</button>
-          </div>
-        </div>
-        <div class="custom-card">
-          <h3>Fond des cartes</h3>
-          <div class="form-group" style="margin:0">
-            <label>Couleur</label>
-            <div style="display:flex;gap:8px;align-items:center">
-              <input type="color" id="casters-bg-color" value="#0E0E12" />
-              <input type="number" id="casters-bg-opacity" value="100" min="0" max="100" style="width:60px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:13px;padding:4px 6px;text-align:center" />
-              <span style="font-size:12px;color:var(--text-muted)">%</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="section">
-      <div class="section-header"><h2>Logos</h2></div>
-      <div class="custom-grid">
-
-        <div class="custom-card">
-          <h3>Logo central — Scoreboard</h3>
-          <p class="hint" style="margin-bottom:10px">Remplace le texte « VS » au centre.</p>
-          <div class="form-group">
-            <label>URL</label>
-            <input type="text" id="center-logo" placeholder="https://..." />
-          </div>
-          <div class="logo-preview-row">
-            <div class="logo-preview-box" id="center-logo-preview">
-              <span>Aperçu</span>
-            </div>
-            <button id="btn-apply-logo" class="btn btn-primary btn-sm">Appliquer</button>
-          </div>
-          <div class="form-group" style="margin-top:12px">
-            <label>Particules logo (thèmes custom) <span class="hint">1 – 100</span></label>
-            <div class="logo-particles-row">
-              <input type="range" id="logo-particles-range" min="1" max="100" value="3" />
-              <input type="number" id="logo-particles-num" min="1" max="100" value="3" />
-            </div>
-          </div>
-        </div>
-
-        <div class="custom-card">
-          <h3>URLs overlays OBS</h3>
-          <p class="hint" style="margin-bottom:10px">Copier-coller dans OBS → Source Navigateur.</p>
-          <div class="obs-url-list">
-            <div class="obs-url-item">
-              <span>Scoreboard</span>
-              <code>localhost:3002/overlay</code>
-              <button class="btn-copy" data-url="http://localhost:3002/overlay">📋</button>
-            </div>
-            <div class="obs-url-item">
-              <span>Scoreboard Slim</span>
-              <code>localhost:3002/overlay-slim</code>
-              <button class="btn-copy" data-url="http://localhost:3002/overlay-slim">📋</button>
-            </div>
-            <div class="obs-url-item">
-              <span>Stage Veto</span>
-              <code>localhost:3002/stageveto</code>
-              <button class="btn-copy" data-url="http://localhost:3002/stageveto">📋</button>
-            </div>
-            <div class="obs-url-item">
-              <span>Casters</span>
-              <code>localhost:3002/casters</code>
-              <button class="btn-copy" data-url="http://localhost:3002/casters">📋</button>
-            </div>
-            <div class="obs-url-item">
-              <span>VS Screen</span>
-              <code>localhost:3002/vs-screen</code>
-              <button class="btn-copy" data-url="http://localhost:3002/vs-screen">📋</button>
-            </div>
-          </div>
-        </div>
-
-      </div>
-    </section>
-
-    <section class="section">
-      <div class="section-header"><h2>VS Screen</h2></div>
-      <div class="custom-grid">
-        <div class="custom-card">
-          <h3>Background (1920×1080)</h3>
-          <p class="hint" style="margin-bottom:10px">PNG, JPG ou WebP. Affiché derrière le fond de scène floutée.</p>
-          <div style="display:flex;flex-direction:column;gap:10px">
-            <label class="btn btn-outline" style="cursor:pointer;text-align:center">
-              Choisir une image
-              <input type="file" id="vs-bg-file" accept="image/png,image/jpeg,image/webp" style="display:none" />
-            </label>
-            <div id="vs-bg-preview-wrap" style="display:none;position:relative">
-              <img id="vs-bg-preview" style="width:100%;border-radius:6px;border:1px solid var(--border);display:block" alt="aperçu" />
-              <button id="btn-vs-bg-clear" class="btn btn-sm" style="margin-top:6px;width:100%;background:rgba(220,50,50,0.15);color:#e05050;border:1px solid rgba(220,50,50,0.3)">Supprimer</button>
-            </div>
-            <p id="vs-bg-status" class="hint" style="text-align:center"></p>
-          </div>
-        </div>
-      </div>
-    </section>
+  <div class="tab-content" id="tab-themes">
 
     <section class="section">
       <div class="section-header"><h2>Thèmes</h2></div>
@@ -604,6 +400,15 @@
 
         <!-- ── Transparent ── -->
         <div class="themes-group-label" style="grid-column:1/-1">Spécial</div>
+
+        <div class="theme-preset-card" data-theme="dual" style="grid-column: span 2;">
+          <div class="theme-preset-preview" style="background:linear-gradient(to right,#1A0400 0%,#1A0400 48%,#050505 50%,#00041A 52%,#00041A 100%);position:relative;overflow:hidden">
+            <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 20% 80%,rgba(229,34,34,0.4) 0%,transparent 60%),radial-gradient(ellipse at 80% 80%,rgba(26,107,255,0.4) 0%,transparent 60%)"></div>
+            <div style="position:absolute;left:50%;top:0;bottom:0;width:1px;background:rgba(255,255,255,0.25)"></div>
+            <span style="position:relative;font-family:'Russo One',sans-serif;font-size:11px;letter-spacing:1px;background:linear-gradient(135deg,#E52222,#1A6BFF);-webkit-background-clip:text;-webkit-text-fill-color:transparent">DUAL PERSO</span>
+          </div>
+          <div class="theme-preset-name">Dual Personnages</div>
+        </div>
 
         <div class="theme-preset-card" data-theme="transparent" style="grid-column:span 2">
           <div class="theme-preset-preview" style="background:repeating-conic-gradient(#444 0% 25%,#222 0% 50%) 0 0/14px 14px;border:1px dashed rgba(255,255,255,0.25)">
@@ -656,20 +461,8 @@
           </div>
         </div>
 
-        <!-- ── Dual ── -->
-        <div class="themes-group-label">Dynamique</div>
-
-        <div class="theme-preset-card" data-theme="dual" style="grid-column: span 2;">
-          <div class="theme-preset-preview" style="background:linear-gradient(to right,#1A0400 0%,#1A0400 48%,#050505 50%,#00041A 52%,#00041A 100%);position:relative;overflow:hidden">
-            <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 20% 80%,rgba(229,34,34,0.4) 0%,transparent 60%),radial-gradient(ellipse at 80% 80%,rgba(26,107,255,0.4) 0%,transparent 60%)"></div>
-            <div style="position:absolute;left:50%;top:0;bottom:0;width:1px;background:rgba(255,255,255,0.25)"></div>
-            <span style="position:relative;font-family:'Russo One',sans-serif;font-size:11px;letter-spacing:1px;background:linear-gradient(135deg,#E52222,#1A6BFF);-webkit-background-clip:text;-webkit-text-fill-color:transparent">DUAL PERSO</span>
-          </div>
-          <div class="theme-preset-name">Dual Personnages</div>
-        </div>
-
-        <!-- ── Ambiances ── -->
-        <div class="themes-group-label">Ambiances</div>
+        <!-- ── Ambiances & Lieux ── -->
+        <div class="themes-group-label">Ambiances &amp; Lieux</div>
 
         <div class="theme-preset-card" data-theme="default">
           <div class="theme-preset-preview" style="background:linear-gradient(135deg,#0E0E12 0%,#16161E 100%)">
@@ -701,8 +494,6 @@
           <div class="theme-preset-name">Midnight</div>
         </div>
 
-        <!-- ── Lieux ── -->
-        <div class="themes-group-label">Lieux</div>
 
         <div class="theme-preset-card" data-theme="egypt">
           <div class="theme-preset-preview" style="background:linear-gradient(135deg,#1A0F00 0%,#2D1800 50%,#1A0F00 100%)">
@@ -915,6 +706,114 @@
           <div class="theme-preset-name">Lesbienne</div>
         </div>
 
+
+        <!-- ── Drapeaux Néon ── -->
+        <div class="themes-group-label" style="grid-column:1/-1;margin-top:4px">Drapeaux Néon</div>
+
+        <div class="theme-preset-card" data-theme="flag_fr">
+          <div class="theme-preset-preview" style="background:linear-gradient(90deg,#0055A440 0%,#0055A440 33%,#FFFFFF18 33%,#FFFFFF18 67%,#EF413580 67%,#EF413580 100%),#000510">
+            <span style="color:#4D8FFF;font-family:'Russo One',sans-serif;font-size:10px;letter-spacing:2px;text-shadow:0 0 8px #2266FF,0 0 16px #0044CC">FRANCE</span>
+          </div>
+          <div class="theme-preset-name">France</div>
+        </div>
+
+        <div class="theme-preset-card" data-theme="flag_ch">
+          <div class="theme-preset-preview" style="background:#0D0002">
+            <span style="color:#FF3040;font-family:'Russo One',sans-serif;font-size:10px;letter-spacing:2px;text-shadow:0 0 8px #FF1020,0 0 20px #CC0010">SUISSE</span>
+          </div>
+          <div class="theme-preset-name">Suisse</div>
+        </div>
+
+        <div class="theme-preset-card" data-theme="flag_be">
+          <div class="theme-preset-preview" style="background:linear-gradient(90deg,#0A0A0A40 0%,#0A0A0A40 33%,#F5C80050 33%,#F5C80050 67%,#CC101050 67%,#CC101050 100%),#0A0800">
+            <span style="color:#FFD700;font-family:'Russo One',sans-serif;font-size:9px;letter-spacing:1px;text-shadow:0 0 8px #FFCC00,0 0 16px #FFAA00">BELGIQUE</span>
+          </div>
+          <div class="theme-preset-name">Belgique</div>
+        </div>
+
+        <div class="theme-preset-card" data-theme="flag_es">
+          <div class="theme-preset-preview" style="background:linear-gradient(180deg,#CC101060 0%,#CC101060 25%,#F5C80060 25%,#F5C80060 75%,#CC101060 75%,#CC101060 100%),#0E0200">
+            <span style="color:#FF4422;font-family:'Russo One',sans-serif;font-size:9px;letter-spacing:2px;text-shadow:0 0 8px #FF2200,0 0 16px #CC1100">ESPAGNE</span>
+          </div>
+          <div class="theme-preset-name">Espagne</div>
+        </div>
+
+        <div class="theme-preset-card" data-theme="flag_it">
+          <div class="theme-preset-preview" style="background:linear-gradient(90deg,#009B4860 0%,#009B4860 33%,#FFFFFF18 33%,#FFFFFF18 67%,#CE2B3760 67%,#CE2B3760 100%),#000E04">
+            <span style="color:#00CC55;font-family:'Russo One',sans-serif;font-size:11px;letter-spacing:2px;text-shadow:0 0 8px #00AA33,0 0 16px #008822">ITALIE</span>
+          </div>
+          <div class="theme-preset-name">Italie</div>
+        </div>
+
+        <div class="theme-preset-card" data-theme="flag_de">
+          <div class="theme-preset-preview" style="background:linear-gradient(180deg,#11111150 0%,#11111150 33%,#CC202060 33%,#CC202060 67%,#FFCC0060 67%,#FFCC0060 100%),#0A0800">
+            <span style="color:#FFD700;font-family:'Russo One',sans-serif;font-size:9px;letter-spacing:1px;text-shadow:0 0 8px #FFCC00,0 0 16px #FFAA00">ALLEMAGNE</span>
+          </div>
+          <div class="theme-preset-name">Allemagne</div>
+        </div>
+
+        <div class="theme-preset-card" data-theme="flag_nl">
+          <div class="theme-preset-preview" style="background:linear-gradient(180deg,#CC202060 0%,#CC202060 33%,#FFFFFF18 33%,#FFFFFF18 67%,#1D428A60 67%,#1D428A60 100%),#0A0300">
+            <span style="color:#FF7700;font-family:'Russo One',sans-serif;font-size:9px;letter-spacing:1px;text-shadow:0 0 8px #FF6600,0 0 16px #FF4400">PAYS-BAS</span>
+          </div>
+          <div class="theme-preset-name">Pays-Bas</div>
+        </div>
+
+        <div class="theme-preset-card" data-theme="flag_pt">
+          <div class="theme-preset-preview" style="background:linear-gradient(90deg,#009B4860 0%,#009B4860 40%,#CC101060 40%,#CC101060 100%),#000800">
+            <span style="color:#00CC55;font-family:'Russo One',sans-serif;font-size:9px;letter-spacing:1px;text-shadow:0 0 8px #00AA33,0 0 16px #007722">PORTUGAL</span>
+          </div>
+          <div class="theme-preset-name">Portugal</div>
+        </div>
+
+        <div class="theme-preset-card" data-theme="flag_at">
+          <div class="theme-preset-preview" style="background:linear-gradient(180deg,#EF334050 0%,#EF334050 33%,#FFFFFF18 33%,#FFFFFF18 67%,#EF334050 67%,#EF334050 100%),#0D0001">
+            <span style="color:#FF4455;font-family:'Russo One',sans-serif;font-size:9px;letter-spacing:1px;text-shadow:0 0 8px #FF2233,0 0 16px #CC0020">AUTRICHE</span>
+          </div>
+          <div class="theme-preset-name">Autriche</div>
+        </div>
+
+        <div class="theme-preset-card" data-theme="flag_ca">
+          <div class="theme-preset-preview" style="background:linear-gradient(90deg,#CC101050 0%,#CC101050 25%,#FFFFFF18 25%,#FFFFFF18 75%,#CC101050 75%,#CC101050 100%),#0D0001">
+            <span style="color:#FF3333;font-family:'Russo One',sans-serif;font-size:9px;letter-spacing:1px;text-shadow:0 0 8px #FF1111,0 0 16px #CC0000">CANADA</span>
+          </div>
+          <div class="theme-preset-name">Canada</div>
+        </div>
+
+        <div class="theme-preset-card" data-theme="flag_us">
+          <div class="theme-preset-preview" style="background:linear-gradient(135deg,#1D428A60 0%,#1D428A60 40%,#CC101050 40%,#CC101050 100%),#000510">
+            <span style="color:#4477FF;font-family:'Russo One',sans-serif;font-size:11px;letter-spacing:2px;text-shadow:0 0 8px #2255FF,0 0 16px #0033CC">USA</span>
+          </div>
+          <div class="theme-preset-name">États-Unis</div>
+        </div>
+
+        <div class="theme-preset-card" data-theme="flag_mx">
+          <div class="theme-preset-preview" style="background:linear-gradient(90deg,#006B3C60 0%,#006B3C60 33%,#FFFFFF18 33%,#FFFFFF18 67%,#CE112D60 67%,#CE112D60 100%),#000E04">
+            <span style="color:#00CC55;font-family:'Russo One',sans-serif;font-size:10px;letter-spacing:1px;text-shadow:0 0 8px #00AA33,0 0 16px #007722">MEXIQUE</span>
+          </div>
+          <div class="theme-preset-name">Mexique</div>
+        </div>
+
+        <div class="theme-preset-card" data-theme="flag_eu">
+          <div class="theme-preset-preview" style="background:#000214">
+            <span style="color:#FFD700;font-family:'Russo One',sans-serif;font-size:10px;letter-spacing:2px;text-shadow:0 0 8px #FFCC00,0 0 20px #FFAA00">EUROPE</span>
+          </div>
+          <div class="theme-preset-name">Europe</div>
+        </div>
+
+        <div class="theme-preset-card" data-theme="flag_br">
+          <div class="theme-preset-preview" style="background:#000A00">
+            <span style="color:#FFD700;font-family:'Russo One',sans-serif;font-size:10px;letter-spacing:2px;text-shadow:0 0 8px #FFCC00,0 0 16px #009C3B">BRÉSIL</span>
+          </div>
+          <div class="theme-preset-name">Brésil</div>
+        </div>
+
+        <div class="theme-preset-card" data-theme="flag_jp">
+          <div class="theme-preset-preview" style="background:#0D0001">
+            <span style="color:#FF0000;font-family:'Russo One',sans-serif;font-size:11px;letter-spacing:2px;text-shadow:0 0 8px #FF0000,0 0 20px #CC0000">JAPON</span>
+          </div>
+          <div class="theme-preset-name">Japon</div>
+        </div>
 
         <!-- ── Personnages ── -->
         <div class="themes-group-label">Personnages</div>
@@ -1454,6 +1353,223 @@
       </div>
     </section>
 
+  </div><!-- /tab-themes -->
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- TAB : CUSTOMISATION                                         -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <div class="tab-content" id="tab-custom">
+
+    <section class="section">
+      <div class="section-header"><h2>Scoreboard</h2></div>
+      <div class="custom-grid">
+        <div class="custom-card">
+          <h3>Style d'affichage</h3>
+          <p class="hint" style="margin-bottom:12px">Bascule entre le scoreboard complet et la version compacte.</p>
+          <div class="theme-btn-row">
+            <button class="overlay-style-btn theme-btn active" data-style="full">Full ▬</button>
+            <button class="overlay-style-btn theme-btn" data-style="slim">Slim —</button>
+          </div>
+        </div>
+
+        <div class="custom-card">
+          <h3>Position &amp; Taille</h3>
+          <div class="form-group" style="margin-bottom:12px">
+            <label>Taille <span class="hint">50 – 200 %</span></label>
+            <div class="logo-particles-row">
+              <input type="range" id="sb-scale-range" min="50" max="200" value="100" step="1" />
+              <input type="number" id="sb-scale-num" min="50" max="200" value="100" step="1" style="width:60px" />
+            </div>
+          </div>
+          <div class="form-group" style="margin-bottom:12px">
+            <label>Axe X <span class="hint">−960 – 960 px</span></label>
+            <div class="logo-particles-row">
+              <input type="range" id="sb-x-range" min="-960" max="960" value="0" step="1" />
+              <input type="number" id="sb-x-num" min="-960" max="960" value="0" step="1" style="width:66px" />
+            </div>
+          </div>
+          <div class="form-group" style="margin:0">
+            <label>Axe Y <span class="hint">−200 – 600 px</span></label>
+            <div class="logo-particles-row">
+              <input type="range" id="sb-y-range" min="-200" max="600" value="0" step="1" />
+              <input type="number" id="sb-y-num" min="-200" max="600" value="0" step="1" style="width:66px" />
+            </div>
+          </div>
+        </div>
+        <div class="custom-card">
+          <h3>Barre événement</h3>
+          <div class="form-group" style="margin-bottom:12px">
+            <label>Taille texte</label>
+            <div style="display:flex;gap:8px;align-items:center">
+              <input type="number" id="event-text-size" value="12" min="8" max="32" style="width:60px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:13px;padding:4px 6px;text-align:center" />
+              <span style="font-size:12px;color:var(--text-muted)">px</span>
+            </div>
+          </div>
+          <div class="form-group" style="margin:0">
+            <label>Couleur texte</label>
+            <input type="color" id="event-text-color" value="#EAB830" />
+          </div>
+        </div>
+
+        <div class="custom-card">
+          <h3>Textes joueurs</h3>
+          <div class="form-group" style="margin-bottom:10px">
+            <label>Tag</label>
+            <input type="color" id="tag-color" value="#E8B830" />
+          </div>
+          <div class="form-group" style="margin-bottom:10px">
+            <label>Pseudo</label>
+            <input type="color" id="name-color" value="#F0EEF8" />
+          </div>
+          <div class="form-group" style="margin:0">
+            <label>Pronoms</label>
+            <input type="color" id="pronouns-color" value="#5A5A7A" />
+          </div>
+        </div>
+
+        <div class="custom-card">
+          <h3>Fond de l'overlay</h3>
+          <div class="form-group" style="margin:0">
+            <label>Couleur</label>
+            <div style="display:flex;gap:8px;align-items:center">
+              <input type="color" id="sb-bg-color" value="#0E0E12" />
+              <input type="number" id="sb-bg-opacity" value="100" min="0" max="100" style="width:60px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:13px;padding:4px 6px;text-align:center" />
+              <span style="font-size:12px;color:var(--text-muted)">%</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="custom-card">
+          <h3>Particules</h3>
+          <div class="form-group" style="margin-bottom:14px">
+            <button id="btn-particles-toggle" class="btn btn-primary" style="width:100%">⏸ Désactiver les particules</button>
+          </div>
+          <div id="particles-controls">
+            <div class="form-group" style="margin-bottom:14px">
+              <label>Opacité <span class="hint">0 – 100 %</span></label>
+              <div class="logo-particles-row">
+                <input type="range" id="particle-opacity-range" min="0" max="100" value="100" />
+                <input type="number" id="particle-opacity-num" min="0" max="100" value="100" style="width:56px" />
+              </div>
+            </div>
+            <div class="form-group" style="margin:0">
+              <label>Quantité <span class="hint">10 – 500 %</span></label>
+              <div class="logo-particles-row">
+                <input type="range" id="particle-count-range" min="10" max="500" value="100" />
+                <input type="number" id="particle-count-num" min="10" max="500" value="100" style="width:56px" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-header"><h2>Overlay Casters</h2></div>
+      <div class="custom-grid">
+        <div class="custom-card">
+          <h3>Disposition</h3>
+          <div class="theme-btn-row">
+            <button class="casters-layout-btn theme-btn active" data-layout="row">En ligne →</button>
+            <button class="casters-layout-btn theme-btn" data-layout="column">En colonne ↓</button>
+          </div>
+        </div>
+        <div class="custom-card">
+          <h3>Fond des cartes</h3>
+          <div class="form-group" style="margin:0">
+            <label>Couleur</label>
+            <div style="display:flex;gap:8px;align-items:center">
+              <input type="color" id="casters-bg-color" value="#0E0E12" />
+              <input type="number" id="casters-bg-opacity" value="100" min="0" max="100" style="width:60px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:13px;padding:4px 6px;text-align:center" />
+              <span style="font-size:12px;color:var(--text-muted)">%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-header"><h2>Logos</h2></div>
+      <div class="custom-grid">
+
+        <div class="custom-card">
+          <h3>Logo central — Scoreboard</h3>
+          <p class="hint" style="margin-bottom:10px">Remplace le texte « VS » au centre.</p>
+          <div class="form-group">
+            <label>URL</label>
+            <input type="text" id="center-logo" placeholder="https://..." />
+          </div>
+          <div class="logo-preview-row">
+            <div class="logo-preview-box" id="center-logo-preview">
+              <span>Aperçu</span>
+            </div>
+            <button id="btn-apply-logo" class="btn btn-primary btn-sm">Appliquer</button>
+          </div>
+          <div class="form-group" style="margin-top:12px">
+            <label>Particules logo (thèmes custom) <span class="hint">1 – 100</span></label>
+            <div class="logo-particles-row">
+              <input type="range" id="logo-particles-range" min="1" max="100" value="3" />
+              <input type="number" id="logo-particles-num" min="1" max="100" value="3" />
+            </div>
+          </div>
+        </div>
+
+        <div class="custom-card">
+          <h3>URLs overlays OBS</h3>
+          <p class="hint" style="margin-bottom:10px">Copier-coller dans OBS → Source Navigateur.</p>
+          <div class="obs-url-list">
+            <div class="obs-url-item">
+              <span>Scoreboard</span>
+              <code>localhost:3002/overlay</code>
+              <button class="btn-copy" data-url="http://localhost:3002/overlay">📋</button>
+            </div>
+            <div class="obs-url-item">
+              <span>Scoreboard Slim</span>
+              <code>localhost:3002/overlay-slim</code>
+              <button class="btn-copy" data-url="http://localhost:3002/overlay-slim">📋</button>
+            </div>
+            <div class="obs-url-item">
+              <span>Stage Veto</span>
+              <code>localhost:3002/stageveto</code>
+              <button class="btn-copy" data-url="http://localhost:3002/stageveto">📋</button>
+            </div>
+            <div class="obs-url-item">
+              <span>Casters</span>
+              <code>localhost:3002/casters</code>
+              <button class="btn-copy" data-url="http://localhost:3002/casters">📋</button>
+            </div>
+            <div class="obs-url-item">
+              <span>VS Screen</span>
+              <code>localhost:3002/vs-screen</code>
+              <button class="btn-copy" data-url="http://localhost:3002/vs-screen">📋</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-header"><h2>VS Screen</h2></div>
+      <div class="custom-grid">
+        <div class="custom-card">
+          <h3>Background (1920×1080)</h3>
+          <p class="hint" style="margin-bottom:10px">PNG, JPG ou WebP. Affiché derrière le fond de scène floutée.</p>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <label class="btn btn-outline" style="cursor:pointer;text-align:center">
+              Choisir une image
+              <input type="file" id="vs-bg-file" accept="image/png,image/jpeg,image/webp" style="display:none" />
+            </label>
+            <div id="vs-bg-preview-wrap" style="display:none;position:relative">
+              <img id="vs-bg-preview" style="width:100%;border-radius:6px;border:1px solid var(--border);display:block" alt="aperçu" />
+              <button id="btn-vs-bg-clear" class="btn btn-sm" style="margin-top:6px;width:100%;background:rgba(220,50,50,0.15);color:#e05050;border:1px solid rgba(220,50,50,0.3)">Supprimer</button>
+            </div>
+            <p id="vs-bg-status" class="hint" style="text-align:center"></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <section class="section">
       <div class="section-header"><h2>Drapeaux</h2></div>
       <div class="custom-grid">
@@ -1491,6 +1607,87 @@
             </div>
           </div>
         </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-header">
+        <h2>Chat Twitch</h2>
+        <a href="/twitch-chat" target="_blank" class="btn btn-outline btn-sm">Overlay ↗</a>
+      </div>
+      <div class="custom-grid">
+
+        <!-- Canal -->
+        <div class="custom-card">
+          <h3>Canal</h3>
+          <div class="form-group">
+            <label>Nom du canal Twitch</label>
+            <input type="text" id="chat-channel-input" placeholder="pimousseprod" />
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;margin-top:8px;margin-bottom:6px">
+            <input type="checkbox" id="chat-transparent-toggle" style="cursor:pointer" />
+            <label for="chat-transparent-toggle" style="font-size:12px;cursor:pointer">Mode transparent (éléments dynamiques uniquement)</label>
+          </div>
+          <div style="display:flex;gap:6px">
+            <button class="btn btn-primary btn-sm" id="chat-connect-btn" style="flex:1">Connecter</button>
+            <button class="btn btn-outline btn-sm" id="chat-hide-btn" style="flex:1">Masquer</button>
+          </div>
+          <p class="hint" id="chat-status" style="margin-top:6px"></p>
+        </div>
+
+        <!-- Affichage -->
+        <div class="custom-card">
+          <h3>Affichage</h3>
+          <div class="form-group">
+            <label>Nombre max de messages</label>
+            <div style="display:flex;gap:8px;align-items:center">
+              <input type="range" id="chat-max-msg" min="5" max="40" value="15" style="flex:1" />
+              <span id="chat-max-msg-val" style="min-width:24px;text-align:right">15</span>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Largeur (px)</label>
+            <div style="display:flex;gap:8px;align-items:center">
+              <input type="range" id="chat-width" min="260" max="600" step="10" value="360" style="flex:1" />
+              <span id="chat-width-val" style="min-width:36px;text-align:right">360</span>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Hauteur max (px)</label>
+            <div style="display:flex;gap:8px;align-items:center">
+              <input type="range" id="chat-maxh" min="200" max="900" step="10" value="600" style="flex:1" />
+              <span id="chat-maxh-val" style="min-width:36px;text-align:right">600</span>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Largeur bordure particules (px)</label>
+            <div style="display:flex;gap:8px;align-items:center">
+              <input type="range" id="chat-particle-border" min="0" max="120" step="2" value="28" style="flex:1" />
+              <span id="chat-particle-border-val" style="min-width:36px;text-align:right">28</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Position -->
+        <div class="custom-card">
+          <h3>Position sur l'overlay</h3>
+          <div class="form-group">
+            <label>Position X</label>
+            <div style="display:flex;gap:8px;align-items:center">
+              <input type="range" id="chat-pos-x" min="0" max="1560" step="10" value="0" style="flex:1" />
+              <input type="number" id="chat-pos-x-num" value="0" min="0" max="1560" style="width:60px" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Position Y</label>
+            <div style="display:flex;gap:8px;align-items:center">
+              <input type="range" id="chat-pos-y" min="0" max="980" step="10" value="0" style="flex:1" />
+              <input type="number" id="chat-pos-y-num" value="0" min="0" max="980" style="width:60px" />
+            </div>
+          </div>
+          <button class="btn btn-outline btn-sm" id="chat-pos-apply-btn" style="width:100%;margin-top:6px">Appliquer la position</button>
+        </div>
+
       </div>
     </section>
 
@@ -1577,62 +1774,6 @@
       <div id="sgg-sets-list" class="sgg-sets-list"></div>
     </section>
 
-    <!-- H2H -->
-    <section class="section" id="h2h-section" style="display:none">
-      <div class="section-header">
-        <h2>Comparaison H2H</h2>
-        <a href="/h2h" target="_blank" class="btn btn-outline btn-sm">Overlay ↗</a>
-      </div>
-      <p class="hint">Cliquez sur <strong>→ H2H</strong> sur un set, ou sélectionnez manuellement deux joueurs.</p>
-
-      <!-- Sélection manuelle -->
-      <div class="form-group" style="margin-top:8px">
-        <label>Joueur 1</label>
-        <div style="display:flex;gap:6px">
-          <input type="text" id="h2h-search1" placeholder="Filtrer…" style="width:110px;flex-shrink:0" />
-          <select id="h2h-select1" class="input-name" style="flex:1">
-            <option value="">-- Joueur 1 --</option>
-          </select>
-        </div>
-      </div>
-      <div class="form-group">
-        <label>Joueur 2</label>
-        <div style="display:flex;gap:6px">
-          <input type="text" id="h2h-search2" placeholder="Filtrer…" style="width:110px;flex-shrink:0" />
-          <select id="h2h-select2" class="input-name" style="flex:1">
-            <option value="">-- Joueur 2 --</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="form-group" style="margin-top:4px">
-        <div style="display:flex;gap:10px;align-items:center;margin-bottom:6px">
-          <span id="h2h-p1-display" style="flex:1;font-size:12px;color:var(--text-secondary)">—</span>
-          <span style="font-size:12px;color:var(--text-secondary)">VS</span>
-          <span id="h2h-p2-display" style="flex:1;text-align:right;font-size:12px;color:var(--text-secondary)">—</span>
-        </div>
-        <div style="display:flex;gap:8px;align-items:center;margin-bottom:6px">
-          <label style="font-size:12px;flex-shrink:0">Couleur J1</label>
-          <input type="color" id="h2h-color1" value="#E83030" />
-          <label style="font-size:12px;flex-shrink:0;margin-left:8px">Couleur J2</label>
-          <input type="color" id="h2h-color2" value="#3070E8" />
-        </div>
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
-          <input type="checkbox" id="h2h-limit-toggle" checked style="cursor:pointer" />
-          <label for="h2h-limit-toggle" style="font-size:12px;cursor:pointer">Limiter aux 40 derniers tournois</label>
-        </div>
-        <button class="btn btn-primary btn-sm" id="h2h-load-btn" style="width:100%" disabled>Charger le H2H</button>
-      </div>
-      <p class="hint" id="h2h-status"></p>
-      <div id="h2h-preview" class="ps-preview" style="display:none"></div>
-      <div id="h2h-send-section" style="display:none;margin-top:8px">
-        <div style="display:flex;gap:8px">
-          <button class="btn btn-primary" id="h2h-send-btn" style="flex:1">Envoyer à l'overlay</button>
-          <button class="btn btn-outline" id="h2h-hide-btn">Masquer</button>
-        </div>
-      </div>
-    </section>
-
     <!-- Stats joueur -->
     <section class="section" id="ps-section" style="display:none">
       <div class="section-header">
@@ -1680,6 +1821,7 @@
     </section>
 
   </div><!-- /tab-startgg -->
+
 
   <!-- STAGE PICKER MODAL -->
   <div class="char-modal" id="stage-modal" style="display:none">
@@ -2440,7 +2582,6 @@
 <script src="control.js"></script>
 <script src="startgg-ui.js"></script>
 <script src="player-stats-control.js"></script>
-<script src="h2h-control.js"></script>
 <script src="flag-picker.js"></script>
 </body>
 </html>
