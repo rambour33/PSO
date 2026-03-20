@@ -3181,3 +3181,65 @@ fetch('/api/theme-presets')
   .then(r => r.json())
   .then(renderSavedThemePresets)
   .catch(() => {});
+
+// ── Onglet Twitch Layout ──────────────────────────────────────────
+
+// Copier l'URL de l'overlay
+document.getElementById('btn-copy-twitch-url')?.addEventListener('click', () => {
+  const input = document.getElementById('twitch-layout-url');
+  if (!input) return;
+  input.select();
+  navigator.clipboard.writeText(input.value).then(() => {
+    setStatus('URL copiée dans le presse-papiers');
+  }).catch(() => {
+    document.execCommand('copy');
+    setStatus('URL copiée');
+  });
+});
+
+// Mettre à jour l'URL avec le bon host/port au chargement
+(function () {
+  const input = document.getElementById('twitch-layout-url');
+  if (input) input.value = window.location.origin + '/twitch-layout';
+})();
+
+// Sliders du cadre (coin size, épaisseur, opacité bg) → injectés via postMessage dans l'iframe
+function sendTwitchOption(key, value) {
+  const iframe = document.getElementById('twitch-layout-preview');
+  if (iframe && iframe.contentWindow) {
+    iframe.contentWindow.postMessage({ type: 'twitch-option', key, value }, '*');
+  }
+}
+
+function syncTwitchSlider(rangeId, numId, cssVar, transform) {
+  const range = document.getElementById(rangeId);
+  const num   = document.getElementById(numId);
+  if (!range || !num) return;
+  const apply = (v) => {
+    const val = transform ? transform(v) : v + 'px';
+    sendTwitchOption(cssVar, val);
+  };
+  range.addEventListener('input', () => { num.value = range.value; apply(range.value); });
+  num.addEventListener('input',   () => { range.value = num.value; apply(num.value);   });
+}
+
+syncTwitchSlider('tw-corner-size',  'tw-corner-size-num',  '--tw-corner-size',  v => v + 'px');
+syncTwitchSlider('tw-corner-thick', 'tw-corner-thick-num', '--tw-corner-thick', v => v + 'px');
+syncTwitchSlider('tw-bg-opacity',   'tw-bg-opacity-num',   '--tw-bg-opacity',   v => (v / 100).toFixed(2));
+
+// Checkboxes de visibilité des éléments
+const TW_CHECKBOXES = [
+  { id: 'tw-show-corners',   selector: '.corner',       prop: 'display', on: 'block',  off: 'none'   },
+  { id: 'tw-show-scanline',  selector: '.scan-line',    prop: 'display', on: 'block',  off: 'none'   },
+  { id: 'tw-show-sidelines', selector: '.side-line',    prop: 'display', on: 'block',  off: 'none'   },
+  { id: 'tw-show-glow',      selector: '.ambient-glow', prop: 'display', on: 'block',  off: 'none'   },
+  { id: 'tw-show-chars',     selector: '.player-character', prop: 'display', on: 'block', off: 'none' },
+];
+
+TW_CHECKBOXES.forEach(({ id, selector, prop, on, off }) => {
+  const cb = document.getElementById(id);
+  if (!cb) return;
+  cb.addEventListener('change', () => {
+    sendTwitchOption('selector-' + selector, cb.checked ? on : off);
+  });
+});

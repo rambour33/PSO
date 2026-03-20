@@ -251,6 +251,7 @@ app.get('/casters', (req, res) => res.sendFile(path.join(__dirname, 'public', 'c
 app.get('/control', (req, res) => res.sendFile(path.join(__dirname, 'public', 'control.html')));
 app.get('/vs-screen', (req, res) => res.sendFile(path.join(__dirname, 'public', 'vs-screen.html')));
 app.get('/player-stats', (req, res) => res.sendFile(path.join(__dirname, 'public', 'player-stats.html')));
+app.get('/twitch-layout', (req, res) => res.sendFile(path.join(__dirname, 'public', 'twitch-layout.html')));
 
 app.get('/api/casters', (req, res) => res.json(castersState));
 
