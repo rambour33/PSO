@@ -2118,6 +2118,197 @@ kbd {
   background: #c0392b;
   border-color: #c0392b;
 }
+/* ── Studio / Super Overlay ───────────────────────────────────── */
+
+/* Liste de calques */
+.studio-layer-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.studio-layer-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  cursor: default;
+  transition: background 0.15s, opacity 0.15s;
+  user-select: none;
+}
+
+.studio-layer-item.dragging {
+  opacity: 0.4;
+}
+
+.studio-layer-item.drag-over {
+  border-color: var(--gold);
+  background: rgba(232, 184, 48, 0.07);
+}
+
+/* Poignée de déplacement */
+.sli-drag {
+  cursor: grab;
+  color: var(--text-muted);
+  font-size: 16px;
+  flex-shrink: 0;
+  line-height: 1;
+}
+.sli-drag:active { cursor: grabbing; }
+
+/* Pastille couleur */
+.sli-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* Nom */
+.sli-name {
+  flex: 1;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.sli-disabled .sli-name {
+  color: var(--text-muted);
+}
+
+/* Toggle visibilité (checkbox stylé) */
+.sli-vis-wrap {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+/* Bouton appliquer inline */
+.sli-apply-btn {
+  font-size: 11px;
+  padding: 3px 8px;
+  flex-shrink: 0;
+}
+
+/* ── Canvas du studio ─────────────────────────────────────────── */
+
+/* Handle de calque (badge draggable dans le canvas) */
+.sc-handle {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px 3px 6px;
+  border-radius: 4px;
+  font-family: 'Russo One', sans-serif;
+  font-size: 10px;
+  letter-spacing: 0.5px;
+  color: rgba(0,0,0,0.85);
+  cursor: grab;
+  pointer-events: all;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+  z-index: 10;
+  transition: box-shadow 0.15s;
+  clip-path: polygon(0% 0%, calc(100% - 6px) 0%, 100% 50%, calc(100% - 6px) 100%, 0% 100%);
+}
+.sc-handle:hover {
+  box-shadow: 0 4px 16px rgba(0,0,0,0.7);
+}
+.sc-handle:active { cursor: grabbing; }
+
+.sc-handle-icon {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.4);
+  flex-shrink: 0;
+}
+
+/* Cadre de sélection du calque dans le canvas */
+.sc-layer-outline {
+  position: absolute;
+  width: 1920px;
+  height: 1080px;
+  border: 1px dashed;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s;
+}
+.sc-handle:hover ~ .sc-layer-outline,
+.sc-layer-outline.active {
+  opacity: 0.4;
+}
+
+/* ── Contrôles par calque (sous le canvas) ────────────────────── */
+#studio-layer-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.studio-ctrl-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.studio-ctrl-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.studio-ctrl-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  min-width: 120px;
+  flex-shrink: 0;
+}
+
+.studio-ctrl-field {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.studio-ctrl-field input[type="number"] {
+  width: 68px;
+}
+
+.studio-ctrl-field input[type="range"] {
+  width: 90px;
+}
+
+.studio-ctrl-opacity-val {
+  font-size: 11px;
+  color: var(--text-muted);
+  min-width: 30px;
+}
+
+/* Preset fond actif */
+.so-bg-preset.active-sep {
+  background: var(--gold);
+  color: #000;
+  border-color: var(--gold);
+}
+
 #btn-ticker-toggle.btn-danger:hover {
   background: #a93226;
 }
