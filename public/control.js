@@ -3453,6 +3453,7 @@ const TW_CHECKBOXES = [
   { id: 'tw-show-sidelines', selector: '.side-line',    prop: 'display', on: 'block',  off: 'none'   },
   { id: 'tw-show-glow',      selector: '.ambient-glow', prop: 'display', on: 'block',  off: 'none'   },
   { id: 'tw-show-chars',     selector: '.player-character', prop: 'display', on: 'block', off: 'none' },
+  { id: 'tw-show-vs',        selector: '.bottom-bar',       prop: 'display', on: 'flex',  off: 'none' },
 ];
 
 TW_CHECKBOXES.forEach(({ id, selector, prop, on, off }) => {
@@ -3544,7 +3545,206 @@ function updateTwitchDisplay({ viewers, live }) {
 // Mise à jour via Socket.IO
 if (typeof socket !== 'undefined') {
   socket.on('twitch-viewers', updateTwitchDisplay);
+  socket.on('twitch-auth-status', applyTwitchAuthStatus);
 }
+
+// ── Twitch OAuth broadcaster ──────────────────────────────────────
+
+function applyTwitchAuthStatus({ authenticated, displayName }) {
+  const dot   = document.getElementById('tw-auth-dot');
+  const label = document.getElementById('tw-auth-label');
+  const btnLogin  = document.getElementById('btn-tw-login');
+  const btnLogout = document.getElementById('btn-tw-logout');
+  const subsCard  = document.getElementById('tw-subs-card');
+  const predCard  = document.getElementById('tw-pred-card');
+  if (!dot) return;
+  if (authenticated) {
+    dot.style.background = '#6bc96c';
+    label.textContent    = `Connecté : ${displayName || ''}`;
+    label.style.color    = '#6bc96c';
+    btnLogin.style.display  = 'none';
+    btnLogout.style.display = '';
+    if (subsCard) subsCard.style.display = '';
+    if (predCard) predCard.style.display = '';
+  } else {
+    dot.style.background = '#555';
+    label.textContent    = 'Non connecté';
+    label.style.color    = 'var(--text-muted)';
+    btnLogin.style.display  = '';
+    btnLogout.style.display = 'none';
+    if (subsCard) subsCard.style.display = 'none';
+    if (predCard) predCard.style.display = 'none';
+  }
+}
+
+// Charger le statut auth au démarrage
+fetch('/api/twitch/auth-status')
+  .then(r => r.json())
+  .then(applyTwitchAuthStatus)
+  .catch(() => {});
+
+// Connexion broadcaster
+document.getElementById('btn-tw-login')?.addEventListener('click', () => {
+  window.open('/auth/twitch', '_blank', 'width=600,height=700');
+});
+
+// Déconnexion
+document.getElementById('btn-tw-logout')?.addEventListener('click', () => {
+  fetch('/api/twitch/auth', { method: 'DELETE' })
+    .then(() => applyTwitchAuthStatus({ authenticated: false }))
+    .catch(e => setStatus('Erreur : ' + e.message));
+});
+
+// ── Abonnés ───────────────────────────────────────────────────────
+
+function loadSubscribers() {
+  const list  = document.getElementById('tw-subs-list');
+  const total = document.getElementById('tw-subs-total');
+  if (!list) return;
+  list.innerHTML = '<span style="color:var(--text-muted);">Chargement…</span>';
+  fetch('/api/twitch/subscribers')
+    .then(r => r.json())
+    .then(data => {
+      if (data.error) { list.innerHTML = `<span style="color:#fc8181;">${data.error}</span>`; return; }
+      const subs = data.data || [];
+      if (total) total.textContent = data.total !== undefined ? `— ${data.total} abonnés` : '';
+      if (!subs.length) { list.innerHTML = '<span style="color:var(--text-muted);">Aucun abonné.</span>'; return; }
+      list.innerHTML = subs.map(s =>
+        `<div style="display:flex;align-items:center;gap:8px;padding:4px 6px;border-radius:4px;background:var(--surface2);">
+          <span style="flex:1;font-weight:500;">${s.user_name}</span>
+          <span style="font-size:11px;color:var(--text-muted);">tier ${s.tier ? s.tier.charAt(0) : '?'}</span>
+        </div>`
+      ).join('');
+    })
+    .catch(e => { if (list) list.innerHTML = `<span style="color:#fc8181;">${e.message}</span>`; });
+}
+
+document.getElementById('btn-tw-subs-refresh')?.addEventListener('click', loadSubscribers);
+
+// ── Prédictions ───────────────────────────────────────────────────
+
+// Sync durée slider ↔ number
+(function () {
+  const range = document.getElementById('tw-pred-window');
+  const num   = document.getElementById('tw-pred-window-num');
+  if (!range || !num) return;
+  range.addEventListener('input', () => { num.value = range.value; });
+  num.addEventListener('input', () => { range.value = num.value; });
+})();
+
+let _activePredId = null;
+let _activePredOutcomes = [];
+
+function renderActivePrediction(pred) {
+  const box     = document.getElementById('tw-pred-active');
+  const title   = document.getElementById('tw-pred-active-title');
+  const status  = document.getElementById('tw-pred-active-status');
+  const outcomes = document.getElementById('tw-pred-outcomes');
+  const btnLock = document.getElementById('btn-tw-pred-lock');
+  if (!box) return;
+
+  if (!pred) { box.style.display = 'none'; _activePredId = null; return; }
+
+  _activePredId = pred.id;
+  _activePredOutcomes = pred.outcomes || [];
+  box.style.display = '';
+  title.textContent  = pred.title;
+  status.textContent = { ACTIVE: 'En cours', LOCKED: 'Verrouillé', RESOLVED: 'Terminé', CANCELED: 'Annulé' }[pred.status] || pred.status;
+
+  const totalPoints = _activePredOutcomes.reduce((s, o) => s + (o.channel_points || 0), 0);
+  outcomes.innerHTML = _activePredOutcomes.map(o => {
+    const pct = totalPoints ? Math.round((o.channel_points || 0) / totalPoints * 100) : 0;
+    const actionBtn = pred.status === 'LOCKED'
+      ? `<button class="btn btn-outline btn-sm" style="font-size:11px;padding:2px 8px;" onclick="resolvePrediction('${o.id}')">Choisir</button>`
+      : '';
+    return `<div style="padding:6px 8px;background:var(--surface);border-radius:4px;display:flex;align-items:center;gap:8px;">
+      <span style="flex:1;font-weight:500;">${o.title}</span>
+      <span style="font-size:12px;color:var(--text-muted);">${pct}% · ${o.channel_points || 0} pts</span>
+      ${actionBtn}
+    </div>`;
+  }).join('');
+
+  if (btnLock) btnLock.style.display = pred.status === 'ACTIVE' ? '' : 'none';
+}
+
+function loadActivePrediction() {
+  fetch('/api/twitch/predictions')
+    .then(r => r.json())
+    .then(data => {
+      if (data.error) { setStatus('Prédictions : ' + data.error); return; }
+      const active = (data.data || []).find(p => p.status === 'ACTIVE' || p.status === 'LOCKED');
+      renderActivePrediction(active || null);
+    })
+    .catch(e => setStatus('Erreur prédictions : ' + e.message));
+}
+
+document.getElementById('btn-tw-pred-refresh')?.addEventListener('click', loadActivePrediction);
+
+// Créer prédiction
+document.getElementById('btn-tw-pred-create')?.addEventListener('click', () => {
+  const title  = document.getElementById('tw-pred-title')?.value.trim();
+  const o1     = document.getElementById('tw-pred-o1')?.value.trim();
+  const o2     = document.getElementById('tw-pred-o2')?.value.trim();
+  const window = Number(document.getElementById('tw-pred-window')?.value) || 120;
+  if (!title || !o1 || !o2) { setStatus('Remplis la question et les 2 choix'); return; }
+  fetch('/api/twitch/predictions', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ title, outcomes: [o1, o2], predictionWindow: window }),
+  })
+    .then(r => r.json())
+    .then(data => {
+      if (data.error) { setStatus('Erreur : ' + data.error); return; }
+      const pred = data.data && data.data[0];
+      if (pred) renderActivePrediction(pred);
+      setStatus('Prédiction lancée !');
+    })
+    .catch(e => setStatus('Erreur : ' + e.message));
+});
+
+// Verrouiller
+document.getElementById('btn-tw-pred-lock')?.addEventListener('click', () => {
+  if (!_activePredId) return;
+  fetch('/api/twitch/predictions', {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ id: _activePredId, status: 'LOCKED' }),
+  })
+    .then(r => r.json())
+    .then(data => {
+      const pred = data.data && data.data[0];
+      if (pred) renderActivePrediction(pred);
+      setStatus('Prédiction verrouillée');
+    })
+    .catch(e => setStatus('Erreur : ' + e.message));
+});
+
+// Annuler
+document.getElementById('btn-tw-pred-cancel')?.addEventListener('click', () => {
+  if (!_activePredId) return;
+  if (!confirm('Annuler la prédiction ? Les points seront remboursés.')) return;
+  fetch('/api/twitch/predictions', {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ id: _activePredId, status: 'CANCELED' }),
+  })
+    .then(r => r.json())
+    .then(() => { renderActivePrediction(null); setStatus('Prédiction annulée'); })
+    .catch(e => setStatus('Erreur : ' + e.message));
+});
+
+// Résoudre (appelé depuis le HTML dynamique)
+window.resolvePrediction = function (outcomeId) {
+  if (!_activePredId) return;
+  fetch('/api/twitch/predictions', {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ id: _activePredId, status: 'RESOLVED', winning_outcome_id: outcomeId }),
+  })
+    .then(r => r.json())
+    .then(() => { renderActivePrediction(null); setStatus('Prédiction résolue !'); })
+    .catch(e => setStatus('Erreur : ' + e.message));
+};
 
 // ── Titre du stream ───────────────────────────────────────────────
 

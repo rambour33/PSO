@@ -538,6 +538,197 @@ app.post('/api/twitch/config', (req, res) => {
   }
 })();
 
+// ── Twitch OAuth User (broadcaster) ──────────────────────────────────────────
+
+let twitchUserAuth = {
+  accessToken:      null,
+  refreshToken:     null,
+  expiresAt:        0,
+  broadcasterId:    null,
+  broadcasterLogin: null,
+  displayName:      null,
+};
+
+(function () {
+  const cfg = getConfig();
+  const saved = cfg.twitchUserToken || {};
+  twitchUserAuth.accessToken      = saved.accessToken      || null;
+  twitchUserAuth.refreshToken     = saved.refreshToken     || null;
+  twitchUserAuth.expiresAt        = saved.expiresAt        || 0;
+  twitchUserAuth.broadcasterId    = saved.broadcasterId    || null;
+  twitchUserAuth.broadcasterLogin = saved.broadcasterLogin || null;
+  twitchUserAuth.displayName      = saved.displayName      || null;
+})();
+
+function saveTwitchUserAuth() {
+  const cfg = getConfig();
+  cfg.twitchUserToken = { ...twitchUserAuth };
+  saveConfig(cfg);
+}
+
+const TWITCH_SCOPES = [
+  'channel:read:subscriptions',
+  'channel:manage:predictions',
+  'channel:read:predictions',
+  'moderator:read:followers',
+  'bits:read',
+].join(' ');
+
+app.get('/auth/twitch', (req, res) => {
+  const { clientId } = twitchState;
+  if (!clientId) return res.status(400).send('Client ID Twitch non configuré. Configure-le dans l\'onglet Twitch d\'abord.');
+  const redirectUri = encodeURIComponent('http://localhost:3002/auth/twitch/callback');
+  const scopes = encodeURIComponent(TWITCH_SCOPES);
+  res.redirect(`https://id.twitch.tv/oauth2/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code&scope=${scopes}&force_verify=true`);
+});
+
+app.get('/auth/twitch/callback', async (req, res) => {
+  const { code, error } = req.query;
+  if (error) return res.status(400).send('Erreur OAuth Twitch : ' + error);
+  if (!code)  return res.status(400).send('Code manquant');
+  const { clientId, clientSecret } = twitchState;
+  try {
+    const tokenRes = await fetch('https://id.twitch.tv/oauth2/token', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        client_id:    clientId,
+        client_secret: clientSecret,
+        code,
+        grant_type:   'authorization_code',
+        redirect_uri: 'http://localhost:3002/auth/twitch/callback',
+      }),
+    });
+    const td = await tokenRes.json();
+    if (!td.access_token) throw new Error('Token invalide : ' + JSON.stringify(td));
+
+    twitchUserAuth.accessToken  = td.access_token;
+    twitchUserAuth.refreshToken = td.refresh_token;
+    twitchUserAuth.expiresAt    = Date.now() + (td.expires_in || 3600) * 1000;
+
+    const userRes = await fetch('https://api.twitch.tv/helix/users', {
+      headers: { 'Client-Id': clientId, 'Authorization': `Bearer ${td.access_token}` },
+    });
+    const ud = await userRes.json();
+    const u  = ud.data && ud.data[0];
+    if (u) {
+      twitchUserAuth.broadcasterId    = u.id;
+      twitchUserAuth.broadcasterLogin = u.login;
+      twitchUserAuth.displayName      = u.display_name;
+    }
+    saveTwitchUserAuth();
+    io.emit('twitch-auth-status', { authenticated: true, displayName: twitchUserAuth.displayName });
+    res.send('<html><body style="font-family:sans-serif;background:#111;color:#eee;display:flex;align-items:center;justify-content:center;height:100vh;margin:0"><div style="text-align:center"><h2 style="color:#6bc96c">✅ Connecté avec Twitch !</h2><p>Tu peux fermer cette fenêtre.</p><script>setTimeout(()=>window.close(),1500)</script></div></body></html>');
+  } catch (e) {
+    console.error('[twitch oauth]', e.message);
+    res.status(500).send('Erreur : ' + e.message);
+  }
+});
+
+async function twitchRefreshUserToken() {
+  const { clientId, clientSecret } = twitchState;
+  if (!twitchUserAuth.refreshToken) throw new Error('Pas de refresh token');
+  const res = await fetch('https://id.twitch.tv/oauth2/token', {
+    method:  'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({
+      client_id:     clientId,
+      client_secret: clientSecret,
+      grant_type:    'refresh_token',
+      refresh_token: twitchUserAuth.refreshToken,
+    }),
+  });
+  const d = await res.json();
+  if (!d.access_token) throw new Error('Refresh échoué : ' + JSON.stringify(d));
+  twitchUserAuth.accessToken  = d.access_token;
+  twitchUserAuth.refreshToken = d.refresh_token || twitchUserAuth.refreshToken;
+  twitchUserAuth.expiresAt    = Date.now() + (d.expires_in || 3600) * 1000;
+  saveTwitchUserAuth();
+}
+
+async function twitchUserApi(method, url, body) {
+  if (!twitchUserAuth.accessToken) throw new Error('Non authentifié avec Twitch');
+  if (Date.now() > twitchUserAuth.expiresAt - 60000) await twitchRefreshUserToken();
+  const opts = {
+    method,
+    headers: {
+      'Client-Id':     twitchState.clientId,
+      'Authorization': `Bearer ${twitchUserAuth.accessToken}`,
+      'Content-Type':  'application/json',
+    },
+  };
+  if (body) opts.body = JSON.stringify(body);
+  let r = await fetch(url, opts);
+  if (r.status === 401) {
+    await twitchRefreshUserToken();
+    opts.headers['Authorization'] = `Bearer ${twitchUserAuth.accessToken}`;
+    r = await fetch(url, opts);
+  }
+  return r;
+}
+
+app.get('/api/twitch/auth-status', (req, res) => {
+  res.json({
+    authenticated: !!twitchUserAuth.accessToken,
+    displayName:   twitchUserAuth.displayName,
+    login:         twitchUserAuth.broadcasterLogin,
+  });
+});
+
+app.delete('/api/twitch/auth', (req, res) => {
+  Object.assign(twitchUserAuth, { accessToken: null, refreshToken: null, expiresAt: 0, broadcasterId: null, broadcasterLogin: null, displayName: null });
+  saveTwitchUserAuth();
+  io.emit('twitch-auth-status', { authenticated: false });
+  res.json({ ok: true });
+});
+
+app.get('/api/twitch/subscribers', async (req, res) => {
+  try {
+    const bid = twitchUserAuth.broadcasterId;
+    if (!bid) return res.status(401).json({ error: 'Non authentifié' });
+    const r = await twitchUserApi('GET', `https://api.twitch.tv/helix/subscriptions?broadcaster_id=${bid}&first=100`);
+    res.json(await r.json());
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+app.get('/api/twitch/predictions', async (req, res) => {
+  try {
+    const bid = twitchUserAuth.broadcasterId;
+    if (!bid) return res.status(401).json({ error: 'Non authentifié' });
+    const r = await twitchUserApi('GET', `https://api.twitch.tv/helix/predictions?broadcaster_id=${bid}&first=5`);
+    res.json(await r.json());
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+app.post('/api/twitch/predictions', async (req, res) => {
+  try {
+    const bid = twitchUserAuth.broadcasterId;
+    if (!bid) return res.status(401).json({ error: 'Non authentifié' });
+    const { title, outcomes, predictionWindow } = req.body;
+    const r = await twitchUserApi('POST', 'https://api.twitch.tv/helix/predictions', {
+      broadcaster_id:    bid,
+      title,
+      outcomes:          outcomes.map(o => ({ title: o })),
+      prediction_window: predictionWindow || 120,
+    });
+    res.json(await r.json());
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+app.patch('/api/twitch/predictions', async (req, res) => {
+  try {
+    const bid = twitchUserAuth.broadcasterId;
+    if (!bid) return res.status(401).json({ error: 'Non authentifié' });
+    const { id, status, winning_outcome_id } = req.body;
+    const body = { broadcaster_id: bid, id, status };
+    if (winning_outcome_id) body.winning_outcome_id = winning_outcome_id;
+    const r = await twitchUserApi('PATCH', 'https://api.twitch.tv/helix/predictions', body);
+    res.json(await r.json());
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+
 app.get('/twitch-chat', (req, res) => res.sendFile(path.join(__dirname, 'public', 'twitch-chat.html')));
 
 // ── Twitch IRC (TCP natif) ────────────────────────────────────────────────────
