@@ -405,6 +405,15 @@ body {
   flex-direction: row-reverse;
 }
 
+/* ── Event bar — position bas ────────────────────────────────── */
+
+.scoreboard.event-bar-bottom .event-bar {
+  order: 1;
+  border-bottom: none;
+  border-top: 2px solid var(--smash-gold);
+  clip-path: polygon(0% 0%, 100% 0%, calc(100% - 12px) 100%, 12px 100%);
+}
+
 /* ── Toggle layouts ───────────────────────────────────────────── */
 
 .scoreboard:not(.style-slim) .slim-layout { display: none; }

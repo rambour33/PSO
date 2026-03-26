@@ -71,6 +71,7 @@ let matchState = {
   sbScale: 100,
   sbX: 0,
   sbY: 0,
+  eventBarPosition: 'top',
   transparentPositions: {
     event:  { x: 720,  y: 0  },
     p1Icon: { x: 631,  y: 28 },
