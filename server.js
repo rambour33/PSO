@@ -45,6 +45,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 let matchState = {
   player1: { name: 'PLAYER 1', score: 0, character: null, color: '#E83030', tag: '', pronouns: '', stockColor: 0, flag: '', flagOffsetX: 0, flagOffsetY: 0 },
   player2: { name: 'PLAYER 2', score: 0, character: null, color: '#3070E8', tag: '', pronouns: '', stockColor: 0, flag: '', flagOffsetX: 0, flagOffsetY: 0 },
+  flagSize: 52,
   format: 'Bo3',
   customWins: 2,
   event: 'TOURNAMENT',
@@ -527,7 +528,10 @@ function ircDisconnect() {
 function ircConnect(channel) {
   ircDisconnect();
   if (!channel) return;
-  const chan = channel.toLowerCase();
+  const chan = channel.toLowerCase()
+    .replace(/^https?:\/\/(www\.)?twitch\.tv\//i, '')
+    .replace(/^#/, '')
+    .trim();
   const sock = net.createConnection(6667, 'irc.chat.twitch.tv');
   _ircSocket = sock;
 
