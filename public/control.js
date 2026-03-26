@@ -4013,6 +4013,8 @@ function updateFramesUI(s) {
     setVal('.frame-y', f.y);
     setVal('.frame-w', f.width);
     setVal('.frame-h', f.height);
+    const sliderEl = document.querySelector(`.frame-w[data-idx="${idx}"]`);
+    if (sliderEl && f.width) sliderEl.dataset.ratio = (f.height || 1) / f.width;
     setVal('.frame-label', f.label);
     setChecked('.frame-visible-toggle', f.visible);
     setChecked('.frame-showbg', f.showBg);
@@ -4032,38 +4034,47 @@ document.querySelectorAll('.frames-count-btn').forEach(btn => {
   });
 });
 
-// Bouton Appliquer par cadre
+// Applique un cadre en temps réel
+function applyFrameCard(idx) {
+  const get = (sel) => {
+    const el = document.querySelector(sel + `[data-idx="${idx}"]`);
+    return el ? el.value : '';
+  };
+  const getChecked = (sel) => {
+    const el = document.querySelector(sel + `[data-idx="${idx}"]`);
+    return el ? el.checked : false;
+  };
+  framesLocal.frames[idx] = {
+    visible: getChecked('.frame-visible-toggle'),
+    x:       Number(get('.frame-x')),
+    y:       Number(get('.frame-y')),
+    width:   Number(get('.frame-w')),
+    height:  Number(get('.frame-h')),
+    label:   get('.frame-label'),
+    showBg:  getChecked('.frame-showbg'),
+  };
+  framesSend();
+}
+
+// Boutons Appliquer (conservés pour compatibilité)
 document.querySelectorAll('.frame-save-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    const idx = Number(btn.dataset.idx);
-    const get = (sel) => {
-      const el = document.querySelector(sel + `[data-idx="${idx}"]`);
-      return el ? el.value : '';
-    };
-    const getChecked = (sel) => {
-      const el = document.querySelector(sel + `[data-idx="${idx}"]`);
-      return el ? el.checked : false;
-    };
-    framesLocal.frames[idx] = {
-      visible: getChecked('.frame-visible-toggle'),
-      x:       Number(get('.frame-x')),
-      y:       Number(get('.frame-y')),
-      width:   Number(get('.frame-w')),
-      height:  Number(get('.frame-h')),
-      label:   get('.frame-label'),
-      showBg:  getChecked('.frame-showbg'),
-    };
-    framesSend();
-    setStatus(`Cadre ${idx + 1} appliqué`);
-  });
+  btn.addEventListener('click', () => applyFrameCard(Number(btn.dataset.idx)));
 });
 
-// Toggle visibilité en temps réel (sans attendre "Appliquer")
-document.querySelectorAll('.frame-visible-toggle').forEach(chk => {
-  chk.addEventListener('change', () => {
-    const idx = Number(chk.dataset.idx);
-    framesLocal.frames[idx].visible = chk.checked;
-    framesSend();
+// Inputs en temps réel
+['.frame-x', '.frame-y'].forEach(sel => {
+  document.querySelectorAll(sel).forEach(el => {
+    el.addEventListener('input', () => applyFrameCard(Number(el.dataset.idx)));
+  });
+});
+['.frame-label'].forEach(sel => {
+  document.querySelectorAll(sel).forEach(el => {
+    el.addEventListener('input', () => applyFrameCard(Number(el.dataset.idx)));
+  });
+});
+['.frame-visible-toggle', '.frame-showbg'].forEach(sel => {
+  document.querySelectorAll(sel).forEach(el => {
+    el.addEventListener('change', () => applyFrameCard(Number(el.dataset.idx)));
   });
 });
 
@@ -4077,52 +4088,71 @@ document.querySelectorAll('.frame-ratio-btn').forEach(btn => {
     if (!wEl || !hEl) return;
     const w = Number(wEl.value) || 560;
     hEl.value = Math.round(w * rh / rw);
+    wEl.dataset.ratio = rh / rw;
+    applyFrameCard(idx);
   });
 });
 
-// Presets disposition
+// Slider Taille : met à jour hauteur puis applique
+document.querySelectorAll('.frame-w[type="range"]').forEach(range => {
+  const idx = Number(range.dataset.idx);
+  const hEl = document.querySelector(`.frame-h[data-idx="${idx}"]`);
+  range.addEventListener('input', () => {
+    if (hEl) {
+      const ratio = parseFloat(range.dataset.ratio) || 0.75;
+      hEl.value = Math.round(Number(range.value) * ratio);
+    }
+    applyFrameCard(idx);
+  });
+});
+
+// Presets disposition (x/y = centre du cadre)
 const PRESETS = {
   'preset-cam-bl': {
     count: 1,
-    frames: [{ visible:true, x:40,  y:740, width:400, height:225, label:'', showBg:false }],
+    frames: [{ visible:true, x:240,  y:853, width:400, height:225, label:'', showBg:false }],
+  },
+  'preset-cam-bc': {
+    count: 1,
+    frames: [{ visible:true, x:960,  y:928, width:400, height:225, label:'', showBg:false }],
   },
   'preset-cam-br': {
     count: 1,
-    frames: [{ visible:true, x:1480,y:740, width:400, height:225, label:'', showBg:false }],
+    frames: [{ visible:true, x:1680, y:853, width:400, height:225, label:'', showBg:false }],
   },
   'preset-2side': {
     count: 2,
     frames: [
-      { visible:true, x:60,   y:200, width:840, height:472, label:'', showBg:false },
-      { visible:true, x:1020, y:200, width:840, height:472, label:'', showBg:false },
+      { visible:true, x:480,  y:436, width:840, height:472, label:'', showBg:false },
+      { visible:true, x:1440, y:436, width:840, height:472, label:'', showBg:false },
     ],
   },
   'preset-3col': {
     count: 3,
     frames: [
-      { visible:true, x:60,   y:240, width:560, height:315, label:'', showBg:false },
-      { visible:true, x:680,  y:240, width:560, height:315, label:'', showBg:false },
-      { visible:true, x:1300, y:240, width:560, height:315, label:'', showBg:false },
+      { visible:true, x:340,  y:398, width:560, height:315, label:'', showBg:false },
+      { visible:true, x:960,  y:398, width:560, height:315, label:'', showBg:false },
+      { visible:true, x:1580, y:398, width:560, height:315, label:'', showBg:false },
     ],
   },
   'preset-4grid': {
     count: 4,
     frames: [
-      { visible:true, x:40,   y:40,  width:900, height:506, label:'', showBg:false },
-      { visible:true, x:980,  y:40,  width:900, height:506, label:'', showBg:false },
-      { visible:true, x:40,   y:574, width:900, height:506, label:'', showBg:false },
-      { visible:true, x:980,  y:574, width:900, height:506, label:'', showBg:false },
+      { visible:true, x:490,  y:293, width:900, height:506, label:'', showBg:false },
+      { visible:true, x:1430, y:293, width:900, height:506, label:'', showBg:false },
+      { visible:true, x:490,  y:827, width:900, height:506, label:'', showBg:false },
+      { visible:true, x:1430, y:827, width:900, height:506, label:'', showBg:false },
     ],
   },
   'preset-6grid': {
     count: 6,
     frames: [
-      { visible:true, x:40,   y:40,  width:600, height:337, label:'', showBg:false },
-      { visible:true, x:660,  y:40,  width:600, height:337, label:'', showBg:false },
-      { visible:true, x:1280, y:40,  width:600, height:337, label:'', showBg:false },
-      { visible:true, x:40,   y:420, width:600, height:337, label:'', showBg:false },
-      { visible:true, x:660,  y:420, width:600, height:337, label:'', showBg:false },
-      { visible:true, x:1280, y:420, width:600, height:337, label:'', showBg:false },
+      { visible:true, x:340,  y:209, width:600, height:337, label:'', showBg:false },
+      { visible:true, x:960,  y:209, width:600, height:337, label:'', showBg:false },
+      { visible:true, x:1580, y:209, width:600, height:337, label:'', showBg:false },
+      { visible:true, x:340,  y:589, width:600, height:337, label:'', showBg:false },
+      { visible:true, x:960,  y:589, width:600, height:337, label:'', showBg:false },
+      { visible:true, x:1580, y:589, width:600, height:337, label:'', showBg:false },
     ],
   },
 };
