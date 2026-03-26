@@ -3882,6 +3882,103 @@ let framesLocal = {
   ],
 };
 
+// ── Cam overlay ───────────────────────────────────────────────
+(function () {
+  let camLocal = { visible: false, width: 360, height: 270, offsetX: 0, offsetY: 40, label: 'CAM', showLabel: true };
+
+  function camSend(patch) {
+    if (patch) Object.assign(camLocal, patch);
+    fetch('/api/cam', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(camLocal),
+    });
+  }
+
+  function camSetInput(id, val) {
+    const el = document.getElementById(id);
+    if (el && document.activeElement !== el) el.value = val;
+  }
+
+  // Sync depuis le serveur
+  socket.on('camUpdate', (s) => {
+    camLocal = { ...camLocal, ...s };
+    const vis = document.getElementById('cam-visible');
+    if (vis) vis.checked = !!s.visible;
+    const sl = document.getElementById('cam-show-label');
+    if (sl) sl.checked = !!s.showLabel;
+    camSetInput('cam-width-range',  s.width);   camSetInput('cam-width-num',  s.width);
+    camSetInput('cam-height-range', s.height);  camSetInput('cam-height-num', s.height);
+    camSetInput('cam-x-range',      s.offsetX); camSetInput('cam-x-num',      s.offsetX);
+    camSetInput('cam-y-range',      s.offsetY); camSetInput('cam-y-num',      s.offsetY);
+    camSetInput('cam-label-text',   s.label);
+  });
+
+  // Visibilité
+  document.getElementById('cam-visible')?.addEventListener('change', (e) => {
+    camSend({ visible: e.target.checked });
+  });
+
+  // Label show/hide
+  document.getElementById('cam-show-label')?.addEventListener('change', (e) => {
+    camSend({ showLabel: e.target.checked });
+  });
+
+  // Texte label
+  document.getElementById('cam-label-text')?.addEventListener('input', (e) => {
+    camSend({ label: e.target.value });
+  });
+
+  // Sliders taille + position
+  [
+    ['cam-width',  'width',   true],
+    ['cam-height', 'height',  true],
+    ['cam-x',      'offsetX', false],
+    ['cam-y',      'offsetY', false],
+  ].forEach(([base, key, positive]) => {
+    const range = document.getElementById(base + '-range');
+    const num   = document.getElementById(base + '-num');
+    if (!range || !num) return;
+    function sync(val) {
+      range.value = val; num.value = val;
+      camSend({ [key]: Number(val) });
+    }
+    range.addEventListener('input', () => sync(range.value));
+    num.addEventListener('input',   () => sync(num.value));
+  });
+
+  // Presets taille
+  document.querySelectorAll('.cam-preset-size').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const w = parseInt(btn.dataset.w), h = parseInt(btn.dataset.h);
+      camSetInput('cam-width-range', w);  camSetInput('cam-width-num', w);
+      camSetInput('cam-height-range', h); camSetInput('cam-height-num', h);
+      camSend({ width: w, height: h });
+    });
+  });
+
+  // Presets position
+  document.getElementById('cam-pos-center')?.addEventListener('click', () => {
+    camSetInput('cam-x-range', 0); camSetInput('cam-x-num', 0);
+    camSetInput('cam-y-range', 40); camSetInput('cam-y-num', 40);
+    camSend({ offsetX: 0, offsetY: 40 });
+  });
+  document.getElementById('cam-pos-left')?.addEventListener('click', () => {
+    const w = camLocal.width || 360;
+    const x = -(960 - w / 2 - 20);
+    camSetInput('cam-x-range', x); camSetInput('cam-x-num', x);
+    camSetInput('cam-y-range', 40); camSetInput('cam-y-num', 40);
+    camSend({ offsetX: x, offsetY: 40 });
+  });
+  document.getElementById('cam-pos-right')?.addEventListener('click', () => {
+    const w = camLocal.width || 360;
+    const x = 960 - w / 2 - 20;
+    camSetInput('cam-x-range', x); camSetInput('cam-x-num', x);
+    camSetInput('cam-y-range', 40); camSetInput('cam-y-num', 40);
+    camSend({ offsetX: x, offsetY: 40 });
+  });
+})();
+
 function framesSend(patch) {
   if (patch) Object.assign(framesLocal, patch);
   fetch('/api/frames', {

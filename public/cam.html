@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>PSO – Cam</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Russo+One&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="cam.css" />
+</head>
+<body>
+
+  <div id="cam-root" class="cam-root hidden">
+
+    <!-- Label -->
+    <div class="cam-label" id="cam-label">CAM</div>
+
+    <!-- Cadre décoratif -->
+    <div class="cam-frame">
+      <div class="cam-glow"></div>
+      <div class="cam-inner">
+        <!-- Coins -->
+        <span class="cc cc-tl"></span>
+        <span class="cc cc-tr"></span>
+        <span class="cc cc-bl"></span>
+        <span class="cc cc-br"></span>
+        <!-- Ticks milieu -->
+        <span class="ct ct-t"></span>
+        <span class="ct ct-b"></span>
+        <span class="ct ct-l"></span>
+        <span class="ct ct-r"></span>
+        <!-- Accent coins coupés -->
+        <div class="cam-cut-tl"></div>
+        <div class="cam-cut-br"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="cam.js"></script>
+</body>
+</html>
