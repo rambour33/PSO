@@ -1,0 +1,136 @@
+@import url('https://fonts.googleapis.com/css2?family=Russo+One&family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  --cam-primary: #E8B830;
+  --cam-glow:    rgba(232, 184, 48, 0.55);
+  --cam-corner:  22px;
+  --cam-corner-w: 3px;
+  --cam-border-w: 2px;
+  --cam-tick:    10px;
+  --cam-cut:     12px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: transparent;
+  width: 1920px;
+  height: 1080px;
+  overflow: hidden;
+  font-family: 'Inter', sans-serif;
+}
+
+/* ── Racine positionnée au bas-centre ─────────────────────────── */
+
+.cam-root {
+  position: absolute;
+  width:  var(--cam-w, 360px);
+  /* centré horizontalement + décalage X */
+  left:   calc(50% - var(--cam-w, 360px) / 2 + var(--cam-x, 0px));
+  bottom: var(--cam-y, 40px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  filter: drop-shadow(0 4px 32px rgba(0,0,0,0.8));
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+.cam-root.hidden {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(16px);
+}
+
+/* ── Label ────────────────────────────────────────────────────── */
+
+.cam-label {
+  background: var(--cam-primary);
+  color: #0E0E12;
+  font-family: 'Russo One', sans-serif;
+  font-size: 10px;
+  letter-spacing: 4px;
+  padding: 3px 20px;
+  clip-path: polygon(8px 0%, calc(100% - 8px) 0%, 100% 100%, 0% 100%);
+  text-transform: uppercase;
+  align-self: center;
+  white-space: nowrap;
+}
+
+.cam-label.hidden {
+  display: none;
+}
+
+/* ── Cadre ────────────────────────────────────────────────────── */
+
+.cam-frame {
+  position: relative;
+  width:  var(--cam-w, 360px);
+  height: var(--cam-h, 270px);
+}
+
+.cam-glow {
+  position: absolute;
+  inset: -28px;
+  border-radius: 4px;
+  background: radial-gradient(ellipse at 50% 50%, var(--cam-glow) 0%, transparent 70%);
+  opacity: 0.4;
+  pointer-events: none;
+  transition: background 0.5s;
+}
+
+.cam-inner {
+  position: absolute;
+  inset: 0;
+  border: var(--cam-border-w) solid var(--cam-primary);
+  box-shadow: 0 0 14px var(--cam-glow), inset 0 0 12px rgba(0,0,0,0.12);
+  clip-path: polygon(
+    var(--cam-cut) 0%,
+    calc(100% - var(--cam-cut)) 0%,
+    100% var(--cam-cut),
+    100% calc(100% - var(--cam-cut)),
+    calc(100% - var(--cam-cut)) 100%,
+    var(--cam-cut) 100%,
+    0% calc(100% - var(--cam-cut)),
+    0% var(--cam-cut)
+  );
+  transition: border-color 0.5s, box-shadow 0.5s;
+}
+
+/* ── Coins ────────────────────────────────────────────────────── */
+
+.cc {
+  position: absolute;
+  width:  var(--cam-corner);
+  height: var(--cam-corner);
+}
+.cc-tl { top: -1px;  left: -1px;  border-top:  var(--cam-corner-w) solid var(--cam-primary); border-left:  var(--cam-corner-w) solid var(--cam-primary); }
+.cc-tr { top: -1px;  right: -1px; border-top:  var(--cam-corner-w) solid var(--cam-primary); border-right: var(--cam-corner-w) solid var(--cam-primary); }
+.cc-bl { bottom: -1px; left: -1px;  border-bottom: var(--cam-corner-w) solid var(--cam-primary); border-left:  var(--cam-corner-w) solid var(--cam-primary); }
+.cc-br { bottom: -1px; right: -1px; border-bottom: var(--cam-corner-w) solid var(--cam-primary); border-right: var(--cam-corner-w) solid var(--cam-primary); }
+
+/* ── Ticks milieu ─────────────────────────────────────────────── */
+
+.ct {
+  position: absolute;
+  background: var(--cam-primary);
+}
+.ct-t, .ct-b { width: var(--cam-tick); height: 2px; left: 50%; transform: translateX(-50%); }
+.ct-l, .ct-r { height: var(--cam-tick); width: 2px;  top:  50%; transform: translateY(-50%); }
+.ct-t { top: -1px; }
+.ct-b { bottom: -1px; }
+.ct-l { left: -1px; }
+.ct-r { right: -1px; }
+
+/* ── Accents coins coupés ─────────────────────────────────────── */
+
+.cam-cut-tl,
+.cam-cut-br {
+  position: absolute;
+  width:  calc(var(--cam-cut) * 1.2);
+  height: calc(var(--cam-cut) * 1.2);
+  background: var(--cam-primary);
+  opacity: 0.15;
+}
+.cam-cut-tl { top: 0;    left: 0;   clip-path: polygon(0 0, 100% 0, 0 100%); }
+.cam-cut-br { bottom: 0; right: 0;  clip-path: polygon(100% 0, 100% 100%, 0 100%); }

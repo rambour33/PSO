@@ -349,6 +349,33 @@ app.post('/api/super', (req, res) => {
   res.json({ ok: true });
 });
 
+// ─── Cam overlay ───────────────────────────────────────────────────────────────
+
+let camState = {
+  visible:   false,
+  width:     360,
+  height:    270,
+  offsetX:   0,
+  offsetY:   40,
+  label:     'CAM',
+  showLabel: true,
+};
+
+app.get('/cam',      (req, res) => res.sendFile(path.join(__dirname, 'public', 'cam.html')));
+app.get('/api/cam',  (req, res) => res.json(camState));
+app.post('/api/cam', (req, res) => {
+  const s = req.body;
+  if (s.visible   !== undefined) camState.visible   = !!s.visible;
+  if (s.width     !== undefined) camState.width     = Math.max(80, Number(s.width));
+  if (s.height    !== undefined) camState.height    = Math.max(60, Number(s.height));
+  if (s.offsetX   !== undefined) camState.offsetX   = Number(s.offsetX);
+  if (s.offsetY   !== undefined) camState.offsetY   = Number(s.offsetY);
+  if (s.label     !== undefined) camState.label     = String(s.label).slice(0, 30);
+  if (s.showLabel !== undefined) camState.showLabel = !!s.showLabel;
+  io.emit('camUpdate', camState);
+  res.json({ ok: true });
+});
+
 // ─── Cadres (multi-frame overlay) ─────────────────────────────────────────────
 
 let framesState = {
@@ -745,6 +772,7 @@ io.on('connection', (socket) => {
   socket.emit('tournamentHistoryUpdate', tournamentHistoryState);
   socket.emit('twitch-viewers', { viewers: twitchState.viewers, live: twitchState.live, channel: twitchState.channel });
   socket.emit('tickerUpdate', tickerState);
+  socket.emit('camUpdate', camState);
   socket.emit('framesUpdate', framesState);
   socket.emit('superUpdate', superState);
   socket.emit('titleUpdate', titleState);

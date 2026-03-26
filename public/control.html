@@ -52,6 +52,7 @@
     <button class="tab-btn" data-tab="titre">Titre</button>
     <button class="tab-btn" data-tab="ticker">Bandeau</button>
     <button class="tab-btn" data-tab="frames">Cadres</button>
+    <button class="tab-btn" data-tab="cam">Cam</button>
     <button class="tab-btn" data-tab="studio">Studio</button>
   </nav>
 
@@ -2006,6 +2007,105 @@
 
     </section>
   </div><!-- /tab-twitch -->
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- TAB : CAM                                                   -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <div class="tab-content" id="tab-cam">
+    <section class="section">
+      <div class="section-header">
+        <h2>Cam Overlay</h2>
+        <a href="/cam" target="_blank" class="btn btn-outline btn-sm">Ouvrir l'overlay ↗</a>
+      </div>
+
+      <!-- Visibilité -->
+      <div class="custom-card">
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <h3>Afficher la cam</h3>
+          <label class="toggle-switch">
+            <input type="checkbox" id="cam-visible" />
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Taille -->
+      <div class="custom-card">
+        <h3>Taille</h3>
+        <div class="form-group" style="margin-bottom:12px">
+          <label>Largeur <span class="hint">px</span></label>
+          <div class="logo-particles-row">
+            <input type="range"  id="cam-width-range"  min="80" max="960" value="360" step="4" />
+            <input type="number" id="cam-width-num"    min="80" max="960" value="360" style="width:70px" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Hauteur <span class="hint">px</span></label>
+          <div class="logo-particles-row">
+            <input type="range"  id="cam-height-range"  min="60" max="720" value="270" step="4" />
+            <input type="number" id="cam-height-num"    min="60" max="720" value="270" style="width:70px" />
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+          <button class="btn btn-outline btn-sm cam-preset-size" data-w="320" data-h="240">320×240</button>
+          <button class="btn btn-outline btn-sm cam-preset-size" data-w="360" data-h="270">360×270</button>
+          <button class="btn btn-outline btn-sm cam-preset-size" data-w="480" data-h="270">480×270 (16:9)</button>
+          <button class="btn btn-outline btn-sm cam-preset-size" data-w="640" data-h="360">640×360 (16:9)</button>
+        </div>
+      </div>
+
+      <!-- Position -->
+      <div class="custom-card">
+        <h3>Position</h3>
+        <div class="form-group" style="margin-bottom:12px">
+          <label>Décalage X <span class="hint">gauche / droite depuis le centre</span></label>
+          <div class="logo-particles-row">
+            <input type="range"  id="cam-x-range"  min="-960" max="960" value="0" step="4" />
+            <input type="number" id="cam-x-num"    min="-960" max="960" value="0" style="width:70px" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Distance du bas <span class="hint">px</span></label>
+          <div class="logo-particles-row">
+            <input type="range"  id="cam-y-range"  min="0" max="600" value="40" step="4" />
+            <input type="number" id="cam-y-num"    min="0" max="600" value="40" style="width:70px" />
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+          <button class="btn btn-outline btn-sm" id="cam-pos-center">⬛ Centre bas</button>
+          <button class="btn btn-outline btn-sm" id="cam-pos-left">⬛ Gauche bas</button>
+          <button class="btn btn-outline btn-sm" id="cam-pos-right">⬛ Droite bas</button>
+        </div>
+      </div>
+
+      <!-- Label -->
+      <div class="custom-card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+          <h3>Label</h3>
+          <label class="toggle-switch">
+            <input type="checkbox" id="cam-show-label" checked />
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <input type="text" id="cam-label-text" value="CAM" maxlength="30"
+          style="width:100%;padding:8px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:14px" />
+      </div>
+
+      <!-- Aperçu -->
+      <div class="custom-card" style="padding:0;overflow:hidden;border-radius:8px;">
+        <div style="background:#111;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;">
+          <span style="font-size:12px;font-weight:600;color:var(--text-muted);letter-spacing:1px;text-transform:uppercase;">Aperçu</span>
+          <span style="font-size:11px;color:var(--text-muted)">1920 × 1080</span>
+        </div>
+        <div style="position:relative;width:100%;padding-bottom:56.25%;background:#0a0a0f;overflow:hidden;">
+          <iframe src="/cam" id="cam-preview"
+            style="position:absolute;top:0;left:0;width:100%;height:100%;border:none;pointer-events:none;"
+            scrolling="no"></iframe>
+        </div>
+      </div>
+
+    </section>
+  </div>
 
   <!-- ═══════════════════════════════════════════════════════════ -->
   <!-- TAB : STUDIO                                                -->
