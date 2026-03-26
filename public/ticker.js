@@ -79,24 +79,27 @@
     track.innerHTML = '';
     if (!messages.length) return;
 
-    // Insérer une première copie pour mesurer sa largeur réelle
+    // Insérer une première copie pour tenter une mesure immédiate
     track.appendChild(buildSet(messages, sep));
     const setWidth  = track.scrollWidth;
     const wrapWidth = wrap ? wrap.offsetWidth : 1280;
 
-    if (!setWidth) return;
-
-    // Nombre de copies nécessaires pour que la piste soit toujours plus large
-    // que (wrapWidth + setWidth) : pas de trou visible à aucun moment du défilement
-    const copies = Math.max(2, Math.ceil((wrapWidth + setWidth) / setWidth));
-    for (let i = 1; i < copies; i++) {
+    if (setWidth) {
+      // Nombre de copies pour que la piste soit plus large que (wrapWidth + setWidth)
+      const copies = Math.max(2, Math.ceil((wrapWidth + setWidth) / setWidth));
+      for (let i = 1; i < copies; i++) {
+        track.appendChild(buildSet(messages, sep));
+      }
+      _trackWidth = setWidth;
+    } else {
+      // Mesure impossible pour l'instant : ajouter une deuxième copie et mesurer
+      // dans le RAF (cas des fonts pas encore chargées)
       track.appendChild(buildSet(messages, sep));
+      _trackWidth = 0; // sera mesuré dans startScroll
     }
 
-    // Largeur d'un cycle = une seule copie ; démarrage hors écran à droite
-    _trackWidth = setWidth;
-    _offsetX    = -(wrapWidth);
-    _lastTs     = null;
+    _offsetX = wrap ? -(wrap.offsetWidth) : 0;
+    _lastTs  = null;
   }
 
   function buildSet(messages, sep) {
@@ -130,7 +133,18 @@
       _lastTs = ts;
 
       const track = document.getElementById('ticker-track');
-      if (!track || !_trackWidth) return;
+      if (!track) return;
+
+      // Mesure paresseuse si buildTrack n'avait pas pu mesurer (fonts non chargées)
+      if (!_trackWidth) {
+        const w = track.scrollWidth / 2;
+        if (w > 0) {
+          _trackWidth = w;
+        } else {
+          _rafId = requestAnimationFrame(step);
+          return;
+        }
+      }
 
       _offsetX += (_currentSpeed * dt) / 1000; // px/s
 
