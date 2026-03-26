@@ -2219,6 +2219,7 @@
         <h3>Dispositions rapides</h3>
         <div style="display:flex;gap:8px;flex-wrap:wrap;">
           <button class="btn btn-outline btn-sm" id="preset-cam-bl">📷 Cam bas-gauche</button>
+          <button class="btn btn-outline btn-sm" id="preset-cam-bc">📷 Cam bas-milieu</button>
           <button class="btn btn-outline btn-sm" id="preset-cam-br">📷 Cam bas-droit</button>
           <button class="btn btn-outline btn-sm" id="preset-2side">⬛⬛ 2 côte à côte</button>
           <button class="btn btn-outline btn-sm" id="preset-3col">⬛⬛⬛ 3 colonnes</button>
@@ -2255,24 +2256,19 @@
           <!-- Position -->
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
             <div class="form-group">
-              <label>X <span class="hint">px depuis la gauche</span></label>
-              <input type="number" class="frame-x" data-idx="0" value="40" min="0" max="1920" />
+              <label>X <span class="hint">centre X</span></label>
+              <input type="number" class="frame-x" data-idx="0" value="320" min="0" max="1920" />
             </div>
             <div class="form-group">
-              <label>Y <span class="hint">px depuis le haut</span></label>
-              <input type="number" class="frame-y" data-idx="0" value="40" min="0" max="1080" />
+              <label>Y <span class="hint">centre Y</span></label>
+              <input type="number" class="frame-y" data-idx="0" value="250" min="0" max="1080" />
             </div>
           </div>
           <!-- Taille -->
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
-            <div class="form-group">
-              <label>Largeur <span class="hint">px</span></label>
-              <input type="number" class="frame-w" data-idx="0" value="560" min="50" max="1920" />
-            </div>
-            <div class="form-group">
-              <label>Hauteur <span class="hint">px</span></label>
-              <input type="number" class="frame-h" data-idx="0" value="420" min="50" max="1080" />
-            </div>
+          <div class="form-group" style="margin-bottom:12px;">
+            <label>Taille</label>
+            <input type="range" class="frame-w" data-idx="0" data-ratio="0.75" value="560" min="50" max="1920" style="width:100%;" />
+            <input type="hidden" class="frame-h" data-idx="0" value="420" />
           </div>
           <!-- Ratio rapide -->
           <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;">
@@ -2308,22 +2304,17 @@
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
             <div class="form-group">
               <label>X</label>
-              <input type="number" class="frame-x" data-idx="1" value="640" min="0" max="1920" />
+              <input type="number" class="frame-x" data-idx="1" value="920" min="0" max="1920" />
             </div>
             <div class="form-group">
               <label>Y</label>
-              <input type="number" class="frame-y" data-idx="1" value="40" min="0" max="1080" />
+              <input type="number" class="frame-y" data-idx="1" value="250" min="0" max="1080" />
             </div>
           </div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
-            <div class="form-group">
-              <label>Largeur <span class="hint">px</span></label>
-              <input type="number" class="frame-w" data-idx="1" value="560" min="50" max="1920" />
-            </div>
-            <div class="form-group">
-              <label>Hauteur <span class="hint">px</span></label>
-              <input type="number" class="frame-h" data-idx="1" value="420" min="50" max="1080" />
-            </div>
+          <div class="form-group" style="margin-bottom:12px;">
+            <label>Taille</label>
+            <input type="range" class="frame-w" data-idx="1" data-ratio="0.75" value="560" min="50" max="1920" style="width:100%;" />
+            <input type="hidden" class="frame-h" data-idx="1" value="420" />
           </div>
           <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;">
             <span style="font-size:12px;color:var(--text-muted);align-self:center;">Ratio :</span>
@@ -2356,22 +2347,17 @@
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
             <div class="form-group">
               <label>X</label>
-              <input type="number" class="frame-x" data-idx="2" value="640" min="0" max="1920" />
+              <input type="number" class="frame-x" data-idx="2" value="920" min="0" max="1920" />
             </div>
             <div class="form-group">
               <label>Y</label>
-              <input type="number" class="frame-y" data-idx="2" value="500" min="0" max="1080" />
+              <input type="number" class="frame-y" data-idx="2" value="710" min="0" max="1080" />
             </div>
           </div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
-            <div class="form-group">
-              <label>Largeur <span class="hint">px</span></label>
-              <input type="number" class="frame-w" data-idx="2" value="560" min="50" max="1920" />
-            </div>
-            <div class="form-group">
-              <label>Hauteur <span class="hint">px</span></label>
-              <input type="number" class="frame-h" data-idx="2" value="420" min="50" max="1080" />
-            </div>
+          <div class="form-group" style="margin-bottom:12px;">
+            <label>Taille</label>
+            <input type="range" class="frame-w" data-idx="2" data-ratio="0.75" value="560" min="50" max="1920" style="width:100%;" />
+            <input type="hidden" class="frame-h" data-idx="2" value="420" />
           </div>
           <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;">
             <span style="font-size:12px;color:var(--text-muted);align-self:center;">Ratio :</span>
@@ -2402,12 +2388,13 @@
             </label>
           </div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
-            <div class="form-group"><label>X</label><input type="number" class="frame-x" data-idx="3" value="40" min="0" max="1920" /></div>
-            <div class="form-group"><label>Y</label><input type="number" class="frame-y" data-idx="3" value="500" min="0" max="1080" /></div>
+            <div class="form-group"><label>X</label><input type="number" class="frame-x" data-idx="3" value="320" min="0" max="1920" /></div>
+            <div class="form-group"><label>Y</label><input type="number" class="frame-y" data-idx="3" value="658" min="0" max="1080" /></div>
           </div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
-            <div class="form-group"><label>Largeur <span class="hint">px</span></label><input type="number" class="frame-w" data-idx="3" value="560" min="50" max="1920" /></div>
-            <div class="form-group"><label>Hauteur <span class="hint">px</span></label><input type="number" class="frame-h" data-idx="3" value="315" min="50" max="1080" /></div>
+          <div class="form-group" style="margin-bottom:12px;">
+            <label>Taille</label>
+            <input type="range" class="frame-w" data-idx="3" data-ratio="0.5625" value="560" min="50" max="1920" style="width:100%;" />
+            <input type="hidden" class="frame-h" data-idx="3" value="315" />
           </div>
           <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;">
             <span style="font-size:12px;color:var(--text-muted);align-self:center;">Ratio :</span>
@@ -2438,12 +2425,13 @@
             </label>
           </div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
-            <div class="form-group"><label>X</label><input type="number" class="frame-x" data-idx="4" value="1300" min="0" max="1920" /></div>
-            <div class="form-group"><label>Y</label><input type="number" class="frame-y" data-idx="4" value="40" min="0" max="1080" /></div>
+            <div class="form-group"><label>X</label><input type="number" class="frame-x" data-idx="4" value="1580" min="0" max="1920" /></div>
+            <div class="form-group"><label>Y</label><input type="number" class="frame-y" data-idx="4" value="198" min="0" max="1080" /></div>
           </div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
-            <div class="form-group"><label>Largeur <span class="hint">px</span></label><input type="number" class="frame-w" data-idx="4" value="560" min="50" max="1920" /></div>
-            <div class="form-group"><label>Hauteur <span class="hint">px</span></label><input type="number" class="frame-h" data-idx="4" value="315" min="50" max="1080" /></div>
+          <div class="form-group" style="margin-bottom:12px;">
+            <label>Taille</label>
+            <input type="range" class="frame-w" data-idx="4" data-ratio="0.5625" value="560" min="50" max="1920" style="width:100%;" />
+            <input type="hidden" class="frame-h" data-idx="4" value="315" />
           </div>
           <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;">
             <span style="font-size:12px;color:var(--text-muted);align-self:center;">Ratio :</span>
@@ -2474,12 +2462,13 @@
             </label>
           </div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
-            <div class="form-group"><label>X</label><input type="number" class="frame-x" data-idx="5" value="1300" min="0" max="1920" /></div>
-            <div class="form-group"><label>Y</label><input type="number" class="frame-y" data-idx="5" value="420" min="0" max="1080" /></div>
+            <div class="form-group"><label>X</label><input type="number" class="frame-x" data-idx="5" value="1580" min="0" max="1920" /></div>
+            <div class="form-group"><label>Y</label><input type="number" class="frame-y" data-idx="5" value="578" min="0" max="1080" /></div>
           </div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
-            <div class="form-group"><label>Largeur <span class="hint">px</span></label><input type="number" class="frame-w" data-idx="5" value="560" min="50" max="1920" /></div>
-            <div class="form-group"><label>Hauteur <span class="hint">px</span></label><input type="number" class="frame-h" data-idx="5" value="315" min="50" max="1080" /></div>
+          <div class="form-group" style="margin-bottom:12px;">
+            <label>Taille</label>
+            <input type="range" class="frame-w" data-idx="5" data-ratio="0.5625" value="560" min="50" max="1920" style="width:100%;" />
+            <input type="hidden" class="frame-h" data-idx="5" value="315" />
           </div>
           <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;">
             <span style="font-size:12px;color:var(--text-muted);align-self:center;">Ratio :</span>

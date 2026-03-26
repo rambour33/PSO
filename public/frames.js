@@ -111,9 +111,9 @@
 
   function defaultFrame(idx) {
     const layouts = [
-      { x: 40,  y: 40, width: 560, height: 420 },
-      { x: 640, y: 40, width: 560, height: 420 },
-      { x: 640, y: 500, width: 560, height: 420 },
+      { x: 320,  y: 250, width: 560, height: 420 },
+      { x: 920,  y: 250, width: 560, height: 420 },
+      { x: 920,  y: 710, width: 560, height: 420 },
     ];
     const l = layouts[idx] || layouts[0];
     return { visible: true, ...l, label: '', showBg: false };

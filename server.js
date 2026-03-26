@@ -381,12 +381,12 @@ app.post('/api/cam', (req, res) => {
 let framesState = {
   count: 1,
   frames: [
-    { visible: true, x: 40,  y: 40,  width: 560, height: 420, label: '', showBg: false },
-    { visible: true, x: 640, y: 40,  width: 560, height: 420, label: '', showBg: false },
-    { visible: true, x: 640, y: 500, width: 560, height: 420, label: '', showBg: false },
-    { visible: true, x: 40,  y: 500, width: 560, height: 315, label: '', showBg: false },
-    { visible: true, x: 1300,y: 40,  width: 560, height: 315, label: '', showBg: false },
-    { visible: true, x: 1300,y: 420, width: 560, height: 315, label: '', showBg: false },
+    { visible: true, x: 320,  y: 250, width: 560, height: 420, label: '', showBg: false },
+    { visible: true, x: 920,  y: 250, width: 560, height: 420, label: '', showBg: false },
+    { visible: true, x: 920,  y: 710, width: 560, height: 420, label: '', showBg: false },
+    { visible: true, x: 320,  y: 658, width: 560, height: 315, label: '', showBg: false },
+    { visible: true, x: 1580, y: 198, width: 560, height: 315, label: '', showBg: false },
+    { visible: true, x: 1580, y: 578, width: 560, height: 315, label: '', showBg: false },
   ],
 };
 

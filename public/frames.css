@@ -33,6 +33,7 @@ body {
 /* ── Cadre principal ──────────────────────────────────────────── */
 .pso-frame {
   position: absolute;
+  transform: translate(-50%, -50%);
   transition:
     left   0.4s cubic-bezier(.22,.68,0,1.2),
     top    0.4s cubic-bezier(.22,.68,0,1.2),
