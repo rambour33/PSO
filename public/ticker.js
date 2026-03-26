@@ -75,24 +75,28 @@
 
   function buildTrack(messages, sep) {
     const track = document.getElementById('ticker-track');
+    const wrap  = track?.closest('.ticker-track-wrap');
     track.innerHTML = '';
     if (!messages.length) return;
 
-    // On génère suffisamment de répétitions pour que ça défile en boucle.
-    // On double le contenu : quand la moitié a disparu on revient à 0.
-    const fragment = buildSet(messages, sep);
-    // Clone pour la boucle
-    const clone = fragment.cloneNode(true);
-    track.appendChild(fragment);
-    track.appendChild(clone);
+    // Insérer une première copie pour mesurer sa largeur réelle
+    track.appendChild(buildSet(messages, sep));
+    const setWidth  = track.scrollWidth;
+    const wrapWidth = wrap ? wrap.offsetWidth : 1280;
 
-    // Mesure de la largeur d'un set (la moitié de la piste)
-    // → on la récupère après le layout, dans la boucle RAF
-    _trackWidth = 0;
-    // Démarrage hors écran à droite : offsetX négatif = conteneur décalé vers la droite
-    const wrap = document.getElementById('ticker-track')?.closest('.ticker-track-wrap');
-    _offsetX = wrap ? -(wrap.offsetWidth) : 0;
-    _lastTs = null;
+    if (!setWidth) return;
+
+    // Nombre de copies nécessaires pour que la piste soit toujours plus large
+    // que (wrapWidth + setWidth) : pas de trou visible à aucun moment du défilement
+    const copies = Math.max(2, Math.ceil((wrapWidth + setWidth) / setWidth));
+    for (let i = 1; i < copies; i++) {
+      track.appendChild(buildSet(messages, sep));
+    }
+
+    // Largeur d'un cycle = une seule copie ; démarrage hors écran à droite
+    _trackWidth = setWidth;
+    _offsetX    = -(wrapWidth);
+    _lastTs     = null;
   }
 
   function buildSet(messages, sep) {
@@ -126,17 +130,12 @@
       _lastTs = ts;
 
       const track = document.getElementById('ticker-track');
-      if (!track) return;
-
-      // Largeur d'un set = moitié du scroll total
-      if (!_trackWidth) {
-        _trackWidth = track.scrollWidth / 2;
-      }
+      if (!track || !_trackWidth) return;
 
       _offsetX += (_currentSpeed * dt) / 1000; // px/s
 
-      // Reset quand on a parcouru un set complet (seulement si positif)
-      if (_offsetX >= _trackWidth && _trackWidth > 0) {
+      // Reset dès qu'on a parcouru exactement une copie → boucle propre
+      if (_offsetX >= _trackWidth) {
         _offsetX -= _trackWidth;
       }
 

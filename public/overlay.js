@@ -219,6 +219,7 @@ function update(s) {
   sb.classList.toggle('hidden', !s.visible);
   sb.classList.toggle('swapped', !!s.swapped);
   sb.classList.toggle('style-slim', s.overlayStyle === 'slim');
+  sb.classList.toggle('event-bar-bottom', s.eventBarPosition === 'bottom');
 
   // Theme class
   ['default', 'cyberpunk', 'synthwave', 'midnight', 'egypt', 'city', 'eco', 'water', 'fire',

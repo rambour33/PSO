@@ -128,6 +128,11 @@ function syncFromState(s) {
     b.classList.toggle('active', b.dataset.style === (s.overlayStyle || 'full'));
   });
 
+  // Event bar position buttons
+  document.querySelectorAll('.event-bar-pos-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.pos === (s.eventBarPosition || 'top'));
+  });
+
   // Textes joueurs
   const tagEl = document.getElementById('tag-color');
   const nameEl = document.getElementById('name-color');
@@ -216,6 +221,7 @@ function buildStateFromForm() {
     centerLogo: document.getElementById('center-logo').value.trim(),
     swapped: state.swapped ?? false,
     overlayStyle: state.overlayStyle || 'full',
+    eventBarPosition: state.eventBarPosition || 'top',
     tagColor: document.getElementById('tag-color')?.value || '#E8B830',
     nameColor: document.getElementById('name-color')?.value || '#F0EEF8',
     pronounsColor: document.getElementById('pronouns-color')?.value || '#5A5A7A',
@@ -340,6 +346,16 @@ document.querySelectorAll('.overlay-style-btn').forEach(btn => {
     });
     emitState(buildStateFromForm());
     setStatus(`Style : ${state.overlayStyle}`);
+  });
+});
+
+document.querySelectorAll('.event-bar-pos-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    state.eventBarPosition = btn.dataset.pos;
+    document.querySelectorAll('.event-bar-pos-btn').forEach(b => {
+      b.classList.toggle('active', b.dataset.pos === state.eventBarPosition);
+    });
+    emitState(buildStateFromForm());
   });
 });
 
