@@ -355,6 +355,9 @@ let framesState = {
     { visible: true, x: 40,  y: 40,  width: 560, height: 420, label: '', showBg: false },
     { visible: true, x: 640, y: 40,  width: 560, height: 420, label: '', showBg: false },
     { visible: true, x: 640, y: 500, width: 560, height: 420, label: '', showBg: false },
+    { visible: true, x: 40,  y: 500, width: 560, height: 315, label: '', showBg: false },
+    { visible: true, x: 1300,y: 40,  width: 560, height: 315, label: '', showBg: false },
+    { visible: true, x: 1300,y: 420, width: 560, height: 315, label: '', showBg: false },
   ],
 };
 
@@ -362,7 +365,7 @@ app.get('/api/frames', (req, res) => res.json(framesState));
 
 app.post('/api/frames', (req, res) => {
   const { count, frames } = req.body;
-  if (count !== undefined) framesState.count = Math.max(1, Math.min(3, Number(count)));
+  if (count !== undefined) framesState.count = Math.max(1, Math.min(6, Number(count)));
   if (Array.isArray(frames)) {
     frames.forEach((f, i) => {
       if (!framesState.frames[i]) return;

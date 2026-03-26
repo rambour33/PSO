@@ -3838,6 +3838,9 @@ let framesLocal = {
     { visible: true, x: 40,  y: 40,  width: 560, height: 420, label: '', showBg: false },
     { visible: true, x: 640, y: 40,  width: 560, height: 420, label: '', showBg: false },
     { visible: true, x: 640, y: 500, width: 560, height: 420, label: '', showBg: false },
+    { visible: true, x: 40,  y: 500, width: 560, height: 315, label: '', showBg: false },
+    { visible: true, x: 1300,y: 40,  width: 560, height: 315, label: '', showBg: false },
+    { visible: true, x: 1300,y: 420, width: 560, height: 315, label: '', showBg: false },
   ],
 };
 
@@ -3965,6 +3968,26 @@ const PRESETS = {
       { visible:true, x:60,   y:240, width:560, height:315, label:'', showBg:false },
       { visible:true, x:680,  y:240, width:560, height:315, label:'', showBg:false },
       { visible:true, x:1300, y:240, width:560, height:315, label:'', showBg:false },
+    ],
+  },
+  'preset-4grid': {
+    count: 4,
+    frames: [
+      { visible:true, x:40,   y:40,  width:900, height:506, label:'', showBg:false },
+      { visible:true, x:980,  y:40,  width:900, height:506, label:'', showBg:false },
+      { visible:true, x:40,   y:574, width:900, height:506, label:'', showBg:false },
+      { visible:true, x:980,  y:574, width:900, height:506, label:'', showBg:false },
+    ],
+  },
+  'preset-6grid': {
+    count: 6,
+    frames: [
+      { visible:true, x:40,   y:40,  width:600, height:337, label:'', showBg:false },
+      { visible:true, x:660,  y:40,  width:600, height:337, label:'', showBg:false },
+      { visible:true, x:1280, y:40,  width:600, height:337, label:'', showBg:false },
+      { visible:true, x:40,   y:420, width:600, height:337, label:'', showBg:false },
+      { visible:true, x:660,  y:420, width:600, height:337, label:'', showBg:false },
+      { visible:true, x:1280, y:420, width:600, height:337, label:'', showBg:false },
     ],
   },
 };
