@@ -1622,87 +1622,6 @@
       </div>
     </section>
 
-    <section class="section">
-      <div class="section-header">
-        <h2>Chat Twitch</h2>
-        <a href="/twitch-chat" target="_blank" class="btn btn-outline btn-sm">Overlay ↗</a>
-      </div>
-      <div class="custom-grid">
-
-        <!-- Canal -->
-        <div class="custom-card">
-          <h3>Canal</h3>
-          <div class="form-group">
-            <label>Nom du canal Twitch</label>
-            <input type="text" id="chat-channel-input" placeholder="pimousseprod" />
-          </div>
-          <div style="display:flex;align-items:center;gap:8px;margin-top:8px;margin-bottom:6px">
-            <input type="checkbox" id="chat-transparent-toggle" style="cursor:pointer" />
-            <label for="chat-transparent-toggle" style="font-size:12px;cursor:pointer">Mode transparent (éléments dynamiques uniquement)</label>
-          </div>
-          <div style="display:flex;gap:6px">
-            <button class="btn btn-primary btn-sm" id="chat-connect-btn" style="flex:1">Connecter</button>
-            <button class="btn btn-outline btn-sm" id="chat-hide-btn" style="flex:1">Masquer</button>
-          </div>
-          <p class="hint" id="chat-status" style="margin-top:6px"></p>
-        </div>
-
-        <!-- Affichage -->
-        <div class="custom-card">
-          <h3>Affichage</h3>
-          <div class="form-group">
-            <label>Nombre max de messages</label>
-            <div style="display:flex;gap:8px;align-items:center">
-              <input type="range" id="chat-max-msg" min="5" max="40" value="15" style="flex:1" />
-              <span id="chat-max-msg-val" style="min-width:24px;text-align:right">15</span>
-            </div>
-          </div>
-          <div class="form-group">
-            <label>Largeur (px)</label>
-            <div style="display:flex;gap:8px;align-items:center">
-              <input type="range" id="chat-width" min="260" max="600" step="10" value="360" style="flex:1" />
-              <span id="chat-width-val" style="min-width:36px;text-align:right">360</span>
-            </div>
-          </div>
-          <div class="form-group">
-            <label>Hauteur max (px)</label>
-            <div style="display:flex;gap:8px;align-items:center">
-              <input type="range" id="chat-maxh" min="200" max="900" step="10" value="600" style="flex:1" />
-              <span id="chat-maxh-val" style="min-width:36px;text-align:right">600</span>
-            </div>
-          </div>
-          <div class="form-group">
-            <label>Largeur bordure particules (px)</label>
-            <div style="display:flex;gap:8px;align-items:center">
-              <input type="range" id="chat-particle-border" min="0" max="120" step="2" value="28" style="flex:1" />
-              <span id="chat-particle-border-val" style="min-width:36px;text-align:right">28</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Position -->
-        <div class="custom-card">
-          <h3>Position sur l'overlay</h3>
-          <div class="form-group">
-            <label>Position X</label>
-            <div style="display:flex;gap:8px;align-items:center">
-              <input type="range" id="chat-pos-x" min="0" max="1560" step="10" value="0" style="flex:1" />
-              <input type="number" id="chat-pos-x-num" value="0" min="0" max="1560" style="width:60px" />
-            </div>
-          </div>
-          <div class="form-group">
-            <label>Position Y</label>
-            <div style="display:flex;gap:8px;align-items:center">
-              <input type="range" id="chat-pos-y" min="0" max="980" step="10" value="0" style="flex:1" />
-              <input type="number" id="chat-pos-y-num" value="0" min="0" max="980" style="width:60px" />
-            </div>
-          </div>
-          <button class="btn btn-outline btn-sm" id="chat-pos-apply-btn" style="width:100%;margin-top:6px">Appliquer la position</button>
-        </div>
-
-      </div>
-    </section>
-
   </div><!-- /tab-custom -->
 
   <!-- ═══════════════════════════════════════════════════════════ -->
@@ -1949,6 +1868,77 @@
         </div>
       </div>
 
+      <!-- Authentification broadcaster -->
+      <div class="custom-card">
+        <h3>Compte broadcaster <span class="hint">abonnés · prédictions · bits</span></h3>
+        <div id="tw-auth-status" style="margin-bottom:14px;padding:10px 14px;border-radius:6px;background:var(--surface2);border:1px solid var(--border);display:flex;align-items:center;gap:10px;">
+          <span id="tw-auth-dot" style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#555;flex-shrink:0;"></span>
+          <span id="tw-auth-label" style="font-size:13px;color:var(--text-muted);">Non connecté</span>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-primary btn-sm" id="btn-tw-login">Se connecter avec Twitch</button>
+          <button class="btn btn-outline btn-sm" id="btn-tw-logout" style="display:none;">Déconnecter</button>
+        </div>
+        <p style="font-size:11px;color:var(--text-muted);margin-top:8px;line-height:1.5;">
+          Ajoute <code>http://localhost:3002/auth/twitch/callback</code> dans les <strong>Redirect URIs</strong> de ton app sur <a href="https://dev.twitch.tv/console/apps" target="_blank" style="color:var(--accent)">dev.twitch.tv ↗</a>
+        </p>
+      </div>
+
+      <!-- Abonnés -->
+      <div class="custom-card" id="tw-subs-card" style="display:none;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+          <h3>Abonnés <span id="tw-subs-total" class="hint"></span></h3>
+          <button class="btn btn-outline btn-sm" id="btn-tw-subs-refresh">↺ Actualiser</button>
+        </div>
+        <div id="tw-subs-list" style="max-height:200px;overflow-y:auto;display:flex;flex-direction:column;gap:4px;font-size:13px;">
+          <span style="color:var(--text-muted);">Clique sur Actualiser pour charger.</span>
+        </div>
+      </div>
+
+      <!-- Prédictions -->
+      <div class="custom-card" id="tw-pred-card" style="display:none;">
+        <h3 style="margin-bottom:14px;">Prédictions</h3>
+
+        <!-- Créer une prédiction -->
+        <div style="margin-bottom:14px;">
+          <div class="form-group" style="margin-bottom:8px;">
+            <label>Question</label>
+            <input type="text" id="tw-pred-title" placeholder="ex: Qui gagne ce set ?" maxlength="45" />
+          </div>
+          <div class="form-group" style="margin-bottom:8px;">
+            <label>Choix 1</label>
+            <input type="text" id="tw-pred-o1" placeholder="Joueur 1" maxlength="25" />
+          </div>
+          <div class="form-group" style="margin-bottom:8px;">
+            <label>Choix 2</label>
+            <input type="text" id="tw-pred-o2" placeholder="Joueur 2" maxlength="25" />
+          </div>
+          <div class="form-group" style="margin-bottom:10px;">
+            <label>Durée <span class="hint">secondes</span></label>
+            <div class="logo-particles-row">
+              <input type="range" id="tw-pred-window" min="30" max="1800" value="120" step="30" />
+              <input type="number" id="tw-pred-window-num" min="30" max="1800" value="120" style="width:65px;" />
+            </div>
+          </div>
+          <button class="btn btn-primary btn-sm" id="btn-tw-pred-create">Lancer la prédiction</button>
+        </div>
+
+        <!-- Prédiction active -->
+        <div id="tw-pred-active" style="display:none;padding:12px;background:var(--surface2);border-radius:6px;border:1px solid var(--border);">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+            <strong id="tw-pred-active-title" style="font-size:14px;"></strong>
+            <span id="tw-pred-active-status" style="font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--text-muted);"></span>
+          </div>
+          <div id="tw-pred-outcomes" style="display:flex;flex-direction:column;gap:6px;margin-bottom:12px;"></div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;">
+            <button class="btn btn-outline btn-sm" id="btn-tw-pred-lock">🔒 Verrouiller</button>
+            <button class="btn btn-outline btn-sm" id="btn-tw-pred-cancel">✕ Annuler</button>
+          </div>
+        </div>
+
+        <button class="btn btn-outline btn-sm" id="btn-tw-pred-refresh" style="margin-top:10px;">↺ Voir prédiction active</button>
+      </div>
+
       <!-- Options du cadre -->
       <div class="custom-card">
         <h3>Options du cadre</h3>
@@ -2002,10 +1992,97 @@
             <input type="checkbox" id="tw-show-chars" checked />
             <span>Personnages dans la barre joueurs</span>
           </label>
+          <label class="checkbox-row">
+            <input type="checkbox" id="tw-show-vs" checked />
+            <span>Barre joueurs (joueur 1 · VS · joueur 2)</span>
+          </label>
         </div>
       </div>
 
     </section>
+
+    <!-- Chat Twitch -->
+    <section class="section">
+      <div class="section-header">
+        <h2>Chat Twitch</h2>
+        <a href="/twitch-chat" target="_blank" class="btn btn-outline btn-sm">Overlay ↗</a>
+      </div>
+      <div class="custom-grid">
+
+        <!-- Canal -->
+        <div class="custom-card">
+          <h3>Canal</h3>
+          <div class="form-group">
+            <label>Nom du canal Twitch</label>
+            <input type="text" id="chat-channel-input" placeholder="pimousseprod" />
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;margin-top:8px;margin-bottom:6px">
+            <input type="checkbox" id="chat-transparent-toggle" style="cursor:pointer" />
+            <label for="chat-transparent-toggle" style="font-size:12px;cursor:pointer">Mode transparent (éléments dynamiques uniquement)</label>
+          </div>
+          <div style="display:flex;gap:6px">
+            <button class="btn btn-primary btn-sm" id="chat-connect-btn" style="flex:1">Connecter</button>
+            <button class="btn btn-outline btn-sm" id="chat-hide-btn" style="flex:1">Masquer</button>
+          </div>
+          <p class="hint" id="chat-status" style="margin-top:6px"></p>
+        </div>
+
+        <!-- Affichage -->
+        <div class="custom-card">
+          <h3>Affichage</h3>
+          <div class="form-group">
+            <label>Nombre max de messages</label>
+            <div style="display:flex;gap:8px;align-items:center">
+              <input type="range" id="chat-max-msg" min="5" max="40" value="15" style="flex:1" />
+              <span id="chat-max-msg-val" style="min-width:24px;text-align:right">15</span>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Largeur (px)</label>
+            <div style="display:flex;gap:8px;align-items:center">
+              <input type="range" id="chat-width" min="260" max="600" step="10" value="360" style="flex:1" />
+              <span id="chat-width-val" style="min-width:36px;text-align:right">360</span>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Hauteur max (px)</label>
+            <div style="display:flex;gap:8px;align-items:center">
+              <input type="range" id="chat-maxh" min="200" max="900" step="10" value="600" style="flex:1" />
+              <span id="chat-maxh-val" style="min-width:36px;text-align:right">600</span>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Largeur bordure particules (px)</label>
+            <div style="display:flex;gap:8px;align-items:center">
+              <input type="range" id="chat-particle-border" min="0" max="120" step="2" value="28" style="flex:1" />
+              <span id="chat-particle-border-val" style="min-width:36px;text-align:right">28</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Position -->
+        <div class="custom-card">
+          <h3>Position sur l'overlay</h3>
+          <div class="form-group">
+            <label>Position X</label>
+            <div style="display:flex;gap:8px;align-items:center">
+              <input type="range" id="chat-pos-x" min="0" max="1560" step="10" value="0" style="flex:1" />
+              <input type="number" id="chat-pos-x-num" value="0" min="0" max="1560" style="width:60px" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Position Y</label>
+            <div style="display:flex;gap:8px;align-items:center">
+              <input type="range" id="chat-pos-y" min="0" max="980" step="10" value="0" style="flex:1" />
+              <input type="number" id="chat-pos-y-num" value="0" min="0" max="980" style="width:60px" />
+            </div>
+          </div>
+          <button class="btn btn-outline btn-sm" id="chat-pos-apply-btn" style="width:100%;margin-top:6px">Appliquer la position</button>
+        </div>
+
+      </div>
+    </section>
+
   </div><!-- /tab-twitch -->
 
   <!-- ═══════════════════════════════════════════════════════════ -->
