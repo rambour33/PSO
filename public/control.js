@@ -93,6 +93,13 @@ function syncFromState(s) {
     window.flagPickerRestore(1, s.player1.flag || '');
     window.flagPickerRestore(2, s.player2.flag || '');
   }
+  // Flag size restore
+  const fs = s.flagSize ?? 52;
+  const fsRange = document.getElementById('flag-size-range');
+  const fsNum   = document.getElementById('flag-size-num');
+  if (fsRange) fsRange.value = fs;
+  if (fsNum)   fsNum.value   = fs;
+
   // Flag offset restore
   const p1fx = s.player1.flagOffsetX ?? 0;
   const p1fy = s.player1.flagOffsetY ?? 0;
@@ -223,9 +230,10 @@ function buildStateFromForm() {
     particleCountScale: parseInt(document.getElementById('particle-count-num')?.value ?? 100),
     particlesEnabled:   state.particlesEnabled !== false,
     hidePlayerColors:   state.hidePlayerColors === true,
-    sbScale: parseInt(document.getElementById('sb-scale-num')?.value ?? 100),
-    sbX:     parseInt(document.getElementById('sb-x-num')?.value ?? 0),
-    sbY:     parseInt(document.getElementById('sb-y-num')?.value ?? 0),
+    sbScale:  parseInt(document.getElementById('sb-scale-num')?.value ?? 100),
+    sbX:      parseInt(document.getElementById('sb-x-num')?.value ?? 0),
+    sbY:      parseInt(document.getElementById('sb-y-num')?.value ?? 0),
+    flagSize: parseInt(document.getElementById('flag-size-num')?.value ?? 52),
   };
 }
 
@@ -1347,6 +1355,20 @@ document.getElementById('logo-particles-num').addEventListener('change', functio
   });
   document.getElementById(id + '-num').addEventListener('change', function () {
     let v = Math.min(max, Math.max(min, parseInt(this.value) || 0));
+    this.value = v;
+    document.getElementById(id + '-range').value = v;
+    emitState(buildStateFromForm());
+  });
+});
+
+// Flag size slider
+['flag-size'].forEach(id => {
+  document.getElementById(id + '-range')?.addEventListener('input', function () {
+    document.getElementById(id + '-num').value = this.value;
+    emitState(buildStateFromForm());
+  });
+  document.getElementById(id + '-num')?.addEventListener('change', function () {
+    let v = Math.min(150, Math.max(20, parseInt(this.value) || 52));
     this.value = v;
     document.getElementById(id + '-range').value = v;
     emitState(buildStateFromForm());

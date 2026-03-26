@@ -89,7 +89,9 @@
     // Mesure de la largeur d'un set (la moitié de la piste)
     // → on la récupère après le layout, dans la boucle RAF
     _trackWidth = 0;
-    _offsetX = 0;
+    // Démarrage hors écran à droite : offsetX négatif = conteneur décalé vers la droite
+    const wrap = document.getElementById('ticker-track')?.closest('.ticker-track-wrap');
+    _offsetX = wrap ? -(wrap.offsetWidth) : 0;
     _lastTs = null;
   }
 
@@ -133,8 +135,8 @@
 
       _offsetX += (_currentSpeed * dt) / 1000; // px/s
 
-      // Reset quand on a parcouru un set complet
-      if (_offsetX >= _trackWidth) {
+      // Reset quand on a parcouru un set complet (seulement si positif)
+      if (_offsetX >= _trackWidth && _trackWidth > 0) {
         _offsetX -= _trackWidth;
       }
 

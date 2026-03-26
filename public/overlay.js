@@ -316,6 +316,9 @@ function update(s) {
   sb.style.setProperty('--sb-y', (s.sbY ?? 0) + 'px');
 
   sb.style.setProperty('--event-text-size', `${s.eventTextSize ?? 12}px`);
+  const fw = s.flagSize ?? 52;
+  sb.style.setProperty('--flag-w', fw + 'px');
+  sb.style.setProperty('--flag-h', Math.round(fw * 34 / 52) + 'px');
   sb.style.setProperty('--event-text-color', s.eventTextColor || '#5A5A7A');
   sb.style.setProperty('--tag-color', s.tagColor || '#E8B830');
   sb.style.setProperty('--name-color', s.nameColor || '#F0EEF8');

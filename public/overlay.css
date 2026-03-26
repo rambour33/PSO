@@ -124,8 +124,9 @@ body {
 .player-flag {
   position: absolute;
   bottom: 0;
-  width: 52px;
-  height: 34px;
+  right: 0;
+  width: var(--flag-w, 52px);
+  height: var(--flag-h, 34px);
   object-fit: cover;
   border-radius: 3px;
   border: 1px solid rgba(255,255,255,0.15);
@@ -135,12 +136,10 @@ body {
 }
 
 .player-flag-left {
-  right: 0;
   transform: translate(var(--p1-flag-x, 0px), var(--p1-flag-y, 0px));
 }
 
 .player-flag-right {
-  left: 0;
   transform: translate(var(--p2-flag-x, 0px), var(--p2-flag-y, 0px));
 }
 
@@ -361,37 +360,6 @@ body {
   to   { background-position: 400px 0; }
 }
 
-.player-left::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: repeating-linear-gradient(
-    -55deg,
-    transparent      0px, transparent      17px,
-    rgba(212,  0, 26, 0.08) 17px, rgba(212,  0, 26, 0.08) 18px,
-    transparent      18px, transparent     30px,
-    rgba(255,255,255, 0.03) 30px, rgba(255,255,255, 0.03) 31px
-  );
-  animation: streakSlide 5s linear infinite;
-  pointer-events: none;
-  z-index: 1;
-}
-
-.player-right::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: repeating-linear-gradient(
-    55deg,
-    transparent      0px, transparent      17px,
-    rgba(58, 127,232, 0.08) 17px, rgba(58, 127,232, 0.08) 18px,
-    transparent      18px, transparent     30px,
-    rgba(255,255,255, 0.03) 30px, rgba(255,255,255, 0.03) 31px
-  );
-  animation: streakSlide 5s linear infinite reverse;
-  pointer-events: none;
-  z-index: 1;
-}
 
 /* Grille dorée pulsée sur le score center */
 @keyframes gridPulse {
