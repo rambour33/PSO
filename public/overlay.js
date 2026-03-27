@@ -499,17 +499,13 @@ function update(s) {
   // ── Transparent theme — positions CSS vars ───────────────────
   if (isTransparent) {
     const pos = s.transparentPositions || {};
-    function setTP(varSuffix, key, dx, dy) {
-      const p = pos[key] || {};
-      sb.style.setProperty('--tp-' + varSuffix + '-x', (p.x ?? dx) + 'px');
-      sb.style.setProperty('--tp-' + varSuffix + '-y', (p.y ?? dy) + 'px');
-    }
-    setTP('event',   'event',  720,  0);
-    setTP('p1-icon', 'p1Icon', 631,  28);
-    setTP('p1-name', 'p1Name', 724,  50);
-    setTP('score',   'score',  886,  28);
-    setTP('p2-name', 'p2Name', 1056, 50);
-    setTP('p2-icon', 'p2Icon', 1222, 28);
+    // Barre de scores (position Y unique)
+    const barY = (pos.barY ?? 20);
+    sb.style.setProperty('--tp-bar-y', barY + 'px');
+    // Barre événement (position libre)
+    const ev = pos.event || {};
+    sb.style.setProperty('--tp-event-x', (ev.x ?? 720) + 'px');
+    sb.style.setProperty('--tp-event-y', (ev.y ?? 0) + 'px');
   }
 
   currentState = JSON.parse(JSON.stringify(s));
