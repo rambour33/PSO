@@ -4533,7 +4533,7 @@ function bindVisToggles() {
   });
 }
 
-/* ── Rendu du canvas (iframes + handles) ────────────────────── */
+/* ── Rendu du canvas (iframes + overlays drag) ───────────────── */
 function renderCanvas() {
   const inner     = document.getElementById('studio-canvas-inner');
   const dragLayer = document.getElementById('studio-drag-layer');
@@ -4567,35 +4567,41 @@ function renderCanvas() {
     wrap.style.filter  = layer.visible ? 'none' : 'grayscale(100%)';
   });
 
-  /* ── Handles (en coords écran) ── */
+  /* ── Overlays drag pleine taille (coords écran) ── */
   dragLayer.innerHTML = '';
-  sorted.filter(l => l.visible).forEach((layer, i) => {
-    const color  = LAYER_COLORS[layer.id] || '#888';
-    const handle = document.createElement('div');
-    handle.className   = 'sc-handle';
-    handle.id          = 'sc-handle-' + layer.id;
-    handle.dataset.id  = layer.id;
-    handle.style.left  = (layer.x * studioScale + 6 + i * 2) + 'px';
-    handle.style.top   = (layer.y * studioScale + 6 + i * 2) + 'px';
-    handle.style.background = color;
-    handle.innerHTML   = `<span class="sc-handle-icon"></span>${layer.label}`;
-    dragLayer.appendChild(handle);
+  const visibleSorted = sorted.filter(l => l.visible);
+  visibleSorted.forEach((layer, i) => {
+    const color   = LAYER_COLORS[layer.id] || '#888';
+    const overlay = document.createElement('div');
+    overlay.className  = 'sc-drag-overlay';
+    overlay.id         = 'sc-overlay-' + layer.id;
+    overlay.dataset.id = layer.id;
+    overlay.style.left   = (layer.x * studioScale) + 'px';
+    overlay.style.top    = (layer.y * studioScale) + 'px';
+    overlay.style.width  = (1920 * studioScale) + 'px';
+    overlay.style.height = (1080 * studioScale) + 'px';
+    overlay.style.zIndex = i;
+    overlay.style.setProperty('--sc-color', color);
+    overlay.innerHTML = `<div class="sc-overlay-badge" style="background:${color};">${layer.label}</div>`;
+    dragLayer.appendChild(overlay);
   });
 
+  dragLayer.style.pointerEvents = visibleSorted.length ? 'auto' : 'none';
   bindHandleDrag();
 }
 
-/* ── Drag des handles dans le canvas ───────────────────────── */
+/* ── Drag des overlays dans le canvas ────────────────────────── */
 let _dragging = null;
 let _dragStart = null;
 
 function bindHandleDrag() {
-  document.querySelectorAll('.sc-handle').forEach(handle => {
-    handle.addEventListener('mousedown', e => {
-      _dragging  = handle.dataset.id;
+  document.querySelectorAll('.sc-drag-overlay').forEach(overlay => {
+    overlay.addEventListener('mousedown', e => {
+      _dragging = overlay.dataset.id;
       const layer = superLocal.layers.find(l => l.id === _dragging);
       if (!layer) return;
       _dragStart = { mx: e.clientX, my: e.clientY, lx: layer.x, ly: layer.y };
+      overlay.classList.add('sc-dragging');
       e.preventDefault();
       e.stopPropagation();
     });
@@ -4612,17 +4618,17 @@ document.addEventListener('mousemove', e => {
   layer.x  = Math.round(_dragStart.lx + dx);
   layer.y  = Math.round(_dragStart.ly + dy);
 
-  /* Déplacer le handle */
-  const handle = document.getElementById('sc-handle-' + _dragging);
-  if (handle) {
-    handle.style.left = (layer.x * studioScale + 6) + 'px';
-    handle.style.top  = (layer.y * studioScale + 6) + 'px';
+  /* Déplacer l'overlay drag */
+  const overlay = document.getElementById('sc-overlay-' + _dragging);
+  if (overlay) {
+    overlay.style.left = (layer.x * studioScale) + 'px';
+    overlay.style.top  = (layer.y * studioScale) + 'px';
   }
-  /* Déplacer l'iframe dans le canvas */
+  /* Déplacer l'iframe */
   const wrap = document.getElementById('sc-wrap-' + _dragging);
   if (wrap) { wrap.style.left = layer.x + 'px'; wrap.style.top = layer.y + 'px'; }
 
-  /* Sync les inputs */
+  /* Sync les inputs X/Y */
   const xi = document.querySelector(`.sc-x-input[data-id="${_dragging}"]`);
   const yi = document.querySelector(`.sc-y-input[data-id="${_dragging}"]`);
   if (xi) xi.value = layer.x;
@@ -4630,7 +4636,13 @@ document.addEventListener('mousemove', e => {
 });
 
 document.addEventListener('mouseup', () => {
-  if (_dragging) { superSend(); _dragging = null; _dragStart = null; }
+  if (_dragging) {
+    const overlay = document.getElementById('sc-overlay-' + _dragging);
+    if (overlay) overlay.classList.remove('sc-dragging');
+    superSend();
+    _dragging  = null;
+    _dragStart = null;
+  }
 });
 
 /* ── Contrôles par calque visible ──────────────────────────── */

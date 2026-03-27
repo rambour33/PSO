@@ -94,7 +94,7 @@ function addMessage({ displayName, color, badges, emotes, message, isAction }) {
     : `<span class="chat-text">${text}</span>`;
 
   el.innerHTML = `${buildBadgesHtml(badges)}<span class="chat-author" style="color:${col}">${escapeHtml(displayName || '?')}</span><span class="chat-colon">:</span>${msgHtml}`;
-  msgList.appendChild(el);
+  msgList.prepend(el);
   trimMessages();
 }
 
@@ -102,13 +102,13 @@ function addNotice(text) {
   const el = document.createElement('div');
   el.className = 'chat-notice';
   el.textContent = text;
-  msgList.appendChild(el);
+  msgList.prepend(el);
   trimMessages();
 }
 
 function trimMessages() {
   const max = chatState.maxMessages || 15;
-  while (msgList.children.length > max) msgList.firstChild.remove();
+  while (msgList.children.length > max) msgList.lastChild.remove();
 }
 
 /* ── Apply state from server ─────────────────────────────────── */
