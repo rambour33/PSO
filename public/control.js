@@ -5021,3 +5021,179 @@ if (typeof socket !== 'undefined') {
     fetch('/api/twitch-alerts/test-bits', { method: 'POST' }).catch(() => {});
   });
 })();
+
+/* ═══════════════════════════════════════════════════════════════
+   YOUTUBE CHAT CONTROL
+═══════════════════════════════════════════════════════════════ */
+
+(function () {
+  // Mettre à jour l'URL overlay avec le bon host
+  const urlInput = document.getElementById('yt-overlay-url');
+  if (urlInput) urlInput.value = window.location.origin + '/youtube-chat';
+
+  // Copier URL
+  document.getElementById('btn-copy-yt-url')?.addEventListener('click', () => {
+    const input = document.getElementById('yt-overlay-url');
+    if (!input) return;
+    navigator.clipboard.writeText(input.value)
+      .then(() => setStatus('URL YouTube Chat copiée'))
+      .catch(() => { input.select(); document.execCommand('copy'); setStatus('URL YouTube Chat copiée'); });
+  });
+
+  // Sync slider ↔ display label
+  function syncSliderDisplay(rangeId, displayId) {
+    const range = document.getElementById(rangeId);
+    const disp  = document.getElementById(displayId);
+    if (!range || !disp) return;
+    range.addEventListener('input', () => { disp.textContent = range.value; });
+  }
+  syncSliderDisplay('yt-max-msg', 'yt-max-msg-val');
+  syncSliderDisplay('yt-width',   'yt-width-val');
+  syncSliderDisplay('yt-maxh',    'yt-maxh-val');
+
+  // Sync pos slider ↔ number input
+  function syncSN(rangeId, numId) {
+    const r = document.getElementById(rangeId);
+    const n = document.getElementById(numId);
+    if (!r || !n) return;
+    r.addEventListener('input', () => { n.value = r.value; });
+    n.addEventListener('input', () => { r.value = n.value; });
+  }
+  syncSN('yt-pos-x', 'yt-pos-x-num');
+  syncSN('yt-pos-y', 'yt-pos-y-num');
+
+  function collectYtState(extra) {
+    return {
+      channelId:       (document.getElementById('yt-channel-id')?.value || '').trim(),
+      maxMessages:     parseInt(document.getElementById('yt-max-msg')?.value) || 15,
+      width:           parseInt(document.getElementById('yt-width')?.value) || 360,
+      maxHeight:       parseInt(document.getElementById('yt-maxh')?.value) || 600,
+      x:               parseInt(document.getElementById('yt-pos-x')?.value) || 0,
+      y:               parseInt(document.getElementById('yt-pos-y')?.value) || 0,
+      transparentMode: !!document.getElementById('yt-transparent-toggle')?.checked,
+      ...extra,
+    };
+  }
+
+  function postYtState(extra) {
+    return fetch('/api/youtube-chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(collectYtState(extra)),
+    }).then(r => r.json());
+  }
+
+  // Update connection status UI
+  function updateYtConnStatus(s) {
+    const dot   = document.getElementById('yt-conn-dot');
+    const label = document.getElementById('yt-conn-label');
+    if (!dot || !label) return;
+    if (s.connected) {
+      dot.style.background = '#FF0000';
+      dot.style.boxShadow  = '0 0 6px #FF0000';
+      label.textContent    = 'Connecté au live';
+      label.style.color    = '#FF0000';
+    } else if (s.error) {
+      dot.style.background = '#e74c3c';
+      dot.style.boxShadow  = 'none';
+      label.textContent    = 'Erreur : ' + s.error;
+      label.style.color    = '#e74c3c';
+      const statusEl = document.getElementById('yt-status');
+      if (statusEl) statusEl.textContent = s.error;
+    } else {
+      dot.style.background = '#555';
+      dot.style.boxShadow  = 'none';
+      label.textContent    = 'Déconnecté';
+      label.style.color    = 'var(--text-muted)';
+    }
+  }
+
+  // Load initial state
+  fetch('/api/youtube-chat')
+    .then(r => r.json())
+    .then(s => {
+      const chEl    = document.getElementById('yt-channel-id');
+      const wR      = document.getElementById('yt-width');
+      const wD      = document.getElementById('yt-width-val');
+      const mhR     = document.getElementById('yt-maxh');
+      const mhD     = document.getElementById('yt-maxh-val');
+      const mmR     = document.getElementById('yt-max-msg');
+      const mmD     = document.getElementById('yt-max-msg-val');
+      const xR      = document.getElementById('yt-pos-x');
+      const xN      = document.getElementById('yt-pos-x-num');
+      const yR      = document.getElementById('yt-pos-y');
+      const yN      = document.getElementById('yt-pos-y-num');
+      const tToggle = document.getElementById('yt-transparent-toggle');
+
+      if (chEl)  chEl.value  = s.channelId || '';
+      if (wR)  { wR.value  = s.width     || 360; if (wD)  wD.textContent  = wR.value; }
+      if (mhR) { mhR.value = s.maxHeight || 600; if (mhD) mhD.textContent = mhR.value; }
+      if (mmR) { mmR.value = s.maxMessages || 15; if (mmD) mmD.textContent = mmR.value; }
+      if (xR)  { xR.value  = s.x || 0;  if (xN)  xN.value = s.x || 0; }
+      if (yR)  { yR.value  = s.y || 0;  if (yN)  yN.value = s.y || 0; }
+      if (tToggle) tToggle.checked = !!s.transparentMode;
+      if (s.hasApiKey) {
+        const apiStatusEl = document.getElementById('yt-api-status');
+        if (apiStatusEl) apiStatusEl.textContent = '✓ Clé API enregistrée';
+      }
+      updateYtConnStatus(s);
+    })
+    .catch(() => {});
+
+  // Save API key + channel ID
+  document.getElementById('yt-save-btn')?.addEventListener('click', () => {
+    const apiKey    = document.getElementById('yt-api-key')?.value || '';
+    const channelId = (document.getElementById('yt-channel-id')?.value || '').trim();
+    fetch('/api/youtube-chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ apiKey, channelId }),
+    })
+      .then(r => r.json())
+      .then(s => {
+        const apiStatusEl = document.getElementById('yt-api-status');
+        if (apiStatusEl) apiStatusEl.textContent = s.hasApiKey ? '✓ Clé API enregistrée' : '';
+        setStatus('Config YouTube sauvegardée');
+        const keyInput = document.getElementById('yt-api-key');
+        if (keyInput) keyInput.value = '';
+      })
+      .catch(e => setStatus('Erreur : ' + e.message));
+  });
+
+  // Connect to live
+  document.getElementById('yt-connect-btn')?.addEventListener('click', () => {
+    const chanId = (document.getElementById('yt-channel-id')?.value || '').trim();
+    if (!chanId) { document.getElementById('yt-status').textContent = 'Entrez un Channel ID.'; return; }
+    const statusEl = document.getElementById('yt-status');
+    if (statusEl) statusEl.textContent = 'Connexion en cours…';
+    postYtState({ visible: true }).catch(() => {});
+  });
+
+  // Hide
+  document.getElementById('yt-hide-btn')?.addEventListener('click', () => {
+    postYtState({ visible: false }).then(s => {
+      const statusEl = document.getElementById('yt-status');
+      if (statusEl) statusEl.textContent = 'Chat masqué.';
+      updateYtConnStatus(s);
+    });
+  });
+
+  // Apply position
+  document.getElementById('yt-pos-apply-btn')?.addEventListener('click', () => {
+    postYtState({}).then(() => {
+      const statusEl = document.getElementById('yt-status');
+      if (statusEl) statusEl.textContent = 'Position appliquée.';
+    });
+  });
+
+  // Live update on display slider changes
+  ['yt-width','yt-maxh','yt-max-msg'].forEach(id => {
+    document.getElementById(id)?.addEventListener('change', () => postYtState({}));
+  });
+  document.getElementById('yt-transparent-toggle')?.addEventListener('change', () => postYtState({}));
+
+  // Socket: connexion status
+  if (typeof socket !== 'undefined') {
+    socket.on('youtubeChatUpdate', updateYtConnStatus);
+  }
+})();
