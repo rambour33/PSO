@@ -912,6 +912,186 @@ app.post('/api/twitch-chat', (req, res) => {
   res.json(twitchChatState);
 });
 
+// ─────────────────────────────────────────────────────────────────────────────
+// ── YouTube Chat ──────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+
+let youtubeChatState = {
+  visible:        false,
+  channelId:      '',
+  liveChatId:     null,
+  connected:      false,
+  maxMessages:    15,
+  x:              0,
+  y:              0,
+  width:          360,
+  maxHeight:      600,
+  transparentMode: false,
+};
+
+(function () {
+  const cfg = getConfig();
+  youtubeChatState.channelId = cfg.youtubeChannelId || '';
+})();
+
+let _ytPollTimer   = null;
+let _ytNextToken   = null;
+
+async function ytFindLiveChatId() {
+  const cfg = getConfig();
+  const apiKey    = cfg.youtubeApiKey || '';
+  const channelId = youtubeChatState.channelId;
+  if (!channelId || !apiKey) throw new Error('Channel ID et clé API requis');
+
+  const searchRes  = await fetch(
+    `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${encodeURIComponent(channelId)}&eventType=live&type=video&key=${encodeURIComponent(apiKey)}`
+  );
+  const searchData = await searchRes.json();
+  if (searchData.error) throw new Error(searchData.error.message);
+  const items = searchData.items || [];
+  if (!items.length) throw new Error('Aucun live en cours sur cette chaîne');
+
+  const videoId   = items[0].id.videoId;
+  const videoRes  = await fetch(
+    `https://www.googleapis.com/youtube/v3/videos?part=liveStreamingDetails&id=${encodeURIComponent(videoId)}&key=${encodeURIComponent(apiKey)}`
+  );
+  const videoData = await videoRes.json();
+  if (videoData.error) throw new Error(videoData.error.message);
+  const liveChatId = (videoData.items || [])[0]?.liveStreamingDetails?.activeLiveChatId;
+  if (!liveChatId) throw new Error('Impossible d\'obtenir le liveChatId');
+  return liveChatId;
+}
+
+async function ytPollMessages() {
+  const cfg     = getConfig();
+  const apiKey  = cfg.youtubeApiKey || '';
+  const { liveChatId } = youtubeChatState;
+  if (!liveChatId || !apiKey) return;
+
+  try {
+    let url = `https://www.googleapis.com/youtube/v3/liveChat/messages?liveChatId=${encodeURIComponent(liveChatId)}&part=snippet,authorDetails&maxResults=200&key=${encodeURIComponent(apiKey)}`;
+    if (_ytNextToken) url += `&pageToken=${encodeURIComponent(_ytNextToken)}`;
+
+    const res  = await fetch(url);
+    const data = await res.json();
+
+    if (data.error) {
+      console.error('[YouTube] Erreur polling:', data.error.message);
+      youtubeChatState.connected = false;
+      io.emit('youtubeChatUpdate', youtubeChatState);
+      return;
+    }
+
+    _ytNextToken = data.nextPageToken || null;
+
+    for (const item of (data.items || [])) {
+      const { snippet, authorDetails } = item;
+      if (!snippet || !authorDetails) continue;
+
+      if (snippet.type === 'textMessageEvent') {
+        io.emit('youtubeChatMessage', {
+          displayName:  authorDetails.displayName,
+          profileImage: authorDetails.profileImageUrl,
+          isOwner:      !!authorDetails.isChatOwner,
+          isModerator:  !!authorDetails.isChatModerator,
+          isMember:     !!authorDetails.isChatSponsor,
+          message:      snippet.textMessageDetails?.messageText || '',
+        });
+      } else if (snippet.type === 'superChatEvent') {
+        io.emit('youtubeChatMessage', {
+          displayName:  authorDetails.displayName,
+          profileImage: authorDetails.profileImageUrl,
+          isOwner:      !!authorDetails.isChatOwner,
+          isModerator:  !!authorDetails.isChatModerator,
+          isMember:     !!authorDetails.isChatSponsor,
+          message:      snippet.superChatDetails?.userComment || '',
+          superChat: {
+            amount: snippet.superChatDetails?.amountDisplayString || '',
+            tier:   snippet.superChatDetails?.tier || 1,
+          },
+        });
+      } else if (snippet.type === 'memberMilestoneChatEvent') {
+        io.emit('youtubeChatNotice', {
+          text: `🏅 ${authorDetails.displayName} — ${snippet.memberMilestoneChatDetails?.memberMonth || ''} mois de membership !`,
+        });
+      } else if (snippet.type === 'newSponsorEvent') {
+        io.emit('youtubeChatNotice', {
+          text: `⭐ ${authorDetails.displayName} vient de rejoindre les membres !`,
+        });
+      }
+    }
+
+    const pollMs = Math.max(data.pollingIntervalMillis || 5000, 3000);
+    _ytPollTimer = setTimeout(ytPollMessages, pollMs);
+  } catch (e) {
+    console.error('[YouTube] Erreur poll:', e.message);
+    _ytPollTimer = setTimeout(ytPollMessages, 10000);
+  }
+}
+
+async function ytConnect() {
+  ytDisconnect();
+  try {
+    const liveChatId = await ytFindLiveChatId();
+    youtubeChatState.liveChatId = liveChatId;
+    youtubeChatState.connected  = true;
+    _ytNextToken = null;
+    io.emit('youtubeChatUpdate', youtubeChatState);
+    ytPollMessages();
+  } catch (e) {
+    console.error('[YouTube] Connexion échouée:', e.message);
+    youtubeChatState.connected  = false;
+    youtubeChatState.liveChatId = null;
+    io.emit('youtubeChatUpdate', { ...youtubeChatState, error: e.message });
+  }
+}
+
+function ytDisconnect() {
+  if (_ytPollTimer) { clearTimeout(_ytPollTimer); _ytPollTimer = null; }
+  youtubeChatState.connected  = false;
+  youtubeChatState.liveChatId = null;
+  _ytNextToken = null;
+}
+
+app.get('/api/youtube-chat', (req, res) => {
+  const cfg = getConfig();
+  res.json({ ...youtubeChatState, hasApiKey: !!cfg.youtubeApiKey });
+});
+
+app.post('/api/youtube-chat', (req, res) => {
+  const prevChannel = youtubeChatState.channelId;
+  const prevVisible = youtubeChatState.visible;
+
+  const { apiKey, channelId, ...rest } = req.body;
+
+  const cfg = getConfig();
+  if (apiKey && apiKey !== '••••') {
+    cfg.youtubeApiKey = apiKey;
+    saveConfig(cfg);
+  }
+  if (channelId !== undefined) {
+    youtubeChatState.channelId = channelId;
+    cfg.youtubeChannelId = channelId;
+    saveConfig(cfg);
+  }
+  youtubeChatState = { ...youtubeChatState, ...rest };
+
+  const shouldConnect = youtubeChatState.visible &&
+    (youtubeChatState.channelId !== prevChannel || !prevVisible || !youtubeChatState.connected);
+  const hasCredentials = youtubeChatState.channelId && cfg.youtubeApiKey;
+
+  if (youtubeChatState.visible && hasCredentials && shouldConnect) {
+    ytConnect();
+  } else if (!youtubeChatState.visible) {
+    ytDisconnect();
+    io.emit('youtubeChatUpdate', youtubeChatState);
+  } else {
+    io.emit('youtubeChatUpdate', youtubeChatState);
+  }
+
+  res.json({ ...youtubeChatState, hasApiKey: !!cfg.youtubeApiKey });
+});
+
 // ── Twitch Alerts ─────────────────────────────────────────────────────────────
 
 app.get('/api/twitch-alerts', (req, res) => res.json(twitchAlertsState));
