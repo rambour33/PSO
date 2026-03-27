@@ -4930,3 +4930,94 @@ if (typeof socket !== 'undefined') {
   });
   document.getElementById('chat-transparent-toggle')?.addEventListener('change', () => postChatState({}));
 })();
+
+/* ═══════════════════════════════════════════════════════════════
+   TWITCH ALERTS CONTROL
+═══════════════════════════════════════════════════════════════ */
+
+(function () {
+  // Mettre à jour l'URL avec le bon host
+  const urlInput = document.getElementById('alerts-overlay-url');
+  if (urlInput) urlInput.value = window.location.origin + '/twitch-alerts';
+
+  // Copier URL
+  document.getElementById('btn-copy-alerts-url')?.addEventListener('click', () => {
+    const input = document.getElementById('alerts-overlay-url');
+    if (!input) return;
+    navigator.clipboard.writeText(input.value)
+      .then(() => setStatus('URL alertes copiée'))
+      .catch(() => { input.select(); document.execCommand('copy'); setStatus('URL alertes copiée'); });
+  });
+
+  // Sync slider ↔ number
+  function syncSN(rangeId, numId) {
+    const r = document.getElementById(rangeId);
+    const n = document.getElementById(numId);
+    if (!r || !n) return;
+    r.addEventListener('input', () => { n.value = r.value; });
+    n.addEventListener('input', () => { r.value = n.value; });
+  }
+  syncSN('alerts-bits-min', 'alerts-bits-min-num');
+  syncSN('alerts-duration',  'alerts-duration-num');
+
+  function collectState() {
+    return {
+      subsEnabled:   !!document.getElementById('alerts-subs-enabled')?.checked,
+      bitsEnabled:   !!document.getElementById('alerts-bits-enabled')?.checked,
+      bitsMinAmount: parseInt(document.getElementById('alerts-bits-min')?.value || '1', 10),
+      duration:      parseInt(document.getElementById('alerts-duration')?.value  || '6', 10) * 1000,
+      position:      document.getElementById('alerts-position')?.value || 'bottom-right',
+    };
+  }
+
+  let _debounce = null;
+  function sendAlertsState() {
+    clearTimeout(_debounce);
+    _debounce = setTimeout(() => {
+      fetch('/api/twitch-alerts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(collectState()),
+      }).catch(() => {});
+    }, 150);
+  }
+
+  // Load state
+  fetch('/api/twitch-alerts')
+    .then(r => r.json())
+    .then(s => {
+      const subsEl    = document.getElementById('alerts-subs-enabled');
+      const bitsEl    = document.getElementById('alerts-bits-enabled');
+      const minR      = document.getElementById('alerts-bits-min');
+      const minN      = document.getElementById('alerts-bits-min-num');
+      const durR      = document.getElementById('alerts-duration');
+      const durN      = document.getElementById('alerts-duration-num');
+      const posEl     = document.getElementById('alerts-position');
+
+      if (subsEl) subsEl.checked = !!s.subsEnabled;
+      if (bitsEl) bitsEl.checked = !!s.bitsEnabled;
+      if (minR)   minR.value = s.bitsMinAmount ?? 1;
+      if (minN)   minN.value = s.bitsMinAmount ?? 1;
+      const durSec = Math.round((s.duration || 6000) / 1000);
+      if (durR)   durR.value = durSec;
+      if (durN)   durN.value = durSec;
+      if (posEl)  posEl.value = s.position || 'bottom-right';
+    })
+    .catch(() => {});
+
+  // Live update on any change
+  ['alerts-subs-enabled','alerts-bits-enabled','alerts-position'].forEach(id => {
+    document.getElementById(id)?.addEventListener('change', sendAlertsState);
+  });
+  ['alerts-bits-min','alerts-bits-min-num','alerts-duration','alerts-duration-num'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', sendAlertsState);
+  });
+
+  // Test buttons
+  document.getElementById('btn-alerts-test-sub')?.addEventListener('click', () => {
+    fetch('/api/twitch-alerts/test-sub', { method: 'POST' }).catch(() => {});
+  });
+  document.getElementById('btn-alerts-test-bits')?.addEventListener('click', () => {
+    fetch('/api/twitch-alerts/test-bits', { method: 'POST' }).catch(() => {});
+  });
+})();
