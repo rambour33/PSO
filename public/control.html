@@ -54,6 +54,7 @@
     <button class="tab-btn" data-tab="frames">Cadres</button>
     <button class="tab-btn" data-tab="cam">Cam</button>
     <button class="tab-btn" data-tab="studio">Studio</button>
+    <button class="tab-btn" data-tab="youtube">YouTube</button>
   </nav>
 
   <!-- ═══════════════════════════════════════════════════════════ -->
@@ -2062,6 +2063,88 @@
       </div>
     </section>
 
+    <!-- Alertes Twitch -->
+    <section class="section">
+      <div class="section-header">
+        <h2>Alertes Twitch</h2>
+        <a href="/twitch-alerts" target="_blank" class="btn btn-outline btn-sm">Overlay ↗</a>
+      </div>
+
+      <div class="custom-card">
+        <h3>Utilisation dans OBS</h3>
+        <p style="font-size:13px;color:var(--text-muted);margin-bottom:12px;line-height:1.6;">
+          Ajoute une <strong>Source Navigateur</strong> dans OBS avec l'URL ci-dessous.<br>
+          Résolution : <strong>1920 × 1080</strong> · Fond transparent activé.
+        </p>
+        <div class="name-row" style="gap:8px;">
+          <input type="text" id="alerts-overlay-url" readonly
+            style="flex:1;font-size:12px;background:var(--surface2);border:1px solid var(--border);color:var(--text-muted);"
+            value="http://localhost:3002/twitch-alerts" />
+          <button class="btn btn-primary btn-sm" id="btn-copy-alerts-url">Copier</button>
+        </div>
+      </div>
+
+      <div class="custom-grid">
+
+        <!-- Abonnements -->
+        <div class="custom-card">
+          <h3>Abonnements</h3>
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+            <input type="checkbox" id="alerts-subs-enabled" checked />
+            <label for="alerts-subs-enabled" style="font-size:13px;cursor:pointer;">Alertes abonnements activées</label>
+          </div>
+          <p style="font-size:12px;color:var(--text-muted);line-height:1.5;">
+            Déclenche une alerte pour les nouveaux abonnés, réabonnements et abonnements offerts.
+          </p>
+          <button class="btn btn-outline btn-sm" id="btn-alerts-test-sub" style="margin-top:12px;width:100%;">
+            ▶ Tester alerte abonnement
+          </button>
+        </div>
+
+        <!-- Bits -->
+        <div class="custom-card">
+          <h3>Bits (Donations)</h3>
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+            <input type="checkbox" id="alerts-bits-enabled" checked />
+            <label for="alerts-bits-enabled" style="font-size:13px;cursor:pointer;">Alertes bits activées</label>
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label>Minimum de bits pour l'alerte</label>
+            <div class="logo-particles-row">
+              <input type="range" id="alerts-bits-min" min="1" max="1000" step="1" value="1" />
+              <input type="number" id="alerts-bits-min-num" min="1" max="10000" value="1" style="width:70px;" />
+            </div>
+          </div>
+          <button class="btn btn-outline btn-sm" id="btn-alerts-test-bits" style="margin-top:12px;width:100%;">
+            ▶ Tester alerte bits
+          </button>
+        </div>
+
+        <!-- Affichage -->
+        <div class="custom-card">
+          <h3>Affichage</h3>
+          <div class="form-group" style="margin-bottom:14px;">
+            <label>Durée de l'alerte <span class="hint">secondes</span></label>
+            <div class="logo-particles-row">
+              <input type="range" id="alerts-duration" min="2" max="15" step="1" value="6" />
+              <input type="number" id="alerts-duration-num" min="2" max="15" value="6" style="width:60px;" />
+            </div>
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label>Position sur l'overlay</label>
+            <select id="alerts-position" style="width:100%;padding:6px 8px;background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:4px;font-size:13px;">
+              <option value="bottom-right">Bas droite</option>
+              <option value="bottom-left">Bas gauche</option>
+              <option value="top-right">Haut droite</option>
+              <option value="top-left">Haut gauche</option>
+              <option value="center">Centre</option>
+            </select>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
   </div><!-- /tab-twitch -->
 
   <!-- ═══════════════════════════════════════════════════════════ -->
@@ -2834,6 +2917,130 @@
 
     </section>
   </div><!-- /tab-ticker -->
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- TAB : YOUTUBE                                               -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <div class="tab-content" id="tab-youtube">
+
+    <!-- Chat YouTube -->
+    <section class="section">
+      <div class="section-header">
+        <h2>Chat YouTube</h2>
+        <a href="/youtube-chat" target="_blank" class="btn btn-outline btn-sm">Overlay ↗</a>
+      </div>
+
+      <!-- API Config -->
+      <div class="custom-card">
+        <h3>Configuration API</h3>
+        <p style="font-size:13px;color:var(--text-muted);margin-bottom:14px;line-height:1.6;">
+          Crée une clé API sur <a href="https://console.cloud.google.com/apis/credentials" target="_blank" style="color:var(--accent)">Google Cloud Console ↗</a>
+          en activant l'<strong>API YouTube Data v3</strong>.<br>
+          L'overlay ne lira que le chat d'un <strong>live en cours</strong> sur la chaîne indiquée.
+        </p>
+        <div class="form-group" style="margin-bottom:12px;">
+          <label>Clé API YouTube Data v3</label>
+          <input type="password" id="yt-api-key" placeholder="AIza••••••••••••••••••••••••••••••" />
+          <small style="color:var(--text-muted);font-size:11px;">Laisse vide pour conserver la clé enregistrée</small>
+        </div>
+        <div class="form-group" style="margin-bottom:14px;">
+          <label>Channel ID <span class="hint">ex : UCxxxxxxxxxxxxxxxxxxxxxxxx</span></label>
+          <input type="text" id="yt-channel-id" placeholder="UCxxxxxxxxxxxxxxxxxxxxxxxx" />
+          <small style="color:var(--text-muted);font-size:11px;">
+            Trouve ton Channel ID sur <a href="https://www.youtube.com/account_advanced" target="_blank" style="color:var(--accent)">youtube.com/account_advanced ↗</a>
+          </small>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <button class="btn btn-primary btn-sm" id="yt-save-btn">Enregistrer</button>
+          <span id="yt-api-status" style="font-size:12px;color:var(--text-muted);"></span>
+        </div>
+      </div>
+
+      <!-- URL OBS -->
+      <div class="custom-card">
+        <h3>Utilisation dans OBS</h3>
+        <p style="font-size:13px;color:var(--text-muted);margin-bottom:12px;line-height:1.6;">
+          Ajoute une <strong>Source Navigateur</strong> dans OBS.<br>
+          Résolution : <strong>1920 × 1080</strong> · Fond transparent activé.
+        </p>
+        <div class="name-row" style="gap:8px;">
+          <input type="text" id="yt-overlay-url" readonly
+            style="flex:1;font-size:12px;background:var(--surface2);border:1px solid var(--border);color:var(--text-muted);"
+            value="http://localhost:3002/youtube-chat" />
+          <button class="btn btn-primary btn-sm" id="btn-copy-yt-url">Copier</button>
+        </div>
+      </div>
+
+      <div class="custom-grid">
+
+        <!-- Connexion -->
+        <div class="custom-card">
+          <h3>Connexion</h3>
+          <div id="yt-conn-status" style="margin-bottom:12px;padding:10px 14px;border-radius:6px;background:var(--surface2);border:1px solid var(--border);display:flex;align-items:center;gap:10px;">
+            <span id="yt-conn-dot" style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#555;flex-shrink:0;"></span>
+            <span id="yt-conn-label" style="font-size:13px;color:var(--text-muted);">Déconnecté</span>
+          </div>
+          <div style="display:flex;gap:6px;">
+            <button class="btn btn-primary btn-sm" id="yt-connect-btn" style="flex:1;">Connecter au live</button>
+            <button class="btn btn-outline btn-sm" id="yt-hide-btn" style="flex:1;">Masquer</button>
+          </div>
+          <p class="hint" id="yt-status" style="margin-top:6px;font-size:11px;"></p>
+        </div>
+
+        <!-- Affichage -->
+        <div class="custom-card">
+          <h3>Affichage</h3>
+          <div class="form-group">
+            <label>Nombre max de messages</label>
+            <div style="display:flex;gap:8px;align-items:center">
+              <input type="range" id="yt-max-msg" min="5" max="40" value="15" style="flex:1" />
+              <span id="yt-max-msg-val" style="min-width:24px;text-align:right">15</span>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Largeur (px)</label>
+            <div style="display:flex;gap:8px;align-items:center">
+              <input type="range" id="yt-width" min="260" max="600" step="10" value="360" style="flex:1" />
+              <span id="yt-width-val" style="min-width:36px;text-align:right">360</span>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Hauteur max (px)</label>
+            <div style="display:flex;gap:8px;align-items:center">
+              <input type="range" id="yt-maxh" min="200" max="900" step="10" value="600" style="flex:1" />
+              <span id="yt-maxh-val" style="min-width:36px;text-align:right">600</span>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;margin-top:8px;">
+            <input type="checkbox" id="yt-transparent-toggle" style="cursor:pointer" />
+            <label for="yt-transparent-toggle" style="font-size:12px;cursor:pointer">Mode transparent</label>
+          </div>
+        </div>
+
+        <!-- Position -->
+        <div class="custom-card">
+          <h3>Position sur l'overlay</h3>
+          <div class="form-group">
+            <label>Position X</label>
+            <div style="display:flex;gap:8px;align-items:center">
+              <input type="range" id="yt-pos-x" min="0" max="1560" step="10" value="0" style="flex:1" />
+              <input type="number" id="yt-pos-x-num" value="0" min="0" max="1560" style="width:60px" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Position Y</label>
+            <div style="display:flex;gap:8px;align-items:center">
+              <input type="range" id="yt-pos-y" min="0" max="980" step="10" value="0" style="flex:1" />
+              <input type="number" id="yt-pos-y-num" value="0" min="0" max="980" style="width:60px" />
+            </div>
+          </div>
+          <button class="btn btn-outline btn-sm" id="yt-pos-apply-btn" style="width:100%;margin-top:6px">Appliquer la position</button>
+        </div>
+
+      </div>
+    </section>
+
+  </div><!-- /tab-youtube -->
 
   <!-- FOOTER -->
   <footer class="footer">
