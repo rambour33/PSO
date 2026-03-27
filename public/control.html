@@ -2083,6 +2083,88 @@
       </div>
     </section>
 
+    <!-- Alertes Twitch -->
+    <section class="section">
+      <div class="section-header">
+        <h2>Alertes Twitch</h2>
+        <a href="/twitch-alerts" target="_blank" class="btn btn-outline btn-sm">Overlay ↗</a>
+      </div>
+
+      <div class="custom-card">
+        <h3>Utilisation dans OBS</h3>
+        <p style="font-size:13px;color:var(--text-muted);margin-bottom:12px;line-height:1.6;">
+          Ajoute une <strong>Source Navigateur</strong> dans OBS avec l'URL ci-dessous.<br>
+          Résolution : <strong>1920 × 1080</strong> · Fond transparent activé.
+        </p>
+        <div class="name-row" style="gap:8px;">
+          <input type="text" id="alerts-overlay-url" readonly
+            style="flex:1;font-size:12px;background:var(--surface2);border:1px solid var(--border);color:var(--text-muted);"
+            value="http://localhost:3002/twitch-alerts" />
+          <button class="btn btn-primary btn-sm" id="btn-copy-alerts-url">Copier</button>
+        </div>
+      </div>
+
+      <div class="custom-grid">
+
+        <!-- Abonnements -->
+        <div class="custom-card">
+          <h3>Abonnements</h3>
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+            <input type="checkbox" id="alerts-subs-enabled" checked />
+            <label for="alerts-subs-enabled" style="font-size:13px;cursor:pointer;">Alertes abonnements activées</label>
+          </div>
+          <p style="font-size:12px;color:var(--text-muted);line-height:1.5;">
+            Déclenche une alerte pour les nouveaux abonnés, réabonnements et abonnements offerts.
+          </p>
+          <button class="btn btn-outline btn-sm" id="btn-alerts-test-sub" style="margin-top:12px;width:100%;">
+            ▶ Tester alerte abonnement
+          </button>
+        </div>
+
+        <!-- Bits -->
+        <div class="custom-card">
+          <h3>Bits (Donations)</h3>
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+            <input type="checkbox" id="alerts-bits-enabled" checked />
+            <label for="alerts-bits-enabled" style="font-size:13px;cursor:pointer;">Alertes bits activées</label>
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label>Minimum de bits pour l'alerte</label>
+            <div class="logo-particles-row">
+              <input type="range" id="alerts-bits-min" min="1" max="1000" step="1" value="1" />
+              <input type="number" id="alerts-bits-min-num" min="1" max="10000" value="1" style="width:70px;" />
+            </div>
+          </div>
+          <button class="btn btn-outline btn-sm" id="btn-alerts-test-bits" style="margin-top:12px;width:100%;">
+            ▶ Tester alerte bits
+          </button>
+        </div>
+
+        <!-- Affichage -->
+        <div class="custom-card">
+          <h3>Affichage</h3>
+          <div class="form-group" style="margin-bottom:14px;">
+            <label>Durée de l'alerte <span class="hint">secondes</span></label>
+            <div class="logo-particles-row">
+              <input type="range" id="alerts-duration" min="2" max="15" step="1" value="6" />
+              <input type="number" id="alerts-duration-num" min="2" max="15" value="6" style="width:60px;" />
+            </div>
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label>Position sur l'overlay</label>
+            <select id="alerts-position" style="width:100%;padding:6px 8px;background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:4px;font-size:13px;">
+              <option value="bottom-right">Bas droite</option>
+              <option value="bottom-left">Bas gauche</option>
+              <option value="top-right">Haut droite</option>
+              <option value="top-left">Haut gauche</option>
+              <option value="center">Centre</option>
+            </select>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
   </div><!-- /tab-twitch -->
 
   <!-- ═══════════════════════════════════════════════════════════ -->

@@ -204,6 +204,20 @@ let twitchChatState = {
   transparentMode: false,
 };
 
+let twitchAlertsState = {
+  subsEnabled: true,
+  bitsEnabled: true,
+  bitsMinAmount: 1,
+  duration: 6000,
+  position: 'bottom-right',
+};
+
+(function () {
+  const cfg = getConfig();
+  const saved = cfg.twitchAlerts || {};
+  twitchAlertsState = { ...twitchAlertsState, ...saved };
+})();
+
 let playerStatsState = {
   visible: false,
   playerName: '',
@@ -835,6 +849,16 @@ function ircHandleLine(line) {
       message,
       isAction,
     });
+
+    const bitsAmount = parseInt(tags['bits'] || '0', 10);
+    if (bitsAmount > 0 && twitchAlertsState.bitsEnabled && bitsAmount >= (twitchAlertsState.bitsMinAmount || 1)) {
+      io.emit('twitchBitsAlert', {
+        username: tags['display-name'] || username,
+        amount:   bitsAmount,
+        message,
+        color:    tags['color'] || null,
+      });
+    }
   }
 
   if (command === 'USERNOTICE') {
@@ -846,9 +870,26 @@ function ircHandleLine(line) {
     if (msgId === 'sub' || msgId === 'resub') {
       const months = tags['msg-param-cumulative-months'] || '';
       text = `⭐ ${login} est abonné${months ? ` depuis ${months} mois` : ''} !${notice ? '  ' + notice : ''}`;
+      if (twitchAlertsState.subsEnabled) {
+        io.emit('twitchSubAlert', {
+          type:     msgId,
+          username: login,
+          months:   parseInt(months || '0', 10),
+          tier:     tags['msg-param-sub-plan'] || '1000',
+          message:  notice,
+        });
+      }
     } else if (msgId === 'subgift') {
       const recipient = tags['msg-param-recipient-display-name'] || tags['msg-param-recipient-user-name'] || '';
       text = `🎁 ${login} offre un abonnement à ${recipient} !`;
+      if (twitchAlertsState.subsEnabled) {
+        io.emit('twitchSubAlert', {
+          type:      'subgift',
+          username:  login,
+          recipient,
+          tier:      tags['msg-param-sub-plan'] || '1000',
+        });
+      }
     } else if (msgId === 'raid') {
       const viewers = tags['msg-param-viewerCount'] || '';
       text = `🚀 ${login} raid avec ${viewers} viewers !`;
@@ -869,6 +910,40 @@ app.post('/api/twitch-chat', (req, res) => {
   }
   io.emit('twitchChatUpdate', twitchChatState);
   res.json(twitchChatState);
+});
+
+// ── Twitch Alerts ─────────────────────────────────────────────────────────────
+
+app.get('/api/twitch-alerts', (req, res) => res.json(twitchAlertsState));
+
+app.post('/api/twitch-alerts', (req, res) => {
+  twitchAlertsState = { ...twitchAlertsState, ...req.body };
+  const cfg = getConfig();
+  cfg.twitchAlerts = twitchAlertsState;
+  saveConfig(cfg);
+  io.emit('twitchAlertsUpdate', twitchAlertsState);
+  res.json(twitchAlertsState);
+});
+
+app.post('/api/twitch-alerts/test-sub', (req, res) => {
+  io.emit('twitchSubAlert', {
+    type: 'sub',
+    username: 'TestUser',
+    months: 3,
+    tier: '1000',
+    message: 'PogChamp content d\'être là !',
+  });
+  res.json({ ok: true });
+});
+
+app.post('/api/twitch-alerts/test-bits', (req, res) => {
+  io.emit('twitchBitsAlert', {
+    username: 'TestUser',
+    amount: 200,
+    message: 'Cheer200 Super stream !',
+    color: '#9147ff',
+  });
+  res.json({ ok: true });
 });
 
 app.get('/api/casters', (req, res) => res.json(castersState));
