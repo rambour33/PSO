@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>YouTube Chat Overlay</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="youtube-chat.css" />
+</head>
+<body>
+  <div class="yt-overlay hidden" id="yt-overlay">
+    <div class="yt-header">
+      <svg class="yt-logo" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M23.495 6.205a3.007 3.007 0 0 0-2.088-2.088c-1.87-.501-9.396-.501-9.396-.501s-7.507-.01-9.396.501A3.007 3.007 0 0 0 .527 6.205a31.247 31.247 0 0 0-.522 5.805 31.247 31.247 0 0 0 .522 5.783 3.007 3.007 0 0 0 2.088 2.088c1.868.502 9.396.502 9.396.502s7.506 0 9.396-.502a3.007 3.007 0 0 0 2.088-2.088 31.247 31.247 0 0 0 .5-5.783 31.247 31.247 0 0 0-.5-5.805zM9.609 15.601V8.408l6.264 3.602z"/>
+      </svg>
+      <span class="yt-channel-name" id="yt-channel-name">—</span>
+      <span class="yt-live-dot" id="yt-live-dot" title="Déconnecté"></span>
+    </div>
+    <div class="yt-messages" id="yt-messages"></div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="youtube-chat.js"></script>
+</body>
+</html>
