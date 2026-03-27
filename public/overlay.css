@@ -2794,7 +2794,7 @@ body {
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   TRANSPARENT THEME  (basé sur la disposition Slim)
+   TRANSPARENT THEME  — rangée flex, jamais de chevauchement
    ═══════════════════════════════════════════════════════════════ */
 
 #scoreboard.theme-transparent {
@@ -2809,7 +2809,7 @@ body {
   align-items: flex-start;
 }
 
-/* Masquer la disposition full et tous les éléments de chrome */
+/* Masquer la disposition full et les éléments de chrome */
 #scoreboard.theme-transparent .full-layout,
 #scoreboard.theme-transparent #theme-logo-bg,
 #scoreboard.theme-transparent #particle-canvas,
@@ -2818,7 +2818,7 @@ body {
   display: none !important;
 }
 
-/* ── Barre événement — transparente, positionnée librement ───── */
+/* ── Barre événement — positionnée librement ─────────────────── */
 
 #scoreboard.theme-transparent .event-bar {
   display: flex !important;
@@ -2832,13 +2832,7 @@ body {
   text-shadow: 0 2px 10px rgba(0,0,0,1), 0 0 4px rgba(0,0,0,1);
 }
 
-/* Supprimer les stries animées */
-#scoreboard.theme-transparent .slim-bar::before {
-  display: none !important;
-  animation: none !important;
-}
-
-/* ── Slim layout — canvas complet ────────────────────────────── */
+/* ── Slim layout — flex row, jamais de chevauchement ─────────── */
 
 #scoreboard.theme-transparent .slim-layout {
   display: block !important;
@@ -2848,68 +2842,80 @@ body {
 
 #scoreboard.theme-transparent .slim-bar {
   position: absolute !important;
-  left: 0 !important; top: 0 !important;
-  width: 1920px !important; height: 1080px !important;
-  display: block !important;
+  left: 0 !important;
+  top: var(--tp-bar-y, 20px) !important;
+  width: 1920px !important;
+  height: auto !important;
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: space-between !important;
   background: transparent !important;
   border: none !important;
+  box-shadow: none !important;
+  padding: 0 20px !important;
+  box-sizing: border-box !important;
   overflow: visible !important;
+  gap: 16px !important;
 }
+
+#scoreboard.theme-transparent .slim-bar::before {
+  display: none !important;
+  animation: none !important;
+}
+
+/* ── Blocs joueurs — flex items qui ne se chevauchent jamais ─── */
 
 #scoreboard.theme-transparent #player1-block-slim,
 #scoreboard.theme-transparent #player2-block-slim {
-  position: absolute !important;
-  left: 0 !important; top: 0 !important;
-  width: 1920px !important; height: 1080px !important;
-  display: block !important;
+  position: static !important;
+  width: auto !important;
+  height: auto !important;
+  flex: 1 1 0 !important;
+  min-width: 0 !important;
+  display: flex !important;
+  align-items: center !important;
   background: transparent !important;
   border: none !important;
-  overflow: visible !important;
+  overflow: hidden !important;
   padding: 0 !important;
-  gap: 0 !important;
+  gap: 10px !important;
 }
 
-/* ── Icône de stock ──────────────────────────────────────────── */
-
-#scoreboard.theme-transparent #p1-stock-icon {
-  position: absolute !important;
-  left: var(--tp-p1-icon-x, 631px) !important;
-  top:  var(--tp-p1-icon-y, 28px)  !important;
-  width: 64px !important; height: 64px !important;
+#scoreboard.theme-transparent #player1-block-slim {
+  justify-content: flex-start !important;
 }
 
-#scoreboard.theme-transparent #p2-stock-icon {
-  position: absolute !important;
-  left: var(--tp-p2-icon-x, 1222px) !important;
-  top:  var(--tp-p2-icon-y, 28px)   !important;
-  width: 64px !important; height: 64px !important;
+#scoreboard.theme-transparent #player2-block-slim {
+  justify-content: flex-end !important;
 }
 
-/* ── Nom ─────────────────────────────────────────────────────── */
+/* ── Icônes de stock ─────────────────────────────────────────── */
 
-#scoreboard.theme-transparent #p1-name-slim {
-  position: absolute !important;
-  left: var(--tp-p1-name-x, 724px) !important;
-  top:  var(--tp-p1-name-y, 50px)  !important;
-  white-space: nowrap !important;
-  text-shadow: 0 2px 12px rgba(0,0,0,1), 0 0 4px rgba(0,0,0,1);
+#scoreboard.theme-transparent .slim-stock-icon {
+  position: static !important;
+  flex-shrink: 0 !important;
+  width: 64px !important;
+  height: 64px !important;
 }
 
+/* ── Noms (tag + nom) ────────────────────────────────────────── */
+
+#scoreboard.theme-transparent #p1-name-slim,
 #scoreboard.theme-transparent #p2-name-slim {
-  position: absolute !important;
-  left: var(--tp-p2-name-x, 1056px) !important;
-  top:  var(--tp-p2-name-y, 50px)   !important;
+  position: static !important;
   white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  min-width: 0 !important;
   text-shadow: 0 2px 12px rgba(0,0,0,1), 0 0 4px rgba(0,0,0,1);
 }
 
-/* ── Scores ──────────────────────────────────────────────────── */
+/* ── Scores — jamais réduits, toujours au centre ─────────────── */
 
 #scoreboard.theme-transparent .slim-scores {
-  position: absolute !important;
-  left:   var(--tp-score-x, 886px) !important;
-  top:    var(--tp-score-y, 28px)  !important;
-  flex: none !important;
+  position: static !important;
+  flex: 0 0 auto !important;
   background: transparent !important;
   border: none !important;
   box-shadow: none !important;

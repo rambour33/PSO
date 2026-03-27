@@ -3229,45 +3229,41 @@ document.addEventListener('keydown', (e) => {
 
 // ── Transparent theme — position inputs ──────────────────────
 (function() {
-  const TP_KEYS = [
-    { key: 'event',  xId: 'tp-event-x',  yId: 'tp-event-y'  },
-    { key: 'p1Icon', xId: 'tp-p1Icon-x', yId: 'tp-p1Icon-y' },
-    { key: 'p1Name', xId: 'tp-p1Name-x', yId: 'tp-p1Name-y' },
-    { key: 'score',  xId: 'tp-score-x',  yId: 'tp-score-y'  },
-    { key: 'p2Name', xId: 'tp-p2Name-x', yId: 'tp-p2Name-y' },
-    { key: 'p2Icon', xId: 'tp-p2Icon-x', yId: 'tp-p2Icon-y' },
-  ];
-
   function emitTpPositions() {
-    const positions = {};
-    TP_KEYS.forEach(({ key, xId, yId }) => {
-      positions[key] = {
-        x: parseInt(document.getElementById(xId)?.value ?? 0),
-        y: parseInt(document.getElementById(yId)?.value ?? 0),
-      };
-    });
-    state.transparentPositions = positions;
+    const barYEl  = document.getElementById('tp-bar-y');
+    const eventX  = document.getElementById('tp-event-x');
+    const eventY  = document.getElementById('tp-event-y');
+    state.transparentPositions = {
+      barY:  parseInt(barYEl?.value  ?? 20),
+      event: { x: parseInt(eventX?.value ?? 720), y: parseInt(eventY?.value ?? 0) },
+    };
     emitState(buildStateFromForm());
   }
 
-  TP_KEYS.forEach(({ xId, yId }) => {
-    document.getElementById(xId)?.addEventListener('input', emitTpPositions);
-    document.getElementById(yId)?.addEventListener('input', emitTpPositions);
-  });
+  // Slider ↔ number sync for barY
+  const barYRange = document.getElementById('tp-bar-y-range');
+  const barYNum   = document.getElementById('tp-bar-y');
+  barYRange?.addEventListener('input', () => { barYNum.value = barYRange.value; emitTpPositions(); });
+  barYNum?.addEventListener('input',   () => { barYRange.value = barYNum.value; emitTpPositions(); });
 
-  // Sync inputs when state is loaded (e.g. on page load)
-  const _origSync = typeof syncUI === 'function' ? syncUI : null;
+  document.getElementById('tp-event-x')?.addEventListener('input', emitTpPositions);
+  document.getElementById('tp-event-y')?.addEventListener('input', emitTpPositions);
+
   socket.on('stateUpdate', function(s) {
     if (!s.transparentPositions) return;
-    TP_KEYS.forEach(({ key, xId, yId }) => {
-      const p = s.transparentPositions[key];
-      if (!p) return;
-      const xEl = document.getElementById(xId);
-      const yEl = document.getElementById(yId);
-      if (xEl && document.activeElement !== xEl) xEl.value = p.x;
-      if (yEl && document.activeElement !== yEl) yEl.value = p.y;
-    });
-    // Show panel if transparent theme is active
+    const pos = s.transparentPositions;
+    const barYEl    = document.getElementById('tp-bar-y');
+    const barYRange = document.getElementById('tp-bar-y-range');
+    const eventX    = document.getElementById('tp-event-x');
+    const eventY    = document.getElementById('tp-event-y');
+    if (pos.barY != null && document.activeElement !== barYEl) {
+      if (barYEl)    barYEl.value    = pos.barY;
+      if (barYRange) barYRange.value = pos.barY;
+    }
+    if (pos.event) {
+      if (eventX && document.activeElement !== eventX) eventX.value = pos.event.x;
+      if (eventY && document.activeElement !== eventY) eventY.value = pos.event.y;
+    }
     const tpPanel = document.getElementById('transparent-pos-panel');
     if (tpPanel && s.overlayTheme === 'transparent') tpPanel.style.display = 'block';
   });
@@ -3317,19 +3313,15 @@ function applyThemePreset(preset) {
   setInput('particle-count-num',      preset.particleCountScale);
   if (preset.transparentPositions) {
     state.transparentPositions = preset.transparentPositions;
-    const TP_MAP = {
-      event:  ['tp-event-x',  'tp-event-y'],
-      p1Icon: ['tp-p1Icon-x', 'tp-p1Icon-y'],
-      p1Name: ['tp-p1Name-x', 'tp-p1Name-y'],
-      score:  ['tp-score-x',  'tp-score-y'],
-      p2Name: ['tp-p2Name-x', 'tp-p2Name-y'],
-      p2Icon: ['tp-p2Icon-x', 'tp-p2Icon-y'],
-    };
-    Object.entries(TP_MAP).forEach(([key, [xId, yId]]) => {
-      const p = preset.transparentPositions[key];
-      if (!p) return;
-      setInput(xId, p.x); setInput(yId, p.y);
-    });
+    const pos = preset.transparentPositions;
+    if (pos.barY != null) {
+      setInput('tp-bar-y', pos.barY);
+      setInput('tp-bar-y-range', pos.barY);
+    }
+    if (pos.event) {
+      setInput('tp-event-x', pos.event.x);
+      setInput('tp-event-y', pos.event.y);
+    }
   }
   emitState(buildStateFromForm());
 }
