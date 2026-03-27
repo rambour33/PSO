@@ -2318,51 +2318,44 @@ kbd {
 /* ── Canvas du studio ─────────────────────────────────────────── */
 
 /* Handle de calque (badge draggable dans le canvas) */
-.sc-handle {
+/* ── Overlay drag pleine taille par calque ────────────────────── */
+.sc-drag-overlay {
   position: absolute;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  padding: 3px 10px 3px 6px;
+  cursor: grab;
+  pointer-events: all;
+  border: 2px solid transparent;
+  box-sizing: border-box;
+  transition: border-color 0.12s, background 0.12s;
+}
+.sc-drag-overlay:hover {
+  border-color: var(--sc-color, #888);
+  background: rgba(255,255,255,0.025);
+}
+.sc-drag-overlay.sc-dragging {
+  cursor: grabbing !important;
+  border-color: var(--sc-color, #888);
+  background: rgba(255,255,255,0.03);
+}
+.sc-overlay-badge {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  padding: 3px 10px 3px 7px;
   border-radius: 4px;
   font-family: 'Russo One', sans-serif;
   font-size: 10px;
   letter-spacing: 0.5px;
   color: rgba(0,0,0,0.85);
-  cursor: grab;
-  pointer-events: all;
   white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.12s;
   box-shadow: 0 2px 8px rgba(0,0,0,0.5);
-  z-index: 10;
-  transition: box-shadow 0.15s;
   clip-path: polygon(0% 0%, calc(100% - 6px) 0%, 100% 50%, calc(100% - 6px) 100%, 0% 100%);
 }
-.sc-handle:hover {
-  box-shadow: 0 4px 16px rgba(0,0,0,0.7);
-}
-.sc-handle:active { cursor: grabbing; }
-
-.sc-handle-icon {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: rgba(0,0,0,0.4);
-  flex-shrink: 0;
-}
-
-/* Cadre de sélection du calque dans le canvas */
-.sc-layer-outline {
-  position: absolute;
-  width: 1920px;
-  height: 1080px;
-  border: 1px dashed;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.2s;
-}
-.sc-handle:hover ~ .sc-layer-outline,
-.sc-layer-outline.active {
-  opacity: 0.4;
+.sc-drag-overlay:hover .sc-overlay-badge,
+.sc-drag-overlay.sc-dragging .sc-overlay-badge {
+  opacity: 1;
 }
 
 /* ── Contrôles par calque (sous le canvas) ────────────────────── */
