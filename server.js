@@ -1714,6 +1714,166 @@ app.get('/api/startgg/event/:id/player-history/:entrantId', async (req, res) => 
   }
 });
 
+// ─── Bracket API ─────────────────────────────────────────────────────────────
+
+let bracketState = {
+  visible:      false,
+  phaseName:    '',
+  bracketType:  'DOUBLE_ELIMINATION',
+  sets:         [],   // sets traités
+  posX:         0,
+  posY:         0,
+  scale:        90,
+};
+
+app.get('/api/bracket', (req, res) => res.json(bracketState));
+
+app.post('/api/bracket', (req, res) => {
+  const allowed = ['visible','phaseName','bracketType','sets','posX','posY','scale'];
+  const body = req.body || {};
+  allowed.forEach(k => { if (k in body) bracketState[k] = body[k]; });
+  io.emit('bracketUpdate', bracketState);
+  res.json(bracketState);
+});
+
+app.get('/bracket', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'bracket.html'));
+});
+
+// Phases + groupes d'un event
+app.get('/api/startgg/event/:id/phases', async (req, res) => {
+  try {
+    const data = await startggQuery(`
+      query EventPhases($eventId: ID!) {
+        event(id: $eventId) {
+          id name
+          phases {
+            id name bracketType
+            phaseGroups(query: { page: 1, perPage: 50 }) {
+              nodes { id displayIdentifier }
+            }
+          }
+        }
+      }
+    `, { eventId: parseInt(req.params.id) });
+    if (!data.event) return res.status(404).json({ error: 'Évènement introuvable' });
+    res.json(data.event);
+  } catch (e) { res.status(400).json({ error: e.message }); }
+});
+
+// Sets d'un phaseGroup
+app.get('/api/startgg/phasegroup/:id/sets', async (req, res) => {
+  try {
+    const data = await startggQuery(`
+      query PhaseGroupSets($pgId: ID!) {
+        phaseGroup(id: $pgId) {
+          id displayIdentifier
+          phase { name bracketType }
+          sets(perPage: 128, page: 1, sortType: ROUND) {
+            nodes {
+              id round fullRoundText identifier state winnerId
+              slots {
+                entrant { id name participants { gamerTag prefix } }
+                standing { stats { score { value } } }
+              }
+            }
+          }
+        }
+      }
+    `, { pgId: parseInt(req.params.id) });
+    if (!data.phaseGroup) return res.status(404).json({ error: 'Phase group introuvable' });
+    const pg = data.phaseGroup;
+    const sets = (pg.sets?.nodes || []).map(s => {
+      const [sl1, sl2] = s.slots || [];
+      return {
+        id:            s.id,
+        round:         s.round,
+        fullRoundText: s.fullRoundText || '',
+        identifier:    s.identifier || '',
+        state:         s.state,       // 1=pending, 2=in-progress, 3=complete
+        winnerId:      s.winnerId,
+        p1: {
+          id:    sl1?.entrant?.id,
+          name:  sl1?.entrant?.participants?.[0]?.gamerTag || sl1?.entrant?.name || 'TBD',
+          tag:   sl1?.entrant?.participants?.[0]?.prefix  || '',
+          score: sl1?.standing?.stats?.score?.value ?? null,
+        },
+        p2: {
+          id:    sl2?.entrant?.id,
+          name:  sl2?.entrant?.participants?.[0]?.gamerTag || sl2?.entrant?.name || 'TBD',
+          tag:   sl2?.entrant?.participants?.[0]?.prefix  || '',
+          score: sl2?.standing?.stats?.score?.value ?? null,
+        },
+      };
+    });
+    res.json({
+      phaseGroupId:  pg.id,
+      phaseName:     pg.phase?.name || '',
+      bracketType:   pg.phase?.bracketType || 'DOUBLE_ELIMINATION',
+      sets,
+    });
+  } catch (e) { res.status(400).json({ error: e.message }); }
+});
+
+// ─── Timer API ───────────────────────────────────────────────────────────────
+
+let timerState = {
+  mode:       'countdown', // 'countdown' | 'stopwatch'
+  duration:   300,         // secondes (mode countdown)
+  running:    false,
+  startedAt:  null,        // timestamp ms du dernier démarrage
+  elapsed:    0,           // secondes accumulées avant le dernier start
+  visible:    true,
+  label:      'TIMER',
+  showLabel:  true,
+  posX:       960,
+  posY:       540,
+  style:      'default',   // 'default' | 'minimal' | 'big'
+  fontSize:   80,
+  alertAt:           60,   // seuil alerte (countdown, secondes restantes)
+  showMillis:        false,
+  particlesEnabled:  false,
+  particleCountScale: 100, // 10–300 (%)
+};
+
+app.get('/api/timer', (req, res) => {
+  res.json(timerState);
+});
+
+app.post('/api/timer', (req, res) => {
+  const body = req.body || {};
+
+  // Actions spéciales
+  if (body.action === 'start') {
+    if (!timerState.running) {
+      timerState.running   = true;
+      timerState.startedAt = Date.now();
+    }
+  } else if (body.action === 'stop') {
+    if (timerState.running) {
+      const now = Date.now();
+      timerState.elapsed  += (now - (timerState.startedAt || now)) / 1000;
+      timerState.running   = false;
+      timerState.startedAt = null;
+    }
+  } else if (body.action === 'reset') {
+    timerState.running   = false;
+    timerState.startedAt = null;
+    timerState.elapsed   = 0;
+  } else {
+    // Mise à jour des propriétés de configuration
+    const allowed = ['mode','duration','visible','label','showLabel','posX','posY','style','fontSize','alertAt','showMillis','particlesEnabled','particleCountScale'];
+    allowed.forEach(k => { if (k in body) timerState[k] = body[k]; });
+  }
+
+  io.emit('timerUpdate', timerState);
+  res.json(timerState);
+});
+
+app.get('/timer', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'timer.html'));
+});
+
 // ─── VS Background API ───────────────────────────────────────────────────────
 
 const BG_DIR = path.join(__dirname, 'public', 'background');
@@ -1789,5 +1949,7 @@ server.listen(PORT, () => {
   console.log('   Overlay stats      → http://localhost:' + PORT + '/player-stats');
   console.log('   Overlay historique → http://localhost:' + PORT + '/tournament-history');
   console.log('   Overlay chat       → http://localhost:' + PORT + '/twitch-chat');
+  console.log('   Overlay bracket     → http://localhost:' + PORT + '/bracket');
+  console.log('   Overlay timer       → http://localhost:' + PORT + '/timer');
   console.log('   Contrôle           → http://localhost:' + PORT + '/control');
 });

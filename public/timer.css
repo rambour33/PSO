@@ -1,0 +1,223 @@
+@import url('https://fonts.googleapis.com/css2?family=Russo+One&family=Inter:wght@400;500;600;700&display=swap');
+
+/* ── Variables de thème ────────────────────────────────────────── */
+:root {
+  --tm-primary:  #E8B830;
+  --tm-glow:     rgba(232, 184, 48, 0.55);
+  --tm-bg:       rgba(14, 14, 18, 0.92);
+  --tm-text:     #F0EEF8;
+  --tm-alert:    #E05252;
+  --tm-alert-glow: rgba(224, 82, 82, 0.6);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: transparent;
+  width: 1920px;
+  height: 1080px;
+  overflow: hidden;
+  font-family: 'Inter', sans-serif;
+}
+
+/* ── Conteneur particules (plein écran) ────────────────────────── */
+#timer-body {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+#timer-particle-canvas {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ── Racine positionnée ────────────────────────────────────────── */
+.timer-root {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  transition: opacity 0.4s;
+  z-index: 2;
+}
+
+.timer-root.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ── Wrapper interne ───────────────────────────────────────────── */
+.timer-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+/* ── Label ─────────────────────────────────────────────────────── */
+.timer-label {
+  font-family: 'Russo One', sans-serif;
+  font-size: 14px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--tm-primary);
+  text-shadow: 0 0 12px var(--tm-glow);
+  transition: color 0.5s, text-shadow 0.5s;
+  white-space: nowrap;
+}
+
+.timer-root.no-label .timer-label {
+  display: none;
+}
+
+/* ── Display container ─────────────────────────────────────────── */
+.timer-display {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px 32px;
+  background: var(--tm-bg);
+  border: 2px solid var(--tm-primary);
+  border-radius: 6px;
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.04),
+    0 0 20px rgba(0,0,0,0.7),
+    0 0 40px var(--tm-glow);
+  transition: background 0.5s, border-color 0.5s, box-shadow 0.5s;
+  overflow: hidden;
+}
+
+/* Reflet interne */
+.timer-display::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(255,255,255,0.05) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+/* ── Glow ring animé ───────────────────────────────────────────── */
+@keyframes glow-pulse {
+  0%, 100% { opacity: 0.5; transform: scale(1);    }
+  50%       { opacity: 1;   transform: scale(1.04); }
+}
+
+.timer-glow-ring {
+  position: absolute;
+  inset: -4px;
+  border-radius: 8px;
+  border: 2px solid var(--tm-primary);
+  filter: blur(6px);
+  opacity: 0.3;
+  pointer-events: none;
+  transition: border-color 0.5s;
+}
+
+.timer-root.running .timer-glow-ring {
+  animation: glow-pulse 2s ease-in-out infinite;
+  opacity: 0.5;
+}
+
+/* ── Chiffres ──────────────────────────────────────────────────── */
+.timer-digits {
+  font-family: 'Russo One', sans-serif;
+  font-size: 80px;
+  line-height: 1;
+  color: var(--tm-text);
+  letter-spacing: 4px;
+  text-shadow: 0 0 30px var(--tm-glow), 0 2px 4px rgba(0,0,0,0.8);
+  transition: color 0.3s, text-shadow 0.3s, font-size 0.3s;
+  white-space: nowrap;
+  position: relative;
+  z-index: 1;
+}
+
+/* ── Alerte (countdown < seuil) ────────────────────────────────── */
+.timer-root.alert .timer-digits {
+  color: var(--tm-alert);
+  text-shadow: 0 0 30px var(--tm-alert-glow), 0 2px 4px rgba(0,0,0,0.8);
+}
+
+.timer-root.alert .timer-display {
+  border-color: var(--tm-alert);
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.04),
+    0 0 20px rgba(0,0,0,0.7),
+    0 0 40px var(--tm-alert-glow);
+}
+
+.timer-root.alert .timer-glow-ring {
+  border-color: var(--tm-alert);
+}
+
+.timer-root.alert .timer-label {
+  color: var(--tm-alert);
+  text-shadow: 0 0 12px var(--tm-alert-glow);
+}
+
+@keyframes alert-flash {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
+
+.timer-root.alert.running .timer-digits {
+  animation: alert-flash 0.8s ease-in-out infinite;
+}
+
+/* ── Style: minimal (pas de boîte) ────────────────────────────── */
+.timer-root.style-minimal .timer-display {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+}
+
+.timer-root.style-minimal .timer-glow-ring { display: none; }
+
+/* ── Style: big ────────────────────────────────────────────────── */
+.timer-root.style-big .timer-digits { font-size: 140px; }
+
+/* ══════════════════════════════════════════════════════════════ */
+/* THÈMES                                                        */
+/* ══════════════════════════════════════════════════════════════ */
+
+/* Cyberpunk */
+@keyframes cyber-scan {
+  0%   { left: -100%; }
+  100% { left: 100%; }
+}
+.timer-root.theme-cyberpunk .timer-display::after {
+  content: '';
+  position: absolute;
+  top: 0; bottom: 0;
+  width: 40px;
+  background: linear-gradient(to right, transparent, rgba(0,245,255,0.12), transparent);
+  animation: cyber-scan 2.5s linear infinite;
+  pointer-events: none;
+}
+
+/* Synthwave */
+@keyframes sw-pulse {
+  0%, 100% { box-shadow: 0 0 0 1px rgba(255,255,255,0.04), 0 0 20px rgba(0,0,0,0.7), 0 0 40px var(--tm-glow); }
+  50%       { box-shadow: 0 0 0 1px rgba(255,255,255,0.04), 0 0 20px rgba(0,0,0,0.7), 0 0 70px var(--tm-glow); }
+}
+.timer-root.theme-synthwave .timer-display {
+  animation: sw-pulse 2.5s ease-in-out infinite;
+}
+
+/* Fire */
+@keyframes fire-flicker {
+  0%, 100% { opacity: 1; }
+  30%       { opacity: 0.85; }
+  60%       { opacity: 0.95; }
+}
+.timer-root.theme-fire .timer-display {
+  animation: fire-flicker 1.8s ease-in-out infinite;
+}
+
+/* Midnight */
+.timer-root.theme-midnight .timer-display {
+  background-image: linear-gradient(135deg, rgba(68,136,255,0.06) 0%, transparent 60%);
+}

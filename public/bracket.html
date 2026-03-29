@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>PSO – Bracket</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Russo+One&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="bracket.css" />
+</head>
+<body>
+
+<div id="bracket-root" class="bracket-root hidden">
+
+  <!-- Titre de phase -->
+  <div class="bracket-header">
+    <span class="bracket-title" id="bracket-title">BRACKET</span>
+    <span class="bracket-subtitle" id="bracket-subtitle"></span>
+  </div>
+
+  <!-- Zone de rendu du bracket (canvas SVG + match cards) -->
+  <div class="bracket-stage" id="bracket-stage">
+    <svg class="bracket-svg" id="bracket-svg" xmlns="http://www.w3.org/2000/svg"></svg>
+    <div class="bracket-matches" id="bracket-matches"></div>
+  </div>
+
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="bracket.js"></script>
+</body>
+</html>

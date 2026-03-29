@@ -352,4 +352,247 @@
 
   loadKeyStatus();
 
+  // Exposer le eventId courant pour le bracket
+  window.onStartggEventLoaded = function(evId) {
+    currentEventId = evId;
+    loadBracketPhases(evId);
+    document.getElementById('sgg-bracket-section').style.display = '';
+  };
+
+})();
+
+// ════════════════════════════════════════════════════════════════
+// BRACKET VISUALISEUR
+// ════════════════════════════════════════════════════════════════
+(function () {
+  'use strict';
+
+  let _currentPgId   = null;
+  let _currentPgName = '';
+  let _autoInterval  = null;
+  let _bracketData   = null;
+
+  // ── Chargement des phases ─────────────────────────────────────
+  window.loadBracketPhases = async function (eventId) {
+    if (!eventId) return;
+    try {
+      const res  = await fetch(`/api/startgg/event/${eventId}/phases`);
+      const data = await res.json();
+      if (data.error) return;
+
+      const phSel = document.getElementById('sgg-phase-select');
+      if (!phSel) return;
+      phSel.innerHTML = '<option value="">— Choisir une phase —</option>';
+      (data.phases || []).forEach(ph => {
+        const opt = document.createElement('option');
+        opt.value = JSON.stringify({ id: ph.id, name: ph.name, bracketType: ph.bracketType,
+          phaseGroups: (ph.phaseGroups?.nodes || []) });
+        opt.textContent = ph.name;
+        phSel.appendChild(opt);
+      });
+
+      // Auto-select si une seule phase
+      if (data.phases?.length === 1) {
+        phSel.selectedIndex = 1;
+        phSel.dispatchEvent(new Event('change'));
+      }
+    } catch(e) { console.error('[bracket phases]', e); }
+  };
+
+  // ── Sélection d'une phase → afficher les groupes ──────────────
+  document.getElementById('sgg-phase-select')?.addEventListener('change', function() {
+    const pgGroup = document.getElementById('sgg-pg-group');
+    const pgSel   = document.getElementById('sgg-pg-select');
+    if (!this.value || !pgGroup || !pgSel) { if (pgGroup) pgGroup.style.display = 'none'; return; }
+
+    const ph = JSON.parse(this.value);
+    pgSel.innerHTML = '<option value="">— Choisir un groupe —</option>';
+    const groups = ph.phaseGroups || [];
+    groups.forEach(pg => {
+      const opt = document.createElement('option');
+      opt.value = pg.id;
+      opt.textContent = groups.length === 1 ? ph.name : `${ph.name} — Groupe ${pg.displayIdentifier}`;
+      pgSel.appendChild(opt);
+    });
+
+    // N'afficher le select que si plusieurs groupes
+    pgGroup.style.display = groups.length > 1 ? '' : 'none';
+    // Auto-select si un seul groupe
+    if (groups.length === 1) pgSel.selectedIndex = 1;
+  });
+
+  // ── Charger le bracket ────────────────────────────────────────
+  async function loadBracket() {
+    const phSel = document.getElementById('sgg-phase-select');
+    const pgSel = document.getElementById('sgg-pg-select');
+    if (!phSel?.value) {
+      setBracketStatus('Sélectionnez une phase.', true);
+      return;
+    }
+
+    const ph   = JSON.parse(phSel.value);
+    const pgId = pgSel?.value || (ph.phaseGroups?.[0]?.id);
+    if (!pgId) { setBracketStatus('Groupe introuvable.', true); return; }
+
+    _currentPgId   = pgId;
+    _currentPgName = ph.name;
+    setBracketStatus('Chargement du bracket…');
+
+    try {
+      const res  = await fetch(`/api/startgg/phasegroup/${pgId}/sets`);
+      const data = await res.json();
+      if (data.error) { setBracketStatus('Erreur : ' + data.error, true); return; }
+
+      _bracketData = data;
+      setBracketStatus(`${data.sets.length} sets chargés`);
+      renderPreview(data);
+
+      // Afficher le bouton refresh
+      const refreshBtn = document.getElementById('sgg-bracket-refresh-btn');
+      if (refreshBtn) refreshBtn.style.display = '';
+
+    } catch(e) { setBracketStatus('Erreur réseau : ' + e.message, true); }
+  }
+
+  document.getElementById('sgg-bracket-load-btn')?.addEventListener('click', loadBracket);
+  document.getElementById('sgg-bracket-refresh-btn')?.addEventListener('click', async () => {
+    if (!_currentPgId) return;
+    setBracketStatus('Actualisation…');
+    try {
+      const res  = await fetch(`/api/startgg/phasegroup/${_currentPgId}/sets`);
+      const data = await res.json();
+      if (data.error) { setBracketStatus('Erreur : ' + data.error, true); return; }
+      _bracketData = data;
+      setBracketStatus(`${data.sets.length} sets — Actualisé`);
+      renderPreview(data);
+      // Pousser si l'overlay est visible
+      await pushBracket({ visible: true });
+    } catch(e) { setBracketStatus('Erreur : ' + e.message, true); }
+  });
+
+  // ── Afficher / masquer ────────────────────────────────────────
+  document.getElementById('sgg-bracket-show-btn')?.addEventListener('click', async () => {
+    if (!_bracketData) { setBracketStatus('Chargez d\'abord un bracket.', true); return; }
+    await pushBracket({ visible: true });
+    setBracketStatus('Bracket affiché');
+  });
+
+  document.getElementById('sgg-bracket-hide-btn')?.addEventListener('click', async () => {
+    await pushBracket({ visible: false });
+    setBracketStatus('Bracket masqué');
+  });
+
+  // ── Échelle ───────────────────────────────────────────────────
+  const scaleRange = document.getElementById('sgg-bracket-scale');
+  const scaleVal   = document.getElementById('sgg-bracket-scale-val');
+  scaleRange?.addEventListener('input', () => {
+    if (scaleVal) scaleVal.textContent = scaleRange.value + '%';
+    sendOverlayConfig();
+  });
+
+  // ── Position ──────────────────────────────────────────────────
+  ['x','y'].forEach(axis => {
+    const range = document.getElementById(`sgg-bracket-pos-${axis}`);
+    const num   = document.getElementById(`sgg-bracket-pos-${axis}-num`);
+    range?.addEventListener('input', () => { if (num) num.value = range.value; sendOverlayConfig(); });
+    num?.addEventListener('input',   () => { if (range) range.value = num.value; sendOverlayConfig(); });
+  });
+
+  let _configDebounce = null;
+  function sendOverlayConfig() {
+    clearTimeout(_configDebounce);
+    _configDebounce = setTimeout(() => {
+      fetch('/api/bracket', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          posX:  parseInt(document.getElementById('sgg-bracket-pos-x-num')?.value || '0', 10),
+          posY:  parseInt(document.getElementById('sgg-bracket-pos-y-num')?.value || '0', 10),
+          scale: parseInt(scaleRange?.value || '90', 10),
+        }),
+      }).catch(() => {});
+    }, 120);
+  }
+
+  // ── Auto-refresh ──────────────────────────────────────────────
+  document.getElementById('sgg-bracket-autorefresh')?.addEventListener('change', function() {
+    clearInterval(_autoInterval);
+    if (this.checked) {
+      const secs = parseInt(document.getElementById('sgg-bracket-autorefresh-interval')?.value || '60', 10);
+      _autoInterval = setInterval(() => {
+        document.getElementById('sgg-bracket-refresh-btn')?.click();
+      }, secs * 1000);
+    }
+  });
+  document.getElementById('sgg-bracket-autorefresh-interval')?.addEventListener('change', function() {
+    const cb = document.getElementById('sgg-bracket-autorefresh');
+    if (cb?.checked) { cb.dispatchEvent(new Event('change')); }
+  });
+
+  // ── Pousser l'état vers le serveur ───────────────────────────
+  async function pushBracket(extra = {}) {
+    if (!_bracketData) return;
+    const body = Object.assign({
+      phaseName:   _bracketData.phaseName || _currentPgName,
+      bracketType: _bracketData.bracketType,
+      sets:        _bracketData.sets,
+      posX:        parseInt(document.getElementById('sgg-bracket-pos-x-num')?.value || '0', 10),
+      posY:        parseInt(document.getElementById('sgg-bracket-pos-y-num')?.value || '0', 10),
+      scale:       parseInt(scaleRange?.value || '90', 10),
+    }, extra);
+    await fetch('/api/bracket', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify(body),
+    }).catch(() => {});
+  }
+
+  // ── Aperçu des rounds dans le panneau ─────────────────────────
+  function renderPreview(data) {
+    const preview = document.getElementById('sgg-bracket-preview');
+    const list    = document.getElementById('sgg-bracket-rounds-list');
+    if (!preview || !list) return;
+
+    // Grouper par fullRoundText
+    const rounds = {};
+    (data.sets || []).forEach(s => {
+      const label = s.fullRoundText || ('R' + s.round);
+      if (!rounds[label]) rounds[label] = { count: 0, done: 0, live: 0 };
+      rounds[label].count++;
+      if (s.state === 3) rounds[label].done++;
+      if (s.state === 2) rounds[label].live++;
+    });
+
+    list.innerHTML = '';
+    Object.entries(rounds).forEach(([label, info]) => {
+      const chip = document.createElement('div');
+      chip.style.cssText = `
+        display:inline-flex;align-items:center;gap:5px;
+        padding:4px 10px;border-radius:3px;font-size:11px;
+        background:var(--surface2);border:1px solid var(--border);
+        white-space:nowrap;
+      `;
+      const pct = info.count ? Math.round(info.done / info.count * 100) : 0;
+      chip.innerHTML = `
+        <span style="font-weight:600;color:var(--text)">${label}</span>
+        <span style="color:var(--text-muted)">${info.done}/${info.count}</span>
+        ${info.live > 0 ? `<span style="width:6px;height:6px;border-radius:50%;background:#D4001A;box-shadow:0 0 4px #D4001A"></span>` : ''}
+        <div style="width:40px;height:3px;background:var(--border);border-radius:2px;overflow:hidden">
+          <div style="width:${pct}%;height:100%;background:var(--gold);border-radius:2px;transition:width .3s"></div>
+        </div>
+      `;
+      list.appendChild(chip);
+    });
+
+    preview.style.display = '';
+  }
+
+  // ── Statut ────────────────────────────────────────────────────
+  function setBracketStatus(msg, isError) {
+    const el = document.getElementById('sgg-bracket-status');
+    if (!el) return;
+    el.textContent = msg;
+    el.style.color = isError ? 'var(--danger)' : '';
+  }
+
 })();

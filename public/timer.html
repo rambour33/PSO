@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>PSO – Timer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Russo+One&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="timer.css" />
+</head>
+<body>
+
+<!-- Conteneur plein écran pour les particules -->
+<div id="timer-body">
+  <canvas id="timer-particle-canvas"></canvas>
+</div>
+
+<div id="timer-root" class="timer-root">
+  <div class="timer-inner">
+    <div class="timer-label" id="timer-label">TIMER</div>
+    <div class="timer-display">
+      <div class="timer-glow-ring"></div>
+      <span class="timer-digits" id="timer-digits">00:00</span>
+    </div>
+  </div>
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="particle-engine.js"></script>
+<script src="timer.js"></script>
+</body>
+</html>
