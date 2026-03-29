@@ -32,6 +32,7 @@
       <a href="/stream-title" target="_blank" class="btn btn-outline">Titre ↗</a>
       <a href="/ticker" target="_blank" class="btn btn-outline">Bandeau ↗</a>
       <a href="/frames" target="_blank" class="btn btn-outline">Cadres ↗</a>
+      <a href="/bracket" target="_blank" class="btn btn-outline">Bracket ↗</a>
       <a href="/super-overlay" target="_blank" class="btn btn-outline">Super Overlay ↗</a>
       <a href="/twitch-chat" target="_blank" class="btn btn-outline">Chat ↗</a>
       <button id="btn-vs-trigger" class="btn btn-primary" title="Déclenche l'animation d'entrée sur la VS Screen">⚔ VS Anim</button>
@@ -55,6 +56,7 @@
     <button class="tab-btn" data-tab="cam">Cam</button>
     <button class="tab-btn" data-tab="studio">Studio</button>
     <button class="tab-btn" data-tab="youtube">YouTube</button>
+    <button class="tab-btn" data-tab="obstools">OBS Tools</button>
   </nav>
 
   <!-- ═══════════════════════════════════════════════════════════ -->
@@ -1685,6 +1687,91 @@
       <div id="sgg-sets-list" class="sgg-sets-list"></div>
     </section>
 
+    <!-- Bracket visualiseur -->
+    <section class="section" id="sgg-bracket-section" style="display:none">
+      <div class="section-header">
+        <h2>Visualiseur de Bracket</h2>
+        <a href="/bracket" target="_blank" class="btn btn-outline btn-sm">Overlay ↗</a>
+      </div>
+
+      <div class="custom-card-grid">
+
+        <!-- Sélection phase/groupe -->
+        <div class="custom-card">
+          <h3>Phase</h3>
+          <div class="form-group">
+            <label>Phase du tournoi</label>
+            <select id="sgg-phase-select" class="select-input" style="width:100%">
+              <option value="">— Choisir une phase —</option>
+            </select>
+          </div>
+          <div class="form-group" id="sgg-pg-group" style="display:none">
+            <label>Groupe / Pool</label>
+            <select id="sgg-pg-select" class="select-input" style="width:100%">
+              <option value="">— Choisir un groupe —</option>
+            </select>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:4px">
+            <button class="btn btn-primary btn-sm" id="sgg-bracket-load-btn" style="flex:1">Charger le bracket</button>
+            <button class="btn btn-outline btn-sm" id="sgg-bracket-refresh-btn" title="Recharger" style="display:none">↺</button>
+          </div>
+          <p class="hint" id="sgg-bracket-status" style="margin-top:6px"></p>
+        </div>
+
+        <!-- Contrôles overlay -->
+        <div class="custom-card">
+          <h3>Overlay</h3>
+          <div style="display:flex;gap:8px;margin-bottom:10px">
+            <button class="btn btn-primary" id="sgg-bracket-show-btn" style="flex:1">Afficher</button>
+            <button class="btn btn-outline" id="sgg-bracket-hide-btn" style="flex:1">Masquer</button>
+          </div>
+
+          <div class="form-group">
+            <label>Échelle (%)</label>
+            <div style="display:flex;gap:8px;align-items:center">
+              <input type="range" id="sgg-bracket-scale" min="30" max="150" step="5" value="90" style="flex:1" />
+              <span id="sgg-bracket-scale-val" style="min-width:36px;text-align:right">90%</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Position sur l'overlay</label>
+            <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:4px">
+              <div style="display:flex;gap:6px;align-items:center">
+                <label style="font-size:12px;min-width:12px">X</label>
+                <input type="range" id="sgg-bracket-pos-x" min="0" max="1800" step="5" value="0" style="width:110px" />
+                <input type="number" id="sgg-bracket-pos-x-num" value="0" min="0" max="1800" style="width:58px" />
+              </div>
+              <div style="display:flex;gap:6px;align-items:center">
+                <label style="font-size:12px;min-width:12px">Y</label>
+                <input type="range" id="sgg-bracket-pos-y" min="0" max="900" step="5" value="0" style="width:110px" />
+                <input type="number" id="sgg-bracket-pos-y-num" value="0" min="0" max="900" style="width:58px" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Auto-refresh -->
+          <div style="display:flex;align-items:center;gap:10px;margin-top:4px">
+            <input type="checkbox" id="sgg-bracket-autorefresh" style="cursor:pointer" />
+            <label for="sgg-bracket-autorefresh" style="font-size:12px;cursor:pointer">Auto-refresh</label>
+            <select id="sgg-bracket-autorefresh-interval" class="select-input" style="width:80px;font-size:12px">
+              <option value="30">30 s</option>
+              <option value="60" selected>60 s</option>
+              <option value="120">2 min</option>
+              <option value="300">5 min</option>
+            </select>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Aperçu du bracket chargé -->
+      <div id="sgg-bracket-preview" style="display:none;margin-top:8px">
+        <div style="font-size:11px;color:var(--text-muted);margin-bottom:6px;letter-spacing:1px;text-transform:uppercase">Aperçu des rounds</div>
+        <div id="sgg-bracket-rounds-list" style="display:flex;flex-wrap:wrap;gap:6px"></div>
+      </div>
+    </section>
+
     <!-- Stats joueur -->
     <section class="section" id="ps-section" style="display:none">
       <div class="section-header">
@@ -3041,6 +3128,139 @@
     </section>
 
   </div><!-- /tab-youtube -->
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- TAB : OBS TOOLS                                             -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <div class="tab-content" id="tab-obstools">
+
+    <section class="section">
+      <div class="section-header">
+        <h2>OBS Tools</h2>
+        <a href="/timer" target="_blank" class="btn btn-outline btn-sm">Timer Overlay ↗</a>
+      </div>
+
+      <div class="custom-card-grid">
+
+        <!-- ── Timer ── -->
+        <div class="custom-card" style="grid-column: span 2">
+          <h3>Timer</h3>
+
+          <!-- Contrôles principaux -->
+          <div style="display:flex;gap:10px;align-items:center;margin-bottom:14px;flex-wrap:wrap">
+            <button class="btn btn-primary" id="timer-start-btn" style="min-width:90px">▶ Start</button>
+            <button class="btn btn-outline" id="timer-reset-btn">↺ Reset</button>
+            <div id="timer-live-display" style="font-family:'Russo One',sans-serif;font-size:28px;color:var(--gold);letter-spacing:3px;min-width:120px;text-align:center">00:00</div>
+            <div style="display:flex;align-items:center;gap:8px;margin-left:auto">
+              <input type="checkbox" id="timer-visible-toggle" checked style="cursor:pointer" />
+              <label for="timer-visible-toggle" style="font-size:12px;cursor:pointer">Visible</label>
+            </div>
+          </div>
+
+          <div class="custom-card-grid" style="grid-template-columns:1fr 1fr;gap:10px">
+
+            <!-- Mode -->
+            <div class="form-group">
+              <label>Mode</label>
+              <select id="timer-mode" class="select-input">
+                <option value="countdown">Compte à rebours</option>
+                <option value="stopwatch">Chronomètre</option>
+              </select>
+            </div>
+
+            <!-- Style -->
+            <div class="form-group">
+              <label>Style</label>
+              <select id="timer-style" class="select-input">
+                <option value="default">Défaut (boîte)</option>
+                <option value="minimal">Minimal (texte nu)</option>
+                <option value="big">Grand</option>
+              </select>
+            </div>
+
+            <!-- Durée (countdown) -->
+            <div class="form-group" id="timer-duration-group">
+              <label>Durée (mm:ss)</label>
+              <div style="display:flex;gap:6px;align-items:center">
+                <input type="number" id="timer-duration-min" value="5" min="0" max="99" style="width:56px" />
+                <span style="color:var(--text-muted)">:</span>
+                <input type="number" id="timer-duration-sec" value="0" min="0" max="59" style="width:56px" />
+              </div>
+            </div>
+
+            <!-- Seuil alerte -->
+            <div class="form-group" id="timer-alert-group">
+              <label>Alerte si &lt; (s)</label>
+              <input type="number" id="timer-alert-at" value="60" min="0" max="3600" style="width:80px" />
+            </div>
+
+            <!-- Label -->
+            <div class="form-group">
+              <label>Label</label>
+              <div style="display:flex;gap:6px;align-items:center">
+                <input type="text" id="timer-label" value="TIMER" style="flex:1" />
+                <input type="checkbox" id="timer-show-label" checked style="cursor:pointer" title="Afficher le label" />
+              </div>
+            </div>
+
+            <!-- Taille police -->
+            <div class="form-group">
+              <label>Taille (px)</label>
+              <div style="display:flex;gap:8px;align-items:center">
+                <input type="range" id="timer-fontsize" min="30" max="200" step="5" value="80" style="flex:1" />
+                <span id="timer-fontsize-val" style="min-width:34px;text-align:right">80</span>
+              </div>
+            </div>
+
+            <!-- Millisecondes -->
+            <div class="form-group" style="align-self:center">
+              <div style="display:flex;align-items:center;gap:8px">
+                <input type="checkbox" id="timer-show-millis" style="cursor:pointer" />
+                <label for="timer-show-millis" style="font-size:12px;cursor:pointer">Afficher les centièmes</label>
+              </div>
+            </div>
+
+            <!-- Particules -->
+            <div class="form-group" style="grid-column:span 2">
+              <label>Particules du thème</label>
+              <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+                <div style="display:flex;align-items:center;gap:8px">
+                  <input type="checkbox" id="timer-particles-enabled" style="cursor:pointer" />
+                  <label for="timer-particles-enabled" style="font-size:12px;cursor:pointer">Activer</label>
+                </div>
+                <div style="display:flex;align-items:center;gap:8px;flex:1;min-width:180px" id="timer-particles-scale-wrap">
+                  <label style="font-size:12px;white-space:nowrap">Quantité</label>
+                  <input type="range" id="timer-particles-scale" min="10" max="300" step="5" value="100" style="flex:1" />
+                  <span id="timer-particles-scale-val" style="min-width:36px;text-align:right;font-size:12px">100%</span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Position -->
+          <div style="margin-top:10px">
+            <label style="font-size:12px;color:var(--text-muted);display:block;margin-bottom:8px">Position sur l'overlay</label>
+            <div style="display:flex;gap:12px;flex-wrap:wrap">
+              <div style="display:flex;gap:6px;align-items:center">
+                <label style="font-size:12px;min-width:12px">X</label>
+                <input type="range" id="timer-pos-x" min="0" max="1920" step="5" value="960" style="width:130px" />
+                <input type="number" id="timer-pos-x-num" value="960" min="0" max="1920" style="width:60px" />
+              </div>
+              <div style="display:flex;gap:6px;align-items:center">
+                <label style="font-size:12px;min-width:12px">Y</label>
+                <input type="range" id="timer-pos-y" min="0" max="1080" step="5" value="540" style="width:130px" />
+                <input type="number" id="timer-pos-y-num" value="540" min="0" max="1080" style="width:60px" />
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+  </div><!-- /tab-obstools -->
 
   <!-- FOOTER -->
   <footer class="footer">

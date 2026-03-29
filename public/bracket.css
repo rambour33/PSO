@@ -1,0 +1,336 @@
+@import url('https://fonts.googleapis.com/css2?family=Russo+One&family=Inter:wght@400;500;600;700&display=swap');
+
+/* ── Variables de thème ────────────────────────────────────────── */
+:root {
+  --br-primary:   #E8B830;
+  --br-glow:      rgba(232, 184, 48, 0.45);
+  --br-glow-soft: rgba(232, 184, 48, 0.18);
+  --br-bg:        rgba(10, 10, 14, 0.96);
+  --br-surface:   rgba(20, 20, 30, 0.97);
+  --br-border:    rgba(255, 255, 255, 0.10);
+  --br-text:      #F0EEF8;
+  --br-muted:     rgba(240, 238, 248, 0.40);
+  --br-win-bg:    rgba(232, 184, 48, 0.12);
+  --br-line:      rgba(232, 184, 48, 0.30);
+  --br-pending:   rgba(255, 255, 255, 0.06);
+  --br-live-bg:   rgba(212, 0, 26, 0.15);
+  --br-live-border: rgba(212, 0, 26, 0.70);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: transparent;
+  width: 1920px;
+  height: 1080px;
+  overflow: hidden;
+  font-family: 'Inter', sans-serif;
+}
+
+/* ── Racine ────────────────────────────────────────────────────── */
+.bracket-root {
+  position: absolute;
+  background: var(--br-bg);
+  border: 1px solid var(--br-primary);
+  border-radius: 8px;
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.04),
+    0 0 40px rgba(0,0,0,0.85),
+    0 0 60px var(--br-glow-soft);
+  overflow: hidden;
+  transition: opacity 0.4s, box-shadow 0.5s, border-color 0.5s;
+  transform-origin: top left;
+}
+
+.bracket-root.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Reflet supérieur */
+.bracket-root::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(to right, transparent, var(--br-primary), transparent);
+  box-shadow: 0 0 8px var(--br-glow);
+  transition: background 0.5s, box-shadow 0.5s;
+  z-index: 10;
+  pointer-events: none;
+}
+
+/* ── Header ────────────────────────────────────────────────────── */
+.bracket-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 18px 8px;
+  border-bottom: 1px solid var(--br-border);
+  background: rgba(0,0,0,0.25);
+  flex-shrink: 0;
+}
+
+.bracket-title {
+  font-family: 'Russo One', sans-serif;
+  font-size: 15px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--br-primary);
+  text-shadow: 0 0 14px var(--br-glow);
+  transition: color 0.5s, text-shadow 0.5s;
+}
+
+.bracket-subtitle {
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--br-muted);
+}
+
+/* ── Zone de rendu ─────────────────────────────────────────────── */
+.bracket-stage {
+  position: relative;
+  overflow: hidden;
+}
+
+.bracket-svg {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 1;
+  overflow: visible;
+}
+
+.bracket-matches {
+  position: relative;
+  z-index: 2;
+}
+
+/* ── Séparateur Winners / Losers ───────────────────────────────── */
+.bracket-sep {
+  position: absolute;
+  left: 16px; right: 16px;
+  height: 1px;
+  background: linear-gradient(to right, transparent, var(--br-border), transparent);
+  z-index: 3;
+  pointer-events: none;
+}
+
+.bracket-sep-label {
+  position: absolute;
+  font-family: 'Russo One', sans-serif;
+  font-size: 9px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--br-muted);
+  padding: 0 6px;
+  background: var(--br-bg);
+  transform: translateX(-50%);
+  z-index: 4;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+/* ── En-têtes de colonnes (rounds) ────────────────────────────── */
+.round-label {
+  position: absolute;
+  font-family: 'Russo One', sans-serif;
+  font-size: 9px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--br-primary);
+  text-align: center;
+  white-space: nowrap;
+  opacity: 0.75;
+  z-index: 3;
+  transition: color 0.5s;
+}
+
+/* ── Carte de match ─────────────────────────────────────────────── */
+.match-card {
+  position: absolute;
+  width: 210px;
+  border-radius: 4px;
+  overflow: hidden;
+  background: var(--br-surface);
+  border: 1px solid var(--br-border);
+  box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+  transition: border-color 0.3s, box-shadow 0.3s;
+  z-index: 2;
+}
+
+/* Set en cours */
+.match-card.live {
+  border-color: var(--br-live-border);
+  box-shadow: 0 0 12px var(--br-live-border), 0 2px 10px rgba(0,0,0,0.5);
+  background: var(--br-live-bg);
+}
+
+/* Set pas encore joué */
+.match-card.pending {
+  background: var(--br-pending);
+  opacity: 0.7;
+}
+
+/* ── Slot joueur ────────────────────────────────────────────────── */
+.match-slot {
+  display: flex;
+  align-items: center;
+  height: 28px;
+  padding: 0 8px;
+  gap: 6px;
+  position: relative;
+}
+
+.match-slot + .match-slot {
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+
+.match-slot.winner {
+  background: var(--br-win-bg);
+}
+
+.slot-seed {
+  font-size: 9px;
+  color: var(--br-muted);
+  min-width: 14px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.slot-name {
+  flex: 1;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--br-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1;
+}
+
+.slot-name.tbd {
+  color: var(--br-muted);
+  font-weight: 400;
+  font-style: italic;
+}
+
+.slot-tag {
+  font-size: 9px;
+  color: var(--br-primary);
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  flex-shrink: 0;
+  max-width: 34px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition: color 0.5s;
+}
+
+.slot-score {
+  font-family: 'Russo One', sans-serif;
+  font-size: 13px;
+  min-width: 16px;
+  text-align: center;
+  flex-shrink: 0;
+  color: var(--br-text);
+}
+
+.match-slot.winner .slot-score {
+  color: var(--br-primary);
+  transition: color 0.5s;
+}
+
+.match-slot.loser .slot-score {
+  color: var(--br-muted);
+}
+
+.match-slot.loser .slot-name {
+  opacity: 0.5;
+}
+
+/* Indicateur LIVE */
+.match-live-dot {
+  position: absolute;
+  right: 5px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #D4001A;
+  box-shadow: 0 0 6px rgba(212,0,26,0.8);
+}
+
+@keyframes live-blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.2; }
+}
+
+.match-live-dot { animation: live-blink 1.2s ease-in-out infinite; }
+
+/* ══════════════════════════════════════════════════════════════ */
+/* THÈMES                                                        */
+/* ══════════════════════════════════════════════════════════════ */
+
+.bracket-root.theme-cyberpunk {
+  --br-bg: rgba(4, 0, 16, 0.97);
+  --br-surface: rgba(8, 0, 28, 0.98);
+}
+
+.bracket-root.theme-synthwave {
+  --br-bg: rgba(12, 0, 44, 0.97);
+  --br-surface: rgba(18, 0, 56, 0.98);
+}
+
+.bracket-root.theme-midnight {
+  --br-bg: rgba(4, 8, 24, 0.97);
+  --br-surface: rgba(6, 12, 32, 0.98);
+}
+
+.bracket-root.theme-egypt {
+  --br-bg: rgba(16, 10, 2, 0.97);
+  --br-surface: rgba(22, 14, 4, 0.98);
+}
+
+.bracket-root.theme-fire {
+  --br-bg: rgba(18, 4, 0, 0.97);
+  --br-surface: rgba(26, 6, 0, 0.98);
+}
+
+.bracket-root.theme-water {
+  --br-bg: rgba(2, 12, 24, 0.97);
+  --br-surface: rgba(4, 16, 32, 0.98);
+}
+
+.bracket-root.theme-eco {
+  --br-bg: rgba(4, 14, 4, 0.97);
+  --br-surface: rgba(6, 18, 6, 0.98);
+}
+
+/* Scan cyberpunk */
+@keyframes br-scan {
+  0%   { transform: translateY(-100%); }
+  100% { transform: translateY(100%); }
+}
+.bracket-root.theme-cyberpunk::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 40%, rgba(0,245,255,0.03) 50%, transparent 60%);
+  animation: br-scan 4s linear infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Pulse synthwave */
+@keyframes br-sw-glow {
+  0%, 100% { box-shadow: 0 0 0 1px rgba(255,255,255,0.04), 0 0 40px rgba(0,0,0,0.85), 0 0 60px var(--br-glow-soft); }
+  50%       { box-shadow: 0 0 0 1px rgba(255,255,255,0.04), 0 0 40px rgba(0,0,0,0.85), 0 0 100px var(--br-glow-soft); }
+}
+.bracket-root.theme-synthwave {
+  animation: br-sw-glow 3s ease-in-out infinite;
+}

@@ -5189,3 +5189,244 @@ if (typeof socket !== 'undefined') {
     socket.on('youtubeChatUpdate', updateYtConnStatus);
   }
 })();
+
+// ════════════════════════════════════════════════════════════════
+// OBS TOOLS — Timer
+// ════════════════════════════════════════════════════════════════
+(function () {
+  'use strict';
+
+  let _timerState = null;
+  let _rafId      = null;
+  let _isRunning  = false;
+
+  // ── Helpers ──────────────────────────────────────────────────
+  function pad(n) { return String(Math.floor(Math.abs(n))).padStart(2, '0'); }
+
+  function formatLive(totalSeconds) {
+    const abs  = Math.abs(totalSeconds);
+    const secs = Math.floor(abs) % 60;
+    const mins = Math.floor(abs / 60) % 60;
+    const hrs  = Math.floor(abs / 3600);
+    if (hrs > 0) return pad(hrs) + ':' + pad(mins) + ':' + pad(secs);
+    return pad(mins) + ':' + pad(secs);
+  }
+
+  function getCurrentSeconds(state) {
+    const now       = Date.now();
+    const elapsed   = state.elapsed || 0;
+    const startedAt = state.startedAt || now;
+    const live      = state.running ? elapsed + (now - startedAt) / 1000 : elapsed;
+    if (state.mode === 'countdown') return (state.duration || 0) - live;
+    return live;
+  }
+
+  // ── Affichage live dans le panneau ───────────────────────────
+  function startLiveDisplay() {
+    if (_rafId) cancelAnimationFrame(_rafId);
+    function step() {
+      if (!_timerState) return;
+      const el = document.getElementById('timer-live-display');
+      if (el) el.textContent = formatLive(getCurrentSeconds(_timerState));
+      _rafId = requestAnimationFrame(step);
+    }
+    _rafId = requestAnimationFrame(step);
+  }
+
+  function stopLiveDisplay() {
+    if (_rafId) { cancelAnimationFrame(_rafId); _rafId = null; }
+  }
+
+  // ── Lecture des valeurs du formulaire ────────────────────────
+  function getDuration() {
+    const m = parseInt(document.getElementById('timer-duration-min')?.value || '0', 10);
+    const s = parseInt(document.getElementById('timer-duration-sec')?.value || '0', 10);
+    return (isNaN(m) ? 0 : m) * 60 + (isNaN(s) ? 0 : s);
+  }
+
+  function getConfig() {
+    return {
+      mode:       document.getElementById('timer-mode')?.value || 'countdown',
+      duration:   getDuration(),
+      visible:    document.getElementById('timer-visible-toggle')?.checked ?? true,
+      label:      document.getElementById('timer-label')?.value || 'TIMER',
+      showLabel:  document.getElementById('timer-show-label')?.checked ?? true,
+      posX:       parseInt(document.getElementById('timer-pos-x-num')?.value || '960', 10),
+      posY:       parseInt(document.getElementById('timer-pos-y-num')?.value || '540', 10),
+      style:      document.getElementById('timer-style')?.value || 'default',
+      fontSize:   parseInt(document.getElementById('timer-fontsize')?.value || '80', 10),
+      alertAt:    parseInt(document.getElementById('timer-alert-at')?.value || '60', 10),
+      showMillis:         document.getElementById('timer-show-millis')?.checked ?? false,
+      particlesEnabled:   document.getElementById('timer-particles-enabled')?.checked ?? false,
+      particleCountScale: parseInt(document.getElementById('timer-particles-scale')?.value || '100', 10),
+    };
+  }
+
+  // ── Envoi au serveur ─────────────────────────────────────────
+  function send(body) {
+    return fetch('/api/timer', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    })
+      .then(r => r.json())
+      .then(s => { _timerState = s; syncUI(s); return s; })
+      .catch(e => console.error('[timer-ctrl]', e));
+  }
+
+  let _debounce = null;
+  function sendConfig() {
+    clearTimeout(_debounce);
+    _debounce = setTimeout(() => send(getConfig()), 120);
+  }
+
+  // ── Sync UI depuis l'état ────────────────────────────────────
+  function syncUI(s) {
+    if (!s) return;
+
+    // Mode
+    const modeEl = document.getElementById('timer-mode');
+    if (modeEl && modeEl.value !== s.mode) modeEl.value = s.mode;
+
+    // Durée
+    const totalMin = Math.floor((s.duration || 0) / 60);
+    const totalSec = (s.duration || 0) % 60;
+    const minEl = document.getElementById('timer-duration-min');
+    const secEl = document.getElementById('timer-duration-sec');
+    if (minEl && parseInt(minEl.value, 10) !== totalMin) minEl.value = totalMin;
+    if (secEl && parseInt(secEl.value, 10) !== totalSec) secEl.value = totalSec;
+
+    // Bouton Start/Stop
+    const btn = document.getElementById('timer-start-btn');
+    if (btn) {
+      btn.textContent = s.running ? '⏸ Stop' : '▶ Start';
+      btn.classList.toggle('btn-danger', s.running);
+      btn.classList.toggle('btn-primary', !s.running);
+    }
+
+    _isRunning = s.running;
+
+    // Live display RAF
+    if (s.running) startLiveDisplay();
+    else {
+      stopLiveDisplay();
+      const el = document.getElementById('timer-live-display');
+      if (el) el.textContent = formatLive(getCurrentSeconds(s));
+    }
+
+    // Visible
+    const visEl = document.getElementById('timer-visible-toggle');
+    if (visEl) visEl.checked = !!s.visible;
+
+    // Particules
+    const pEnEl = document.getElementById('timer-particles-enabled');
+    if (pEnEl) pEnEl.checked = !!s.particlesEnabled;
+    const pScEl  = document.getElementById('timer-particles-scale');
+    const pScVal = document.getElementById('timer-particles-scale-val');
+    if (pScEl && s.particleCountScale != null) { pScEl.value = s.particleCountScale; }
+    if (pScVal && s.particleCountScale != null) { pScVal.textContent = s.particleCountScale + '%'; }
+
+    // Show countdown/alert groups
+    const dg = document.getElementById('timer-duration-group');
+    const ag = document.getElementById('timer-alert-group');
+    if (dg) dg.style.display = s.mode === 'countdown' ? '' : 'none';
+    if (ag) ag.style.display = s.mode === 'countdown' ? '' : 'none';
+  }
+
+  // ── Initialisation ───────────────────────────────────────────
+  function init() {
+    // Charger l'état initial
+    fetch('/api/timer')
+      .then(r => r.json())
+      .then(s => { _timerState = s; syncUI(s); })
+      .catch(() => {});
+
+    // Start / Stop
+    document.getElementById('timer-start-btn')?.addEventListener('click', () => {
+      if (_isRunning) {
+        send({ action: 'stop' });
+      } else {
+        // Sync config avant de démarrer
+        send(Object.assign(getConfig(), { action: 'start' }));
+      }
+    });
+
+    // Reset
+    document.getElementById('timer-reset-btn')?.addEventListener('click', () => {
+      send({ action: 'reset' });
+    });
+
+    // Visible toggle
+    document.getElementById('timer-visible-toggle')?.addEventListener('change', sendConfig);
+
+    // Mode
+    document.getElementById('timer-mode')?.addEventListener('change', (e) => {
+      const dg = document.getElementById('timer-duration-group');
+      const ag = document.getElementById('timer-alert-group');
+      if (dg) dg.style.display = e.target.value === 'countdown' ? '' : 'none';
+      if (ag) ag.style.display = e.target.value === 'countdown' ? '' : 'none';
+      sendConfig();
+    });
+
+    // Durée
+    ['timer-duration-min', 'timer-duration-sec'].forEach(id => {
+      document.getElementById(id)?.addEventListener('input', sendConfig);
+    });
+
+    // Label
+    document.getElementById('timer-label')?.addEventListener('input', sendConfig);
+    document.getElementById('timer-show-label')?.addEventListener('change', sendConfig);
+
+    // Style
+    document.getElementById('timer-style')?.addEventListener('change', sendConfig);
+
+    // Alertat
+    document.getElementById('timer-alert-at')?.addEventListener('input', sendConfig);
+
+    // Millis
+    document.getElementById('timer-show-millis')?.addEventListener('change', sendConfig);
+
+    // Particules
+    document.getElementById('timer-particles-enabled')?.addEventListener('change', sendConfig);
+    const psRange = document.getElementById('timer-particles-scale');
+    const psVal   = document.getElementById('timer-particles-scale-val');
+    psRange?.addEventListener('input', () => {
+      if (psVal) psVal.textContent = psRange.value + '%';
+      sendConfig();
+    });
+
+    // Font size slider
+    const fsRange = document.getElementById('timer-fontsize');
+    const fsVal   = document.getElementById('timer-fontsize-val');
+    fsRange?.addEventListener('input', () => {
+      if (fsVal) fsVal.textContent = fsRange.value;
+      sendConfig();
+    });
+
+    // Position sliders ↔ number inputs
+    const posXRange = document.getElementById('timer-pos-x');
+    const posXNum   = document.getElementById('timer-pos-x-num');
+    const posYRange = document.getElementById('timer-pos-y');
+    const posYNum   = document.getElementById('timer-pos-y-num');
+
+    posXRange?.addEventListener('input', () => { if (posXNum) posXNum.value = posXRange.value; sendConfig(); });
+    posXNum?.addEventListener('input',   () => { if (posXRange) posXRange.value = posXNum.value; sendConfig(); });
+    posYRange?.addEventListener('input', () => { if (posYNum) posYNum.value = posYRange.value; sendConfig(); });
+    posYNum?.addEventListener('input',   () => { if (posYRange) posYRange.value = posYNum.value; sendConfig(); });
+
+    // Socket live sync
+    if (typeof socket !== 'undefined') {
+      socket.on('timerUpdate', (s) => {
+        _timerState = s;
+        syncUI(s);
+      });
+    }
+  }
+
+  // Lancer après le DOM
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
