@@ -64,7 +64,7 @@
   }
 
   // ── Échappement HTML ──────────────────────────────────────────
-  function esc(s) {
+  function escHtml(s) {
     return String(s)
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
@@ -120,13 +120,37 @@
     info.appendChild(name);
 
     if (player.wins !== undefined || player.losses !== undefined) {
-      var wr = document.createElement('span');
-      wr.className = 't8-winrate';
-      wr.innerHTML =
-        '<span class="t8-w">'    + (player.wins   || 0) + 'W</span>' +
+      var wins  = player.wins   || 0;
+      var losses = player.losses || 0;
+      var total = wins + losses;
+      var pct   = total > 0 ? Math.round(wins / total * 100) : 0;
+
+      var wrBlock = document.createElement('div');
+      wrBlock.className = 't8-wr-block';
+
+      var wrRow = document.createElement('div');
+      wrRow.className = 't8-winrate';
+      wrRow.innerHTML =
+        '<span class="t8-w">'    + wins   + 'W</span>' +
         '<span class="t8-wlsep">·</span>' +
-        '<span class="t8-l">'    + (player.losses || 0) + 'L</span>';
-      info.appendChild(wr);
+        '<span class="t8-l">'    + losses + 'L</span>' +
+        (total > 0
+          ? '<span class="t8-wr-pct">' + pct + '%</span>'
+          : '');
+
+      wrBlock.appendChild(wrRow);
+
+      if (total > 0) {
+        var track = document.createElement('div');
+        track.className = 't8-wr-bar-track';
+        var fill = document.createElement('div');
+        fill.className = 't8-wr-bar-fill';
+        fill.style.width = pct + '%';
+        track.appendChild(fill);
+        wrBlock.appendChild(track);
+      }
+
+      info.appendChild(wrBlock);
     }
 
     card.appendChild(art);
