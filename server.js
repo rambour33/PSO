@@ -1222,6 +1222,7 @@ io.on('connection', (socket) => {
   socket.emit('framesUpdate', framesState);
   socket.emit('superUpdate', superState);
   socket.emit('titleUpdate', titleState);
+  socket.emit('top8Update', top8State);
 
   // Déclenche l'animation d'entrée sur la VS screen
   socket.on('triggerVsScreen', () => {
@@ -1815,6 +1816,165 @@ app.get('/api/startgg/phasegroup/:id/sets', async (req, res) => {
   } catch (e) { res.status(400).json({ error: e.message }); }
 });
 
+// ─── Top 8 API ───────────────────────────────────────────────────────────────
+
+let top8State = {
+  visible:        false,
+  eventName:      '',
+  tournamentName: '',
+  eventDate:      '',
+  tournamentLogo: '',
+  players:        [],
+  posX:      0,
+  posY:      0,
+  scale:     100,
+};
+
+app.get('/api/top8', (req, res) => res.json(top8State));
+
+app.post('/api/top8', (req, res) => {
+  const allowed = ['visible','eventName','tournamentName','eventDate','tournamentLogo','players','posX','posY','scale'];
+  const body = req.body || {};
+  allowed.forEach(k => { if (k in body) top8State[k] = body[k]; });
+  io.emit('top8Update', top8State);
+  res.json(top8State);
+});
+
+app.get('/top8', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'top8.html'));
+});
+
+// Standings top 8 d'un event start.gg (avec personnages les plus joués)
+app.get('/api/startgg/event/:id/standings', async (req, res) => {
+  try {
+    const eventId = parseInt(req.params.id);
+
+    // 1) Standings top 8
+    const standingsData = await startggQuery(`
+      query EventStandings($eventId: ID!) {
+        event(id: $eventId) {
+          id name
+          startAt
+          tournament {
+            name
+            images { url type }
+          }
+          standings(query: { page: 1, perPage: 8 }) {
+            nodes {
+              placement
+              entrant {
+                id name
+                participants { gamerTag prefix }
+              }
+            }
+          }
+        }
+      }
+    `, { eventId });
+    if (!standingsData.event) return res.status(404).json({ error: 'Évènement introuvable' });
+
+    const ev       = standingsData.event;
+    const standings = ev.standings?.nodes || [];
+
+    // Métadonnées tournoi
+    const tournamentName = ev.tournament?.name || '';
+    const eventDate = ev.startAt
+      ? new Date(ev.startAt * 1000).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })
+      : '';
+    const images = ev.tournament?.images || [];
+    const tournamentLogo = (images.find(img => img.type === 'profile') || images.find(img => img.type === 'banner') || images[0])?.url || '';
+
+    // 2) W/L + Personnages en deux requêtes séparées (éviter la limite de complexité)
+    const charMap = {}; // entrantId → character name
+    const wlMap   = {}; // entrantId → { wins, losses }
+    try {
+      const top8EntrantIds = standings
+        .map(n => n.entrant?.id)
+        .filter(Boolean)
+        .map(Number);
+
+      // Requête A : W/L uniquement (winnerId + slots, sans games)
+      const wlData = await startggQuery(`
+        query EventWL($eventId: ID!, $entrantIds: [ID]) {
+          event(id: $eventId) {
+            sets(filters: { state: [3], entrantIds: $entrantIds }, perPage: 100, page: 1) {
+              nodes {
+                winnerId
+                slots { entrant { id } }
+              }
+            }
+          }
+        }
+      `, { eventId, entrantIds: top8EntrantIds });
+
+      (wlData.event?.sets?.nodes || []).forEach(set => {
+        const wid = String(set.winnerId || '');
+        (set.slots || []).forEach(slot => {
+          const eid = String(slot.entrant?.id || '');
+          if (!eid) return;
+          if (!wlMap[eid]) wlMap[eid] = { wins: 0, losses: 0 };
+          if (wid && wid === eid) wlMap[eid].wins++;
+          else if (wid)          wlMap[eid].losses++;
+        });
+      });
+
+      // Requête B : personnages uniquement (games.selections, sans slots)
+      const charsData = await startggQuery(`
+        query EventChars($eventId: ID!, $entrantIds: [ID]) {
+          event(id: $eventId) {
+            sets(filters: { state: [3], entrantIds: $entrantIds }, perPage: 30, page: 1) {
+              nodes {
+                games {
+                  selections {
+                    entrant { id }
+                    selectionType
+                    selectionValue
+                  }
+                }
+              }
+            }
+          }
+        }
+      `, { eventId, entrantIds: top8EntrantIds });
+
+      const counts = {}; // { entrantId: { charId: count } }
+      (charsData.event?.sets?.nodes || []).forEach(set => {
+        (set.games || []).forEach(game => {
+          (game.selections || []).forEach(sel => {
+            if (sel.selectionType !== 'CHARACTER') return;
+            const eid = String(sel.entrant?.id);
+            if (!counts[eid]) counts[eid] = {};
+            const cid = Number(sel.selectionValue);
+            counts[eid][cid] = (counts[eid][cid] || 0) + 1;
+          });
+        });
+      });
+
+      Object.entries(counts).forEach(([eid, charCounts]) => {
+        const top = Object.entries(charCounts).sort((a, b) => b[1] - a[1])[0];
+        if (!top) return;
+        const internalId = SSBU_CHAR_MAP[Number(top[0])];
+        const charEntry  = characterList.find(c => c.id === internalId);
+        if (charEntry) charMap[eid] = charEntry.name;
+      });
+    } catch (e) {
+      console.error('[top8 chars]', e.message);
+    }
+
+    const players = standings.map(n => ({
+      placement:      n.placement,
+      name:           n.entrant?.participants?.[0]?.gamerTag || n.entrant?.name || 'TBD',
+      tag:            n.entrant?.participants?.[0]?.prefix || '',
+      character:      charMap[String(n.entrant?.id)] || null,
+      characterColor: 0,
+      wins:           wlMap[String(n.entrant?.id)]?.wins   || 0,
+      losses:         wlMap[String(n.entrant?.id)]?.losses || 0,
+    }));
+
+    res.json({ eventName: ev.name, tournamentName, eventDate, tournamentLogo, players });
+  } catch (e) { res.status(400).json({ error: e.message }); }
+});
+
 // ─── Timer API ───────────────────────────────────────────────────────────────
 
 let timerState = {
@@ -1951,5 +2111,6 @@ server.listen(PORT, () => {
   console.log('   Overlay chat       → http://localhost:' + PORT + '/twitch-chat');
   console.log('   Overlay bracket     → http://localhost:' + PORT + '/bracket');
   console.log('   Overlay timer       → http://localhost:' + PORT + '/timer');
+  console.log('   Overlay top 8       → http://localhost:' + PORT + '/top8');
   console.log('   Contrôle           → http://localhost:' + PORT + '/control');
 });

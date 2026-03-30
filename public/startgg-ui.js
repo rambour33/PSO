@@ -357,6 +357,8 @@
     currentEventId = evId;
     loadBracketPhases(evId);
     document.getElementById('sgg-bracket-section').style.display = '';
+    document.getElementById('sgg-top8-section').style.display = '';
+    if (typeof window.setTop8EventId === 'function') window.setTop8EventId(evId);
   };
 
 })();
@@ -395,6 +397,8 @@
       if (data.phases?.length === 1) {
         phSel.selectedIndex = 1;
         phSel.dispatchEvent(new Event('change'));
+        // Auto-charger le bracket si une seule phase
+        setTimeout(() => document.getElementById('sgg-bracket-load-btn')?.click(), 200);
       }
     } catch(e) { console.error('[bracket phases]', e); }
   };
@@ -595,4 +599,355 @@
     el.style.color = isError ? 'var(--danger)' : '';
   }
 
+})();
+
+// ════════════════════════════════════════════════════════════════
+// TOP 8
+// ════════════════════════════════════════════════════════════════
+(function () {
+  'use strict';
+
+  let _currentEventId = null;
+  let _top8Meta = { tournamentName: '', eventDate: '', tournamentLogo: '' };
+
+  // ── Construire les 8 lignes joueurs ───────────────────────────
+  const playersContainer = document.getElementById('sgg-top8-players');
+  if (playersContainer) {
+    const PLACE_COLORS = ['#FFD700','#B8B8C8','#CD7F32'];
+    const inputStyle = 'font-size:12px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);padding:4px 6px';
+    for (let i = 0; i < 8; i++) {
+      const row = document.createElement('div');
+      row.style.cssText = 'display:flex;gap:6px;align-items:stretch;margin-bottom:6px';
+      const pColor = PLACE_COLORS[i] || 'var(--text-muted)';
+      row.innerHTML =
+        // Numéro placement
+        `<span style="font-family:'Russo One',sans-serif;font-size:12px;color:${pColor};min-width:18px;text-align:center;flex-shrink:0;align-self:center">${i + 1}</span>` +
+        // Prévisualisation personnage (art complet + stock icon en surimpression)
+        `<div data-top8-char-btn="${i}" title="Choisir le personnage" style="` +
+          `position:relative;flex-shrink:0;width:46px;height:62px;` +
+          `border:1px solid ${pColor}44;border-radius:4px;` +
+          `background:linear-gradient(160deg,rgba(255,255,255,0.04),rgba(0,0,0,0.35));` +
+          `overflow:hidden;cursor:pointer;transition:border-color 0.15s` +
+        `">` +
+          // Art complet
+          `<img data-top8-char-art="${i}" src="" alt="" style="` +
+            `display:none;position:absolute;bottom:-4px;left:50%;` +
+            `transform:translateX(-50%);height:118%;width:auto;pointer-events:none` +
+          `" onerror="this.style.display='none'" />` +
+          // Stock icon (coin bas-droite)
+          `<img data-top8-char-icon="${i}" src="" alt="" style="` +
+            `display:none;position:absolute;bottom:2px;right:2px;` +
+            `width:18px;height:18px;object-fit:contain;pointer-events:none;` +
+            `filter:drop-shadow(0 1px 2px rgba(0,0,0,0.8))` +
+          `" onerror="this.style.display='none'" />` +
+          // Fond dégradé en bas pour lisibilité
+          `<div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.55) 0%,transparent 45%);pointer-events:none"></div>` +
+          // Placeholder "+"
+          `<span data-top8-char-placeholder="${i}" style="` +
+            `position:absolute;inset:0;display:flex;align-items:center;` +
+            `justify-content:center;font-size:20px;color:var(--text-muted);pointer-events:none` +
+          `">＋</span>` +
+        `</div>` +
+        // Inputs texte
+        `<div style="display:flex;flex-direction:column;gap:4px;flex:1;min-width:0;justify-content:center">` +
+          `<input type="text" placeholder="TAG" data-top8-tag="${i}" style="width:100%;${inputStyle}" />` +
+          `<input type="text" placeholder="Nom du joueur" data-top8-name="${i}" style="width:100%;${inputStyle}" />` +
+        `</div>` +
+        // Champs cachés
+        `<input type="hidden" data-top8-char="${i}" />` +
+        `<input type="hidden" data-top8-char-color="${i}" value="0" />`;
+      playersContainer.appendChild(row);
+    }
+
+    // Clic sur la prévisualisation → ouvre le picker
+    playersContainer.addEventListener('click', function(e) {
+      const btn = e.target.closest('[data-top8-char-btn]');
+      if (!btn) return;
+      const slot = parseInt(btn.getAttribute('data-top8-char-btn'), 10);
+      openT8CharPicker(slot);
+    });
+    // Hover : accentuer la bordure
+    playersContainer.addEventListener('mouseover', function(e) {
+      const btn = e.target.closest('[data-top8-char-btn]');
+      if (btn) btn.style.borderColor = 'var(--gold)';
+    });
+    playersContainer.addEventListener('mouseout', function(e) {
+      const btn = e.target.closest('[data-top8-char-btn]');
+      if (!btn) return;
+      const i = parseInt(btn.getAttribute('data-top8-char-btn'), 10);
+      const PLACE_COLORS_LOCAL = ['#FFD700','#B8B8C8','#CD7F32'];
+      btn.style.borderColor = (PLACE_COLORS_LOCAL[i] || 'var(--text-muted)') + '44';
+    });
+  }
+
+  // ── Picker de personnage Top 8 ─────────────────────────────────
+  let _t8CharSlot = -1;
+  let _t8CharList = [];
+
+  // Créer le modal picker
+  const _t8Modal = document.createElement('div');
+  _t8Modal.id = 't8-char-modal';
+  _t8Modal.style.cssText = 'display:none;position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:9999;overflow:auto;padding:30px 16px';
+  _t8Modal.innerHTML =
+    `<div style="max-width:820px;margin:0 auto;background:var(--surface);border:1px solid var(--border);border-radius:8px;overflow:hidden">` +
+    `<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--border);gap:12px">` +
+    `<span id="t8-char-modal-title" style="font-weight:700;font-size:14px;flex-shrink:0">Choisir le personnage</span>` +
+    `<input type="text" id="t8-char-search" placeholder="Rechercher…" style="flex:1;font-size:12px;padding:5px 8px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text)" />` +
+    `<button id="t8-char-modal-close" style="font-size:12px;padding:5px 10px;border:1px solid var(--border);border-radius:4px;background:var(--surface2);color:var(--text);cursor:pointer;flex-shrink:0">Fermer</button>` +
+    `</div>` +
+    `<div id="t8-char-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(72px,1fr));gap:6px;padding:12px;max-height:65vh;overflow-y:auto"></div>` +
+    `</div>`;
+  document.body.appendChild(_t8Modal);
+
+  document.getElementById('t8-char-modal-close').addEventListener('click', closeT8CharPicker);
+  _t8Modal.addEventListener('click', function(e) {
+    if (e.target === _t8Modal) closeT8CharPicker();
+  });
+  document.getElementById('t8-char-search').addEventListener('input', function() {
+    renderT8CharGrid(this.value);
+  });
+
+  // Charger la liste des personnages
+  fetch('/api/characters').then(r => r.json()).then(list => {
+    _t8CharList = list;
+  }).catch(() => {});
+
+  function openT8CharPicker(slot) {
+    _t8CharSlot = slot;
+    document.getElementById('t8-char-modal-title').textContent = 'Personnage — Slot ' + (slot + 1);
+    document.getElementById('t8-char-search').value = '';
+    renderT8CharGrid('');
+    _t8Modal.style.display = 'block';
+    setTimeout(() => document.getElementById('t8-char-search').focus(), 80);
+  }
+
+  function closeT8CharPicker() {
+    _t8Modal.style.display = 'none';
+    _t8CharSlot = -1;
+  }
+
+  function renderT8CharGrid(filter) {
+    const grid = document.getElementById('t8-char-grid');
+    if (!grid) return;
+    const lf = filter.toLowerCase();
+    const list = lf ? _t8CharList.filter(c => c.name.toLowerCase().includes(lf)) : _t8CharList;
+    grid.innerHTML = '';
+    list.forEach(function(char) {
+      const card = document.createElement('div');
+      card.style.cssText = [
+        'position:relative',
+        'display:flex','flex-direction:column','align-items:center','gap:3px',
+        'padding:4px 4px 5px',
+        'border:1px solid var(--border)','border-radius:5px',
+        'cursor:pointer','background:var(--surface2)',
+        'overflow:hidden','transition:border-color 0.12s,transform 0.1s',
+        'height:86px',
+      ].join(';');
+
+      // Art complet en fond (position absolue, décalévers le bas)
+      const artImg = document.createElement('img');
+      artImg.src = charArtSrc(char.name, 0);
+      artImg.style.cssText = 'position:absolute;bottom:-4px;left:50%;transform:translateX(-50%);height:82px;width:auto;pointer-events:none;opacity:0.85';
+      artImg.onerror = function() { this.style.display = 'none'; };
+
+      // Dégradé de lisibilité
+      const grad = document.createElement('div');
+      grad.style.cssText = 'position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.7) 0%,rgba(0,0,0,0.08) 55%,transparent 100%);pointer-events:none';
+
+      // Stock icon en haut
+      const stockImg = document.createElement('img');
+      stockImg.src = '/Stock Icons/chara_2_' + char.name + '_00.png';
+      stockImg.style.cssText = 'position:relative;z-index:2;width:34px;height:34px;object-fit:contain;margin-top:2px;filter:drop-shadow(0 1px 3px rgba(0,0,0,0.7))';
+      stockImg.onerror = function() { this.style.opacity = '0.15'; };
+
+      // Nom en bas
+      const label = document.createElement('span');
+      label.style.cssText = 'position:relative;z-index:2;font-size:8.5px;color:#fff;text-align:center;line-height:1.2;word-break:break-word;margin-top:auto;text-shadow:0 1px 3px rgba(0,0,0,0.9)';
+      label.textContent = char.name;
+
+      card.appendChild(artImg);
+      card.appendChild(grad);
+      card.appendChild(stockImg);
+      card.appendChild(label);
+
+      card.addEventListener('mouseenter', () => {
+        card.style.borderColor = 'var(--gold)';
+        card.style.transform = 'scale(1.04)';
+      });
+      card.addEventListener('mouseleave', () => {
+        card.style.borderColor = 'var(--border)';
+        card.style.transform = '';
+      });
+      card.addEventListener('click', () => selectT8Char(char.name, 0));
+      grid.appendChild(card);
+    });
+  }
+
+  function charArtSrc(name, color) {
+    if (!name) return '';
+    const n = name.replace(/\s*\/\s*/g, '-');
+    const c = String(color || 0).padStart(2, '0');
+    return '/full/chara_1_' + n + '_' + c + '.png';
+  }
+
+  function setT8CharIcon(slot, charName, colorIndex) {
+    const art     = document.querySelector('[data-top8-char-art="'         + slot + '"]');
+    const icon    = document.querySelector('[data-top8-char-icon="'        + slot + '"]');
+    const pholder = document.querySelector('[data-top8-char-placeholder="' + slot + '"]');
+    if (!pholder) return;
+    if (charName) {
+      const pad = String(colorIndex || 0).padStart(2, '0');
+      if (art) {
+        art.src = charArtSrc(charName, colorIndex);
+        art.style.display = 'block';
+      }
+      if (icon) {
+        icon.src = '/Stock Icons/chara_2_' + charName + '_' + pad + '.png';
+        icon.style.display = 'block';
+      }
+      pholder.style.display = 'none';
+    } else {
+      if (art)  { art.src  = ''; art.style.display  = 'none'; }
+      if (icon) { icon.src = ''; icon.style.display = 'none'; }
+      pholder.style.display = '';
+    }
+  }
+
+  function selectT8Char(charName, colorIndex) {
+    if (_t8CharSlot < 0) return;
+    const charInput  = document.querySelector('[data-top8-char="'       + _t8CharSlot + '"]');
+    const colorInput = document.querySelector('[data-top8-char-color="' + _t8CharSlot + '"]');
+    if (charInput)  charInput.value  = charName;
+    if (colorInput) colorInput.value = colorIndex || 0;
+    setT8CharIcon(_t8CharSlot, charName, colorIndex || 0);
+    closeT8CharPicker();
+    pushTop8();
+  }
+
+  function getPlayers() {
+    const players = [];
+    for (let i = 0; i < 8; i++) {
+      const tagEl   = document.querySelector(`[data-top8-tag="${i}"]`);
+      const nameEl  = document.querySelector(`[data-top8-name="${i}"]`);
+      const charEl  = document.querySelector(`[data-top8-char="${i}"]`);
+      const colorEl = document.querySelector(`[data-top8-char-color="${i}"]`);
+      players.push({
+        placement:      i + 1,
+        tag:            tagEl  ? tagEl.value.trim()                    : '',
+        name:           nameEl ? nameEl.value.trim()                   : '',
+        character:      charEl ? charEl.value.trim()                   : '',
+        characterColor: colorEl ? parseInt(colorEl.value || '0', 10)  : 0,
+      });
+    }
+    return players;
+  }
+
+  function setPlayers(players) {
+    (players || []).forEach((p, i) => {
+      const tagEl   = document.querySelector(`[data-top8-tag="${i}"]`);
+      const nameEl  = document.querySelector(`[data-top8-name="${i}"]`);
+      const charEl  = document.querySelector(`[data-top8-char="${i}"]`);
+      const colorEl = document.querySelector(`[data-top8-char-color="${i}"]`);
+      if (tagEl)   tagEl.value   = p.tag       || '';
+      if (nameEl)  nameEl.value  = p.name      || '';
+      if (charEl)  charEl.value  = p.character || '';
+      if (colorEl) colorEl.value = p.characterColor ?? 0;
+      setT8CharIcon(i, p.character || '', p.characterColor ?? 0);
+    });
+  }
+
+  function setTop8Status(msg, isError) {
+    const el = document.getElementById('sgg-top8-status');
+    if (!el) return;
+    el.textContent = msg;
+    el.style.color = isError ? 'var(--danger)' : '';
+  }
+
+  // ── Charger depuis start.gg ────────────────────────────────────
+  async function loadTop8() {
+    if (!_currentEventId) { setTop8Status('Chargez d\'abord un évènement.', true); return; }
+    setTop8Status('Chargement des standings…');
+    try {
+      const res  = await fetch(`/api/startgg/event/${_currentEventId}/standings`);
+      const data = await res.json();
+      if (data.error) { setTop8Status('Erreur : ' + data.error, true); return; }
+      setPlayers(data.players || []);
+      const evNameInput = document.getElementById('sgg-top8-event-name');
+      if (evNameInput && !evNameInput.value) evNameInput.value = data.eventName || '';
+      // Stocker les métadonnées tournoi
+      _top8Meta = {
+        tournamentName: data.tournamentName || '',
+        eventDate:      data.eventDate      || '',
+        tournamentLogo: data.tournamentLogo || '',
+      };
+      setTop8Status((data.players?.length || 0) + ' joueurs chargés');
+      const refreshBtn = document.getElementById('sgg-top8-refresh-btn');
+      if (refreshBtn) refreshBtn.style.display = '';
+      // Synchroniser tout vers le serveur
+      await pushTop8();
+    } catch (e) { setTop8Status('Erreur réseau : ' + e.message, true); }
+  }
+
+  document.getElementById('sgg-top8-load-btn')?.addEventListener('click', loadTop8);
+  document.getElementById('sgg-top8-refresh-btn')?.addEventListener('click', loadTop8);
+
+  // ── Afficher / Masquer ────────────────────────────────────────
+  document.getElementById('sgg-top8-show-btn')?.addEventListener('click', () => pushTop8({ visible: true }));
+  document.getElementById('sgg-top8-hide-btn')?.addEventListener('click', () => pushTop8({ visible: false }));
+
+  // ── Échelle ───────────────────────────────────────────────────
+  const scaleRange = document.getElementById('sgg-top8-scale');
+  const scaleVal   = document.getElementById('sgg-top8-scale-val');
+  scaleRange?.addEventListener('input', () => {
+    if (scaleVal) scaleVal.textContent = scaleRange.value + '%';
+    sendConfig();
+  });
+
+  // ── Position ──────────────────────────────────────────────────
+  ['x', 'y'].forEach(axis => {
+    const range = document.getElementById(`sgg-top8-pos-${axis}`);
+    const num   = document.getElementById(`sgg-top8-pos-${axis}-num`);
+    range?.addEventListener('input', () => { if (num) num.value = range.value; sendConfig(); });
+    num?.addEventListener('input',   () => { if (range) range.value = num.value; sendConfig(); });
+  });
+
+  let _configDebounce = null;
+  function sendConfig() {
+    clearTimeout(_configDebounce);
+    _configDebounce = setTimeout(() => {
+      fetch('/api/top8', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({
+          posX:  parseInt(document.getElementById('sgg-top8-pos-x-num')?.value || '0', 10),
+          posY:  parseInt(document.getElementById('sgg-top8-pos-y-num')?.value || '0', 10),
+          scale: parseInt(scaleRange?.value || '100', 10),
+        }),
+      }).catch(() => {});
+    }, 120);
+  }
+
+  async function pushTop8(extra) {
+    const body = Object.assign({
+      eventName:      document.getElementById('sgg-top8-event-name')?.value?.trim() || '',
+      tournamentName: _top8Meta.tournamentName,
+      eventDate:      _top8Meta.eventDate,
+      tournamentLogo: _top8Meta.tournamentLogo,
+      players:        getPlayers(),
+      posX:  parseInt(document.getElementById('sgg-top8-pos-x-num')?.value || '0', 10),
+      posY:  parseInt(document.getElementById('sgg-top8-pos-y-num')?.value || '0', 10),
+      scale: parseInt(scaleRange?.value || '100', 10),
+    }, extra || {});
+    await fetch('/api/top8', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify(body),
+    }).catch(() => {});
+  }
+
+  // ── API exposée ───────────────────────────────────────────────
+  window.setTop8EventId = function (evId) {
+    _currentEventId = evId;
+    loadTop8();
+  };
 })();

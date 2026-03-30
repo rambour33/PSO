@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>PSO – Top 8</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Russo+One&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="top8.css" />
+</head>
+<body>
+
+<div id="top8-root" class="top8-root hidden">
+
+  <!-- Fond dynamique -->
+  <div class="t8-bg" id="t8-bg"></div>
+
+  <!-- Particules -->
+  <canvas id="t8-particles" class="t8-particles"></canvas>
+
+  <!-- Header -->
+  <div class="t8-header">
+    <div class="t8-header-line"></div>
+    <div class="t8-header-center">
+      <img id="t8-logo" class="t8-logo" alt="" style="display:none" />
+      <div class="t8-header-texts">
+        <span class="t8-header-title">TOP 8</span>
+        <div class="t8-header-meta" id="t8-header-meta">
+          <span class="t8-meta-tournament" id="top8-tournament"></span>
+          <span class="t8-meta-sep t8-sep-1">·</span>
+          <span class="t8-meta-event"     id="top8-event"></span>
+          <span class="t8-meta-sep t8-sep-2">·</span>
+          <span class="t8-meta-date"      id="top8-date"></span>
+        </div>
+      </div>
+    </div>
+    <div class="t8-header-line t8-header-line-r"></div>
+  </div>
+
+  <!-- Podium : 2e (gauche) · 1er (centre) · 3e (droite) -->
+  <div class="t8-podium" id="t8-podium"></div>
+
+  <!-- Ligne du bas : 4e – 8e -->
+  <div class="t8-bottom" id="t8-bottom"></div>
+
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="top8.js"></script>
+</body>
+</html>

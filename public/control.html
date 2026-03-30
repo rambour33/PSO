@@ -33,6 +33,7 @@
       <a href="/ticker" target="_blank" class="btn btn-outline">Bandeau ↗</a>
       <a href="/frames" target="_blank" class="btn btn-outline">Cadres ↗</a>
       <a href="/bracket" target="_blank" class="btn btn-outline">Bracket ↗</a>
+      <a href="/top8" target="_blank" class="btn btn-outline">Top 8 ↗</a>
       <a href="/super-overlay" target="_blank" class="btn btn-outline">Super Overlay ↗</a>
       <a href="/twitch-chat" target="_blank" class="btn btn-outline">Chat ↗</a>
       <button id="btn-vs-trigger" class="btn btn-primary" title="Déclenche l'animation d'entrée sur la VS Screen">⚔ VS Anim</button>
@@ -1815,6 +1816,69 @@
           <button class="btn btn-primary" id="ps-history-send-btn" style="flex:1" disabled>Envoyer</button>
           <button class="btn btn-outline" id="ps-history-hide-btn">Masquer</button>
         </div>
+      </div>
+    </section>
+
+    <!-- Top 8 -->
+    <section class="section" id="sgg-top8-section" style="display:none">
+      <div class="section-header">
+        <h2>Top 8</h2>
+        <a href="/top8" target="_blank" class="btn btn-outline btn-sm">Overlay ↗</a>
+      </div>
+
+      <div class="custom-card-grid">
+
+        <!-- Joueurs -->
+        <div class="custom-card">
+          <h3>Joueurs</h3>
+          <div style="display:flex;gap:8px;margin-bottom:8px">
+            <button class="btn btn-outline btn-sm" id="sgg-top8-load-btn" style="flex:1">Charger depuis start.gg</button>
+            <button class="btn btn-outline btn-sm" id="sgg-top8-refresh-btn" title="Actualiser" style="display:none">↺</button>
+          </div>
+          <p class="hint" id="sgg-top8-status" style="margin-bottom:8px"></p>
+
+          <!-- 8 slots joueurs — générés par JS -->
+          <div id="sgg-top8-players"></div>
+
+          <div class="form-group" style="margin-top:10px;margin-bottom:0">
+            <label>Nom de l'évènement (affiché sur l'overlay)</label>
+            <input type="text" id="sgg-top8-event-name" placeholder="ex: PSO Open #12" style="width:100%" />
+          </div>
+        </div>
+
+        <!-- Contrôles overlay -->
+        <div class="custom-card">
+          <h3>Overlay</h3>
+          <div style="display:flex;gap:8px;margin-bottom:10px">
+            <button class="btn btn-primary" id="sgg-top8-show-btn" style="flex:1">Afficher</button>
+            <button class="btn btn-outline" id="sgg-top8-hide-btn" style="flex:1">Masquer</button>
+          </div>
+
+          <div class="form-group">
+            <label>Échelle (%)</label>
+            <div style="display:flex;gap:8px;align-items:center">
+              <input type="range" id="sgg-top8-scale" min="30" max="200" step="5" value="100" style="flex:1" />
+              <span id="sgg-top8-scale-val" style="min-width:36px;text-align:right">100%</span>
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-bottom:0">
+            <label>Position sur l'overlay</label>
+            <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:4px">
+              <div style="display:flex;gap:6px;align-items:center">
+                <label style="font-size:12px;min-width:12px">X</label>
+                <input type="range" id="sgg-top8-pos-x" min="0" max="1800" step="5" value="0" style="width:110px" />
+                <input type="number" id="sgg-top8-pos-x-num" value="0" min="0" max="1800" style="width:58px" />
+              </div>
+              <div style="display:flex;gap:6px;align-items:center">
+                <label style="font-size:12px;min-width:12px">Y</label>
+                <input type="range" id="sgg-top8-pos-y" min="0" max="900" step="5" value="0" style="width:110px" />
+                <input type="number" id="sgg-top8-pos-y-num" value="0" min="0" max="900" style="width:58px" />
+              </div>
+            </div>
+          </div>
+        </div>
+
       </div>
     </section>
 
