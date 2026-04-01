@@ -326,6 +326,37 @@ body {
 .t8-card-3rd    .t8-winrate { font-size: 11px; }
 .t8-card-bottom .t8-winrate { font-size: 9px;  }
 
+.t8-wr-block {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex-shrink: 0;
+  width: 100%;
+}
+
+.t8-wr-pct {
+  margin-left: auto;
+  color: var(--t8-primary);
+  opacity: 0.9;
+}
+
+.t8-wr-bar-track {
+  width: 100%;
+  height: 3px;
+  background: rgba(255,255,255,0.10);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.t8-wr-bar-fill {
+  height: 100%;
+  background: linear-gradient(to right, #5cd65c, var(--t8-primary));
+  border-radius: 2px;
+  transition: width 0.5s ease;
+}
+
+.t8-card-bottom .t8-wr-bar-track { height: 2px; }
+
 /* ══════════════════════════════════════════════════════════════
    CARTES PODIUM
    ══════════════════════════════════════════════════════════════ */

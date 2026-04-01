@@ -63,13 +63,6 @@
     return '/full/chara_1_' + n + '_' + c + '.png';
   }
 
-  // ── Échappement HTML ──────────────────────────────────────────
-  function escHtml(s) {
-    return String(s)
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;');
-  }
 
   // ── Construction d'une carte joueur ──────────────────────────
   function buildCard(player, cardClass) {
@@ -230,7 +223,7 @@
   }
 
   // ── Système de particules ────────────────────────────────────
-  var _pCanvas = null, _pCtx = null, _pRAF = null, _parts = [], _pTheme = 'default';
+  var _pCtx = null, _pRAF = null, _parts = [], _pTheme = 'default';
 
   var PCFG = {
     default:    { rgb:'232,184,48',   n:45, vy:0.50, vx:0.30, r:1.8, blur:14 },
@@ -287,8 +280,7 @@
     _pTheme = theme || 'default';
     var canvas = document.getElementById('t8-particles');
     if (!canvas) return;
-    _pCanvas = canvas;
-    _pCtx    = canvas.getContext('2d');
+    _pCtx = canvas.getContext('2d');
     canvas.width  = 1920;
     canvas.height = 1080;
     var cfg = getPcfg(_pTheme);
