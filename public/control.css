@@ -1689,6 +1689,14 @@ kbd {
   color: var(--text-muted);
 }
 
+.name-row .input-seed {
+  width: 48px;
+  flex-shrink: 0;
+  font-size: 12px;
+  text-align: center;
+  color: var(--text-muted);
+}
+
 /* ── Slider opacité ──────────────────────────────────────────── */
 
 .opacity-slider-row {

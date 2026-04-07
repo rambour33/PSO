@@ -43,8 +43,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 // ─── State ────────────────────────────────────────────────────────────────────
 
 let matchState = {
-  player1: { name: 'PLAYER 1', score: 0, character: null, color: '#E83030', tag: '', pronouns: '', stockColor: 0, flag: '', flagOffsetX: 0, flagOffsetY: 0 },
-  player2: { name: 'PLAYER 2', score: 0, character: null, color: '#3070E8', tag: '', pronouns: '', stockColor: 0, flag: '', flagOffsetX: 0, flagOffsetY: 0 },
+  player1: { name: 'PLAYER 1', score: 0, character: null, color: '#E83030', tag: '', pronouns: '', stockColor: 0, flag: '', flagOffsetX: 0, flagOffsetY: 0, seeding: null },
+  player2: { name: 'PLAYER 2', score: 0, character: null, color: '#3070E8', tag: '', pronouns: '', stockColor: 0, flag: '', flagOffsetX: 0, flagOffsetY: 0, seeding: null },
   flagSize: 52,
   format: 'Bo3',
   customWins: 2,
@@ -79,7 +79,11 @@ let matchState = {
     score:  { x: 886,  y: 28 },
     p2Name: { x: 1056, y: 50 },
     p2Icon: { x: 1222, y: 28 },
-  }
+  },
+  overlayTexture:        null,
+  overlayTextureOpacity: 50,
+  overlayTextureBlend:   'normal',
+  overlayTextureSize:    'repeat',
 };
 
 let characterList = [
@@ -1142,6 +1146,28 @@ app.post('/api/state', (req, res) => {
   res.json(matchState);
 });
 
+// ── Texture upload ─────────────────────────────────────────────
+const TEXTURES_DIR = path.join(__dirname, 'public', 'textures');
+if (!fs.existsSync(TEXTURES_DIR)) fs.mkdirSync(TEXTURES_DIR, { recursive: true });
+
+app.post('/api/texture/upload', (req, res) => {
+  const { filename, data } = req.body;
+  if (!filename || !data) return res.status(400).json({ error: 'filename and data required' });
+  const safe = path.basename(filename).replace(/[^a-zA-Z0-9._-]/g, '_');
+  const b64  = data.includes(',') ? data.split(',')[1] : data;
+  fs.writeFileSync(path.join(TEXTURES_DIR, safe), Buffer.from(b64, 'base64'));
+  res.json({ url: '/textures/' + safe });
+});
+
+app.delete('/api/texture/upload', (req, res) => {
+  const { filename } = req.body || {};
+  if (filename) {
+    const safe = path.basename(filename).replace(/[^a-zA-Z0-9._-]/g, '_');
+    try { fs.unlinkSync(path.join(TEXTURES_DIR, safe)); } catch (e) {}
+  }
+  res.json({ ok: true });
+});
+
 app.get('/api/veto', (req, res) => res.json(vetoState));
 app.post('/api/veto', (req, res) => {
   vetoState = { ...vetoState, ...req.body };
@@ -1359,7 +1385,7 @@ app.get('/api/startgg/event/:id/entrants', async (req, res) => {
           entrants(query: { page: $page, perPage: 100 }) {
             pageInfo { total totalPages }
             nodes {
-              id name
+              id name initialSeedNum
               participants { gamerTag prefix player { id user { slug } } }
             }
           }
@@ -2094,6 +2120,11 @@ app.get('/api/flags', (req, res) => {
       }));
     res.json(countries);
   } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+app.post('/api/server/reload', (req, res) => {
+  res.json({ ok: true });
+  setTimeout(() => process.exit(0), 300);
 });
 
 // ─── Start ────────────────────────────────────────────────────────────────────

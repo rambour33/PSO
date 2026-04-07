@@ -105,6 +105,7 @@
       prefix:   e.participants?.[0]?.prefix || '',
       playerId: e.participants?.[0]?.player?.id || null,
       userSlug: e.participants?.[0]?.player?.user?.slug || null,
+      seeding:  e.initialSeedNum || null,
     }));
     const total = data.entrants?.pageInfo?.total || allEntrants.length;
     document.getElementById('sgg-entrants-count').textContent = `${total} participants`;
@@ -132,21 +133,22 @@
       const row = document.createElement('div');
       row.className = 'sgg-entrant-row';
       const label = e.prefix ? `[${e.prefix}] ${e.tag}` : e.tag;
+      const seedLabel = e.seeding != null ? ` <span style="font-size:10px;color:var(--text-muted)">#${e.seeding}</span>` : '';
       row.innerHTML = `
-        <span class="sgg-entrant-name">${label}</span>
+        <span class="sgg-entrant-name">${label}${seedLabel}</span>
         <div class="sgg-entrant-actions">
-          <button class="btn btn-outline btn-sm sgg-apply-p1" data-tag="${e.prefix}" data-name="${e.tag}">→ J1</button>
-          <button class="btn btn-outline btn-sm sgg-apply-p2" data-tag="${e.prefix}" data-name="${e.tag}">→ J2</button>
+          <button class="btn btn-outline btn-sm sgg-apply-p1" data-tag="${e.prefix}" data-name="${e.tag}" data-seed="${e.seeding ?? ''}">→ J1</button>
+          <button class="btn btn-outline btn-sm sgg-apply-p2" data-tag="${e.prefix}" data-name="${e.tag}" data-seed="${e.seeding ?? ''}">→ J2</button>
         </div>
       `;
       container.appendChild(row);
     });
 
     container.querySelectorAll('.sgg-apply-p1').forEach(btn => {
-      btn.addEventListener('click', () => applyPlayer(1, btn.dataset.tag, btn.dataset.name));
+      btn.addEventListener('click', () => applyPlayer(1, btn.dataset.tag, btn.dataset.name, btn.dataset.seed ? parseInt(btn.dataset.seed) : null));
     });
     container.querySelectorAll('.sgg-apply-p2').forEach(btn => {
-      btn.addEventListener('click', () => applyPlayer(2, btn.dataset.tag, btn.dataset.name));
+      btn.addEventListener('click', () => applyPlayer(2, btn.dataset.tag, btn.dataset.name, btn.dataset.seed ? parseInt(btn.dataset.seed) : null));
     });
   }
 
@@ -161,14 +163,15 @@
 
   // ── Apply Player ──────────────────────────────────────────────────────────────
 
-  function applyPlayer(playerNum, prefix, tag) {
-    const tagInput = document.getElementById(`p${playerNum}-tag`);
+  function applyPlayer(playerNum, prefix, tag, seeding) {
+    const tagInput  = document.getElementById(`p${playerNum}-tag`);
     const nameInput = document.getElementById(`p${playerNum}-name`);
-    if (tagInput) tagInput.value = prefix || '';
+    const seedInput = document.getElementById(`p${playerNum}-seed`);
+    if (tagInput)  tagInput.value  = prefix || '';
     if (nameInput) nameInput.value = tag;
-    // Trigger emitState via the existing control.js mechanism
+    if (seedInput) seedInput.value = seeding != null ? seeding : '';
     nameInput.dispatchEvent(new Event('input', { bubbles: true }));
-    showStatus(`Joueur ${playerNum} mis à jour : ${tag}`);
+    showStatus(`Joueur ${playerNum} mis à jour : ${tag}${seeding != null ? ' (seed #' + seeding + ')' : ''}`);
   }
 
   // ── Sets ──────────────────────────────────────────────────────────────────────
@@ -295,7 +298,7 @@
         item.innerHTML = label;
         item.addEventListener('mousedown', ev => {
           ev.preventDefault();
-          applyPlayer(playerNum, e.prefix, e.tag);
+          applyPlayer(playerNum, e.prefix, e.tag, e.seeding ?? null);
           hideDrop();
         });
         drop.appendChild(item);
@@ -684,22 +687,37 @@
   let _t8CharSlot = -1;
   let _t8CharList = [];
 
-  // Créer le modal picker
+  // Créer le modal picker (deux étapes : perso → skin)
   const _t8Modal = document.createElement('div');
   _t8Modal.id = 't8-char-modal';
   _t8Modal.style.cssText = 'display:none;position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:9999;overflow:auto;padding:30px 16px';
   _t8Modal.innerHTML =
-    `<div style="max-width:820px;margin:0 auto;background:var(--surface);border:1px solid var(--border);border-radius:8px;overflow:hidden">` +
-    `<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--border);gap:12px">` +
-    `<span id="t8-char-modal-title" style="font-weight:700;font-size:14px;flex-shrink:0">Choisir le personnage</span>` +
-    `<input type="text" id="t8-char-search" placeholder="Rechercher…" style="flex:1;font-size:12px;padding:5px 8px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text)" />` +
-    `<button id="t8-char-modal-close" style="font-size:12px;padding:5px 10px;border:1px solid var(--border);border-radius:4px;background:var(--surface2);color:var(--text);cursor:pointer;flex-shrink:0">Fermer</button>` +
+    `<div style="max-width:860px;margin:0 auto;background:var(--surface);border:1px solid var(--border);border-radius:8px;overflow:hidden">` +
+    // Header commun
+    `<div style="display:flex;align-items:center;padding:12px 16px;border-bottom:1px solid var(--border);gap:10px">` +
+      `<button id="t8-skin-back" style="display:none;font-size:12px;padding:4px 10px;border:1px solid var(--border);border-radius:4px;background:var(--surface2);color:var(--text);cursor:pointer;flex-shrink:0">← Retour</button>` +
+      `<span id="t8-char-modal-title" style="font-weight:700;font-size:14px;flex-shrink:0">Choisir le personnage</span>` +
+      `<input type="text" id="t8-char-search" placeholder="Rechercher…" style="flex:1;font-size:12px;padding:5px 8px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text)" />` +
+      `<button id="t8-char-modal-close" style="font-size:12px;padding:4px 10px;border:1px solid var(--border);border-radius:4px;background:var(--surface2);color:var(--text);cursor:pointer;flex-shrink:0">Fermer</button>` +
     `</div>` +
+    // Étape 1 : grille personnages
     `<div id="t8-char-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(72px,1fr));gap:6px;padding:12px;max-height:65vh;overflow-y:auto"></div>` +
+    // Étape 2 : grille skins (cachée par défaut)
+    `<div id="t8-skin-panel" style="display:none;padding:16px">` +
+      `<div id="t8-skin-char-name" style="font-size:13px;font-weight:600;color:var(--text-muted);margin-bottom:12px;text-align:center;letter-spacing:1px;text-transform:uppercase"></div>` +
+      `<div id="t8-skin-grid" style="display:grid;grid-template-columns:repeat(8,1fr);gap:8px"></div>` +
+    `</div>` +
     `</div>`;
   document.body.appendChild(_t8Modal);
 
   document.getElementById('t8-char-modal-close').addEventListener('click', closeT8CharPicker);
+  document.getElementById('t8-skin-back').addEventListener('click', function() {
+    document.getElementById('t8-skin-panel').style.display = 'none';
+    document.getElementById('t8-char-grid').style.display  = 'grid';
+    document.getElementById('t8-char-search').style.display = '';
+    this.style.display = 'none';
+    document.getElementById('t8-char-modal-title').textContent = 'Personnage — Slot ' + (_t8CharSlot + 1);
+  });
   _t8Modal.addEventListener('click', function(e) {
     if (e.target === _t8Modal) closeT8CharPicker();
   });
@@ -714,6 +732,11 @@
 
   function openT8CharPicker(slot) {
     _t8CharSlot = slot;
+    // Toujours démarrer à l'étape 1
+    document.getElementById('t8-char-grid').style.display   = 'grid';
+    document.getElementById('t8-char-search').style.display = '';
+    document.getElementById('t8-skin-panel').style.display  = 'none';
+    document.getElementById('t8-skin-back').style.display   = 'none';
     document.getElementById('t8-char-modal-title').textContent = 'Personnage — Slot ' + (slot + 1);
     document.getElementById('t8-char-search').value = '';
     renderT8CharGrid('');
@@ -778,9 +801,65 @@
         card.style.borderColor = 'var(--border)';
         card.style.transform = '';
       });
-      card.addEventListener('click', () => selectT8Char(char.name, 0));
+      card.addEventListener('click', () => showT8SkinPicker(char.name));
       grid.appendChild(card);
     });
+  }
+
+  function showT8SkinPicker(charName) {
+    // Basculer vers l'étape 2
+    document.getElementById('t8-char-grid').style.display   = 'none';
+    document.getElementById('t8-char-search').style.display = 'none';
+    document.getElementById('t8-skin-panel').style.display  = 'block';
+    document.getElementById('t8-skin-back').style.display   = '';
+    document.getElementById('t8-char-modal-title').textContent = charName;
+    document.getElementById('t8-skin-char-name').textContent   = 'Choisir un skin';
+
+    const grid = document.getElementById('t8-skin-grid');
+    grid.innerHTML = '';
+
+    const SKIN_LABELS = ['Default','Rouge','Bleu','Vert','Jaune','Blanc','Violet','Cyan'];
+    for (let ci = 0; ci < 8; ci++) {
+      const pad  = String(ci).padStart(2, '0');
+      const card = document.createElement('div');
+      card.style.cssText = [
+        'position:relative','display:flex','flex-direction:column','align-items:center',
+        'gap:3px','padding:4px','border:2px solid var(--border)','border-radius:6px',
+        'cursor:pointer','background:var(--surface2)','overflow:hidden',
+        'transition:border-color 0.12s,transform 0.1s','height:110px',
+      ].join(';');
+
+      // Art complet en fond
+      const artImg = document.createElement('img');
+      artImg.src = charArtSrc(charName, ci);
+      artImg.style.cssText = 'position:absolute;bottom:-4px;left:50%;transform:translateX(-50%);height:100px;width:auto;pointer-events:none;opacity:0.9';
+      artImg.onerror = function() { this.style.display = 'none'; };
+
+      // Dégradé
+      const grad = document.createElement('div');
+      grad.style.cssText = 'position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.75) 0%,rgba(0,0,0,0.05) 55%,transparent 100%);pointer-events:none';
+
+      // Stock icon
+      const stockImg = document.createElement('img');
+      stockImg.src = '/Stock Icons/chara_2_' + charName + '_' + pad + '.png';
+      stockImg.style.cssText = 'position:relative;z-index:2;width:36px;height:36px;object-fit:contain;margin-top:3px;filter:drop-shadow(0 1px 4px rgba(0,0,0,0.8))';
+      stockImg.onerror = function() { card.style.opacity = '0.3'; card.style.pointerEvents = 'none'; };
+
+      // Numéro/label du skin
+      const label = document.createElement('span');
+      label.style.cssText = 'position:relative;z-index:2;font-size:8px;color:#fff;text-align:center;margin-top:auto;text-shadow:0 1px 3px rgba(0,0,0,0.9);line-height:1.2';
+      label.textContent = SKIN_LABELS[ci] || 'Skin ' + (ci + 1);
+
+      card.appendChild(artImg);
+      card.appendChild(grad);
+      card.appendChild(stockImg);
+      card.appendChild(label);
+
+      card.addEventListener('mouseenter', () => { card.style.borderColor = 'var(--gold)'; card.style.transform = 'scale(1.05)'; });
+      card.addEventListener('mouseleave', () => { card.style.borderColor = 'var(--border)'; card.style.transform = ''; });
+      card.addEventListener('click', () => selectT8Char(charName, ci));
+      grid.appendChild(card);
+    }
   }
 
   function charArtSrc(name, color) {

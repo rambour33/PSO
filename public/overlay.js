@@ -173,6 +173,12 @@ const CHAR_THEME_COLORS = {
 function renderPlayerName(elId, player) {
   const el = document.getElementById(elId);
   el.innerHTML = '';
+  if (player.seeding != null) {
+    const seed = document.createElement('span');
+    seed.className = 'player-seed';
+    seed.textContent = '#' + player.seeding;
+    el.appendChild(seed);
+  }
   if (player.tag) {
     const tag = document.createElement('span');
     tag.className = 'player-tag';

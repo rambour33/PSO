@@ -16,5 +16,12 @@ if not exist "node_modules\" (
     npm install
 )
 start "" "http://localhost:3002/control"
+:loop
 node server.js
+if %errorlevel% == 0 (
+    echo.
+    echo  [PSO] Redemarrage...
+    echo.
+    goto loop
+)
 pause

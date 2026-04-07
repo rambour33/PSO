@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="twitch-chat.css" />
 </head>
 <body>
-  <div class="chat-overlay hidden" id="chat-overlay">
+  <div class="chat-overlay hidden pso-surface" id="chat-overlay">
     <canvas id="chat-particle-canvas"></canvas>
     <div class="chat-header">
       <svg class="chat-twitch-logo" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
@@ -21,6 +21,7 @@
   </div>
 
   <script src="/socket.io/socket.io.js"></script>
+  <script src="/texture.js"></script>
   <script src="particle-engine.js"></script>
   <script src="twitch-chat.js"></script>
 </body>
