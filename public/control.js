@@ -53,9 +53,11 @@ function syncFromState(s) {
   document.getElementById('p1-tag').value      = s.player1.tag      || '';
   document.getElementById('p1-name').value     = s.player1.name;
   document.getElementById('p1-pronouns').value = s.player1.pronouns || '';
+  document.getElementById('p1-seed').value     = s.player1.seeding  != null ? s.player1.seeding : '';
   document.getElementById('p2-tag').value      = s.player2.tag      || '';
   document.getElementById('p2-name').value     = s.player2.name;
   document.getElementById('p2-pronouns').value = s.player2.pronouns || '';
+  document.getElementById('p2-seed').value     = s.player2.seeding  != null ? s.player2.seeding : '';
   document.getElementById('p1-color').value    = s.player1.color;
   document.getElementById('p2-color').value    = s.player2.color;
   document.getElementById('p1-score-display').textContent = s.player1.score;
@@ -167,6 +169,34 @@ function syncFromState(s) {
   if (xR) { xR.value = sbX; xN.value = sbX; }
   if (yR) { yR.value = sbY; yN.value = sbY; }
 
+  // Texture (customisation tab)
+  const txOp = s.overlayTextureOpacity ?? 50;
+  const txOpRange = document.getElementById('texture-opacity-range');
+  const txOpNum   = document.getElementById('texture-opacity-num');
+  if (txOpRange) txOpRange.value = txOp;
+  if (txOpNum)   txOpNum.value   = txOp;
+  const txBlend = document.getElementById('texture-blend');
+  if (txBlend) txBlend.value = s.overlayTextureBlend || 'normal';
+  const txSize = document.getElementById('texture-size');
+  if (txSize)  txSize.value  = s.overlayTextureSize  || 'repeat';
+  updateTexturePreview(s.overlayTexture || null);
+  // Sync theme config panel if open
+  const tcPanel = document.getElementById('theme-config-panel');
+  if (tcPanel && tcPanel.style.display !== 'none') {
+    const setEl = (id, v) => { const el = document.getElementById(id); if (el) el.value = v; };
+    setEl('tc-particle-opacity-range', s.particleOpacity ?? 100);
+    setEl('tc-particle-opacity-num',   s.particleOpacity ?? 100);
+    setEl('tc-particle-count-range',   s.particleCountScale ?? 100);
+    setEl('tc-particle-count-num',     s.particleCountScale ?? 100);
+    setEl('tc-texture-opacity-range',  txOp);
+    setEl('tc-texture-opacity-num',    txOp);
+    const tcBlend = document.getElementById('tc-texture-blend');
+    if (tcBlend) tcBlend.value = s.overlayTextureBlend || 'normal';
+    const tcSize  = document.getElementById('tc-texture-size');
+    if (tcSize)  tcSize.value  = s.overlayTextureSize  || 'repeat';
+    _tcSyncTexturePreview(s.overlayTexture || null);
+  }
+
   // Swap button
   document.getElementById('btn-swap').classList.toggle('active', !!s.swapped);
 
@@ -203,6 +233,7 @@ function buildStateFromForm() {
       flag:        document.getElementById('p1-flag')?.value || '',
       flagOffsetX: parseInt(document.getElementById('p1-flag-x-num')?.value ?? 0),
       flagOffsetY: parseInt(document.getElementById('p1-flag-y-num')?.value ?? 0),
+      seeding:    document.getElementById('p1-seed')?.value.trim() ? parseInt(document.getElementById('p1-seed').value) : null,
     },
     player2: {
       ...state.player2,
@@ -214,6 +245,7 @@ function buildStateFromForm() {
       flag:        document.getElementById('p2-flag')?.value || '',
       flagOffsetX: parseInt(document.getElementById('p2-flag-x-num')?.value ?? 0),
       flagOffsetY: parseInt(document.getElementById('p2-flag-y-num')?.value ?? 0),
+      seeding:    document.getElementById('p2-seed')?.value.trim() ? parseInt(document.getElementById('p2-seed').value) : null,
     },
     event: document.getElementById('event-name').value.trim() || 'TOURNAMENT',
     stage: document.getElementById('event-stage').value.trim() || '',
@@ -240,6 +272,10 @@ function buildStateFromForm() {
     sbX:      parseInt(document.getElementById('sb-x-num')?.value ?? 0),
     sbY:      parseInt(document.getElementById('sb-y-num')?.value ?? 0),
     flagSize: parseInt(document.getElementById('flag-size-num')?.value ?? 52),
+    overlayTexture:        state.overlayTexture || null,
+    overlayTextureOpacity: parseInt(document.getElementById('texture-opacity-num')?.value ?? 50),
+    overlayTextureBlend:   document.getElementById('texture-blend')?.value || 'normal',
+    overlayTextureSize:    document.getElementById('texture-size')?.value || 'repeat',
   };
 }
 
@@ -384,6 +420,32 @@ document.getElementById('btn-visibility').addEventListener('click', () => {
   btn.style.borderColor = ns.visible ? '' : '#444460';
   document.getElementById('overlay-status').textContent = ns.visible ? 'Visible' : 'Masqué';
   setStatus(`Overlay ${ns.visible ? 'affiché' : 'masqué'}`);
+});
+
+document.getElementById('btn-server-reload').addEventListener('click', () => {
+  const btn = document.getElementById('btn-server-reload');
+  if (!confirm('Redémarrer le serveur PSO ?\nLes overlays se reconnecteront automatiquement.')) return;
+  btn.disabled = true;
+  btn.textContent = '↺ Redémarrage…';
+  fetch('/api/server/reload', { method: 'POST' })
+    .then(() => {
+      setStatus('Serveur en cours de redémarrage…');
+      // Attendre reconnexion socket
+      const check = setInterval(() => {
+        if (socket.connected) {
+          clearInterval(check);
+          btn.disabled = false;
+          btn.textContent = '↺ Serveur';
+          setStatus('Serveur redémarré !');
+        }
+      }, 500);
+    })
+    .catch(() => {
+      // Normal : le serveur coupe avant de répondre
+      setStatus('Serveur en cours de redémarrage…');
+      btn.disabled = false;
+      btn.textContent = '↺ Serveur';
+    });
 });
 
 // Copy buttons
@@ -3059,6 +3121,7 @@ function applyTheme(key) {
     });
     const tpPanel = document.getElementById('transparent-pos-panel');
     if (tpPanel) tpPanel.style.display = 'block';
+    showThemeConfigPanel('transparent');
     setStatus('Thème "Transparent" appliqué');
     return;
   }
@@ -3102,6 +3165,9 @@ function applyTheme(key) {
   // Show/hide transparent position panel
   const tpPanel = document.getElementById('transparent-pos-panel');
   if (tpPanel) tpPanel.style.display = key === 'transparent' ? 'block' : 'none';
+
+  // Show theme config panel
+  showThemeConfigPanel(key);
 
   setStatus(`Thème "${key}" appliqué`);
 }
@@ -3279,6 +3345,7 @@ const THEME_PRESET_FIELDS = [
   'sbScale','sbX','sbY',
   'particleOpacity','particleCountScale','particlesEnabled','logoParticleCount',
   'transparentPositions',
+  'overlayTexture','overlayTextureOpacity','overlayTextureBlend','overlayTextureSize',
 ];
 
 function buildThemePreset() {
@@ -3292,6 +3359,10 @@ function applyThemePreset(preset) {
   if (preset.overlayTheme !== undefined) {
     state.overlayTheme = preset.overlayTheme;
     applyTheme(preset.overlayTheme);
+  }
+  if (preset.overlayTexture !== undefined) {
+    state.overlayTexture = preset.overlayTexture || null;
+    updateTexturePreview(state.overlayTexture);
   }
   if (preset.overlayStyle !== undefined) {
     document.querySelectorAll('.overlay-style-btn').forEach(b => {
@@ -5429,4 +5500,247 @@ if (typeof socket !== 'undefined') {
   } else {
     init();
   }
+})();
+
+// ── Texture de fond ───────────────────────────────────────────
+
+function updateTexturePreview(url) {
+  const preview = document.getElementById('texture-preview');
+  const empty   = document.getElementById('texture-preview-empty');
+  if (!preview) return;
+  if (url) {
+    preview.style.backgroundImage = 'url(' + url + ')';
+    if (empty) empty.style.display = 'none';
+  } else {
+    preview.style.backgroundImage = 'none';
+    if (empty) empty.style.display = 'flex';
+  }
+}
+
+document.getElementById('texture-file-input')?.addEventListener('change', function (e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function (ev) {
+    fetch('/api/texture/upload', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ filename: file.name, data: ev.target.result }),
+    })
+      .then(r => r.json())
+      .then(res => {
+        if (res.url) {
+          state.overlayTexture = res.url;
+          updateTexturePreview(res.url);
+          emitState(buildStateFromForm());
+          setStatus('Texture chargée');
+        } else {
+          setStatus('Erreur upload texture');
+        }
+      })
+      .catch(err => setStatus('Erreur upload texture : ' + err.message));
+  };
+  reader.readAsDataURL(file);
+  // Reset input to allow re-selecting the same file
+  e.target.value = '';
+});
+
+document.getElementById('btn-texture-clear')?.addEventListener('click', () => {
+  if (state.overlayTexture) {
+    const filename = state.overlayTexture.split('/').pop();
+    fetch('/api/texture/upload', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ filename }),
+    }).catch(() => {});
+  }
+  state.overlayTexture = null;
+  updateTexturePreview(null);
+  emitState(buildStateFromForm());
+  setStatus('Texture retirée');
+});
+
+(function () {
+  const txOpRange = document.getElementById('texture-opacity-range');
+  const txOpNum   = document.getElementById('texture-opacity-num');
+  if (txOpRange && txOpNum) {
+    txOpRange.addEventListener('input', () => { txOpNum.value = txOpRange.value; emitState(buildStateFromForm()); });
+    txOpNum.addEventListener('input',   () => { txOpRange.value = txOpNum.value; emitState(buildStateFromForm()); });
+  }
+  document.getElementById('texture-blend')?.addEventListener('change', () => emitState(buildStateFromForm()));
+  document.getElementById('texture-size')?.addEventListener('change',  () => emitState(buildStateFromForm()));
+})();
+
+// ── Panneau de config thème ───────────────────────────────────
+
+function _tcSyncTexturePreview(url) {
+  const preview = document.getElementById('tc-texture-preview');
+  const empty   = document.getElementById('tc-texture-preview-empty');
+  if (!preview) return;
+  if (url) {
+    preview.style.backgroundImage = 'url(' + url + ')';
+    if (empty) empty.style.display = 'none';
+  } else {
+    preview.style.backgroundImage = 'none';
+    if (empty) empty.style.display = 'flex';
+  }
+}
+
+function _tcSyncToMain() {
+  // Sync tc-particle controls → main particle controls (pour que buildStateFromForm() les lise)
+  const fields = [
+    ['tc-particle-opacity-range', 'particle-opacity-range'],
+    ['tc-particle-opacity-num',   'particle-opacity-num'],
+    ['tc-particle-count-range',   'particle-count-range'],
+    ['tc-particle-count-num',     'particle-count-num'],
+  ];
+  fields.forEach(([from, to]) => {
+    const src  = document.getElementById(from);
+    const dest = document.getElementById(to);
+    if (src && dest) dest.value = src.value;
+  });
+  // Sync tc-texture controls → main texture controls
+  const txFields = [
+    ['tc-texture-opacity-range', 'texture-opacity-range'],
+    ['tc-texture-opacity-num',   'texture-opacity-num'],
+    ['tc-texture-blend',         'texture-blend'],
+    ['tc-texture-size',          'texture-size'],
+  ];
+  txFields.forEach(([from, to]) => {
+    const src  = document.getElementById(from);
+    const dest = document.getElementById(to);
+    if (src && dest) dest.value = src.value;
+  });
+}
+
+function showThemeConfigPanel(key) {
+  const panel = document.getElementById('theme-config-panel');
+  if (!panel) return;
+
+  // Titre
+  const label = key === 'transparent' ? 'Transparent'
+    : (THEMES[key] ? key.replace(/^s/, '').replace(/_/g, ' ') : key);
+  const nameEl = document.getElementById('theme-config-name');
+  if (nameEl) nameEl.textContent = label.charAt(0).toUpperCase() + label.slice(1);
+
+  // Peupler contrôles particules depuis state actuel
+  const en = state.particlesEnabled !== false;
+  const op = state.particleOpacity ?? 100;
+  const ct = state.particleCountScale ?? 100;
+
+  const tcToggle = document.getElementById('tc-particles-toggle');
+  const tcCtrls  = document.getElementById('tc-particles-controls');
+  if (tcToggle) {
+    tcToggle.textContent = en ? '⏸ Désactiver' : '▶ Activer';
+    tcToggle.className = 'btn ' + (en ? 'btn-primary' : 'btn-outline');
+    if (tcCtrls) { tcCtrls.style.opacity = en ? '1' : '0.4'; tcCtrls.style.pointerEvents = en ? '' : 'none'; }
+  }
+  const set = (id, v) => { const el = document.getElementById(id); if (el) el.value = v; };
+  set('tc-particle-opacity-range', op); set('tc-particle-opacity-num', op);
+  set('tc-particle-count-range', ct);   set('tc-particle-count-num', ct);
+
+  // Peupler contrôles texture depuis state actuel
+  _tcSyncTexturePreview(state.overlayTexture || null);
+  set('tc-texture-opacity-range', state.overlayTextureOpacity ?? 50);
+  set('tc-texture-opacity-num',   state.overlayTextureOpacity ?? 50);
+  const blendEl = document.getElementById('tc-texture-blend');
+  if (blendEl) blendEl.value = state.overlayTextureBlend || 'normal';
+  const sizeEl  = document.getElementById('tc-texture-size');
+  if (sizeEl)  sizeEl.value  = state.overlayTextureSize  || 'repeat';
+
+  panel.style.display = 'block';
+  // Scroll to panel
+  panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+// Fermer
+document.getElementById('btn-theme-config-close')?.addEventListener('click', () => {
+  const panel = document.getElementById('theme-config-panel');
+  if (panel) panel.style.display = 'none';
+});
+
+// Particules toggle
+document.getElementById('tc-particles-toggle')?.addEventListener('click', function () {
+  state.particlesEnabled = state.particlesEnabled === false;
+  const en = state.particlesEnabled !== false;
+  this.textContent = en ? '⏸ Désactiver' : '▶ Activer';
+  this.className = 'btn ' + (en ? 'btn-primary' : 'btn-outline');
+  const tcCtrls = document.getElementById('tc-particles-controls');
+  if (tcCtrls) { tcCtrls.style.opacity = en ? '1' : '0.4'; tcCtrls.style.pointerEvents = en ? '' : 'none'; }
+  // Sync main toggle
+  updateParticlesToggle(en);
+  emitState(buildStateFromForm());
+});
+
+// Particules sliders (tc → main → emit)
+(function () {
+  const pairs = [
+    ['tc-particle-opacity-range', 'tc-particle-opacity-num'],
+    ['tc-particle-count-range',   'tc-particle-count-num'],
+  ];
+  pairs.forEach(([rangeId, numId]) => {
+    const range = document.getElementById(rangeId);
+    const num   = document.getElementById(numId);
+    if (!range || !num) return;
+    range.addEventListener('input', () => { num.value = range.value; _tcSyncToMain(); emitState(buildStateFromForm()); });
+    num.addEventListener('input',   () => { range.value = num.value; _tcSyncToMain(); emitState(buildStateFromForm()); });
+  });
+})();
+
+// Texture upload (panneau thème)
+document.getElementById('tc-texture-file-input')?.addEventListener('change', function (e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function (ev) {
+    fetch('/api/texture/upload', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ filename: file.name, data: ev.target.result }),
+    })
+      .then(r => r.json())
+      .then(res => {
+        if (res.url) {
+          state.overlayTexture = res.url;
+          _tcSyncTexturePreview(res.url);
+          updateTexturePreview(res.url);
+          _tcSyncToMain();
+          emitState(buildStateFromForm());
+          setStatus('Texture chargée');
+        }
+      })
+      .catch(err => setStatus('Erreur : ' + err.message));
+  };
+  reader.readAsDataURL(file);
+  e.target.value = '';
+});
+
+// Texture retirer (panneau thème)
+document.getElementById('tc-btn-texture-clear')?.addEventListener('click', () => {
+  if (state.overlayTexture) {
+    const filename = state.overlayTexture.split('/').pop();
+    fetch('/api/texture/upload', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ filename }),
+    }).catch(() => {});
+  }
+  state.overlayTexture = null;
+  _tcSyncTexturePreview(null);
+  updateTexturePreview(null);
+  _tcSyncToMain();
+  emitState(buildStateFromForm());
+  setStatus('Texture retirée');
+});
+
+// Texture opacity/blend/size (panneau thème)
+(function () {
+  const tcOpRange = document.getElementById('tc-texture-opacity-range');
+  const tcOpNum   = document.getElementById('tc-texture-opacity-num');
+  if (tcOpRange && tcOpNum) {
+    tcOpRange.addEventListener('input', () => { tcOpNum.value = tcOpRange.value; _tcSyncToMain(); emitState(buildStateFromForm()); });
+    tcOpNum.addEventListener('input',   () => { tcOpRange.value = tcOpNum.value; _tcSyncToMain(); emitState(buildStateFromForm()); });
+  }
+  document.getElementById('tc-texture-blend')?.addEventListener('change', () => { _tcSyncToMain(); emitState(buildStateFromForm()); });
+  document.getElementById('tc-texture-size')?.addEventListener('change',  () => { _tcSyncToMain(); emitState(buildStateFromForm()); });
 })();

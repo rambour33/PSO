@@ -38,6 +38,7 @@
       <a href="/twitch-chat" target="_blank" class="btn btn-outline">Chat ↗</a>
       <button id="btn-vs-trigger" class="btn btn-primary" title="Déclenche l'animation d'entrée sur la VS Screen">⚔ VS Anim</button>
       <button id="btn-visibility" class="btn btn-primary">Masquer</button>
+      <button id="btn-server-reload" class="btn btn-outline" title="Redémarre le serveur Node.js" style="border-color:#e05;color:#e05">↺ Serveur</button>
     </div>
   </header>
 
@@ -82,11 +83,12 @@
             </div>
           </div>
           <div class="form-group">
-            <label>Tag · Pseudo · Pronoms</label>
+            <label>Tag · Pseudo · Pronoms · Seed</label>
             <div class="name-row">
               <input type="text" id="p1-tag" placeholder="TAG" class="input-tag" />
               <input type="text" id="p1-name" value="PLAYER 1" class="input-name" />
               <input type="text" id="p1-pronouns" placeholder="il/elle" class="input-pronouns" />
+              <input type="number" id="p1-seed" placeholder="#" min="1" class="input-seed" title="Seeding" />
             </div>
           </div>
           <div class="form-group flag-picker-group">
@@ -184,11 +186,12 @@
             </div>
           </div>
           <div class="form-group">
-            <label>Tag · Pseudo · Pronoms</label>
+            <label>Tag · Pseudo · Pronoms · Seed</label>
             <div class="name-row">
               <input type="text" id="p2-tag" placeholder="TAG" class="input-tag" />
               <input type="text" id="p2-name" value="PLAYER 2" class="input-name" />
               <input type="text" id="p2-pronouns" placeholder="il/elle" class="input-pronouns" />
+              <input type="number" id="p2-seed" placeholder="#" min="1" class="input-seed" title="Seeding" />
             </div>
           </div>
           <div class="form-group flag-picker-group">
@@ -1320,6 +1323,83 @@
           <div class="theme-preset-name">Mii Gunner</div>
         </div>
 
+        <!-- ── Panneau de configuration du thème sélectionné ── -->
+        <div id="theme-config-panel" style="grid-column:1/-1;display:none;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-top:4px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+            <span style="font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--text-muted)">Configuration — <span id="theme-config-name" style="color:var(--gold)"></span></span>
+            <button id="btn-theme-config-close" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:16px;line-height:1;padding:0 2px">✕</button>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+
+            <!-- Particules -->
+            <div>
+              <div style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Particules</div>
+              <button id="tc-particles-toggle" class="btn btn-primary" style="width:100%;margin-bottom:10px">⏸ Désactiver</button>
+              <div id="tc-particles-controls">
+                <div class="form-group" style="margin-bottom:8px">
+                  <label>Opacité</label>
+                  <div class="logo-particles-row">
+                    <input type="range" id="tc-particle-opacity-range" min="0" max="100" value="100" />
+                    <input type="number" id="tc-particle-opacity-num" min="0" max="100" value="100" style="width:54px;background:var(--surface);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:13px;padding:4px 6px;text-align:center" />
+                  </div>
+                </div>
+                <div class="form-group" style="margin:0">
+                  <label>Densité</label>
+                  <div class="logo-particles-row">
+                    <input type="range" id="tc-particle-count-range" min="10" max="500" value="100" />
+                    <input type="number" id="tc-particle-count-num" min="10" max="500" value="100" style="width:54px;background:var(--surface);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:13px;padding:4px 6px;text-align:center" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Texture -->
+            <div>
+              <div style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Texture de fond</div>
+              <div style="display:flex;gap:8px;align-items:flex-start;margin-bottom:10px">
+                <div id="tc-texture-preview" style="width:56px;height:42px;border:1px solid var(--border);border-radius:5px;background-size:auto;background-repeat:repeat;background-position:0 0;flex-shrink:0;position:relative;overflow:hidden;background-color:var(--surface)">
+                  <span id="tc-texture-preview-empty" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--text-muted)">Aucune</span>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:5px">
+                  <label class="btn btn-outline btn-sm" style="cursor:pointer;font-size:11px">
+                    📁 Choisir
+                    <input type="file" id="tc-texture-file-input" accept="image/*" style="display:none" />
+                  </label>
+                  <button id="tc-btn-texture-clear" class="btn btn-outline btn-sm" style="font-size:11px;color:var(--danger);border-color:var(--danger)">✕ Retirer</button>
+                </div>
+              </div>
+              <div class="form-group" style="margin-bottom:8px">
+                <label>Opacité</label>
+                <div class="logo-particles-row">
+                  <input type="range" id="tc-texture-opacity-range" min="0" max="100" value="50" />
+                  <input type="number" id="tc-texture-opacity-num" min="0" max="100" value="50" style="width:54px;background:var(--surface);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:13px;padding:4px 6px;text-align:center" />
+                </div>
+              </div>
+              <div style="display:flex;gap:8px">
+                <div class="form-group" style="margin:0;flex:1">
+                  <label>Fusion</label>
+                  <select id="tc-texture-blend" style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:12px;padding:4px 5px">
+                    <option value="normal">Normal</option>
+                    <option value="multiply">Multiply</option>
+                    <option value="overlay">Overlay</option>
+                    <option value="screen">Screen</option>
+                    <option value="soft-light">Soft Light</option>
+                  </select>
+                </div>
+                <div class="form-group" style="margin:0;flex:1">
+                  <label>Répétition</label>
+                  <select id="tc-texture-size" style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:12px;padding:4px 5px">
+                    <option value="repeat">Tuile</option>
+                    <option value="cover">Couvrir</option>
+                    <option value="contain">Contenir</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
         <!-- ── Sauvegarde ── -->
         <div class="themes-group-label" style="grid-column:1/-1;margin-top:8px">Enregistrer</div>
         <div style="grid-column:1/-1;display:flex;flex-direction:column;gap:8px">
@@ -1599,6 +1679,57 @@
             <div class="logo-particles-row">
               <input type="range" id="p2-flag-y-range" min="-200" max="200" value="0" />
               <input type="number" id="p2-flag-y-num" min="-200" max="200" value="0" style="width:60px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:13px;padding:4px 6px;text-align:center" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-header"><h2>Texture de fond</h2></div>
+      <div class="custom-grid">
+        <div class="custom-card" style="grid-column:1/-1">
+          <h3>Image</h3>
+          <p class="hint" style="margin-bottom:12px">Appliquée en arrière-plan sur tous les overlays. Fichiers stockés localement (<code>public/textures/</code>), non synchronisés sur Git.</p>
+          <div style="display:flex;gap:12px;align-items:flex-start">
+            <div id="texture-preview" style="width:80px;height:60px;border:1px solid var(--border);border-radius:6px;background-size:auto;background-repeat:repeat;background-position:0 0;flex-shrink:0;position:relative;overflow:hidden;background-color:var(--surface2)">
+              <span id="texture-preview-empty" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--text-muted)">Aucune</span>
+            </div>
+            <div style="flex:1;display:flex;flex-direction:column;gap:8px">
+              <div style="display:flex;gap:6px">
+                <label class="btn btn-outline btn-sm" style="cursor:pointer">
+                  📁 Choisir fichier
+                  <input type="file" id="texture-file-input" accept="image/*" style="display:none" />
+                </label>
+                <button id="btn-texture-clear" class="btn btn-outline btn-sm" style="color:var(--danger);border-color:var(--danger)">✕ Retirer</button>
+              </div>
+              <div class="form-group" style="margin:0">
+                <label>Opacité <span class="hint">0 – 100</span></label>
+                <div class="logo-particles-row">
+                  <input type="range" id="texture-opacity-range" min="0" max="100" value="50" />
+                  <input type="number" id="texture-opacity-num" min="0" max="100" value="50" style="width:54px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:13px;padding:4px 6px;text-align:center" />
+                </div>
+              </div>
+            </div>
+          </div>
+          <div style="display:flex;gap:12px;margin-top:12px">
+            <div class="form-group" style="margin:0;flex:1">
+              <label>Mode de fusion</label>
+              <select id="texture-blend" style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:13px;padding:4px 6px">
+                <option value="normal">Normal</option>
+                <option value="multiply">Multiply</option>
+                <option value="overlay">Overlay</option>
+                <option value="screen">Screen</option>
+                <option value="soft-light">Soft Light</option>
+              </select>
+            </div>
+            <div class="form-group" style="margin:0;flex:1">
+              <label>Répétition</label>
+              <select id="texture-size" style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:13px;padding:4px 6px">
+                <option value="repeat">Répéter (tuile)</option>
+                <option value="cover">Couvrir</option>
+                <option value="contain">Contenir</option>
+              </select>
             </div>
           </div>
         </div>
