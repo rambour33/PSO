@@ -3607,13 +3607,21 @@ function updateTwitchDisplay({ viewers, live }) {
 
 // Mise à jour via Socket.IO
 if (typeof socket !== 'undefined') {
-  socket.on('twitch-viewers', updateTwitchDisplay);
+  socket.on('twitch-viewers',     updateTwitchDisplay);
   socket.on('twitch-auth-status', applyTwitchAuthStatus);
+  socket.on('youtube-auth-status', (data) => {
+    if (typeof applyYouTubeConnectStatus === 'function') applyYouTubeConnectStatus(data);
+  });
 }
 
 // ── Twitch OAuth broadcaster ──────────────────────────────────────
 
-function applyTwitchAuthStatus({ authenticated, displayName }) {
+function applyTwitchAuthStatus(data) {
+  // Propager au tab Connexions si chargé
+  if (typeof applyTwitchConnectStatus === 'function') {
+    try { applyTwitchConnectStatus(data); } catch(e) {}
+  }
+  const { authenticated, displayName } = data;
   const dot   = document.getElementById('tw-auth-dot');
   const label = document.getElementById('tw-auth-label');
   const btnLogin  = document.getElementById('btn-tw-login');
@@ -5744,3 +5752,161 @@ document.getElementById('tc-btn-texture-clear')?.addEventListener('click', () =>
   document.getElementById('tc-texture-blend')?.addEventListener('change', () => { _tcSyncToMain(); emitState(buildStateFromForm()); });
   document.getElementById('tc-texture-size')?.addEventListener('change',  () => { _tcSyncToMain(); emitState(buildStateFromForm()); });
 })();
+
+// ═══════════════════════════════════════════════════════════════
+// TAB : CONNEXIONS — Twitch + YouTube OAuth
+// ═══════════════════════════════════════════════════════════════
+
+// ── Twitch ────────────────────────────────────────────────────
+
+function applyTwitchConnectStatus({ authenticated, displayName, login, avatar, hasClientId, hasSecret }) {
+  const connected = document.getElementById('twitch-auth-connected');
+  const form      = document.getElementById('twitch-auth-form');
+  if (!connected || !form) return;
+
+  if (authenticated) {
+    connected.style.display = '';
+    form.style.display      = 'none';
+    const el = document.getElementById('twitch-auth-avatar');
+    if (el && avatar) { el.src = avatar; el.style.display = ''; }
+    const nameEl  = document.getElementById('twitch-auth-name');
+    const loginEl = document.getElementById('twitch-auth-login');
+    if (nameEl)  nameEl.textContent  = displayName || '';
+    if (loginEl) loginEl.textContent = login ? `@${login}` : '';
+  } else {
+    connected.style.display = 'none';
+    form.style.display      = '';
+    if (hasClientId) {
+      document.getElementById('twitch-cred-id').placeholder = '•••• (enregistré)';
+    }
+  }
+}
+
+fetch('/api/twitch/auth-status').then(r => r.json()).then(applyTwitchConnectStatus).catch(() => {});
+
+if (typeof socket !== 'undefined') {
+  socket.on('twitch-auth-status', applyTwitchConnectStatus);
+  socket.on('youtube-auth-status', applyYouTubeConnectStatus);
+}
+
+document.getElementById('btn-twitch-save-creds')?.addEventListener('click', () => {
+  const clientId     = document.getElementById('twitch-cred-id')?.value.trim();
+  const clientSecret = document.getElementById('twitch-cred-secret')?.value;
+  const status       = document.getElementById('twitch-cred-status');
+  if (!clientId) { if (status) status.textContent = 'Client ID requis'; return; }
+  fetch('/api/twitch/config', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ clientId, clientSecret }),
+  }).then(r => r.json()).then(() => {
+    if (status) { status.textContent = '✓ Enregistré.'; status.style.color = '#6bc96c'; }
+  }).catch(e => { if (status) status.textContent = 'Erreur : ' + e.message; });
+});
+
+document.getElementById('btn-twitch-oauth')?.addEventListener('click', () => {
+  const clientId     = document.getElementById('twitch-cred-id')?.value.trim();
+  const clientSecret = document.getElementById('twitch-cred-secret')?.value;
+  const status       = document.getElementById('twitch-cred-status');
+
+  const doOpen = () => {
+    const onMsg = (e) => {
+      if (e.data?.type === 'twitch-auth-ok') {
+        window.removeEventListener('message', onMsg);
+        fetch('/api/twitch/auth-status').then(r => r.json()).then(applyTwitchConnectStatus).catch(() => {});
+      }
+    };
+    window.addEventListener('message', onMsg);
+    window.open('/auth/twitch', '_blank', 'width=600,height=700');
+  };
+
+  // Si le Client ID est rempli, on sauvegarde d'abord
+  if (clientId) {
+    fetch('/api/twitch/config', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ clientId, clientSecret }),
+    }).then(() => doOpen())
+      .catch(e => { if (status) status.textContent = 'Erreur sauvegarde : ' + e.message; });
+  } else {
+    doOpen();
+  }
+});
+
+document.getElementById('btn-twitch-disconnect')?.addEventListener('click', () => {
+  fetch('/api/twitch/auth', { method: 'DELETE' })
+    .then(() => applyTwitchConnectStatus({ authenticated: false }))
+    .catch(() => {});
+});
+
+// ── YouTube ────────────────────────────────────────────────────
+
+function applyYouTubeConnectStatus({ authenticated, channelName, channelId, avatar, hasClientId }) {
+  const connected = document.getElementById('youtube-auth-connected');
+  const form      = document.getElementById('youtube-auth-form');
+  if (!connected || !form) return;
+
+  if (authenticated) {
+    connected.style.display = '';
+    form.style.display      = 'none';
+    const el = document.getElementById('youtube-auth-avatar');
+    if (el && avatar) { el.src = avatar; el.style.display = ''; }
+    const nameEl    = document.getElementById('youtube-auth-name');
+    const chanEl    = document.getElementById('youtube-auth-channel');
+    if (nameEl)  nameEl.textContent  = channelName || '';
+    if (chanEl)  chanEl.textContent  = channelId   || '';
+  } else {
+    connected.style.display = 'none';
+    form.style.display      = '';
+    if (hasClientId) {
+      document.getElementById('youtube-cred-id').placeholder = '•••• (enregistré)';
+    }
+  }
+}
+
+fetch('/api/youtube/auth-status').then(r => r.json()).then(applyYouTubeConnectStatus).catch(() => {});
+
+document.getElementById('btn-youtube-save-creds')?.addEventListener('click', () => {
+  const clientId     = document.getElementById('youtube-cred-id')?.value.trim();
+  const clientSecret = document.getElementById('youtube-cred-secret')?.value;
+  const status       = document.getElementById('youtube-cred-status');
+  if (!clientId) { if (status) status.textContent = 'Client ID requis'; return; }
+  fetch('/api/youtube/auth-credentials', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ clientId, clientSecret }),
+  }).then(() => {
+    if (status) { status.textContent = 'Enregistré.'; status.style.color = '#6bc96c'; }
+  }).catch(e => { if (status) status.textContent = 'Erreur : ' + e.message; });
+});
+
+document.getElementById('btn-youtube-oauth')?.addEventListener('click', () => {
+  const win = window.open('/auth/youtube', '_blank', 'width=600,height=700,noopener');
+  const onMsg = (e) => {
+    if (e.data?.type === 'youtube-auth-ok') {
+      window.removeEventListener('message', onMsg);
+      fetch('/api/youtube/auth-status').then(r => r.json()).then(applyYouTubeConnectStatus).catch(() => {});
+    }
+  };
+  window.addEventListener('message', onMsg);
+});
+
+document.getElementById('btn-youtube-disconnect')?.addEventListener('click', () => {
+  fetch('/api/youtube/auth', { method: 'DELETE' })
+    .then(() => applyYouTubeConnectStatus({ authenticated: false }))
+    .catch(() => {});
+});
+
+// Boutons "Copier" dans les tutos
+document.querySelectorAll('.conn-copy-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const val = btn.dataset.copy;
+    if (!val) return;
+    navigator.clipboard.writeText(val).then(() => {
+      const orig = btn.textContent;
+      btn.textContent = 'Copié !';
+      btn.style.color = '#6BC96C';
+      btn.style.borderColor = '#6BC96C';
+      setTimeout(() => { btn.textContent = orig; btn.style.color = ''; btn.style.borderColor = ''; }, 1500);
+    });
+  });
+});

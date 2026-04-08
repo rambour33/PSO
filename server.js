@@ -288,7 +288,10 @@ app.get('/control', (req, res) => res.sendFile(path.join(__dirname, 'public', 'c
 app.get('/vs-screen', (req, res) => res.sendFile(path.join(__dirname, 'public', 'vs-screen.html')));
 app.get('/player-stats', (req, res) => res.sendFile(path.join(__dirname, 'public', 'player-stats.html')));
 app.get('/twitch-layout', (req, res) => res.sendFile(path.join(__dirname, 'public', 'twitch-layout.html')));
-app.get('/twitch-viewer', (req, res) => res.sendFile(path.join(__dirname, 'public', 'twitch-viewer.html')));
+app.get('/twitch-viewer',   (req, res) => res.sendFile(path.join(__dirname, 'public', 'twitch-viewer.html')));
+app.get('/youtube-viewer',  (req, res) => res.sendFile(path.join(__dirname, 'public', 'youtube-viewer.html')));
+app.get('/youtube-alerts',  (req, res) => res.sendFile(path.join(__dirname, 'public', 'youtube-alerts.html')));
+app.get('/combined-chat',   (req, res) => res.sendFile(path.join(__dirname, 'public', 'combined-chat.html')));
 app.get('/ticker', (req, res) => res.sendFile(path.join(__dirname, 'public', 'ticker.html')));
 app.get('/frames', (req, res) => res.sendFile(path.join(__dirname, 'public', 'frames.html')));
 app.get('/stream-title',  (req, res) => res.sendFile(path.join(__dirname, 'public', 'stream-title.html')));
@@ -565,6 +568,7 @@ let twitchUserAuth = {
   broadcasterId:    null,
   broadcasterLogin: null,
   displayName:      null,
+  avatar:           null,
 };
 
 (function () {
@@ -576,6 +580,7 @@ let twitchUserAuth = {
   twitchUserAuth.broadcasterId    = saved.broadcasterId    || null;
   twitchUserAuth.broadcasterLogin = saved.broadcasterLogin || null;
   twitchUserAuth.displayName      = saved.displayName      || null;
+  twitchUserAuth.avatar           = saved.avatar           || null;
 })();
 
 function saveTwitchUserAuth() {
@@ -590,6 +595,9 @@ const TWITCH_SCOPES = [
   'channel:read:predictions',
   'moderator:read:followers',
   'bits:read',
+  'chat:read',
+  'chat:edit',
+  'user:read:email',
 ].join(' ');
 
 app.get('/auth/twitch', (req, res) => {
@@ -633,10 +641,33 @@ app.get('/auth/twitch/callback', async (req, res) => {
       twitchUserAuth.broadcasterId    = u.id;
       twitchUserAuth.broadcasterLogin = u.login;
       twitchUserAuth.displayName      = u.display_name;
+      twitchUserAuth.avatar           = u.profile_image_url || null;
     }
     saveTwitchUserAuth();
-    io.emit('twitch-auth-status', { authenticated: true, displayName: twitchUserAuth.displayName });
-    res.send('<html><body style="font-family:sans-serif;background:#111;color:#eee;display:flex;align-items:center;justify-content:center;height:100vh;margin:0"><div style="text-align:center"><h2 style="color:#6bc96c">✅ Connecté avec Twitch !</h2><p>Tu peux fermer cette fenêtre.</p><script>setTimeout(()=>window.close(),1500)</script></div></body></html>');
+
+    // Auto-configure le channel depuis l'utilisateur authentifié
+    if (u && u.login) {
+      const prev = twitchState.channel;
+      twitchState.channel = u.login;
+      const cfg2 = getConfig();
+      cfg2.twitchChannel = u.login;
+      saveConfig(cfg2);
+      if (twitchChatState.visible && (twitchChatState.channel !== prev || !twitchChatState.connected)) {
+        twitchChatState.channel = u.login;
+        ircConnect(u.login);
+      } else if (!twitchChatState.channel) {
+        twitchChatState.channel = u.login;
+        io.emit('twitchChatUpdate', twitchChatState);
+      }
+    }
+
+    io.emit('twitch-auth-status', {
+      authenticated: true,
+      displayName:   twitchUserAuth.displayName,
+      login:         twitchUserAuth.broadcasterLogin,
+      avatar:        twitchUserAuth.avatar || null,
+    });
+    res.send('<html><body style="font-family:sans-serif;background:#111;color:#eee;display:flex;align-items:center;justify-content:center;height:100vh;margin:0"><div style="text-align:center"><h2 style="color:#6bc96c">✅ Connecté avec Twitch !</h2><p style="color:#aaa">Tu peux fermer cette fenêtre.</p><script>if(window.opener)window.opener.postMessage({type:\'twitch-auth-ok\'},\'*\');setTimeout(()=>window.close(),1200)</script></div></body></html>');
   } catch (e) {
     console.error('[twitch oauth]', e.message);
     res.status(500).send('Erreur : ' + e.message);
@@ -690,6 +721,9 @@ app.get('/api/twitch/auth-status', (req, res) => {
     authenticated: !!twitchUserAuth.accessToken,
     displayName:   twitchUserAuth.displayName,
     login:         twitchUserAuth.broadcasterLogin,
+    avatar:        twitchUserAuth.avatar,
+    clientId:      twitchState.clientId ? '••••' : '',
+    hasSecret:     !!getConfig().twitchClientSecret,
   });
 });
 
@@ -773,8 +807,14 @@ function ircConnect(channel) {
   _ircSocket = sock;
 
   sock.on('connect', () => {
-    sock.write(`PASS SCHMOOPIIE\r\n`);
-    sock.write(`NICK justinfan${Math.floor(Math.random() * 80000 + 10000)}\r\n`);
+    const oauthToken = twitchUserAuth.accessToken;
+    if (oauthToken && twitchUserAuth.broadcasterLogin) {
+      sock.write(`PASS oauth:${oauthToken}\r\n`);
+      sock.write(`NICK ${twitchUserAuth.broadcasterLogin}\r\n`);
+    } else {
+      sock.write(`PASS SCHMOOPIIE\r\n`);
+      sock.write(`NICK justinfan${Math.floor(Math.random() * 80000 + 10000)}\r\n`);
+    }
     sock.write(`CAP REQ :twitch.tv/tags twitch.tv/commands\r\n`);
     sock.write(`JOIN #${chan}\r\n`);
     _ircChannel = chan;
@@ -917,6 +957,163 @@ app.post('/api/twitch-chat', (req, res) => {
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
+// ── YouTube OAuth ─────────────────────────────────────────────────────────────
+
+let youtubeOAuth = {
+  accessToken:  null,
+  refreshToken: null,
+  expiresAt:    0,
+  channelId:    null,
+  channelName:  null,
+  avatar:       null,
+};
+
+(function () {
+  const cfg  = getConfig();
+  const saved = cfg.youtubeOAuth || {};
+  youtubeOAuth.accessToken  = saved.accessToken  || null;
+  youtubeOAuth.refreshToken = saved.refreshToken || null;
+  youtubeOAuth.expiresAt    = saved.expiresAt    || 0;
+  youtubeOAuth.channelId    = saved.channelId    || null;
+  youtubeOAuth.channelName  = saved.channelName  || null;
+  youtubeOAuth.avatar       = saved.avatar       || null;
+})();
+
+function saveYoutubeOAuth() {
+  const cfg = getConfig();
+  cfg.youtubeOAuth = { ...youtubeOAuth };
+  saveConfig(cfg);
+}
+
+async function ytRefreshAccessToken() {
+  const cfg = getConfig();
+  const { googleClientId, googleClientSecret } = cfg;
+  if (!youtubeOAuth.refreshToken) throw new Error('Pas de refresh token YouTube');
+  const res = await fetch('https://oauth2.googleapis.com/token', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({
+      client_id:     googleClientId,
+      client_secret: googleClientSecret,
+      grant_type:    'refresh_token',
+      refresh_token: youtubeOAuth.refreshToken,
+    }),
+  });
+  const d = await res.json();
+  if (!d.access_token) throw new Error('Refresh YouTube échoué : ' + JSON.stringify(d));
+  youtubeOAuth.accessToken = d.access_token;
+  youtubeOAuth.expiresAt   = Date.now() + (d.expires_in || 3600) * 1000;
+  saveYoutubeOAuth();
+}
+
+async function ytGetToken() {
+  if (!youtubeOAuth.accessToken) throw new Error('Non connecté à YouTube');
+  if (Date.now() > youtubeOAuth.expiresAt - 60000) await ytRefreshAccessToken();
+  return youtubeOAuth.accessToken;
+}
+
+function ytAuthHeaders(token) {
+  return { Authorization: `Bearer ${token}` };
+}
+
+// Routes OAuth
+app.get('/auth/youtube', (req, res) => {
+  const cfg = getConfig();
+  const { googleClientId } = cfg;
+  if (!googleClientId) return res.status(400).send('Client ID Google non configuré.');
+  const redirectUri = encodeURIComponent('http://localhost:3002/auth/youtube/callback');
+  const scope = encodeURIComponent('https://www.googleapis.com/auth/youtube.readonly');
+  res.redirect(
+    `https://accounts.google.com/o/oauth2/v2/auth?client_id=${googleClientId}&redirect_uri=${redirectUri}&response_type=code&scope=${scope}&access_type=offline&prompt=consent`
+  );
+});
+
+app.get('/auth/youtube/callback', async (req, res) => {
+  const { code, error } = req.query;
+  if (error) return res.status(400).send('Erreur OAuth Google : ' + error);
+  if (!code)  return res.status(400).send('Code manquant');
+  const cfg = getConfig();
+  const { googleClientId, googleClientSecret } = cfg;
+  if (!googleClientId || !googleClientSecret) return res.status(400).send('Identifiants Google manquants');
+  try {
+    const tokenRes = await fetch('https://oauth2.googleapis.com/token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        code,
+        client_id:     googleClientId,
+        client_secret: googleClientSecret,
+        redirect_uri:  'http://localhost:3002/auth/youtube/callback',
+        grant_type:    'authorization_code',
+      }),
+    });
+    const td = await tokenRes.json();
+    if (!td.access_token) throw new Error('Token invalide : ' + JSON.stringify(td));
+
+    youtubeOAuth.accessToken  = td.access_token;
+    youtubeOAuth.refreshToken = td.refresh_token || youtubeOAuth.refreshToken;
+    youtubeOAuth.expiresAt    = Date.now() + (td.expires_in || 3600) * 1000;
+
+    // Récupère la chaîne de l'utilisateur connecté
+    const chanRes  = await fetch(
+      'https://www.googleapis.com/youtube/v3/channels?part=snippet&mine=true',
+      { headers: ytAuthHeaders(td.access_token) }
+    );
+    const chanData = await chanRes.json();
+    const chan     = chanData.items && chanData.items[0];
+    if (chan) {
+      youtubeOAuth.channelId   = chan.id;
+      youtubeOAuth.channelName = chan.snippet.title;
+      youtubeOAuth.avatar      = chan.snippet.thumbnails?.default?.url || null;
+      // Auto-configure le channelId
+      youtubeChatState.channelId = chan.id;
+      cfg.youtubeChannelId       = chan.id;
+      saveConfig(cfg);
+    }
+    saveYoutubeOAuth();
+    io.emit('youtube-auth-status', {
+      authenticated: true,
+      channelName: youtubeOAuth.channelName,
+      channelId:   youtubeOAuth.channelId,
+      avatar:      youtubeOAuth.avatar,
+    });
+    res.send('<html><body style="font-family:sans-serif;background:#111;color:#eee;display:flex;align-items:center;justify-content:center;height:100vh;margin:0"><div style="text-align:center"><h2 style="color:#6bc96c">✅ Connecté avec YouTube !</h2><p style="color:#aaa">Tu peux fermer cette fenêtre.</p><script>if(window.opener)window.opener.postMessage({type:\'youtube-auth-ok\'},\'*\');setTimeout(()=>window.close(),1200)</script></div></body></html>');
+  } catch (e) {
+    console.error('[youtube oauth]', e.message);
+    res.status(500).send('Erreur : ' + e.message);
+  }
+});
+
+app.get('/api/youtube/auth-status', (req, res) => {
+  const cfg = getConfig();
+  res.json({
+    authenticated: !!youtubeOAuth.accessToken,
+    channelName:   youtubeOAuth.channelName,
+    channelId:     youtubeOAuth.channelId,
+    avatar:        youtubeOAuth.avatar,
+    hasClientId:   !!cfg.googleClientId,
+    hasSecret:     !!cfg.googleClientSecret,
+  });
+});
+
+app.post('/api/youtube/auth-credentials', (req, res) => {
+  const { clientId, clientSecret } = req.body;
+  const cfg = getConfig();
+  if (clientId)     cfg.googleClientId     = clientId;
+  if (clientSecret) cfg.googleClientSecret = clientSecret;
+  saveConfig(cfg);
+  res.json({ ok: true });
+});
+
+app.delete('/api/youtube/auth', (req, res) => {
+  youtubeOAuth = { accessToken: null, refreshToken: null, expiresAt: 0, channelId: null, channelName: null, avatar: null };
+  const cfg = getConfig();
+  cfg.youtubeOAuth = {};
+  saveConfig(cfg);
+  io.emit('youtube-auth-status', { authenticated: false });
+  res.json({ ok: true });
+});
+
 // ── YouTube Chat ──────────────────────────────────────────────────────────────
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -933,6 +1130,16 @@ let youtubeChatState = {
   transparentMode: false,
 };
 
+let combinedChatState = {
+  visible:        true,
+  x:              0,
+  y:              0,
+  width:          380,
+  maxHeight:      620,
+  maxMessages:    20,
+  transparentMode: false,
+};
+
 (function () {
   const cfg = getConfig();
   youtubeChatState.channelId = cfg.youtubeChannelId || '';
@@ -940,43 +1147,112 @@ let youtubeChatState = {
 
 let _ytPollTimer   = null;
 let _ytNextToken   = null;
+let _ytViewerTimer = null;
+let _ytVideoId     = null;
+
+let youtubeAlertsState = {
+  duration: 7000,
+  position: 'bottom-right',
+};
+
+let youtubeViewerState = {
+  viewers: 0,
+  live: false,
+};
+
+function ytApiHeaders() {
+  const cfg    = getConfig();
+  const apiKey = cfg.youtubeApiKey || '';
+  return { _apiKey: apiKey, _oauthToken: youtubeOAuth.accessToken };
+}
+
+function ytApiUrl(base, params) {
+  const cfg    = getConfig();
+  const apiKey = cfg.youtubeApiKey || '';
+  const token  = youtubeOAuth.accessToken;
+  const url    = new URL(base);
+  for (const [k, v] of Object.entries(params)) url.searchParams.set(k, v);
+  if (!token) url.searchParams.set('key', apiKey);
+  return url.toString();
+}
+
+function ytFetchOptions() {
+  const token = youtubeOAuth.accessToken;
+  return token ? { headers: { Authorization: `Bearer ${token}` } } : {};
+}
 
 async function ytFindLiveChatId() {
-  const cfg = getConfig();
+  const cfg       = getConfig();
   const apiKey    = cfg.youtubeApiKey || '';
-  const channelId = youtubeChatState.channelId;
-  if (!channelId || !apiKey) throw new Error('Channel ID et clé API requis');
+  const oauthToken = youtubeOAuth.accessToken;
+  const channelId = youtubeChatState.channelId || youtubeOAuth.channelId;
+  if (!channelId) throw new Error('Channel ID requis');
+  if (!oauthToken && !apiKey) throw new Error('Connexion YouTube requise (OAuth ou clé API)');
+
+  // Si OAuth : cherche le live sur la propre chaîne de l'utilisateur
+  if (oauthToken) {
+    // Refresh si nécessaire
+    if (Date.now() > youtubeOAuth.expiresAt - 60000) await ytRefreshAccessToken();
+  }
 
   const searchRes  = await fetch(
-    `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${encodeURIComponent(channelId)}&eventType=live&type=video&key=${encodeURIComponent(apiKey)}`
+    ytApiUrl('https://www.googleapis.com/youtube/v3/search', {
+      part: 'snippet', channelId, eventType: 'live', type: 'video',
+    }),
+    ytFetchOptions()
   );
   const searchData = await searchRes.json();
   if (searchData.error) throw new Error(searchData.error.message);
   const items = searchData.items || [];
   if (!items.length) throw new Error('Aucun live en cours sur cette chaîne');
 
-  const videoId   = items[0].id.videoId;
-  const videoRes  = await fetch(
-    `https://www.googleapis.com/youtube/v3/videos?part=liveStreamingDetails&id=${encodeURIComponent(videoId)}&key=${encodeURIComponent(apiKey)}`
+  const videoId  = items[0].id.videoId;
+  const videoRes = await fetch(
+    ytApiUrl('https://www.googleapis.com/youtube/v3/videos', {
+      part: 'liveStreamingDetails', id: videoId,
+    }),
+    ytFetchOptions()
   );
   const videoData = await videoRes.json();
   if (videoData.error) throw new Error(videoData.error.message);
   const liveChatId = (videoData.items || [])[0]?.liveStreamingDetails?.activeLiveChatId;
   if (!liveChatId) throw new Error('Impossible d\'obtenir le liveChatId');
-  return liveChatId;
+  return { liveChatId, videoId };
+}
+
+async function ytPollViewers() {
+  const cfg    = getConfig();
+  const apiKey = cfg.youtubeApiKey || '';
+  if (!_ytVideoId) return;
+  if (!apiKey && !youtubeOAuth.accessToken) return;
+  try {
+    const res  = await fetch(
+      ytApiUrl('https://www.googleapis.com/youtube/v3/videos', { part: 'liveStreamingDetails', id: _ytVideoId }),
+      ytFetchOptions()
+    );
+    const data = await res.json();
+    const viewers = parseInt(data.items?.[0]?.liveStreamingDetails?.concurrentViewers || '0', 10);
+    youtubeViewerState = { viewers, live: true };
+    io.emit('youtube-viewers', youtubeViewerState);
+  } catch(e) {
+    console.error('[YouTube viewers]', e.message);
+  }
+  _ytViewerTimer = setTimeout(ytPollViewers, 30000);
 }
 
 async function ytPollMessages() {
-  const cfg     = getConfig();
-  const apiKey  = cfg.youtubeApiKey || '';
+  const cfg    = getConfig();
+  const apiKey = cfg.youtubeApiKey || '';
   const { liveChatId } = youtubeChatState;
-  if (!liveChatId || !apiKey) return;
+  if (!liveChatId) return;
+  if (!apiKey && !youtubeOAuth.accessToken) return;
 
   try {
-    let url = `https://www.googleapis.com/youtube/v3/liveChat/messages?liveChatId=${encodeURIComponent(liveChatId)}&part=snippet,authorDetails&maxResults=200&key=${encodeURIComponent(apiKey)}`;
-    if (_ytNextToken) url += `&pageToken=${encodeURIComponent(_ytNextToken)}`;
+    const params = { liveChatId, part: 'snippet,authorDetails', maxResults: '200' };
+    if (_ytNextToken) params.pageToken = _ytNextToken;
+    const url = ytApiUrl('https://www.googleapis.com/youtube/v3/liveChat/messages', params);
 
-    const res  = await fetch(url);
+    const res  = await fetch(url, ytFetchOptions());
     const data = await res.json();
 
     if (data.error) {
@@ -1002,25 +1278,51 @@ async function ytPollMessages() {
           message:      snippet.textMessageDetails?.messageText || '',
         });
       } else if (snippet.type === 'superChatEvent') {
+        const scAmount = snippet.superChatDetails?.amountDisplayString || '';
+        const scTier   = snippet.superChatDetails?.tier || 1;
+        const scMsg    = snippet.superChatDetails?.userComment || '';
         io.emit('youtubeChatMessage', {
           displayName:  authorDetails.displayName,
           profileImage: authorDetails.profileImageUrl,
           isOwner:      !!authorDetails.isChatOwner,
           isModerator:  !!authorDetails.isChatModerator,
           isMember:     !!authorDetails.isChatSponsor,
-          message:      snippet.superChatDetails?.userComment || '',
-          superChat: {
-            amount: snippet.superChatDetails?.amountDisplayString || '',
-            tier:   snippet.superChatDetails?.tier || 1,
-          },
+          message:      scMsg,
+          superChat: { amount: scAmount, tier: scTier },
+        });
+        io.emit('youtubeAlertSuperChat', {
+          displayName: authorDetails.displayName,
+          profileImage: authorDetails.profileImageUrl,
+          amount:  scAmount,
+          tier:    scTier,
+          message: scMsg,
+        });
+      } else if (snippet.type === 'superStickerEvent') {
+        io.emit('youtubeAlertSuperSticker', {
+          displayName: authorDetails.displayName,
+          profileImage: authorDetails.profileImageUrl,
+          amount: snippet.superStickerDetails?.amountDisplayString || '',
+          tier:   snippet.superStickerDetails?.tier || 1,
         });
       } else if (snippet.type === 'memberMilestoneChatEvent') {
+        const months = snippet.memberMilestoneChatDetails?.memberMonth || '';
         io.emit('youtubeChatNotice', {
-          text: `🏅 ${authorDetails.displayName} — ${snippet.memberMilestoneChatDetails?.memberMonth || ''} mois de membership !`,
+          text: `🏅 ${authorDetails.displayName} — ${months} mois de membership !`,
+        });
+        io.emit('youtubeAlertMilestone', {
+          displayName: authorDetails.displayName,
+          profileImage: authorDetails.profileImageUrl,
+          months,
+          message: snippet.memberMilestoneChatDetails?.userComment || '',
         });
       } else if (snippet.type === 'newSponsorEvent') {
         io.emit('youtubeChatNotice', {
           text: `⭐ ${authorDetails.displayName} vient de rejoindre les membres !`,
+        });
+        io.emit('youtubeAlertMember', {
+          displayName: authorDetails.displayName,
+          profileImage: authorDetails.profileImageUrl,
+          message: '',
         });
       }
     }
@@ -1036,12 +1338,14 @@ async function ytPollMessages() {
 async function ytConnect() {
   ytDisconnect();
   try {
-    const liveChatId = await ytFindLiveChatId();
+    const { liveChatId, videoId } = await ytFindLiveChatId();
     youtubeChatState.liveChatId = liveChatId;
     youtubeChatState.connected  = true;
     _ytNextToken = null;
+    _ytVideoId   = videoId;
     io.emit('youtubeChatUpdate', youtubeChatState);
     ytPollMessages();
+    ytPollViewers();
   } catch (e) {
     console.error('[YouTube] Connexion échouée:', e.message);
     youtubeChatState.connected  = false;
@@ -1051,10 +1355,14 @@ async function ytConnect() {
 }
 
 function ytDisconnect() {
-  if (_ytPollTimer) { clearTimeout(_ytPollTimer); _ytPollTimer = null; }
+  if (_ytPollTimer)   { clearTimeout(_ytPollTimer);   _ytPollTimer   = null; }
+  if (_ytViewerTimer) { clearTimeout(_ytViewerTimer); _ytViewerTimer = null; }
   youtubeChatState.connected  = false;
   youtubeChatState.liveChatId = null;
   _ytNextToken = null;
+  _ytVideoId   = null;
+  youtubeViewerState = { viewers: 0, live: false };
+  io.emit('youtube-viewers', youtubeViewerState);
 }
 
 app.get('/api/youtube-chat', (req, res) => {
@@ -1126,6 +1434,53 @@ app.post('/api/twitch-alerts/test-bits', (req, res) => {
     amount: 200,
     message: 'Cheer200 Super stream !',
     color: '#9147ff',
+  });
+  res.json({ ok: true });
+});
+
+// ── Combined Chat API ─────────────────────────────────────────────────────────
+
+app.get('/api/combined-chat', (req, res) => res.json(combinedChatState));
+
+app.post('/api/combined-chat', (req, res) => {
+  combinedChatState = { ...combinedChatState, ...req.body };
+  io.emit('combinedChatUpdate', combinedChatState);
+  res.json(combinedChatState);
+});
+
+// ── YouTube Alerts API ────────────────────────────────────────────────────────
+
+app.get('/api/youtube-alerts', (req, res) => res.json(youtubeAlertsState));
+
+app.post('/api/youtube-alerts', (req, res) => {
+  youtubeAlertsState = { ...youtubeAlertsState, ...req.body };
+  io.emit('youtubeAlertsUpdate', youtubeAlertsState);
+  res.json(youtubeAlertsState);
+});
+
+app.post('/api/youtube-alerts/test-superchat', (req, res) => {
+  io.emit('youtubeAlertSuperChat', {
+    displayName: 'TestUser',
+    amount: '50,00 €',
+    tier: 5,
+    message: 'Super stream ! Continuez comme ça !',
+  });
+  res.json({ ok: true });
+});
+
+app.post('/api/youtube-alerts/test-member', (req, res) => {
+  io.emit('youtubeAlertMember', {
+    displayName: 'TestUser',
+    message: '',
+  });
+  res.json({ ok: true });
+});
+
+app.post('/api/youtube-alerts/test-milestone', (req, res) => {
+  io.emit('youtubeAlertMilestone', {
+    displayName: 'TestUser',
+    months: 6,
+    message: 'Déjà 6 mois !',
   });
   res.json({ ok: true });
 });
@@ -2139,7 +2494,10 @@ server.listen(PORT, () => {
   console.log('   Overlay casters    → http://localhost:' + PORT + '/casters');
   console.log('   Overlay stats      → http://localhost:' + PORT + '/player-stats');
   console.log('   Overlay historique → http://localhost:' + PORT + '/tournament-history');
-  console.log('   Overlay chat       → http://localhost:' + PORT + '/twitch-chat');
+  console.log('   Overlay chat       → http://localhost:' + PORT + '/twitch-chat')
+  console.log('   Viewers YouTube    → http://localhost:' + PORT + '/youtube-viewer')
+  console.log('   Alertes YouTube    → http://localhost:' + PORT + '/youtube-alerts')
+  console.log('   Chat combiné       → http://localhost:' + PORT + '/combined-chat');
   console.log('   Overlay bracket     → http://localhost:' + PORT + '/bracket');
   console.log('   Overlay timer       → http://localhost:' + PORT + '/timer');
   console.log('   Overlay top 8       → http://localhost:' + PORT + '/top8');

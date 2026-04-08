@@ -23,19 +23,61 @@
         <span class="dot"></span>
         <span class="label">Connecté</span>
       </div>
-      <a href="/overlay" target="_blank" class="btn btn-outline">Scoreboard ↗</a>
-      <a href="/stageveto" target="_blank" class="btn btn-outline">Stage Veto ↗</a>
-      <a href="/vs-screen" target="_blank" class="btn btn-outline">VS Screen ↗</a>
-      <a href="/player-stats" target="_blank" class="btn btn-outline">Stats ↗</a>
-      <a href="/tournament-history" target="_blank" class="btn btn-outline">Historique ↗</a>
-      <a href="/twitch-layout" target="_blank" class="btn btn-outline">Twitch Layout ↗</a>
-      <a href="/stream-title" target="_blank" class="btn btn-outline">Titre ↗</a>
-      <a href="/ticker" target="_blank" class="btn btn-outline">Bandeau ↗</a>
-      <a href="/frames" target="_blank" class="btn btn-outline">Cadres ↗</a>
-      <a href="/bracket" target="_blank" class="btn btn-outline">Bracket ↗</a>
-      <a href="/top8" target="_blank" class="btn btn-outline">Top 8 ↗</a>
-      <a href="/super-overlay" target="_blank" class="btn btn-outline">Super Overlay ↗</a>
-      <a href="/twitch-chat" target="_blank" class="btn btn-outline">Chat ↗</a>
+      <!-- Overlays groupés -->
+      <div class="overlay-group">
+        <button class="btn btn-outline overlay-group-btn">Scoreboard ▾</button>
+        <div class="overlay-group-menu">
+          <a href="/overlay" target="_blank">Scoreboard</a>
+          <a href="/overlay-slim" target="_blank">Slim</a>
+          <a href="/vs-screen" target="_blank">VS Screen</a>
+          <a href="/cam" target="_blank">Cam</a>
+          <a href="/casters" target="_blank">Casters</a>
+        </div>
+      </div>
+      <div class="overlay-group">
+        <button class="btn btn-outline overlay-group-btn">Tournoi ▾</button>
+        <div class="overlay-group-menu">
+          <a href="/stageveto" target="_blank">Stage Veto</a>
+          <a href="/bracket" target="_blank">Bracket</a>
+          <a href="/top8" target="_blank">Top 8</a>
+          <a href="/tournament-history" target="_blank">Historique</a>
+          <a href="/player-stats" target="_blank">Stats joueur</a>
+          <a href="/h2h" target="_blank">H2H</a>
+        </div>
+      </div>
+      <div class="overlay-group">
+        <button class="btn btn-outline overlay-group-btn">Stream ▾</button>
+        <div class="overlay-group-menu">
+          <a href="/stream-title" target="_blank">Titre</a>
+          <a href="/ticker" target="_blank">Bandeau</a>
+          <a href="/frames" target="_blank">Cadres</a>
+          <a href="/timer" target="_blank">Timer</a>
+          <a href="/super-overlay" target="_blank">Super Overlay</a>
+        </div>
+      </div>
+      <div class="overlay-group">
+        <button class="btn btn-outline overlay-group-btn" style="border-color:#9147FF55;color:#C9AAFF">Twitch ▾</button>
+        <div class="overlay-group-menu">
+          <a href="/twitch-layout" target="_blank">Layout</a>
+          <a href="/twitch-viewer" target="_blank">Viewers</a>
+          <a href="/twitch-alerts" target="_blank">Alertes</a>
+          <a href="/twitch-chat" target="_blank">Chat</a>
+        </div>
+      </div>
+      <div class="overlay-group">
+        <button class="btn btn-outline overlay-group-btn" style="border-color:#FF000055;color:#FF8A8A">YouTube ▾</button>
+        <div class="overlay-group-menu">
+          <a href="/youtube-chat" target="_blank">Chat</a>
+          <a href="/youtube-viewer" target="_blank">Viewers</a>
+          <a href="/youtube-alerts" target="_blank">Alertes</a>
+        </div>
+      </div>
+      <div class="overlay-group">
+        <button class="btn btn-outline overlay-group-btn" style="border-color:#8844FF55;color:#BB99FF">Chat combiné ▾</button>
+        <div class="overlay-group-menu">
+          <a href="/combined-chat" target="_blank">Twitch + YouTube</a>
+        </div>
+      </div>
       <button id="btn-vs-trigger" class="btn btn-primary" title="Déclenche l'animation d'entrée sur la VS Screen">⚔ VS Anim</button>
       <button id="btn-visibility" class="btn btn-primary">Masquer</button>
       <button id="btn-server-reload" class="btn btn-outline" title="Redémarre le serveur Node.js" style="border-color:#e05;color:#e05">↺ Serveur</button>
@@ -50,6 +92,7 @@
     <button class="tab-btn" data-tab="ruleset">Ruleset</button>
     <button class="tab-btn" data-tab="custom">Customisation</button>
     <button class="tab-btn" data-tab="chars" style="display:none">Personnages</button>
+    <button class="tab-btn" data-tab="connexions">Connexions</button>
     <button class="tab-btn" data-tab="startgg">start.gg</button>
     <button class="tab-btn" data-tab="twitch">Layouts Twitch</button>
     <button class="tab-btn" data-tab="titre">Titre</button>
@@ -1599,14 +1642,109 @@
               <button class="btn-copy" data-url="http://localhost:3002/stageveto">📋</button>
             </div>
             <div class="obs-url-item">
+              <span>VS Screen</span>
+              <code>localhost:3002/vs-screen</code>
+              <button class="btn-copy" data-url="http://localhost:3002/vs-screen">📋</button>
+            </div>
+            <div class="obs-url-item">
               <span>Casters</span>
               <code>localhost:3002/casters</code>
               <button class="btn-copy" data-url="http://localhost:3002/casters">📋</button>
             </div>
             <div class="obs-url-item">
-              <span>VS Screen</span>
-              <code>localhost:3002/vs-screen</code>
-              <button class="btn-copy" data-url="http://localhost:3002/vs-screen">📋</button>
+              <span>Cam</span>
+              <code>localhost:3002/cam</code>
+              <button class="btn-copy" data-url="http://localhost:3002/cam">📋</button>
+            </div>
+            <div class="obs-url-item">
+              <span>Cadres</span>
+              <code>localhost:3002/frames</code>
+              <button class="btn-copy" data-url="http://localhost:3002/frames">📋</button>
+            </div>
+            <div class="obs-url-item">
+              <span>Bandeau</span>
+              <code>localhost:3002/ticker</code>
+              <button class="btn-copy" data-url="http://localhost:3002/ticker">📋</button>
+            </div>
+            <div class="obs-url-item">
+              <span>Titre du stream</span>
+              <code>localhost:3002/stream-title</code>
+              <button class="btn-copy" data-url="http://localhost:3002/stream-title">📋</button>
+            </div>
+            <div class="obs-url-item">
+              <span>Twitch Layout</span>
+              <code>localhost:3002/twitch-layout</code>
+              <button class="btn-copy" data-url="http://localhost:3002/twitch-layout">📋</button>
+            </div>
+            <div class="obs-url-item">
+              <span>Viewers Twitch</span>
+              <code>localhost:3002/twitch-viewer</code>
+              <button class="btn-copy" data-url="http://localhost:3002/twitch-viewer">📋</button>
+            </div>
+            <div class="obs-url-item">
+              <span>Alertes Twitch</span>
+              <code>localhost:3002/twitch-alerts</code>
+              <button class="btn-copy" data-url="http://localhost:3002/twitch-alerts">📋</button>
+            </div>
+            <div class="obs-url-item">
+              <span>Chat Twitch</span>
+              <code>localhost:3002/twitch-chat</code>
+              <button class="btn-copy" data-url="http://localhost:3002/twitch-chat">📋</button>
+            </div>
+            <div class="obs-url-item">
+              <span>Chat YouTube</span>
+              <code>localhost:3002/youtube-chat</code>
+              <button class="btn-copy" data-url="http://localhost:3002/youtube-chat">📋</button>
+            </div>
+            <div class="obs-url-item">
+              <span>Viewers YouTube</span>
+              <code>localhost:3002/youtube-viewer</code>
+              <button class="btn-copy" data-url="http://localhost:3002/youtube-viewer">📋</button>
+            </div>
+            <div class="obs-url-item">
+              <span>Alertes YouTube</span>
+              <code>localhost:3002/youtube-alerts</code>
+              <button class="btn-copy" data-url="http://localhost:3002/youtube-alerts">📋</button>
+            </div>
+            <div class="obs-url-item">
+              <span>Chat combiné Twitch+YT</span>
+              <code>localhost:3002/combined-chat</code>
+              <button class="btn-copy" data-url="http://localhost:3002/combined-chat">📋</button>
+            </div>
+            <div class="obs-url-item">
+              <span>H2H</span>
+              <code>localhost:3002/h2h</code>
+              <button class="btn-copy" data-url="http://localhost:3002/h2h">📋</button>
+            </div>
+            <div class="obs-url-item">
+              <span>Stats joueur</span>
+              <code>localhost:3002/player-stats</code>
+              <button class="btn-copy" data-url="http://localhost:3002/player-stats">📋</button>
+            </div>
+            <div class="obs-url-item">
+              <span>Historique tournoi</span>
+              <code>localhost:3002/tournament-history</code>
+              <button class="btn-copy" data-url="http://localhost:3002/tournament-history">📋</button>
+            </div>
+            <div class="obs-url-item">
+              <span>Bracket</span>
+              <code>localhost:3002/bracket</code>
+              <button class="btn-copy" data-url="http://localhost:3002/bracket">📋</button>
+            </div>
+            <div class="obs-url-item">
+              <span>Top 8</span>
+              <code>localhost:3002/top8</code>
+              <button class="btn-copy" data-url="http://localhost:3002/top8">📋</button>
+            </div>
+            <div class="obs-url-item">
+              <span>Timer</span>
+              <code>localhost:3002/timer</code>
+              <button class="btn-copy" data-url="http://localhost:3002/timer">📋</button>
+            </div>
+            <div class="obs-url-item">
+              <span>Super Overlay</span>
+              <code>localhost:3002/super-overlay</code>
+              <button class="btn-copy" data-url="http://localhost:3002/super-overlay">📋</button>
             </div>
           </div>
         </div>
@@ -1753,6 +1891,269 @@
     </section>
 
   </div><!-- /tab-chars -->
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- TAB : CONNEXIONS                                            -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <div class="tab-content" id="tab-connexions">
+
+    <!-- ── TWITCH ─────────────────────────────────────────────────── -->
+    <section class="section">
+      <div class="section-header">
+        <h2 style="display:flex;align-items:center;gap:10px">
+          <svg style="width:20px;height:20px;color:#9147FF;flex-shrink:0" viewBox="0 0 24 24" fill="currentColor"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714z"/></svg>
+          Connexion Twitch
+        </h2>
+      </div>
+
+      <!-- Statut connecté -->
+      <div id="twitch-auth-connected" class="custom-card" style="display:none;border-color:rgba(145,71,255,0.3);background:rgba(145,71,255,0.05)">
+        <div style="display:flex;align-items:center;gap:14px">
+          <img id="twitch-auth-avatar" src="" alt="" style="width:48px;height:48px;border-radius:50%;border:2px solid #9147FF;flex-shrink:0" onerror="this.style.display='none'" />
+          <div style="flex:1">
+            <div id="twitch-auth-name" style="font-weight:700;font-size:16px;color:#C9AAFF"></div>
+            <div id="twitch-auth-login" style="font-size:12px;color:var(--text-muted);margin-top:2px"></div>
+            <div style="display:flex;align-items:center;gap:6px;margin-top:6px">
+              <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#6BC96C"></span>
+              <span style="font-size:11px;font-weight:700;letter-spacing:1px;color:#6BC96C;text-transform:uppercase">Connecté — tokens renouvelés automatiquement</span>
+            </div>
+          </div>
+          <button class="btn btn-outline btn-sm" id="btn-twitch-disconnect" style="border-color:var(--danger);color:var(--danger);flex-shrink:0">Se déconnecter</button>
+        </div>
+      </div>
+
+      <!-- Tuto + formulaire (affiché si non connecté) -->
+      <div id="twitch-auth-form">
+
+        <!-- Étapes tuto -->
+        <div class="custom-card" style="margin-bottom:0">
+          <h3 style="margin-bottom:14px;display:flex;align-items:center;gap:8px">
+            <span style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:#9147FF;font-size:11px;font-weight:700;color:#fff;flex-shrink:0">?</span>
+            Comment obtenir ton Client ID et Client Secret Twitch
+          </h3>
+
+          <div class="conn-steps">
+
+            <div class="conn-step">
+              <div class="conn-step-num" style="background:#9147FF">1</div>
+              <div class="conn-step-body">
+                <div class="conn-step-title">Ouvrir la console développeur Twitch</div>
+                <p class="conn-step-desc">Va sur <a href="https://dev.twitch.tv/console/apps" target="_blank" class="conn-link conn-link-twitch">dev.twitch.tv/console/apps ↗</a> et connecte-toi avec ton compte Twitch si ce n'est pas déjà fait.</p>
+              </div>
+            </div>
+
+            <div class="conn-step">
+              <div class="conn-step-num" style="background:#9147FF">2</div>
+              <div class="conn-step-body">
+                <div class="conn-step-title">Créer une nouvelle application</div>
+                <p class="conn-step-desc">Clique sur <strong>"+ Enregistrer votre application"</strong>. Remplis les champs :</p>
+                <div class="conn-fields">
+                  <div class="conn-field"><span class="conn-field-label">Nom</span><span class="conn-field-val">PSO Overlay <em>(ou ce que tu veux)</em></span></div>
+                  <div class="conn-field"><span class="conn-field-label">URLs de redirection OAuth</span><code class="conn-code">http://localhost:3002/auth/twitch/callback</code><button class="conn-copy-btn" data-copy="http://localhost:3002/auth/twitch/callback">Copier</button></div>
+                  <div class="conn-field"><span class="conn-field-label">Catégorie</span><span class="conn-field-val">Jeux / Chat</span></div>
+                </div>
+                <p class="conn-step-desc" style="margin-top:8px">Clique <strong>"Créer"</strong>.</p>
+              </div>
+            </div>
+
+            <div class="conn-step">
+              <div class="conn-step-num" style="background:#9147FF">3</div>
+              <div class="conn-step-body">
+                <div class="conn-step-title">Récupérer les identifiants</div>
+                <p class="conn-step-desc">Clique sur <strong>"Gérer"</strong> à côté de l'app que tu viens de créer. Tu trouveras :</p>
+                <div class="conn-fields">
+                  <div class="conn-field"><span class="conn-field-label">Client ID</span><span class="conn-field-val">Visible directement — copie-le ci-dessous</span></div>
+                  <div class="conn-field"><span class="conn-field-label">Client Secret</span><span class="conn-field-val">Clique <strong>"Nouveau secret"</strong> puis copie-le <em>(affiché une seule fois)</em></span></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="conn-step">
+              <div class="conn-step-num" style="background:#9147FF">4</div>
+              <div class="conn-step-body">
+                <div class="conn-step-title">Coller les identifiants ici et se connecter</div>
+                <p class="conn-step-desc">Remplis les champs ci-dessous, clique <strong>"Enregistrer"</strong> puis <strong>"Se connecter avec Twitch"</strong>. Une fenêtre s'ouvre pour autoriser PSO.</p>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Formulaire -->
+        <div class="custom-card" style="margin-top:12px">
+          <h3 style="margin-bottom:14px">Identifiants</h3>
+          <div class="conn-form-grid">
+            <div class="form-group">
+              <label>Client ID <span class="hint">visible sur la page "Gérer"</span></label>
+              <input type="text" id="twitch-cred-id" placeholder="xxxxxxxxxxxxxxxxxxxxxxxx" autocomplete="off" />
+            </div>
+            <div class="form-group">
+              <label>Client Secret <span class="hint">clique "Nouveau secret" si vide</span></label>
+              <input type="password" id="twitch-cred-secret" placeholder="••••••••••••••••••••••••" autocomplete="new-password" />
+              <small style="color:var(--text-muted);font-size:11px">Laisse vide pour conserver le secret déjà enregistré</small>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:4px">
+            <button class="btn btn-outline btn-sm" id="btn-twitch-save-creds">1 — Enregistrer</button>
+            <button class="btn btn-primary btn-sm" id="btn-twitch-oauth" style="background:#9147FF;border-color:#9147FF;flex:1">2 — Se connecter avec Twitch ↗</button>
+          </div>
+          <p id="twitch-cred-status" style="font-size:11px;color:var(--text-muted);margin-top:8px;min-height:16px"></p>
+        </div>
+
+        <!-- Ce que ça débloque -->
+        <div class="conn-unlocks" style="border-color:rgba(145,71,255,0.2);background:rgba(145,71,255,0.04)">
+          <div class="conn-unlocks-title" style="color:#9147FF">Ce que la connexion Twitch débloque</div>
+          <div class="conn-unlocks-grid">
+            <div class="conn-unlock-item"><span class="conn-unlock-icon">💬</span><span>Chat en direct (overlay + combined)</span></div>
+            <div class="conn-unlock-item"><span class="conn-unlock-icon">👁</span><span>Compteur de viewers en temps réel</span></div>
+            <div class="conn-unlock-item"><span class="conn-unlock-icon">⭐</span><span>Alertes abonnements et bits</span></div>
+            <div class="conn-unlock-item"><span class="conn-unlock-icon">🎯</span><span>Prédictions broadcaster</span></div>
+            <div class="conn-unlock-item"><span class="conn-unlock-icon">👥</span><span>Liste des abonnés</span></div>
+            <div class="conn-unlock-item"><span class="conn-unlock-icon">🔄</span><span>Token renouvelé automatiquement</span></div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ── YOUTUBE ────────────────────────────────────────────────── -->
+    <section class="section">
+      <div class="section-header">
+        <h2 style="display:flex;align-items:center;gap:10px">
+          <svg style="width:20px;height:20px;color:#FF0000;flex-shrink:0" viewBox="0 0 24 24" fill="currentColor"><path d="M21.8 8s-.2-1.4-.8-2c-.8-.8-1.6-.8-2-.9C16.3 5 12 5 12 5s-4.3 0-7 .1c-.4.1-1.2.1-2 .9-.6.6-.8 2-.8 2S2 9.6 2 11.2v1.5c0 1.6.2 3.2.2 3.2s.2 1.4.8 2c.8.8 1.8.7 2.3.8C6.8 19 12 19 12 19s4.3 0 7-.2c.4-.1 1.2-.1 2-.9.6-.6.8-2 .8-2s.2-1.6.2-3.2v-1.5C22 9.6 21.8 8 21.8 8zM9.7 14.5V9l5.4 2.8-5.4 2.7z"/></svg>
+          Connexion YouTube
+        </h2>
+      </div>
+
+      <!-- Statut connecté -->
+      <div id="youtube-auth-connected" class="custom-card" style="display:none;border-color:rgba(255,0,0,0.25);background:rgba(255,0,0,0.05)">
+        <div style="display:flex;align-items:center;gap:14px">
+          <img id="youtube-auth-avatar" src="" alt="" style="width:48px;height:48px;border-radius:50%;border:2px solid #FF0000;flex-shrink:0" onerror="this.style.display='none'" />
+          <div style="flex:1">
+            <div id="youtube-auth-name" style="font-weight:700;font-size:16px;color:#FF8A8A"></div>
+            <div id="youtube-auth-channel" style="font-size:12px;color:var(--text-muted);margin-top:2px"></div>
+            <div style="display:flex;align-items:center;gap:6px;margin-top:6px">
+              <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#6BC96C"></span>
+              <span style="font-size:11px;font-weight:700;letter-spacing:1px;color:#6BC96C;text-transform:uppercase">Connecté — tokens renouvelés automatiquement</span>
+            </div>
+          </div>
+          <button class="btn btn-outline btn-sm" id="btn-youtube-disconnect" style="border-color:var(--danger);color:var(--danger);flex-shrink:0">Se déconnecter</button>
+        </div>
+      </div>
+
+      <!-- Tuto + formulaire -->
+      <div id="youtube-auth-form">
+
+        <div class="custom-card" style="margin-bottom:0">
+          <h3 style="margin-bottom:14px;display:flex;align-items:center;gap:8px">
+            <span style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:#FF0000;font-size:11px;font-weight:700;color:#fff;flex-shrink:0">?</span>
+            Comment obtenir ton Client ID et Client Secret Google
+          </h3>
+
+          <div class="conn-steps">
+
+            <div class="conn-step">
+              <div class="conn-step-num" style="background:#FF0000">1</div>
+              <div class="conn-step-body">
+                <div class="conn-step-title">Créer un projet Google Cloud</div>
+                <p class="conn-step-desc">Va sur <a href="https://console.cloud.google.com" target="_blank" class="conn-link conn-link-yt">console.cloud.google.com ↗</a>. En haut à gauche, clique sur le sélecteur de projet → <strong>"Nouveau projet"</strong>. Donne-lui un nom (ex : <em>PSO Overlay</em>) et clique <strong>"Créer"</strong>.</p>
+              </div>
+            </div>
+
+            <div class="conn-step">
+              <div class="conn-step-num" style="background:#FF0000">2</div>
+              <div class="conn-step-body">
+                <div class="conn-step-title">Activer l'API YouTube Data v3</div>
+                <p class="conn-step-desc">Dans le menu, va dans <strong>APIs et services → Bibliothèque</strong>. Recherche <strong>"YouTube Data API v3"</strong>, clique dessus puis <strong>"Activer"</strong>.</p>
+                <div class="conn-tip">
+                  <span class="conn-tip-icon">💡</span> Sans cette étape, la connexion échouera avec une erreur "API not enabled".
+                </div>
+              </div>
+            </div>
+
+            <div class="conn-step">
+              <div class="conn-step-num" style="background:#FF0000">3</div>
+              <div class="conn-step-body">
+                <div class="conn-step-title">Configurer l'écran de consentement OAuth</div>
+                <p class="conn-step-desc">Va dans <strong>APIs et services → Écran de consentement OAuth</strong>. Choisis le type <strong>"Externe"</strong>, clique <strong>"Créer"</strong>. Remplis uniquement :</p>
+                <div class="conn-fields">
+                  <div class="conn-field"><span class="conn-field-label">Nom de l'application</span><span class="conn-field-val">PSO Overlay</span></div>
+                  <div class="conn-field"><span class="conn-field-label">E-mail d'assistance</span><span class="conn-field-val">Ton adresse Gmail</span></div>
+                  <div class="conn-field"><span class="conn-field-label">Coordonnées du développeur</span><span class="conn-field-val">Ton adresse Gmail</span></div>
+                </div>
+                <p class="conn-step-desc" style="margin-top:8px">Clique <strong>"Enregistrer et continuer"</strong> jusqu'à la fin (les autres étapes peuvent rester vides). Reste en mode <strong>Test</strong> — pas besoin de soumettre pour validation.</p>
+                <div class="conn-tip">
+                  <span class="conn-tip-icon">💡</span> En mode Test, seules les adresses ajoutées dans "Utilisateurs de test" peuvent se connecter. Ajoute ton adresse Gmail.
+                </div>
+              </div>
+            </div>
+
+            <div class="conn-step">
+              <div class="conn-step-num" style="background:#FF0000">4</div>
+              <div class="conn-step-body">
+                <div class="conn-step-title">Créer les identifiants OAuth</div>
+                <p class="conn-step-desc">Va dans <strong>APIs et services → Identifiants</strong>. Clique <strong>"+ Créer des identifiants" → "ID client OAuth"</strong>. Remplis :</p>
+                <div class="conn-fields">
+                  <div class="conn-field"><span class="conn-field-label">Type d'application</span><span class="conn-field-val"><strong>Application Web</strong></span></div>
+                  <div class="conn-field"><span class="conn-field-label">Nom</span><span class="conn-field-val">PSO Overlay</span></div>
+                  <div class="conn-field"><span class="conn-field-label">URI de redirection autorisés</span><code class="conn-code">http://localhost:3002/auth/youtube/callback</code><button class="conn-copy-btn" data-copy="http://localhost:3002/auth/youtube/callback">Copier</button></div>
+                </div>
+                <p class="conn-step-desc" style="margin-top:8px">Clique <strong>"Créer"</strong>. Une fenêtre affiche ton <strong>Client ID</strong> et ton <strong>Client Secret</strong> — copie-les.</p>
+                <div class="conn-tip conn-tip-warn">
+                  <span class="conn-tip-icon">⚠️</span> Le Client Secret n'est affiché qu'à la création. Si tu le perds, il faudra en créer un nouveau.
+                </div>
+              </div>
+            </div>
+
+            <div class="conn-step">
+              <div class="conn-step-num" style="background:#FF0000">5</div>
+              <div class="conn-step-body">
+                <div class="conn-step-title">Coller les identifiants ici et se connecter</div>
+                <p class="conn-step-desc">Remplis les champs ci-dessous, clique <strong>"Enregistrer"</strong> puis <strong>"Se connecter avec YouTube"</strong>. Autorise l'accès en lecture seule à ta chaîne.</p>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Formulaire -->
+        <div class="custom-card" style="margin-top:12px">
+          <h3 style="margin-bottom:14px">Identifiants Google OAuth</h3>
+          <div class="conn-form-grid">
+            <div class="form-group">
+              <label>Client ID <span class="hint">format : xxxxx.apps.googleusercontent.com</span></label>
+              <input type="text" id="youtube-cred-id" placeholder="xxxxxxxx.apps.googleusercontent.com" autocomplete="off" />
+            </div>
+            <div class="form-group">
+              <label>Client Secret <span class="hint">format : GOCSPX-…</span></label>
+              <input type="password" id="youtube-cred-secret" placeholder="GOCSPX-••••••••••••••••" autocomplete="new-password" />
+              <small style="color:var(--text-muted);font-size:11px">Laisse vide pour conserver le secret déjà enregistré</small>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:4px">
+            <button class="btn btn-outline btn-sm" id="btn-youtube-save-creds">1 — Enregistrer</button>
+            <button class="btn btn-primary btn-sm" id="btn-youtube-oauth" style="background:#FF0000;border-color:#FF0000;flex:1">2 — Se connecter avec YouTube ↗</button>
+          </div>
+          <p id="youtube-cred-status" style="font-size:11px;color:var(--text-muted);margin-top:8px;min-height:16px"></p>
+        </div>
+
+        <!-- Ce que ça débloque -->
+        <div class="conn-unlocks" style="border-color:rgba(255,0,0,0.2);background:rgba(255,0,0,0.04)">
+          <div class="conn-unlocks-title" style="color:#FF4444">Ce que la connexion YouTube débloque</div>
+          <div class="conn-unlocks-grid">
+            <div class="conn-unlock-item"><span class="conn-unlock-icon">💬</span><span>Chat YouTube en direct (overlay + combined)</span></div>
+            <div class="conn-unlock-item"><span class="conn-unlock-icon">👁</span><span>Compteur de viewers concurrent</span></div>
+            <div class="conn-unlock-item"><span class="conn-unlock-icon">💛</span><span>Alertes Super Chat par tier</span></div>
+            <div class="conn-unlock-item"><span class="conn-unlock-icon">⭐</span><span>Alertes nouveaux membres</span></div>
+            <div class="conn-unlock-item"><span class="conn-unlock-icon">🏅</span><span>Alertes anniversaires de membership</span></div>
+            <div class="conn-unlock-item"><span class="conn-unlock-icon">🔄</span><span>Pas de clé API requise — tout via OAuth</span></div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </div><!-- /tab-connexions -->
 
   <!-- ═══════════════════════════════════════════════════════════ -->
   <!-- TAB : START.GG                                              -->

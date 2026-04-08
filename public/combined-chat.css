@@ -1,0 +1,385 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Russo+One&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: transparent;
+  width: 1920px;
+  height: 1080px;
+  overflow: hidden;
+  font-family: 'Inter', sans-serif;
+}
+
+/* ── Overlay container ─────────────────────────────────────────── */
+
+.cc-overlay {
+  position: absolute;
+  top:  0px;
+  left: 0px;
+  width: 380px;
+  display: flex;
+  flex-direction: column;
+  background: var(--theme-bg, #0E0E12);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-top: 2px solid rgba(145,71,255,0.8);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.8);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+  max-height: 620px;
+}
+
+.cc-overlay.hidden {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-8px);
+}
+
+/* ── Mode transparent ──────────────────────────────────────────── */
+
+.cc-overlay.transparent-mode {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+}
+
+.cc-overlay.transparent-mode .cc-header {
+  display: none;
+}
+
+.cc-overlay.transparent-mode .cc-msg {
+  background: transparent !important;
+  border-bottom: none !important;
+  padding: 3px 10px;
+}
+
+.cc-overlay.transparent-mode #cc-particle-canvas {
+  display: none;
+}
+
+/* ── Particules ─────────────────────────────────────────────────── */
+
+#cc-particle-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  border-radius: 10px;
+}
+
+/* ── Header ─────────────────────────────────────────────────────── */
+
+.cc-header {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  padding: 0;
+  background: transparent;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  flex-shrink: 0;
+  position: relative;
+  z-index: 1;
+}
+
+.cc-source {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 12px;
+  flex: 1;
+  min-width: 0;
+}
+
+.cc-sep {
+  width: 1px;
+  height: 28px;
+  background: rgba(255,255,255,0.1);
+  flex-shrink: 0;
+}
+
+.cc-logo {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+.cc-logo-twitch { color: #9147FF; }
+.cc-logo-yt     { color: #FF0000; }
+
+.cc-channel-name {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  color: #C0BDD8;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cc-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #333;
+  flex-shrink: 0;
+  transition: background 0.3s, box-shadow 0.3s;
+}
+
+.cc-dot-twitch.connected {
+  background: #9147FF;
+  box-shadow: 0 0 6px #9147FF;
+  animation: dot-pulse-tw 2s ease-in-out infinite;
+}
+
+.cc-dot-yt.connected {
+  background: #FF0000;
+  box-shadow: 0 0 6px #FF0000;
+  animation: dot-pulse-yt 2s ease-in-out infinite;
+}
+
+@keyframes dot-pulse-tw {
+  0%, 100% { opacity: 1; } 50% { opacity: 0.5; }
+}
+@keyframes dot-pulse-yt {
+  0%, 100% { opacity: 1; } 50% { opacity: 0.5; }
+}
+
+/* ── Messages list ──────────────────────────────────────────────── */
+
+.cc-messages {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 6px 0;
+  overflow: hidden;
+  flex: 1;
+  position: relative;
+  z-index: 1;
+}
+
+/* ── Message commun ─────────────────────────────────────────────── */
+
+.cc-msg {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 5px 12px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #C8C6D8;
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+  animation: cc-msg-in 0.2s ease-out;
+  position: relative;
+}
+
+.cc-msg:last-child { border-bottom: none; }
+
+@keyframes cc-msg-in {
+  from { opacity: 0; transform: translateY(-5px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Badge de plateforme ────────────────────────────────────────── */
+
+.cc-platform {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  align-self: center;
+  margin-right: 2px;
+}
+
+.cc-platform svg {
+  width: 11px;
+  height: 11px;
+  opacity: 0.7;
+}
+
+.cc-platform.twitch svg { color: #9147FF; }
+.cc-platform.youtube svg { color: #FF0000; }
+
+/* ── Bande colorée côté gauche selon plateforme ─────────────────── */
+
+.cc-msg.from-twitch {
+  border-left: 2px solid rgba(145,71,255,0.35);
+}
+
+.cc-msg.from-youtube {
+  border-left: 2px solid rgba(255,0,0,0.35);
+}
+
+/* ── Badges Twitch ──────────────────────────────────────────────── */
+
+.cc-badges {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  flex-shrink: 0;
+  align-self: center;
+}
+
+.cc-badge-img {
+  width: 14px;
+  height: 14px;
+  object-fit: contain;
+  vertical-align: middle;
+  border-radius: 2px;
+}
+
+.cc-badge-text {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  padding: 1px 3px;
+  border-radius: 3px;
+  text-transform: uppercase;
+  vertical-align: middle;
+}
+.cc-badge-text.broadcaster { background: rgba(229,70,50,0.3); color: #E54632; }
+.cc-badge-text.moderator   { background: rgba(0,173,103,0.3); color: #00AD67; }
+.cc-badge-text.vip         { background: rgba(233,25,200,0.3); color: #E919C8; }
+.cc-badge-text.subscriber  { background: rgba(145,71,255,0.3); color: #9147FF; }
+
+/* ── Avatar YouTube ─────────────────────────────────────────────── */
+
+.cc-avatar {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  align-self: center;
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
+.cc-avatar-placeholder {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #2A2A3E;
+  flex-shrink: 0;
+  align-self: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  color: #888;
+  font-weight: 700;
+}
+
+/* ── Badges YouTube ─────────────────────────────────────────────── */
+
+.cc-yt-badges {
+  display: inline-flex;
+  gap: 3px;
+  align-items: center;
+}
+
+.cc-yt-badge {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  padding: 1px 4px;
+  border-radius: 3px;
+  text-transform: uppercase;
+}
+.cc-yt-badge.owner  { background: #FF0000; color: #fff; }
+.cc-yt-badge.mod    { background: #5ba55b; color: #fff; }
+.cc-yt-badge.member { background: #2e7d32; color: #fff; }
+
+/* ── Auteur ─────────────────────────────────────────────────────── */
+
+.cc-author {
+  font-weight: 600;
+  font-size: 13px;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.cc-colon {
+  color: #5A5A7A;
+  flex-shrink: 0;
+}
+
+/* ── Texte du message ───────────────────────────────────────────── */
+
+.cc-text {
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+.cc-emote {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+  vertical-align: middle;
+  margin: 0 1px;
+}
+
+.cc-msg.is-action .cc-text {
+  font-style: italic;
+  opacity: 0.85;
+}
+
+/* ── SuperChat ──────────────────────────────────────────────────── */
+
+.cc-superchat {
+  margin: 3px 8px;
+  padding: 7px 10px;
+  border-radius: 7px;
+  animation: cc-msg-in 0.2s ease-out;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.cc-superchat.tier-1 { background: linear-gradient(135deg, #b71c1c 0%, #e53935 100%); }
+.cc-superchat.tier-2 { background: linear-gradient(135deg, #1565c0 0%, #1e88e5 100%); }
+.cc-superchat.tier-3 { background: linear-gradient(135deg, #00695c 0%, #00897b 100%); }
+.cc-superchat.tier-4 { background: linear-gradient(135deg, #f57f17 0%, #fbc02d 100%); }
+.cc-superchat.tier-5 { background: linear-gradient(135deg, #e65100 0%, #fb8c00 100%); }
+.cc-superchat.tier-6 { background: linear-gradient(135deg, #880e4f 0%, #e91e63 100%); }
+.cc-superchat.tier-7 { background: linear-gradient(135deg, #4a148c 0%, #7b1fa2 100%); }
+
+.cc-superchat-header {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.cc-superchat-avatar {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.cc-superchat-name   { font-weight: 700; color: #fff; font-size: 13px; flex: 1; }
+.cc-superchat-amount { font-weight: 700; color: rgba(255,255,255,0.95); font-size: 13px; }
+.cc-superchat-msg    { color: rgba(255,255,255,0.85); font-size: 12px; line-height: 1.4; }
+
+/* ── Notice ─────────────────────────────────────────────────────── */
+
+.cc-notice {
+  padding: 5px 12px;
+  font-size: 11px;
+  font-style: italic;
+  animation: cc-msg-in 0.2s ease-out;
+}
+
+.cc-notice.twitch {
+  color: #9147FF;
+  border-left: 2px solid #9147FF;
+  background: rgba(145,71,255,0.06);
+}
+
+.cc-notice.youtube {
+  color: #FF4444;
+  border-left: 2px solid #FF0000;
+  background: rgba(255,0,0,0.06);
+}
