@@ -85,7 +85,272 @@ h1 {
 .header-right {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+/* ── Overlay groups (dropdowns) ──────────────────────────────── */
+
+.overlay-group {
+  position: relative;
+}
+
+.overlay-group-btn {
+  font-size: 11px;
+  padding: 6px 10px;
+  letter-spacing: 1px;
+}
+
+.overlay-group-menu {
+  display: none;
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  min-width: 160px;
+  z-index: 200;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+  overflow: hidden;
+}
+
+.overlay-group:hover .overlay-group-menu,
+.overlay-group:focus-within .overlay-group-menu {
+  display: block;
+}
+
+.overlay-group-menu a {
+  display: block;
+  padding: 8px 14px;
+  font-size: 12px;
+  font-family: 'Inter', sans-serif;
+  color: var(--text);
+  text-decoration: none;
+  letter-spacing: 0.5px;
+  transition: background 0.1s, color 0.1s;
+  white-space: nowrap;
+}
+
+.overlay-group-menu a::after {
+  content: ' ↗';
+  opacity: 0.4;
+  font-size: 10px;
+}
+
+.overlay-group-menu a:hover {
+  background: rgba(232,184,48,0.08);
+  color: var(--gold);
+}
+
+.overlay-group-menu a:hover::after {
+  opacity: 1;
+  color: var(--gold);
+}
+
+/* ── Connexions tuto ─────────────────────────────────────────── */
+
+.conn-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.conn-step {
+  display: flex;
+  gap: 14px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border);
+  position: relative;
+}
+
+.conn-step:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.conn-step-num {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Russo One', sans-serif;
+  font-size: 13px;
+  color: #fff;
+  flex-shrink: 0;
+  margin-top: 1px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+}
+
+.conn-step-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.conn-step-title {
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--text);
+  margin-bottom: 5px;
+}
+
+.conn-step-desc {
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.65;
+  margin: 0;
+}
+
+.conn-step-desc strong {
+  color: var(--text);
+}
+
+.conn-link {
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.conn-link-twitch { color: #9147FF; }
+.conn-link-twitch:hover { color: #B388FF; }
+.conn-link-yt { color: #FF4444; }
+.conn-link-yt:hover { color: #FF8080; }
+
+.conn-fields {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px 12px;
+}
+
+.conn-field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  flex-wrap: wrap;
+}
+
+.conn-field-label {
+  font-weight: 600;
+  color: var(--text);
+  min-width: 180px;
+  flex-shrink: 0;
+}
+
+.conn-field-val {
+  color: var(--text-muted);
+  flex: 1;
+}
+
+.conn-field-val em {
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.conn-code {
+  font-size: 11px;
+  background: rgba(232,184,48,0.1);
+  color: var(--gold);
+  border: 1px solid rgba(232,184,48,0.2);
+  padding: 2px 7px;
+  border-radius: 4px;
+  font-family: monospace;
+  letter-spacing: 0;
+  flex: 1;
+  word-break: break-all;
+}
+
+.conn-copy-btn {
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 3px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.conn-copy-btn:hover {
+  border-color: var(--gold);
+  color: var(--gold);
+}
+
+.conn-tip {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  margin-top: 8px;
+  padding: 8px 12px;
+  background: rgba(58,127,232,0.08);
+  border: 1px solid rgba(58,127,232,0.2);
+  border-radius: 6px;
+  font-size: 11px;
+  color: #88AAEE;
+  line-height: 1.55;
+}
+
+.conn-tip-warn {
+  background: rgba(232,184,48,0.07);
+  border-color: rgba(232,184,48,0.25);
+  color: var(--gold);
+}
+
+.conn-tip-icon {
+  font-size: 13px;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.conn-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+@media (max-width: 900px) {
+  .conn-form-grid { grid-template-columns: 1fr; }
+}
+
+.conn-unlocks {
+  margin-top: 12px;
+  padding: 14px 16px;
+  border: 1px solid;
+  border-radius: 8px;
+}
+
+.conn-unlocks-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.conn-unlocks-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px 12px;
+}
+
+.conn-unlock-item {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.conn-unlock-icon {
+  font-size: 14px;
+  flex-shrink: 0;
 }
 
 /* ── Badges ──────────────────────────────────────────────────── */

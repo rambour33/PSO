@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>PSO – Viewers YouTube</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Russo+One&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="youtube-viewer.css" />
+</head>
+<body>
+
+<div id="viewer-overlay" class="viewer-overlay offline">
+
+  <div class="overlay-bg"></div>
+  <div class="overlay-glow"></div>
+  <div class="deco-corner deco-tl"></div>
+  <div class="deco-corner deco-br"></div>
+
+  <div class="viewer-body">
+
+    <div class="live-row">
+      <span class="live-dot" id="live-dot"></span>
+      <span class="live-label" id="live-label">HORS LIGNE</span>
+    </div>
+
+    <!-- Logo YouTube -->
+    <div class="count-row">
+      <svg class="yt-icon" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M21.8 8s-.2-1.4-.8-2c-.8-.8-1.6-.8-2-.9C16.3 5 12 5 12 5s-4.3 0-7 .1c-.4.1-1.2.1-2 .9-.6.6-.8 2-.8 2S2 9.6 2 11.2v1.5c0 1.6.2 3.2.2 3.2s.2 1.4.8 2c.8.8 1.8.7 2.3.8C6.8 19 12 19 12 19s4.3 0 7-.2c.4-.1 1.2-.1 2-.9.6-.6.8-2 .8-2s.2-1.6.2-3.2v-1.5C22 9.6 21.8 8 21.8 8zM9.7 14.5V9l5.4 2.8-5.4 2.7z"/>
+      </svg>
+      <span class="viewer-number" id="viewer-number">–</span>
+    </div>
+
+    <div class="viewers-label">viewers</div>
+
+  </div>
+
+  <div class="bottom-accent"></div>
+
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="youtube-viewer.js"></script>
+</body>
+</html>
