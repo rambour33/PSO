@@ -2153,6 +2153,108 @@
       </div>
     </section>
 
+    <!-- ── START.GG ──────────────────────────────────────────────── -->
+    <section class="section">
+      <div class="section-header">
+        <h2 style="display:flex;align-items:center;gap:10px">
+          <svg style="width:20px;height:20px;color:#17B978;flex-shrink:0" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm0 2c4.418 0 8 3.582 8 8s-3.582 8-8 8-8-3.582-8-8 3.582-8 8-8zm-1 4v4H7l5 6 5-6h-4V8h-2z"/></svg>
+          Connexion start.gg
+        </h2>
+      </div>
+
+      <!-- Statut connecté -->
+      <div id="conn-startgg-connected" class="custom-card" style="display:none;border-color:rgba(23,185,120,0.3);background:rgba(23,185,120,0.05)">
+        <div style="display:flex;align-items:center;gap:14px">
+          <svg style="width:36px;height:36px;color:#17B978;flex-shrink:0" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>
+          <div style="flex:1">
+            <div style="font-weight:700;font-size:15px;color:#5DEAB9">Clé API start.gg enregistrée</div>
+            <div style="display:flex;align-items:center;gap:6px;margin-top:5px">
+              <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#6BC96C"></span>
+              <span style="font-size:11px;font-weight:700;letter-spacing:1px;color:#6BC96C;text-transform:uppercase">Connecté</span>
+            </div>
+          </div>
+          <button class="btn btn-outline btn-sm" id="conn-startgg-remove" style="border-color:var(--danger);color:var(--danger);flex-shrink:0">Supprimer la clé</button>
+        </div>
+      </div>
+
+      <!-- Tuto + formulaire -->
+      <div id="conn-startgg-form">
+
+        <div class="custom-card" style="margin-bottom:0">
+          <h3 style="margin-bottom:14px;display:flex;align-items:center;gap:8px">
+            <span style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:#17B978;font-size:11px;font-weight:700;color:#fff;flex-shrink:0">?</span>
+            Comment créer une clé API start.gg
+          </h3>
+
+          <div class="conn-steps">
+
+            <div class="conn-step">
+              <div class="conn-step-num" style="background:#17B978">1</div>
+              <div class="conn-step-body">
+                <div class="conn-step-title">Se connecter à start.gg</div>
+                <p class="conn-step-desc">Va sur <a href="https://start.gg" target="_blank" class="conn-link" style="color:#17B978">start.gg ↗</a> et connecte-toi à ton compte (ou crée-en un gratuitement).</p>
+              </div>
+            </div>
+
+            <div class="conn-step">
+              <div class="conn-step-num" style="background:#17B978">2</div>
+              <div class="conn-step-body">
+                <div class="conn-step-title">Ouvrir les paramètres développeur</div>
+                <p class="conn-step-desc">Clique sur ton avatar en haut à droite → <strong>"Developer Settings"</strong>.<br>
+                Accès direct : <a href="https://start.gg/admin/profile/developer" target="_blank" class="conn-link" style="color:#17B978">start.gg/admin/profile/developer ↗</a></p>
+              </div>
+            </div>
+
+            <div class="conn-step">
+              <div class="conn-step-num" style="background:#17B978">3</div>
+              <div class="conn-step-body">
+                <div class="conn-step-title">Créer un token personnel</div>
+                <p class="conn-step-desc">Dans la section <strong>"Personal Access Tokens"</strong>, clique <strong>"Create token"</strong>. Donne-lui un nom (ex. <em>PSO Overlay</em>) et clique <strong>"Create"</strong>.</p>
+                <div class="conn-tip conn-tip-warn">
+                  <span class="conn-tip-icon">⚠️</span> Le token n'est affiché <strong>qu'une seule fois</strong>. Copie-le immédiatement avant de fermer la fenêtre.
+                </div>
+              </div>
+            </div>
+
+            <div class="conn-step">
+              <div class="conn-step-num" style="background:#17B978">4</div>
+              <div class="conn-step-body">
+                <div class="conn-step-title">Coller le token ci-dessous</div>
+                <p class="conn-step-desc">Colle le token dans le champ ci-dessous et clique <strong>"Enregistrer"</strong>.</p>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Formulaire -->
+        <div class="custom-card" style="margin-top:12px">
+          <h3 style="margin-bottom:12px">Clé API (Personal Access Token)</h3>
+          <div class="form-group" style="margin-bottom:0">
+            <div style="display:flex;gap:8px">
+              <input type="password" id="conn-startgg-key" placeholder="••••••••••••••••••••••••••••••••" autocomplete="new-password" style="flex:1" />
+              <button class="btn btn-primary btn-sm" id="conn-startgg-save" style="background:#17B978;border-color:#17B978;white-space:nowrap">Enregistrer</button>
+            </div>
+            <p id="conn-startgg-status" style="font-size:11px;color:var(--text-muted);margin-top:8px;min-height:16px"></p>
+          </div>
+        </div>
+
+        <!-- Ce que ça débloque -->
+        <div class="conn-unlocks" style="border-color:rgba(23,185,120,0.2);background:rgba(23,185,120,0.04)">
+          <div class="conn-unlocks-title" style="color:#17B978">Ce que la connexion start.gg débloque</div>
+          <div class="conn-unlocks-grid">
+            <div class="conn-unlock-item"><span class="conn-unlock-icon">🏆</span><span>Recherche de tournois</span></div>
+            <div class="conn-unlock-item"><span class="conn-unlock-icon">👥</span><span>Liste des participants</span></div>
+            <div class="conn-unlock-item"><span class="conn-unlock-icon">🎮</span><span>Sets en cours</span></div>
+            <div class="conn-unlock-item"><span class="conn-unlock-icon">📊</span><span>Stats et historique joueur</span></div>
+            <div class="conn-unlock-item"><span class="conn-unlock-icon">🥇</span><span>Standings Top 8</span></div>
+            <div class="conn-unlock-item"><span class="conn-unlock-icon">📺</span><span>Bracket en overlay</span></div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
   </div><!-- /tab-connexions -->
 
   <!-- ═══════════════════════════════════════════════════════════ -->
