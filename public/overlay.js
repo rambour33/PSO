@@ -223,7 +223,7 @@ function update(s) {
   const sb = document.getElementById('scoreboard');
   const isTransparent = (s.overlayTheme || 'default') === 'transparent';
   sb.classList.toggle('hidden', !s.visible);
-  sb.classList.toggle('swapped', !!s.swapped);
+  // swapped est géré côté données (player1/player2 physiquement échangés)
   sb.classList.toggle('style-slim', s.overlayStyle === 'slim');
   sb.classList.toggle('event-bar-bottom', s.eventBarPosition === 'bottom');
 
@@ -250,9 +250,8 @@ function update(s) {
   if (isDual) {
     const kA = s.player1.character?.id ? 's' + s.player1.character.id : 'default';
     const kB = s.player2.character?.id ? 's' + s.player2.character.id : 'default';
-    // kLeft/kRight follow visual position (respects swap)
-    const kLeft  = s.swapped ? kB : kA;
-    const kRight = s.swapped ? kA : kB;
+    const kLeft  = kA;
+    const kRight = kB;
     const cLeft  = CHAR_THEME_COLORS[kLeft]  || CHAR_THEME_COLORS.default;
     const cRight = CHAR_THEME_COLORS[kRight] || CHAR_THEME_COLORS.default;
     sb.style.setProperty('--p1-theme-primary', cLeft.primary);
@@ -282,9 +281,8 @@ function update(s) {
   } else if (isDual) {
     const kA = s.player1.character?.id ? 's' + s.player1.character.id : 'default';
     const kB = s.player2.character?.id ? 's' + s.player2.character.id : 'default';
-    // Respect visual swap: left side first in startDual
-    const kLeft  = s.swapped ? kB : kA;
-    const kRight = s.swapped ? kA : kB;
+    const kLeft  = kA;
+    const kRight = kB;
     const tpLeft  = THEME_PARTICLES[kLeft];
     const tpRight = THEME_PARTICLES[kRight];
     const typeLeft   = tpLeft?.type   || 'sparkle';

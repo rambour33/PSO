@@ -135,17 +135,7 @@
     setText('event-label', parts.join(' · ') || 'PSO');
     setText('round-label',  s.phase || s.roundName || '');
 
-    // Swap joueurs
-    const bar = document.querySelector('.bottom-bar');
-    if (bar) {
-      const p1Panel = document.getElementById('panel-p1');
-      const p2Panel = document.getElementById('panel-p2');
-      if (s.swapped) {
-        bar.style.flexDirection = 'row-reverse';
-      } else {
-        bar.style.flexDirection = 'row';
-      }
-    }
+    // Le swap est géré par échange des données player1/player2, pas de flip CSS nécessaire
   }
 
   // ── postMessage : options live depuis le panneau de contrôle ──

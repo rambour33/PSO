@@ -396,11 +396,49 @@ document.querySelectorAll('.event-bar-pos-btn').forEach(btn => {
 });
 
 document.getElementById('btn-swap').addEventListener('click', () => {
+  // ── Swap les champs du formulaire ──
+  const swapVal = (idA, idB, prop = 'value') => {
+    const a = document.getElementById(idA);
+    const b = document.getElementById(idB);
+    if (!a || !b) return;
+    const tmp = a[prop]; a[prop] = b[prop]; b[prop] = tmp;
+  };
+  const swapText = (idA, idB) => {
+    const a = document.getElementById(idA);
+    const b = document.getElementById(idB);
+    if (!a || !b) return;
+    const tmp = a.textContent; a.textContent = b.textContent; b.textContent = tmp;
+  };
+
+  swapVal('p1-tag',       'p2-tag');
+  swapVal('p1-name',      'p2-name');
+  swapVal('p1-pronouns',  'p2-pronouns');
+  swapVal('p1-seed',      'p2-seed');
+  swapVal('p1-color',     'p2-color');
+  swapVal('p1-flag',      'p2-flag');
+  swapVal('p1-flag-x-num','p2-flag-x-num');
+  swapVal('p1-flag-y-num','p2-flag-y-num');
+  swapVal('p1-flag-x',    'p2-flag-x');
+  swapVal('p1-flag-y',    'p2-flag-y');
+  swapText('p1-score-display', 'p2-score-display');
+
+  // ── Swap le state ──
+  const tmp = state.player1;
+  state.player1 = state.player2;
+  state.player2 = tmp;
+
+  // ── Mise à jour des previews personnage et stock colors ──
+  updateCharPreview(1, state.player1.character);
+  updateCharPreview(2, state.player2.character);
+  updateStockColorBtns(1, state.player1.character?.name || null);
+  updateStockColorBtns(2, state.player2.character?.name || null);
+
+  // ── Envoi ──
   const ns = buildStateFromForm();
   ns.swapped = !state.swapped;
   emitState(ns);
   document.getElementById('btn-swap').classList.toggle('active', ns.swapped);
-  setStatus(`Joueurs ${ns.swapped ? 'inversés' : 'normal'}`);
+  setStatus(`Joueurs inversés`);
 });
 
 document.getElementById('btn-vs-trigger').addEventListener('click', () => {
