@@ -5994,3 +5994,310 @@ document.querySelectorAll('.conn-copy-btn').forEach(btn => {
     });
   });
 });
+
+// ── Créateur de thème custom ──────────────────────────────────────────────
+
+const CT_DEFAULTS = {
+  bgType: 'gradient', bgColor1: '#0E0E12', bgColor2: '#16161E', bgAngle: 135,
+  accentColor: '#E8B830', p1Color: '#E83030', p2Color: '#3070E8',
+  nameColor: '#F0EEF8', tagColor: '#E8B830', pronounsColor: '#5A5A7A',
+  scoreColor: '#F0EEF8', eventColor: '#5A5A7A', scoreSepColor: '#E8B830',
+  neonEnabled: false, neonColor: '#E8B830', neonIntensity: 8,
+  neonName: true, neonScore: true, neonTag: false, neonEvent: false, neonAccent: true,
+  fontFamily: 'Russo One', letterSpacing: 2, nameFontSize: 24,
+  particleType: 'sparkle', particleCount: 60,
+  coverImage: null, coverOpacity: 50, coverMode: 'cover',
+};
+
+let customTheme = { ...CT_DEFAULTS };
+
+function ctGet() {
+  customTheme.bgType      = document.querySelector('input[name="ct-bg-type"]:checked')?.value || 'gradient';
+  customTheme.bgColor1    = document.getElementById('ct-bg-color1')?.value    || CT_DEFAULTS.bgColor1;
+  customTheme.bgColor2    = document.getElementById('ct-bg-color2')?.value    || CT_DEFAULTS.bgColor2;
+  customTheme.bgAngle     = parseInt(document.getElementById('ct-bg-angle-num')?.value    || 135);
+  customTheme.accentColor = document.getElementById('ct-accent-color')?.value || CT_DEFAULTS.accentColor;
+  customTheme.p1Color     = document.getElementById('ct-p1-color')?.value     || CT_DEFAULTS.p1Color;
+  customTheme.p2Color     = document.getElementById('ct-p2-color')?.value     || CT_DEFAULTS.p2Color;
+  customTheme.nameColor   = document.getElementById('ct-name-color')?.value   || CT_DEFAULTS.nameColor;
+  customTheme.tagColor    = document.getElementById('ct-tag-color')?.value    || CT_DEFAULTS.tagColor;
+  customTheme.pronounsColor = document.getElementById('ct-pronouns-color')?.value || CT_DEFAULTS.pronounsColor;
+  customTheme.scoreColor  = document.getElementById('ct-score-color')?.value  || CT_DEFAULTS.scoreColor;
+  customTheme.eventColor  = document.getElementById('ct-event-color')?.value  || CT_DEFAULTS.eventColor;
+  customTheme.scoreSepColor = document.getElementById('ct-sep-color')?.value  || CT_DEFAULTS.scoreSepColor;
+  customTheme.neonEnabled   = document.getElementById('ct-neon-enabled')?.checked  || false;
+  customTheme.neonColor     = document.getElementById('ct-neon-color')?.value      || CT_DEFAULTS.neonColor;
+  customTheme.neonIntensity = parseInt(document.getElementById('ct-neon-intensity-num')?.value || 8);
+  customTheme.neonName      = document.getElementById('ct-neon-name')?.checked    || false;
+  customTheme.neonScore     = document.getElementById('ct-neon-score')?.checked   || false;
+  customTheme.neonTag       = document.getElementById('ct-neon-tag')?.checked     || false;
+  customTheme.neonEvent     = document.getElementById('ct-neon-event')?.checked   || false;
+  customTheme.neonAccent    = document.getElementById('ct-neon-accent')?.checked  || false;
+  customTheme.fontFamily    = document.getElementById('ct-font-family')?.value    || 'Russo One';
+  customTheme.letterSpacing = parseInt(document.getElementById('ct-letter-spacing-num')?.value || 2);
+  customTheme.nameFontSize  = parseInt(document.getElementById('ct-name-size-num')?.value      || 24);
+  customTheme.particleType  = document.getElementById('ct-particle-type')?.value  || 'sparkle';
+  customTheme.particleCount = parseInt(document.getElementById('ct-particle-count-num')?.value || 60);
+  customTheme.coverOpacity  = parseInt(document.getElementById('ct-cover-opacity-num')?.value  || 50);
+  customTheme.coverMode     = document.getElementById('ct-cover-mode')?.value     || 'cover';
+  return customTheme;
+}
+
+function ctSend() {
+  ctGet();
+  const ns = { ...state, customTheme: { ...customTheme } };
+  state = ns;
+  socket.emit('updateState', ns);
+  ctUpdatePreview();
+}
+
+function ctUpdatePreview() {
+  const ct = customTheme;
+  const bg = document.getElementById('ct-preview-bg');
+  if (bg) {
+    let bgVal = ct.bgType === 'gradient'
+      ? `linear-gradient(${ct.bgAngle}deg, ${ct.bgColor1}, ${ct.bgColor2})`
+      : ct.bgColor1;
+    if (ct.coverImage) {
+      bgVal = `url('${ct.coverImage}') center / ${ct.coverMode || 'cover'} no-repeat, ` + bgVal;
+    }
+    bg.style.background = bgVal;
+  }
+
+  const applyText = (id, color, neonOn, neonColor, neonPx) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.style.color = color;
+    el.style.textShadow = neonOn ? `0 0 ${neonPx}px ${neonColor}, 0 0 ${neonPx * 2}px ${neonColor}` : 'none';
+  };
+
+  applyText('ct-preview-p1',     ct.nameColor,     ct.neonEnabled && ct.neonName,  ct.neonColor, ct.neonIntensity);
+  applyText('ct-preview-p2',     ct.nameColor,     ct.neonEnabled && ct.neonName,  ct.neonColor, ct.neonIntensity);
+  applyText('ct-preview-score1', ct.scoreColor,    ct.neonEnabled && ct.neonScore, ct.neonColor, ct.neonIntensity);
+  applyText('ct-preview-score2', ct.scoreColor,    ct.neonEnabled && ct.neonScore, ct.neonColor, ct.neonIntensity);
+  applyText('ct-preview-vs',     ct.scoreSepColor, ct.neonEnabled && ct.neonScore, ct.neonColor, ct.neonIntensity);
+
+  ['ct-preview-p1','ct-preview-p2','ct-preview-score1','ct-preview-score2','ct-preview-vs'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.style.fontFamily    = `'${ct.fontFamily}', sans-serif`;
+      el.style.letterSpacing = ct.letterSpacing + 'px';
+    }
+  });
+  ['ct-preview-p1','ct-preview-p2'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.fontSize = ct.nameFontSize + 'px';
+  });
+
+  // Badge actif
+  const badge = document.getElementById('ct-active-badge');
+  if (badge) badge.style.display = (state && state.overlayTheme === 'custom') ? '' : 'none';
+
+  // Sync hex text inputs alongside color pickers
+  const syncHex = (pickerId, textSelector) => {
+    const picker = document.getElementById(pickerId);
+    if (!picker) return;
+    // find sibling text input
+    const txt = picker.parentElement?.querySelector('input[type="text"]');
+    if (txt && txt.value !== picker.value) txt.value = picker.value;
+  };
+  ['ct-bg-color1','ct-bg-color2','ct-accent-color','ct-p1-color','ct-p2-color',
+   'ct-name-color','ct-tag-color','ct-pronouns-color','ct-score-color','ct-event-color','ct-sep-color',
+   'ct-neon-color'].forEach(id => syncHex(id));
+}
+
+function ctWire() {
+  // Color pickers
+  const colorIds = [
+    'ct-bg-color1','ct-bg-color2','ct-accent-color','ct-p1-color','ct-p2-color',
+    'ct-name-color','ct-tag-color','ct-pronouns-color','ct-score-color','ct-event-color','ct-sep-color',
+    'ct-neon-color',
+  ];
+  colorIds.forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener('input', () => {
+      // Also update sibling hex text input
+      const txt = el.parentElement?.querySelector('input[type="text"]');
+      if (txt) txt.value = el.value;
+      ctSend();
+    });
+  });
+
+  // Background type radios
+  document.querySelectorAll('input[name="ct-bg-type"]').forEach(r => {
+    r.addEventListener('change', () => {
+      const isGrad = document.querySelector('input[name="ct-bg-type"]:checked')?.value === 'gradient';
+      const col2   = document.getElementById('ct-bg-color2-group');
+      const angGrp = document.getElementById('ct-bg-angle-group');
+      if (col2)   col2.style.display   = isGrad ? '' : 'none';
+      if (angGrp) angGrp.style.display = isGrad ? '' : 'none';
+      ctSend();
+    });
+  });
+
+  // Range ↔ number input pairs
+  const sliderPairs = [
+    ['ct-bg-angle-range',         'ct-bg-angle-num'],
+    ['ct-neon-intensity-range',   'ct-neon-intensity-num'],
+    ['ct-name-size-range',        'ct-name-size-num'],
+    ['ct-letter-spacing-range',   'ct-letter-spacing-num'],
+    ['ct-particle-count-range',   'ct-particle-count-num'],
+    ['ct-cover-opacity-range',    'ct-cover-opacity-num'],
+  ];
+  sliderPairs.forEach(([rId, nId]) => {
+    const r = document.getElementById(rId);
+    const n = document.getElementById(nId);
+    if (r && n) {
+      r.addEventListener('input', () => { n.value = r.value; ctSend(); });
+      n.addEventListener('input', () => { r.value = n.value; ctSend(); });
+    }
+  });
+
+  // Checkboxes
+  ['ct-neon-enabled','ct-neon-name','ct-neon-score','ct-neon-tag','ct-neon-event','ct-neon-accent'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener('change', () => {
+      if (id === 'ct-neon-enabled') {
+        const neonControls = document.getElementById('ct-neon-controls');
+        if (neonControls) neonControls.style.display = el.checked ? '' : 'none';
+      }
+      ctSend();
+    });
+  });
+
+  // Select dropdowns
+  ['ct-font-family','ct-particle-type','ct-cover-mode'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('change', ctSend);
+  });
+
+  // Cover image upload
+  const coverInput = document.getElementById('ct-cover-input');
+  if (coverInput) {
+    coverInput.addEventListener('change', (e) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        customTheme.coverImage = ev.target.result;
+        const preview = document.getElementById('ct-cover-preview');
+        if (preview) { preview.src = ev.target.result; preview.style.display = 'block'; }
+        const empty = document.getElementById('ct-cover-empty');
+        if (empty) empty.style.display = 'none';
+        ctSend();
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  // Cover image clear
+  document.getElementById('ct-cover-clear')?.addEventListener('click', () => {
+    customTheme.coverImage = null;
+    const preview = document.getElementById('ct-cover-preview');
+    if (preview) { preview.src = ''; preview.style.display = 'none'; }
+    const empty = document.getElementById('ct-cover-empty');
+    if (empty) empty.style.display = '';
+    const inp = document.getElementById('ct-cover-input');
+    if (inp) inp.value = '';
+    ctSend();
+  });
+
+  // Activate button
+  document.getElementById('btn-ct-apply')?.addEventListener('click', () => {
+    ctGet();
+    const ns = buildStateFromForm();
+    ns.overlayTheme = 'custom';
+    ns.customTheme  = { ...customTheme };
+    emitState(ns);
+    document.querySelectorAll('.theme-preset-card').forEach(c => c.classList.remove('active'));
+    document.querySelector('[data-theme="custom"]')?.classList.add('active');
+    const badge = document.getElementById('ct-active-badge');
+    if (badge) badge.style.display = '';
+  });
+}
+
+function ctLoad(ct) {
+  if (!ct) return;
+  customTheme = { ...CT_DEFAULTS, ...ct };
+
+  const set = (id, val) => {
+    const el = document.getElementById(id);
+    if (el) el.value = val;
+    // Also sync sibling hex text input for color pickers
+    if (el && el.type === 'color') {
+      const txt = el.parentElement?.querySelector('input[type="text"]');
+      if (txt) txt.value = val;
+    }
+  };
+  const setCheck = (id, val) => { const el = document.getElementById(id); if (el) el.checked = !!val; };
+
+  // bg type radio
+  const bgRad = document.querySelector(`input[name="ct-bg-type"][value="${customTheme.bgType}"]`);
+  if (bgRad) bgRad.checked = true;
+  const isGrad   = customTheme.bgType === 'gradient';
+  const col2Grp  = document.getElementById('ct-bg-color2-group');
+  const angGrp   = document.getElementById('ct-bg-angle-group');
+  if (col2Grp) col2Grp.style.display = isGrad ? '' : 'none';
+  if (angGrp)  angGrp.style.display  = isGrad ? '' : 'none';
+
+  set('ct-bg-color1', customTheme.bgColor1);
+  set('ct-bg-color2', customTheme.bgColor2);
+  set('ct-bg-angle-range',  customTheme.bgAngle);
+  set('ct-bg-angle-num',    customTheme.bgAngle);
+  set('ct-accent-color',    customTheme.accentColor);
+  set('ct-p1-color',        customTheme.p1Color);
+  set('ct-p2-color',        customTheme.p2Color);
+  set('ct-name-color',      customTheme.nameColor);
+  set('ct-tag-color',       customTheme.tagColor);
+  set('ct-pronouns-color',  customTheme.pronounsColor);
+  set('ct-score-color',     customTheme.scoreColor);
+  set('ct-event-color',     customTheme.eventColor);
+  set('ct-sep-color',       customTheme.scoreSepColor);
+  setCheck('ct-neon-enabled', customTheme.neonEnabled);
+  set('ct-neon-color',         customTheme.neonColor);
+  set('ct-neon-intensity-range', customTheme.neonIntensity);
+  set('ct-neon-intensity-num',   customTheme.neonIntensity);
+  setCheck('ct-neon-name',    customTheme.neonName);
+  setCheck('ct-neon-score',   customTheme.neonScore);
+  setCheck('ct-neon-tag',     customTheme.neonTag);
+  setCheck('ct-neon-event',   customTheme.neonEvent);
+  setCheck('ct-neon-accent',  customTheme.neonAccent);
+  set('ct-font-family',        customTheme.fontFamily);
+  set('ct-name-size-range',    customTheme.nameFontSize);
+  set('ct-name-size-num',      customTheme.nameFontSize);
+  set('ct-letter-spacing-range', customTheme.letterSpacing);
+  set('ct-letter-spacing-num',   customTheme.letterSpacing);
+  set('ct-particle-type',      customTheme.particleType);
+  set('ct-particle-count-range', customTheme.particleCount);
+  set('ct-particle-count-num',   customTheme.particleCount);
+  set('ct-cover-opacity-range',  customTheme.coverOpacity);
+  set('ct-cover-opacity-num',    customTheme.coverOpacity);
+  set('ct-cover-mode',           customTheme.coverMode);
+
+  if (customTheme.coverImage) {
+    const preview = document.getElementById('ct-cover-preview');
+    if (preview) { preview.src = customTheme.coverImage; preview.style.display = 'block'; }
+    const empty = document.getElementById('ct-cover-empty');
+    if (empty) empty.style.display = 'none';
+  }
+
+  const neonControls = document.getElementById('ct-neon-controls');
+  if (neonControls) neonControls.style.display = customTheme.neonEnabled ? '' : 'none';
+
+  ctUpdatePreview();
+}
+
+// Wire all events
+ctWire();
+
+// Load from initial state if available
+if (typeof state !== 'undefined' && state && state.customTheme) {
+  ctLoad(state.customTheme);
+}
+
+// Sync on socket state updates
+socket.on('stateUpdate', (s) => {
+  if (s && s.customTheme) ctLoad(s.customTheme);
+});

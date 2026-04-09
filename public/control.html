@@ -1456,6 +1456,317 @@
       </div>
     </section>
 
+    <!-- ══════════════════════════════════════════════════════════ -->
+    <!-- CRÉATEUR DE THÈME CUSTOM                                   -->
+    <!-- ══════════════════════════════════════════════════════════ -->
+    <section class="section">
+      <div class="section-header"><h2>Créateur de thème</h2></div>
+
+      <!-- ── Aperçu + Activation ── -->
+      <div class="custom-card" style="padding:14px 16px">
+        <div id="ct-preview" style="height:64px;border-radius:6px;border:1px solid rgba(255,255,255,0.1);position:relative;overflow:hidden;margin-bottom:10px">
+          <div id="ct-preview-bg" style="position:absolute;inset:0;background:linear-gradient(135deg,#0E0E12,#16161E)"></div>
+          <div style="position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;padding:8px 16px;height:100%;box-sizing:border-box">
+            <span id="ct-preview-p1" style="font-weight:700;font-size:14px;color:#F0EEF8;font-family:'Russo One',sans-serif;letter-spacing:2px">JOUEUR 1</span>
+            <div style="display:flex;align-items:center;gap:8px">
+              <span id="ct-preview-score1" style="font-size:22px;font-weight:700;color:#F0EEF8;font-family:'Russo One',sans-serif">0</span>
+              <span id="ct-preview-vs" style="font-size:12px;color:#E8B830;font-family:'Russo One',sans-serif;letter-spacing:3px">VS</span>
+              <span id="ct-preview-score2" style="font-size:22px;font-weight:700;color:#F0EEF8;font-family:'Russo One',sans-serif">0</span>
+            </div>
+            <span id="ct-preview-p2" style="font-weight:700;font-size:14px;color:#F0EEF8;font-family:'Russo One',sans-serif;letter-spacing:2px">JOUEUR 2</span>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <button id="btn-ct-apply" class="btn btn-primary" style="flex:1">Activer le thème custom</button>
+          <span id="ct-active-badge" style="display:none;font-size:11px;color:#6BC96C;font-weight:700;letter-spacing:1px">● ACTIF</span>
+        </div>
+      </div>
+
+      <!-- ── Fond ── -->
+      <div class="custom-card ct-section" style="padding:14px 16px;margin-top:10px">
+        <div class="ct-section-header" style="font-weight:700;font-size:13px;letter-spacing:1px;margin-bottom:12px;color:var(--accent)">🎨 Fond</div>
+
+        <div class="form-group" style="margin-bottom:10px">
+          <label style="font-size:12px;color:var(--text-muted);display:block;margin-bottom:6px">Type de fond</label>
+          <div style="display:flex;gap:12px">
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px">
+              <input type="radio" name="ct-bg-type" id="ct-bg-type-grad" value="gradient" checked />
+              Dégradé
+            </label>
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px">
+              <input type="radio" name="ct-bg-type" id="ct-bg-type-solid" value="solid" />
+              Couleur unie
+            </label>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div class="form-group">
+            <label for="ct-bg-color1" style="font-size:12px;color:var(--text-muted)">Couleur 1</label>
+            <div style="display:flex;gap:6px;align-items:center;margin-top:4px">
+              <input type="color" id="ct-bg-color1" value="#0E0E12" style="width:36px;height:32px;border:none;padding:0;cursor:pointer;border-radius:4px" />
+              <input type="text" value="#0E0E12" style="flex:1;font-size:12px" oninput="document.getElementById('ct-bg-color1').value=this.value;document.getElementById('ct-bg-color1').dispatchEvent(new Event('input'))" />
+            </div>
+          </div>
+          <div class="form-group" id="ct-bg-color2-group">
+            <label for="ct-bg-color2" style="font-size:12px;color:var(--text-muted)">Couleur 2</label>
+            <div style="display:flex;gap:6px;align-items:center;margin-top:4px">
+              <input type="color" id="ct-bg-color2" value="#16161E" style="width:36px;height:32px;border:none;padding:0;cursor:pointer;border-radius:4px" />
+              <input type="text" value="#16161E" style="flex:1;font-size:12px" oninput="document.getElementById('ct-bg-color2').value=this.value;document.getElementById('ct-bg-color2').dispatchEvent(new Event('input'))" />
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group" id="ct-bg-angle-group" style="margin-top:8px">
+          <label style="font-size:12px;color:var(--text-muted);display:flex;justify-content:space-between">
+            <span>Angle du dégradé</span>
+            <span><input type="number" id="ct-bg-angle-num" value="135" min="0" max="360" style="width:52px;font-size:12px;text-align:right" />°</span>
+          </label>
+          <input type="range" id="ct-bg-angle-range" min="0" max="360" value="135" style="width:100%;margin-top:4px" />
+        </div>
+      </div>
+
+      <!-- ── Couleurs des éléments ── -->
+      <div class="custom-card ct-section" style="padding:14px 16px;margin-top:10px">
+        <div class="ct-section-header" style="font-weight:700;font-size:13px;letter-spacing:1px;margin-bottom:12px;color:var(--accent)">🖌️ Couleurs des éléments</div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+
+          <div class="form-group">
+            <label for="ct-accent-color" style="font-size:12px;color:var(--text-muted)">Accent (VS / séparateurs)</label>
+            <div style="display:flex;gap:6px;align-items:center;margin-top:4px">
+              <input type="color" id="ct-accent-color" value="#E8B830" style="width:36px;height:32px;border:none;padding:0;cursor:pointer;border-radius:4px" />
+              <input type="text" value="#E8B830" style="flex:1;font-size:12px" oninput="document.getElementById('ct-accent-color').value=this.value;document.getElementById('ct-accent-color').dispatchEvent(new Event('input'))" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="ct-sep-color" style="font-size:12px;color:var(--text-muted)">VS central</label>
+            <div style="display:flex;gap:6px;align-items:center;margin-top:4px">
+              <input type="color" id="ct-sep-color" value="#E8B830" style="width:36px;height:32px;border:none;padding:0;cursor:pointer;border-radius:4px" />
+              <input type="text" value="#E8B830" style="flex:1;font-size:12px" oninput="document.getElementById('ct-sep-color').value=this.value;document.getElementById('ct-sep-color').dispatchEvent(new Event('input'))" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="ct-p1-color" style="font-size:12px;color:var(--text-muted)">Couleur J1 (bordure)</label>
+            <div style="display:flex;gap:6px;align-items:center;margin-top:4px">
+              <input type="color" id="ct-p1-color" value="#E83030" style="width:36px;height:32px;border:none;padding:0;cursor:pointer;border-radius:4px" />
+              <input type="text" value="#E83030" style="flex:1;font-size:12px" oninput="document.getElementById('ct-p1-color').value=this.value;document.getElementById('ct-p1-color').dispatchEvent(new Event('input'))" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="ct-p2-color" style="font-size:12px;color:var(--text-muted)">Couleur J2 (bordure)</label>
+            <div style="display:flex;gap:6px;align-items:center;margin-top:4px">
+              <input type="color" id="ct-p2-color" value="#3070E8" style="width:36px;height:32px;border:none;padding:0;cursor:pointer;border-radius:4px" />
+              <input type="text" value="#3070E8" style="flex:1;font-size:12px" oninput="document.getElementById('ct-p2-color').value=this.value;document.getElementById('ct-p2-color').dispatchEvent(new Event('input'))" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="ct-name-color" style="font-size:12px;color:var(--text-muted)">Noms joueurs</label>
+            <div style="display:flex;gap:6px;align-items:center;margin-top:4px">
+              <input type="color" id="ct-name-color" value="#F0EEF8" style="width:36px;height:32px;border:none;padding:0;cursor:pointer;border-radius:4px" />
+              <input type="text" value="#F0EEF8" style="flex:1;font-size:12px" oninput="document.getElementById('ct-name-color').value=this.value;document.getElementById('ct-name-color').dispatchEvent(new Event('input'))" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="ct-score-color" style="font-size:12px;color:var(--text-muted)">Scores</label>
+            <div style="display:flex;gap:6px;align-items:center;margin-top:4px">
+              <input type="color" id="ct-score-color" value="#F0EEF8" style="width:36px;height:32px;border:none;padding:0;cursor:pointer;border-radius:4px" />
+              <input type="text" value="#F0EEF8" style="flex:1;font-size:12px" oninput="document.getElementById('ct-score-color').value=this.value;document.getElementById('ct-score-color').dispatchEvent(new Event('input'))" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="ct-tag-color" style="font-size:12px;color:var(--text-muted)">Tags</label>
+            <div style="display:flex;gap:6px;align-items:center;margin-top:4px">
+              <input type="color" id="ct-tag-color" value="#E8B830" style="width:36px;height:32px;border:none;padding:0;cursor:pointer;border-radius:4px" />
+              <input type="text" value="#E8B830" style="flex:1;font-size:12px" oninput="document.getElementById('ct-tag-color').value=this.value;document.getElementById('ct-tag-color').dispatchEvent(new Event('input'))" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="ct-pronouns-color" style="font-size:12px;color:var(--text-muted)">Pronoms</label>
+            <div style="display:flex;gap:6px;align-items:center;margin-top:4px">
+              <input type="color" id="ct-pronouns-color" value="#5A5A7A" style="width:36px;height:32px;border:none;padding:0;cursor:pointer;border-radius:4px" />
+              <input type="text" value="#5A5A7A" style="flex:1;font-size:12px" oninput="document.getElementById('ct-pronouns-color').value=this.value;document.getElementById('ct-pronouns-color').dispatchEvent(new Event('input'))" />
+            </div>
+          </div>
+
+          <div class="form-group" style="grid-column:1/-1">
+            <label for="ct-event-color" style="font-size:12px;color:var(--text-muted)">Texte événement</label>
+            <div style="display:flex;gap:6px;align-items:center;margin-top:4px">
+              <input type="color" id="ct-event-color" value="#5A5A7A" style="width:36px;height:32px;border:none;padding:0;cursor:pointer;border-radius:4px" />
+              <input type="text" value="#5A5A7A" style="flex:1;font-size:12px" oninput="document.getElementById('ct-event-color').value=this.value;document.getElementById('ct-event-color').dispatchEvent(new Event('input'))" />
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ── Effets Néon ── -->
+      <div class="custom-card ct-section" style="padding:14px 16px;margin-top:10px">
+        <div class="ct-section-header" style="font-weight:700;font-size:13px;letter-spacing:1px;margin-bottom:12px;color:var(--accent)">💡 Effets Néon</div>
+
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;font-weight:600">
+            <input type="checkbox" id="ct-neon-enabled" />
+            Activer les effets néon
+          </label>
+        </div>
+
+        <div id="ct-neon-controls" style="display:none">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+            <div class="form-group">
+              <label for="ct-neon-color" style="font-size:12px;color:var(--text-muted)">Couleur néon</label>
+              <div style="display:flex;gap:6px;align-items:center;margin-top:4px">
+                <input type="color" id="ct-neon-color" value="#E8B830" style="width:36px;height:32px;border:none;padding:0;cursor:pointer;border-radius:4px" />
+                <input type="text" value="#E8B830" style="flex:1;font-size:12px" oninput="document.getElementById('ct-neon-color').value=this.value;document.getElementById('ct-neon-color').dispatchEvent(new Event('input'))" />
+              </div>
+            </div>
+            <div class="form-group">
+              <label style="font-size:12px;color:var(--text-muted);display:flex;justify-content:space-between">
+                <span>Intensité</span>
+                <span><input type="number" id="ct-neon-intensity-num" value="8" min="1" max="40" style="width:44px;font-size:12px;text-align:right" /> px</span>
+              </label>
+              <input type="range" id="ct-neon-intensity-range" min="1" max="40" value="8" style="width:100%;margin-top:4px" />
+            </div>
+          </div>
+
+          <div style="font-size:12px;color:var(--text-muted);margin-bottom:6px">Appliquer sur :</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px">
+              <input type="checkbox" id="ct-neon-name" checked />
+              Noms joueurs
+            </label>
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px">
+              <input type="checkbox" id="ct-neon-score" checked />
+              Scores
+            </label>
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px">
+              <input type="checkbox" id="ct-neon-tag" />
+              Tags
+            </label>
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px">
+              <input type="checkbox" id="ct-neon-event" />
+              Tournoi/Event
+            </label>
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;grid-column:1/-1">
+              <input type="checkbox" id="ct-neon-accent" checked />
+              Bordures &amp; séparateurs
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Police & Typographie ── -->
+      <div class="custom-card ct-section" style="padding:14px 16px;margin-top:10px">
+        <div class="ct-section-header" style="font-weight:700;font-size:13px;letter-spacing:1px;margin-bottom:12px;color:var(--accent)">🔤 Police &amp; Typographie</div>
+
+        <div class="form-group" style="margin-bottom:12px">
+          <label for="ct-font-family" style="font-size:12px;color:var(--text-muted);display:block;margin-bottom:6px">Famille de police</label>
+          <select id="ct-font-family" style="width:100%">
+            <option value="Russo One">Russo One</option>
+            <option value="Inter">Inter</option>
+            <option value="Rajdhani">Rajdhani</option>
+            <option value="Orbitron">Orbitron</option>
+            <option value="Audiowide">Audiowide</option>
+            <option value="Barlow Condensed">Barlow Condensed</option>
+            <option value="Bebas Neue">Bebas Neue</option>
+            <option value="Oswald">Oswald</option>
+            <option value="Press Start 2P">Press Start 2P</option>
+          </select>
+        </div>
+
+        <div class="form-group" style="margin-bottom:12px">
+          <label style="font-size:12px;color:var(--text-muted);display:flex;justify-content:space-between;margin-bottom:4px">
+            <span>Taille noms</span>
+            <span><input type="number" id="ct-name-size-num" value="24" min="10" max="60" style="width:44px;font-size:12px;text-align:right" /> px</span>
+          </label>
+          <input type="range" id="ct-name-size-range" min="10" max="60" value="24" style="width:100%" />
+        </div>
+
+        <div class="form-group">
+          <label style="font-size:12px;color:var(--text-muted);display:flex;justify-content:space-between;margin-bottom:4px">
+            <span>Espacement lettres</span>
+            <span><input type="number" id="ct-letter-spacing-num" value="2" min="0" max="20" style="width:44px;font-size:12px;text-align:right" /> px</span>
+          </label>
+          <input type="range" id="ct-letter-spacing-range" min="0" max="20" value="2" style="width:100%" />
+        </div>
+      </div>
+
+      <!-- ── Particules ── -->
+      <div class="custom-card ct-section" style="padding:14px 16px;margin-top:10px">
+        <div class="ct-section-header" style="font-weight:700;font-size:13px;letter-spacing:1px;margin-bottom:12px;color:var(--accent)">✨ Particules</div>
+
+        <div class="form-group" style="margin-bottom:12px">
+          <label for="ct-particle-type" style="font-size:12px;color:var(--text-muted);display:block;margin-bottom:6px">Type de particules</label>
+          <select id="ct-particle-type" style="width:100%">
+            <option value="sparkle">Sparkle (étincelles)</option>
+            <option value="snow">Snow (neige)</option>
+            <option value="fire">Fire (feu)</option>
+            <option value="flame">Flame (flammes)</option>
+            <option value="rain">Rain (pluie)</option>
+            <option value="sand">Sand (sable)</option>
+            <option value="leaf">Leaf (feuilles)</option>
+            <option value="bubble">Bubble (bulles)</option>
+            <option value="data">Data (matrix)</option>
+            <option value="bolt">Bolt (éclairs)</option>
+            <option value="petal">Petal (pétales)</option>
+            <option value="star">Star (étoiles)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label style="font-size:12px;color:var(--text-muted);display:flex;justify-content:space-between;margin-bottom:4px">
+            <span>Densité</span>
+            <span><input type="number" id="ct-particle-count-num" value="60" min="1" max="300" style="width:52px;font-size:12px;text-align:right" /></span>
+          </label>
+          <input type="range" id="ct-particle-count-range" min="1" max="300" value="60" style="width:100%" />
+        </div>
+      </div>
+
+      <!-- ── Image de couverture ── -->
+      <div class="custom-card ct-section" style="padding:14px 16px;margin-top:10px">
+        <div class="ct-section-header" style="font-weight:700;font-size:13px;letter-spacing:1px;margin-bottom:12px;color:var(--accent)">🖼️ Image de couverture</div>
+
+        <div style="border:2px dashed rgba(255,255,255,0.15);border-radius:6px;padding:14px;text-align:center;position:relative;margin-bottom:12px;cursor:pointer" onclick="document.getElementById('ct-cover-input').click()">
+          <img id="ct-cover-preview" src="" alt="Aperçu" style="display:none;max-width:100%;max-height:120px;border-radius:4px;margin-bottom:6px" />
+          <div id="ct-cover-empty" style="color:var(--text-muted);font-size:12px;padding:10px 0">
+            <div style="font-size:22px;margin-bottom:4px">🖼️</div>
+            Cliquer pour choisir une image
+          </div>
+          <input type="file" id="ct-cover-input" accept="image/*" style="display:none" />
+        </div>
+
+        <div style="display:flex;gap:8px;margin-bottom:12px">
+          <button id="ct-cover-clear" class="btn btn-outline btn-sm" style="flex:1">Supprimer l'image</button>
+        </div>
+
+        <div class="form-group" style="margin-bottom:12px">
+          <label style="font-size:12px;color:var(--text-muted);display:flex;justify-content:space-between;margin-bottom:4px">
+            <span>Opacité</span>
+            <span><input type="number" id="ct-cover-opacity-num" value="50" min="0" max="100" style="width:44px;font-size:12px;text-align:right" /> %</span>
+          </label>
+          <input type="range" id="ct-cover-opacity-range" min="0" max="100" value="50" style="width:100%" />
+        </div>
+
+        <div class="form-group">
+          <label for="ct-cover-mode" style="font-size:12px;color:var(--text-muted);display:block;margin-bottom:6px">Mode d'affichage</label>
+          <select id="ct-cover-mode" style="width:100%">
+            <option value="cover">Cover (couvre tout)</option>
+            <option value="contain">Contain (contenu entier visible)</option>
+            <option value="100% 100%">Stretch (étirer)</option>
+            <option value="auto">Auto (taille réelle)</option>
+          </select>
+        </div>
+      </div>
+
+    </section>
+
   </div><!-- /tab-themes -->
 
   <!-- ═══════════════════════════════════════════════════════════ -->

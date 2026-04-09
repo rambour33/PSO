@@ -185,7 +185,7 @@ body {
 }
 
 .player-name {
-  font-family: 'Russo One', sans-serif;
+  font-family: var(--custom-font, 'Russo One'), sans-serif;
   font-size: 24px;
   letter-spacing: 2px;
   color: var(--name-color, var(--smash-white));
@@ -275,9 +275,9 @@ body {
 }
 
 .score {
-  font-family: 'Russo One', sans-serif;
+  font-family: var(--custom-font, 'Russo One'), sans-serif;
   font-size: 52px;
-  color: var(--smash-white);
+  color: var(--score-color, var(--smash-white));
   min-width: 44px;
   text-align: center;
   line-height: 1;
