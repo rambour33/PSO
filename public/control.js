@@ -6089,9 +6089,35 @@ function ctUpdatePreview() {
     if (el) el.style.fontSize = ct.nameFontSize + 'px';
   });
 
-  // Badge actif
+  // Badge actif (dans le créateur)
+  const isActive = (state && state.overlayTheme === 'custom');
   const badge = document.getElementById('ct-active-badge');
-  if (badge) badge.style.display = (state && state.overlayTheme === 'custom') ? '' : 'none';
+  if (badge) badge.style.display = isActive ? '' : 'none';
+
+  // ── Mise à jour de la carte dans la grille de thèmes ──
+  const cardBg = document.getElementById('theme-card-custom-bg');
+  if (cardBg) {
+    let bgVal = ct.bgType === 'gradient'
+      ? `linear-gradient(${ct.bgAngle || 135}deg, ${ct.bgColor1 || '#0E0E12'}, ${ct.bgColor2 || '#16161E'})`
+      : (ct.bgColor1 || '#0E0E12');
+    if (ct.coverImage) bgVal = `url('${ct.coverImage}') center / ${ct.coverMode || 'cover'} no-repeat, ` + bgVal;
+    cardBg.style.background = bgVal;
+  }
+  const neon = ct.neonEnabled ? `0 0 ${ct.neonIntensity || 8}px ${ct.neonColor || '#E8B830'}, 0 0 ${(ct.neonIntensity || 8) * 2}px ${ct.neonColor || '#E8B830'}` : 'none';
+  const applyCard = (id, color, useNeon) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.style.color = color;
+    el.style.textShadow = useNeon ? neon : 'none';
+    el.style.fontFamily = `'${ct.fontFamily || 'Russo One'}', sans-serif`;
+  };
+  applyCard('theme-card-custom-p1', ct.nameColor || '#F0EEF8', ct.neonEnabled && ct.neonName);
+  applyCard('theme-card-custom-p2', ct.nameColor || '#F0EEF8', ct.neonEnabled && ct.neonName);
+  applyCard('theme-card-custom-s1', ct.scoreColor || '#F0EEF8', ct.neonEnabled && ct.neonScore);
+  applyCard('theme-card-custom-s2', ct.scoreColor || '#F0EEF8', ct.neonEnabled && ct.neonScore);
+  applyCard('theme-card-custom-vs', ct.scoreSepColor || '#E8B830', ct.neonEnabled && ct.neonScore);
+  const cardBadge = document.getElementById('theme-card-custom-badge');
+  if (cardBadge) cardBadge.style.display = isActive ? '' : 'none';
 
   // Sync hex text inputs alongside color pickers
   const syncHex = (pickerId, textSelector) => {
@@ -6205,7 +6231,7 @@ function ctWire() {
   });
 
   // Activate button
-  document.getElementById('btn-ct-apply')?.addEventListener('click', () => {
+  const activateCustomTheme = () => {
     ctGet();
     const ns = buildStateFromForm();
     ns.overlayTheme = 'custom';
@@ -6213,9 +6239,13 @@ function ctWire() {
     emitState(ns);
     document.querySelectorAll('.theme-preset-card').forEach(c => c.classList.remove('active'));
     document.querySelector('[data-theme="custom"]')?.classList.add('active');
-    const badge = document.getElementById('ct-active-badge');
-    if (badge) badge.style.display = '';
-  });
+    ctUpdatePreview();
+  };
+
+  document.getElementById('btn-ct-apply')?.addEventListener('click', activateCustomTheme);
+
+  // Clic sur la carte dans la grille
+  document.getElementById('theme-card-custom')?.addEventListener('click', activateCustomTheme);
 }
 
 function ctLoad(ct) {
