@@ -5896,6 +5896,52 @@ document.getElementById('btn-youtube-disconnect')?.addEventListener('click', () 
     .catch(() => {});
 });
 
+// ── start.gg clé API ─────────────────────────────────────────────────────────
+
+function applyStartggKeyStatus({ hasKey }) {
+  const connected = document.getElementById('conn-startgg-connected');
+  const form      = document.getElementById('conn-startgg-form');
+  if (!connected || !form) return;
+  connected.style.display = hasKey ? '' : 'none';
+  form.style.display      = hasKey ? 'none' : '';
+}
+
+fetch('/api/startgg/config').then(r => r.json()).then(applyStartggKeyStatus).catch(() => {});
+
+document.getElementById('conn-startgg-save')?.addEventListener('click', () => {
+  const key    = document.getElementById('conn-startgg-key')?.value.trim();
+  const status = document.getElementById('conn-startgg-status');
+  if (!key) return;
+  fetch('/api/startgg/config', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ apiKey: key })
+  })
+    .then(r => r.json())
+    .then(() => {
+      document.getElementById('conn-startgg-key').value = '';
+      applyStartggKeyStatus({ hasKey: true });
+      // Sync avec l'onglet start.gg
+      const sggStatus = document.getElementById('sgg-key-status');
+      if (sggStatus) { sggStatus.textContent = '✓ Clé API enregistrée'; sggStatus.style.color = '#4caf50'; }
+    })
+    .catch(() => { if (status) status.textContent = 'Erreur lors de l\'enregistrement.'; });
+});
+
+document.getElementById('conn-startgg-remove')?.addEventListener('click', () => {
+  fetch('/api/startgg/config', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ apiKey: '' })
+  })
+    .then(() => {
+      applyStartggKeyStatus({ hasKey: false });
+      const sggStatus = document.getElementById('sgg-key-status');
+      if (sggStatus) { sggStatus.textContent = 'Aucune clé API enregistrée.'; sggStatus.style.color = '#e05050'; }
+    })
+    .catch(() => {});
+});
+
 // Boutons "Copier" dans les tutos
 document.querySelectorAll('.conn-copy-btn').forEach(btn => {
   btn.addEventListener('click', () => {

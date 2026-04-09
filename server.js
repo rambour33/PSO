@@ -1688,16 +1688,12 @@ function saveConfig(cfg) {
 }
 
 async function startggQuery(query, variables = {}) {
-  const cfg = getConfig();
-  const apiKey = cfg.startggApiKey;
+  const apiKey = getConfig().startggApiKey;
   if (!apiKey) throw new Error('Clé API start.gg non configurée');
   const res = await fetch('https://api.start.gg/gql/alpha', {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${apiKey}`
-    },
-    body: JSON.stringify({ query, variables })
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
+    body: JSON.stringify({ query, variables }),
   });
   const data = await res.json();
   if (data.errors) throw new Error(data.errors[0].message);
@@ -1711,7 +1707,7 @@ app.get('/api/startgg/config', (req, res) => {
 
 app.post('/api/startgg/config', (req, res) => {
   const cfg = getConfig();
-  cfg.startggApiKey = req.body.apiKey;
+  if (req.body.apiKey !== undefined) cfg.startggApiKey = req.body.apiKey;
   saveConfig(cfg);
   res.json({ ok: true });
 });
