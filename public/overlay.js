@@ -6,7 +6,7 @@ const _lp = { parts: [], rafId: null, src: null, count: 3 };
 const CUSTOM_THEMES = ['cyberpunk', 'synthwave', 'midnight', 'egypt', 'city', 'eco', 'water', 'fire',
   'pkpsy', 'pktenebres', 'pkelectrik', 'pkfee', 'pkspectre', 'pkdragon', 'pkglace', 'pkcombat',
   'pkpoison', 'pksol', 'pkvol', 'pkinsecte', 'pkroche', 'pkacier', 'pknormal', 'pkplante', 'pkfeu', 'pkeau',
-  'rainbow', 'trans', 'pan', 'bi', 'lesbian', 'plage',
+  'rainbow', 'trans', 'pan', 'bi', 'lesbian', 'plage', 'custom',
   'smario','sdk','slink','ssamus','sdsamus','syoshi','skirby','sfox','spikachu','sluigi',
   'sness','sfalcon','sjigglypuff','speach','sdaisy','sbowser','siceclimbers','ssheik','szelda','sdrmario',
   'spichu','sfalco','smarth','slucina','sylink','sganondorf','smewtwo','sroy','schrom','sgamewatch',
@@ -197,6 +197,125 @@ function renderPlayerName(elId, player) {
   }
 }
 
+// ── Custom theme application ──────────────────────────────────────────────
+
+function applyCustomTheme(ct, sb) {
+  const defaults = {
+    bgType: 'gradient', bgColor1: '#0E0E12', bgColor2: '#16161E', bgAngle: 135,
+    accentColor: '#E8B830', p1Color: '#E83030', p2Color: '#3070E8',
+    nameColor: '#F0EEF8', tagColor: '#E8B830', pronounsColor: '#5A5A7A',
+    scoreColor: '#F0EEF8', eventColor: '#5A5A7A', scoreSepColor: '#E8B830',
+    neonEnabled: false, neonColor: '#E8B830', neonIntensity: 8,
+    neonName: true, neonScore: true, neonTag: false, neonEvent: false, neonAccent: true,
+    fontFamily: 'Russo One', letterSpacing: 2, nameFontSize: 24,
+    particleType: 'sparkle', particleCount: 60,
+    coverImage: null, coverOpacity: 50, coverMode: 'cover',
+  };
+  const c = { ...defaults, ...ct };
+
+  // ── Google Fonts dynamic loading ─────────────────────────────
+  const builtinFonts = ['Russo One'];
+  if (!builtinFonts.includes(c.fontFamily)) {
+    let gfLink = document.getElementById('pso-gfont');
+    const fontParam = c.fontFamily.replace(/ /g, '+');
+    const gfUrl = `https://fonts.googleapis.com/css2?family=${fontParam}:wght@400;700&display=swap`;
+    if (!gfLink) {
+      gfLink = document.createElement('link');
+      gfLink.id = 'pso-gfont';
+      gfLink.rel = 'stylesheet';
+      document.head.appendChild(gfLink);
+    }
+    if (gfLink.href !== gfUrl) gfLink.href = gfUrl;
+  }
+
+  // ── CSS vars on scoreboard element ───────────────────────────
+  // Background
+  const bgValue = c.bgType === 'gradient'
+    ? `linear-gradient(${c.bgAngle}deg, ${c.bgColor1}, ${c.bgColor2})`
+    : c.bgColor1;
+  sb.style.setProperty('--sb-bg', bgValue);
+  sb.style.setProperty('--name-color',      c.nameColor);
+  sb.style.setProperty('--tag-color',       c.tagColor);
+  sb.style.setProperty('--pronouns-color',  c.pronounsColor);
+  sb.style.setProperty('--event-text-color',c.eventColor);
+  sb.style.setProperty('--score-color',     c.scoreColor);
+  sb.style.setProperty('--smash-gold',      c.scoreSepColor);
+  sb.style.setProperty('--custom-font',     `'${c.fontFamily}'`);
+
+  // ── Player accent colors ─────────────────────────────────────
+  const p1Block = document.getElementById('player1-block');
+  const p2Block = document.getElementById('player2-block');
+  const p1BlockSlim = document.getElementById('player1-block-slim');
+  const p2BlockSlim = document.getElementById('player2-block-slim');
+  if (p1Block) p1Block.style.setProperty('--p1-color', c.p1Color);
+  if (p2Block) p2Block.style.setProperty('--p2-color', c.p2Color);
+  if (p1BlockSlim) p1BlockSlim.style.setProperty('--p1-color', c.p1Color);
+  if (p2BlockSlim) p2BlockSlim.style.setProperty('--p2-color', c.p2Color);
+
+  // ── Dynamic CSS (neon, cover image) ─────────────────────────
+  let styleEl = document.getElementById('pso-custom-theme');
+  if (!styleEl) {
+    styleEl = document.createElement('style');
+    styleEl.id = 'pso-custom-theme';
+    document.head.appendChild(styleEl);
+  }
+
+  const n   = c.neonEnabled ? c.neonIntensity : 0;
+  const nc  = c.neonColor;
+  const acc = c.accentColor;
+
+  let css = '';
+
+  // Letter spacing & font size for player names
+  css += `.scoreboard.theme-custom .player-name { letter-spacing: ${c.letterSpacing}px; font-size: ${c.nameFontSize}px; }\n`;
+  css += `.scoreboard.theme-custom .score-vs { color: ${c.scoreSepColor}; }\n`;
+
+  // Neon effects
+  if (c.neonEnabled) {
+    if (c.neonName) {
+      css += `.scoreboard.theme-custom .player-name-text { text-shadow: 0 0 ${n}px ${nc}, 0 0 ${n*2}px ${nc}, 0 0 ${n*3}px ${nc}; }\n`;
+    } else {
+      css += `.scoreboard.theme-custom .player-name-text { text-shadow: none; }\n`;
+    }
+    if (c.neonScore) {
+      css += `.scoreboard.theme-custom .score { text-shadow: 0 0 ${n}px ${nc}, 0 0 ${n*2}px ${nc}; }\n`;
+      css += `.scoreboard.theme-custom .score-vs { text-shadow: 0 0 ${n}px ${nc}, 0 0 ${n*2}px ${nc}; }\n`;
+    } else {
+      css += `.scoreboard.theme-custom .score { text-shadow: none; }\n`;
+    }
+    if (c.neonTag) {
+      css += `.scoreboard.theme-custom .player-tag { text-shadow: 0 0 ${n}px ${nc}; }\n`;
+    } else {
+      css += `.scoreboard.theme-custom .player-tag { text-shadow: none; }\n`;
+    }
+    if (c.neonEvent) {
+      css += `.scoreboard.theme-custom .event-bar { text-shadow: 0 0 ${n}px ${nc}; }\n`;
+    } else {
+      css += `.scoreboard.theme-custom .event-bar { text-shadow: none; }\n`;
+    }
+    if (c.neonAccent) {
+      css += `.scoreboard.theme-custom .players-container { border-color: ${acc}; box-shadow: 0 0 ${n}px ${acc}, inset 0 0 ${n}px ${acc}; }\n`;
+    }
+  } else {
+    css += `.scoreboard.theme-custom .player-name-text { text-shadow: none; }\n`;
+    css += `.scoreboard.theme-custom .score { text-shadow: none; }\n`;
+    css += `.scoreboard.theme-custom .player-tag { text-shadow: none; }\n`;
+    css += `.scoreboard.theme-custom .event-bar { text-shadow: none; }\n`;
+  }
+
+  // Cover image overlay
+  if (c.coverImage) {
+    const op = (c.coverOpacity ?? 50) / 100;
+    const mode = c.coverMode || 'cover';
+    css += `.scoreboard.theme-custom .players-container { position: relative; overflow: hidden; }\n`;
+    css += `.scoreboard.theme-custom .players-container::before { content: ''; position: absolute; inset: 0; background: url('${c.coverImage}') center / ${mode} no-repeat; opacity: ${op}; pointer-events: none; z-index: 0; }\n`;
+  } else {
+    css += `.scoreboard.theme-custom .players-container::before { content: none; }\n`;
+  }
+
+  styleEl.textContent = css;
+}
+
 function getFormatMax(fmt, custom) {
   if (fmt === 'Bo1') return 1;
   if (fmt === 'Bo3') return 3;
@@ -241,7 +360,7 @@ function update(s) {
    'sken','scloud','scorrin','sbayonetta','sinkling','sridley','ssimon','srichter','skrool','sisabelle',
    'sincineroar','spiranha','sjoker','shero','sbanjo','sterry','sbyleth','sminmin','ssteve','ssephiroth',
    'spyra','smythra','skazuya','ssora','smii_brawl','smii_sword','smii_gun',
-   'dual','transparent'].forEach(t => {
+   'dual','transparent','custom'].forEach(t => {
     sb.classList.toggle('theme-' + t, (s.overlayTheme || 'default') === t);
   });
 
@@ -260,6 +379,18 @@ function update(s) {
     sb.style.setProperty('--p2-theme-primary', cRight.primary);
     sb.style.setProperty('--p2-theme-glow',    cRight.glow);
     sb.style.setProperty('--p2-theme-bg',      cRight.bg);
+  }
+
+  // ── Custom theme ─────────────────────────────────────────────
+  if ((s.overlayTheme || 'default') === 'custom') {
+    applyCustomTheme(s.customTheme || {}, sb);
+  } else {
+    const oldStyle = document.getElementById('pso-custom-theme');
+    if (oldStyle) oldStyle.remove();
+    // Reset custom CSS vars that may have been set
+    sb.style.removeProperty('--score-color');
+    sb.style.removeProperty('--custom-font');
+    sb.style.removeProperty('--smash-gold');
   }
 
   // Logo particules
@@ -293,6 +424,11 @@ function update(s) {
     if (PS.type !== '__dual__' || PS.dualKey !== key) {
       PS.startDual(typeLeft, countLeft, typeRight, countRight);
     }
+  } else if ((s.overlayTheme || 'default') === 'custom') {
+    const ct = s.customTheme || {};
+    const pType  = ct.particleType  || 'sparkle';
+    const pCount = ct.particleCount || 60;
+    if (pType !== PS.type) PS.start(pType, pCount);
   } else {
     const tpConf = THEME_PARTICLES[s.overlayTheme || 'default'];
     if (tpConf) {
