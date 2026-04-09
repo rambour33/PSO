@@ -1696,7 +1696,7 @@ async function startggQuery(query, variables = {}) {
     body: JSON.stringify({ query, variables }),
   });
   const data = await res.json();
-  if (data.errors) throw new Error(data.errors[0].message);
+  if (data.errors) { console.error('[startgg] GraphQL errors:', JSON.stringify(data.errors)); throw new Error(data.errors[0].message); }
   return data.data;
 }
 
@@ -1758,7 +1758,7 @@ app.get('/api/startgg/event/:id/sets', async (req, res) => {
             nodes {
               id fullRoundText state
               slots {
-                entrant { name participants { gamerTag prefix } }
+                entrant { name initialSeedNum participants { gamerTag prefix user { genderPronoun } } }
                 standing { stats { score { value } } }
               }
             }
@@ -1792,6 +1792,47 @@ const SSBU_CHAR_MAP = {
   1337:'banjo_kazooie', 1338:'terry', 1339:'byleth', 1340:'min_min', 1341:'steve',
   1342:'sephiroth', 1343:'pyra_mythra', 1344:'pyra_mythra', 1345:'kazuya', 1346:'sora',
 };
+const INTERNAL_TO_STARTGG_CHAR = Object.fromEntries(
+  Object.entries(SSBU_CHAR_MAP).map(([id, name]) => [name, parseInt(id)])
+);
+
+app.post('/api/startgg/set/:id/report', async (req, res) => {
+  try {
+    const setId = req.params.id;
+    const { p1EntrantId, p2EntrantId, p1Score, p2Score, p1Character, p2Character } = req.body;
+    if (!p1EntrantId || !p2EntrantId) return res.status(400).json({ error: 'IDs entrants manquants' });
+    if (p1Score === p2Score) return res.status(400).json({ error: 'Score à égalité, impossible de déterminer le vainqueur' });
+
+    const winnerId = p1Score > p2Score ? String(p1EntrantId) : String(p2EntrantId);
+    const p1CharId = p1Character ? INTERNAL_TO_STARTGG_CHAR[p1Character] || null : null;
+    const p2CharId = p2Character ? INTERNAL_TO_STARTGG_CHAR[p2Character] || null : null;
+
+    const gameData = [];
+    let gameNum = 1;
+    for (let i = 0; i < p1Score; i++) {
+      const selections = [];
+      if (p1CharId) selections.push({ entrantId: String(p1EntrantId), characterId: p1CharId, selectionType: 'CHARACTER' });
+      if (p2CharId) selections.push({ entrantId: String(p2EntrantId), characterId: p2CharId, selectionType: 'CHARACTER' });
+      gameData.push({ gameNum: gameNum++, winnerId: String(p1EntrantId), ...(selections.length && { selections }) });
+    }
+    for (let i = 0; i < p2Score; i++) {
+      const selections = [];
+      if (p1CharId) selections.push({ entrantId: String(p1EntrantId), characterId: p1CharId, selectionType: 'CHARACTER' });
+      if (p2CharId) selections.push({ entrantId: String(p2EntrantId), characterId: p2CharId, selectionType: 'CHARACTER' });
+      gameData.push({ gameNum: gameNum++, winnerId: String(p2EntrantId), ...(selections.length && { selections }) });
+    }
+
+    const data = await startggQuery(`
+      mutation ReportSet($setId: ID!, $winnerId: ID, $gameData: [BracketSetGameDataInput]) {
+        reportBracketSet(setId: $setId, winnerId: $winnerId, gameData: $gameData) {
+          id state
+        }
+      }
+    `, { setId, winnerId, gameData: gameData.length ? gameData : undefined });
+
+    res.json({ success: true, set: data.reportBracketSet });
+  } catch (e) { res.status(400).json({ error: e.message }); }
+});
 
 app.get('/api/startgg/event/:id/player-stats/:entrantId', async (req, res) => {
   try {
