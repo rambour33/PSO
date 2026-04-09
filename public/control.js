@@ -327,6 +327,45 @@ document.getElementById('btn-apply').addEventListener('click', () => {
   setStatus('Appliqué !');
 });
 
+document.getElementById('btn-send-startgg').addEventListener('click', async () => {
+  const setId      = document.getElementById('sgg-current-set-id')?.value;
+  const p1EntrantId = document.getElementById('sgg-p1-entrant-id')?.value;
+  const p2EntrantId = document.getElementById('sgg-p2-entrant-id')?.value;
+  if (!setId) return;
+
+  const btn = document.getElementById('btn-send-startgg');
+  btn.disabled = true;
+  btn.textContent = 'Envoi…';
+
+  try {
+    const res = await fetch(`/api/startgg/set/${setId}/report`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        p1EntrantId,
+        p2EntrantId,
+        p1Score: state.player1.score,
+        p2Score: state.player2.score,
+        p1Character: state.player1.character || null,
+        p2Character: state.player2.character || null,
+      }),
+    });
+    const data = await res.json();
+    if (data.error) {
+      setStatus('Erreur start.gg : ' + data.error);
+    } else {
+      setStatus('Score envoyé sur start.gg !');
+      btn.textContent = '✓ Score envoyé';
+      setTimeout(() => { btn.textContent = '▲ Envoyer le score sur start.gg'; btn.disabled = false; }, 3000);
+      return;
+    }
+  } catch (e) {
+    setStatus('Erreur : ' + e.message);
+  }
+  btn.textContent = '▲ Envoyer le score sur start.gg';
+  btn.disabled = false;
+});
+
 document.getElementById('btn-reset-score').addEventListener('click', () => {
   state.player1 = { ...state.player1, score: 0 };
   state.player2 = { ...state.player2, score: 0 };

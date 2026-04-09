@@ -200,24 +200,37 @@
       const p2Tag = p2?.prefix || '';
       const p1Score = slot1?.standing?.stats?.score?.value ?? 0;
       const p2Score = slot2?.standing?.stats?.score?.value ?? 0;
+      const p1Seed = slot1?.entrant?.initialSeedNum ?? '';
+      const p2Seed = slot2?.entrant?.initialSeedNum ?? '';
+      const p1Pronouns = p1?.user?.genderPronoun || '';
+      const p2Pronouns = p2?.user?.genderPronoun || '';
 
       const e1Id = slot1?.entrant?.id || '';
       const e2Id = slot2?.entrant?.id || '';
+
+      const seedLabel1 = p1Seed !== '' ? `<span style="font-size:10px;color:var(--text-muted)">#${p1Seed}</span>` : '';
+      const seedLabel2 = p2Seed !== '' ? `<span style="font-size:10px;color:var(--text-muted)">#${p2Seed}</span>` : '';
+      const pronLabel1 = p1Pronouns ? `<span style="font-size:10px;color:var(--text-muted)">(${p1Pronouns})</span>` : '';
+      const pronLabel2 = p2Pronouns ? `<span style="font-size:10px;color:var(--text-muted)">(${p2Pronouns})</span>` : '';
 
       const card = document.createElement('div');
       card.className = 'sgg-set-card';
       card.innerHTML = `
         <div class="sgg-set-round">${s.fullRoundText || ''}</div>
         <div class="sgg-set-players">
-          <span>${p1Tag ? '[' + p1Tag + '] ' : ''}${p1Name}</span>
+          <span>${p1Tag ? '[' + p1Tag + '] ' : ''}${p1Name} ${seedLabel1} ${pronLabel1}</span>
           <span class="sgg-set-score">${p1Score} – ${p2Score}</span>
-          <span>${p2Tag ? '[' + p2Tag + '] ' : ''}${p2Name}</span>
+          <span>${p2Tag ? '[' + p2Tag + '] ' : ''}${p2Name} ${seedLabel2} ${pronLabel2}</span>
         </div>
         <div class="sgg-set-actions">
           <button class="btn btn-primary btn-sm sgg-apply-set"
+            data-setid="${s.id}"
             data-p1tag="${p1Tag}" data-p1name="${p1Name}"
             data-p2tag="${p2Tag}" data-p2name="${p2Name}"
             data-p1score="${Math.max(0, p1Score)}" data-p2score="${Math.max(0, p2Score)}"
+            data-p1seed="${p1Seed}" data-p2seed="${p2Seed}"
+            data-p1pronouns="${p1Pronouns}" data-p2pronouns="${p2Pronouns}"
+            data-p1entrantid="${e1Id}" data-p2entrantid="${e2Id}"
             data-round="${s.fullRoundText || ''}">
             Appliquer au scoreboard
           </button>
@@ -232,31 +245,50 @@
           btn.dataset.p1tag, btn.dataset.p1name,
           btn.dataset.p2tag, btn.dataset.p2name,
           parseInt(btn.dataset.p1score), parseInt(btn.dataset.p2score),
-          btn.dataset.round
+          btn.dataset.round,
+          btn.dataset.p1seed !== '' ? parseInt(btn.dataset.p1seed) : null,
+          btn.dataset.p2seed !== '' ? parseInt(btn.dataset.p2seed) : null,
+          btn.dataset.p1pronouns, btn.dataset.p2pronouns,
+          btn.dataset.setid, btn.dataset.p1entrantid, btn.dataset.p2entrantid
         );
       });
     });
 
   }
 
-  function applySet(p1tag, p1name, p2tag, p2name, p1score, p2score, round) {
-    // Apply names
-    const p1TagInput = document.getElementById('p1-tag');
-    const p1NameInput = document.getElementById('p1-name');
-    const p2TagInput = document.getElementById('p2-tag');
-    const p2NameInput = document.getElementById('p2-name');
+  function applySet(p1tag, p1name, p2tag, p2name, p1score, p2score, round, p1seed, p2seed, p1pronouns, p2pronouns, setId, p1EntrantId, p2EntrantId) {
+    const setIdInput      = document.getElementById('sgg-current-set-id');
+    const p1EntrantInput  = document.getElementById('sgg-p1-entrant-id');
+    const p2EntrantInput  = document.getElementById('sgg-p2-entrant-id');
+    const sendBtn         = document.getElementById('btn-send-startgg');
+    if (setIdInput)     setIdInput.value     = setId || '';
+    if (p1EntrantInput) p1EntrantInput.value = p1EntrantId || '';
+    if (p2EntrantInput) p2EntrantInput.value = p2EntrantId || '';
+    if (sendBtn) sendBtn.style.display = setId ? '' : 'none';
+    const p1TagInput      = document.getElementById('p1-tag');
+    const p1NameInput     = document.getElementById('p1-name');
+    const p1SeedInput     = document.getElementById('p1-seed');
+    const p1PronounsInput = document.getElementById('p1-pronouns');
+    const p2TagInput      = document.getElementById('p2-tag');
+    const p2NameInput     = document.getElementById('p2-name');
+    const p2SeedInput     = document.getElementById('p2-seed');
+    const p2PronounsInput = document.getElementById('p2-pronouns');
+
     if (p1TagInput) p1TagInput.value = p1tag;
     if (p1NameInput) p1NameInput.value = p1name;
+    if (p1SeedInput) p1SeedInput.value = p1seed != null ? p1seed : '';
+    if (p1PronounsInput) p1PronounsInput.value = p1pronouns || '';
+
     if (p2TagInput) p2TagInput.value = p2tag;
     if (p2NameInput) p2NameInput.value = p2name;
+    if (p2SeedInput) p2SeedInput.value = p2seed != null ? p2seed : '';
+    if (p2PronounsInput) p2PronounsInput.value = p2pronouns || '';
 
-    // Apply scores via score buttons (click + or reset then +)
     const score1Input = document.getElementById('p1-score');
     const score2Input = document.getElementById('p2-score');
     if (score1Input) { score1Input.value = p1score; score1Input.dispatchEvent(new Event('input', { bubbles: true })); }
     if (score2Input) { score2Input.value = p2score; score2Input.dispatchEvent(new Event('input', { bubbles: true })); }
 
-    // Apply round as stage name
     const stageInput = document.getElementById('stage');
     if (stageInput && round) { stageInput.value = round; stageInput.dispatchEvent(new Event('input', { bubbles: true })); }
 
