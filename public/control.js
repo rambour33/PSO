@@ -525,9 +525,63 @@ document.getElementById('btn-server-reload').addEventListener('click', () => {
     });
 });
 
+// ── Multi-PC / Réseau local ───────────────────────────────────────────────────
+
+let _serverIPs = [];
+let _serverPort = 3002;
+let _urlMode = 'local';
+
+function getServerBase() {
+  if (_urlMode === 'network' && _serverIPs.length > 0) {
+    return 'http://' + _serverIPs[0] + ':' + _serverPort;
+  }
+  return 'http://localhost:' + _serverPort;
+}
+
+function applyUrlMode(mode) {
+  _urlMode = mode;
+  const base = getServerBase();
+  document.querySelectorAll('.obs-url-item .btn-copy[data-url]').forEach(btn => {
+    try {
+      const urlPath = new URL(btn.dataset.url).pathname;
+      btn.dataset.url = base + urlPath;
+      const code = btn.previousElementSibling;
+      if (code && code.tagName === 'CODE') code.textContent = base.replace(/^https?:\/\//, '') + urlPath;
+    } catch(e) {}
+  });
+  document.getElementById('btn-mode-local')?.classList.toggle('active', mode === 'local');
+  document.getElementById('btn-mode-network')?.classList.toggle('active', mode === 'network');
+  const ipSpan = document.getElementById('obs-mode-ip');
+  if (ipSpan) {
+    if (mode === 'network' && _serverIPs.length > 0) {
+      ipSpan.textContent = '→ ' + _serverIPs[0] + ':' + _serverPort;
+      ipSpan.style.color = 'var(--gold)';
+    } else {
+      ipSpan.textContent = _serverIPs.length > 0 ? 'IP réseau : ' + _serverIPs[0] : '';
+      ipSpan.style.color = 'var(--text-muted)';
+    }
+  }
+}
+
+fetch('/api/server-info').then(r => r.json()).then(data => {
+  _serverIPs = data.ips || [];
+  _serverPort = data.port || 3002;
+  const btnNet = document.getElementById('btn-mode-network');
+  const ipSpan = document.getElementById('obs-mode-ip');
+  if (_serverIPs.length > 0) {
+    if (btnNet) btnNet.title = 'IP réseau : ' + _serverIPs.join(', ');
+    if (ipSpan) ipSpan.textContent = 'IP réseau : ' + _serverIPs[0];
+  } else {
+    if (btnNet) { btnNet.disabled = true; btnNet.title = 'Aucune IP réseau détectée'; }
+  }
+}).catch(() => {});
+
+document.getElementById('btn-mode-local')?.addEventListener('click', () => applyUrlMode('local'));
+document.getElementById('btn-mode-network')?.addEventListener('click', () => applyUrlMode('network'));
+
 // Copy buttons
 document.getElementById('btn-copy-overlay').addEventListener('click', () => {
-  navigator.clipboard.writeText('http://localhost:3002/overlay').then(() => {
+  navigator.clipboard.writeText(getServerBase() + '/overlay').then(() => {
     const b = document.getElementById('btn-copy-overlay');
     b.textContent = '✓';
     setTimeout(() => { b.textContent = '📋'; }, 1500);
@@ -536,7 +590,7 @@ document.getElementById('btn-copy-overlay').addEventListener('click', () => {
 });
 
 document.getElementById('btn-copy-veto').addEventListener('click', () => {
-  navigator.clipboard.writeText('http://localhost:3002/stageveto').then(() => {
+  navigator.clipboard.writeText(getServerBase() + '/stageveto').then(() => {
     const b = document.getElementById('btn-copy-veto');
     b.textContent = '✓';
     setTimeout(() => { b.textContent = '📋'; }, 1500);
@@ -3294,7 +3348,7 @@ document.getElementById('btn-casters-visibility').addEventListener('click', () =
 });
 
 document.getElementById('btn-copy-casters').addEventListener('click', () => {
-  navigator.clipboard.writeText('http://localhost:3002/casters').then(() => {
+  navigator.clipboard.writeText(getServerBase() + '/casters').then(() => {
     const b = document.getElementById('btn-copy-casters');
     b.textContent = '✓';
     setTimeout(() => { b.textContent = '📋'; }, 1500);
