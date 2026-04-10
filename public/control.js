@@ -1409,6 +1409,14 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
   });
 });
 
+// ── Accordions ────────────────────────────────────────────────
+
+document.querySelectorAll('.accordion-header').forEach(header => {
+  header.addEventListener('click', () => {
+    header.closest('.accordion-tile').classList.toggle('open');
+  });
+});
+
 // ── Logo preview ──────────────────────────────────────────────
 
 document.getElementById('center-logo').addEventListener('input', updateLogoPreview);

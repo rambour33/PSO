@@ -1833,6 +1833,57 @@ kbd {
   padding: 20px;
 }
 
+/* ── Accordion tiles ── */
+.accordion-tile {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  margin-bottom: 10px;
+  overflow: hidden;
+}
+.accordion-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  cursor: pointer;
+  user-select: none;
+  gap: 12px;
+  transition: background 0.15s;
+}
+.accordion-header:hover { background: var(--surface2); }
+.accordion-tile.open .accordion-header { background: var(--surface2); border-bottom: 1px solid var(--border); }
+.accordion-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.accordion-title h3 {
+  font-family: 'Russo One', sans-serif;
+  font-size: 13px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--text);
+  margin: 0;
+}
+.accordion-title .accordion-emoji { font-size: 18px; }
+.accordion-meta { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+.accordion-chevron {
+  font-size: 11px;
+  color: var(--text-muted);
+  transition: transform 0.2s;
+  flex-shrink: 0;
+}
+.accordion-tile.open .accordion-chevron { transform: rotate(180deg); }
+.accordion-body {
+  display: none;
+  padding: 16px 20px;
+  display: none;
+}
+.accordion-tile.open .accordion-body { display: block; }
+.accordion-body .custom-card { margin-bottom: 12px; }
+.accordion-body .custom-card:last-child { margin-bottom: 0; }
+
 .custom-card h3 {
   font-family: 'Russo One', sans-serif;
   font-size: 12px;

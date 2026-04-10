@@ -296,6 +296,7 @@ app.get('/ticker', (req, res) => res.sendFile(path.join(__dirname, 'public', 'ti
 app.get('/frames', (req, res) => res.sendFile(path.join(__dirname, 'public', 'frames.html')));
 app.get('/stream-title',  (req, res) => res.sendFile(path.join(__dirname, 'public', 'stream-title.html')));
 app.get('/super-overlay', (req, res) => res.sendFile(path.join(__dirname, 'public', 'super-overlay.html')));
+app.get('/avsync',       (req, res) => res.sendFile(path.join(__dirname, 'public', 'avsync.html')));
 
 // ─── Titre du stream ──────────────────────────────────────────────────────────
 
