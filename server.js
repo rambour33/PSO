@@ -331,34 +331,54 @@ app.post('/api/title', (req, res) => {
   res.json({ ok: true });
 });
 
-// ─── Super Overlay ──────────────────────────────────────────────────────────────
+// ─── Super Overlay / Créateur de scènes ────────────────────────────────────────
+
+const SUPER_LAYER_DEFS = [
+  { id: 'overlay',            label: 'Overlay principal',  url: '/overlay'            },
+  { id: 'stageveto',          label: 'Stage Veto',         url: '/stageveto'          },
+  { id: 'casters',            label: 'Casters',            url: '/casters'            },
+  { id: 'vs-screen',          label: 'VS Screen',          url: '/vs-screen'          },
+  { id: 'player-stats',       label: 'Stats joueurs',      url: '/player-stats'       },
+  { id: 'twitch-layout',      label: 'Twitch Layout',      url: '/twitch-layout'      },
+  { id: 'twitch-viewer',      label: 'Viewers Twitch',     url: '/twitch-viewer'      },
+  { id: 'twitch-chat',        label: 'Chat Twitch',        url: '/twitch-chat'        },
+  { id: 'ticker',             label: 'Bandeau',            url: '/ticker'             },
+  { id: 'frames',             label: 'Cadres',             url: '/frames'             },
+  { id: 'cam',                label: 'Cam Overlay',        url: '/cam'                },
+  { id: 'stream-title',       label: 'Titre du stream',   url: '/stream-title'       },
+  { id: 'h2h',                label: 'H2H',                url: '/h2h'                },
+  { id: 'tournament-history', label: 'Historique tournoi', url: '/tournament-history' },
+];
+
+function makeSceneLayers() {
+  return SUPER_LAYER_DEFS.map((d, i) => ({ ...d, visible: false, x: 0, y: 0, opacity: 1.0, order: i }));
+}
 
 let superState = {
-  bgColor: 'transparent',
-  layers: [
-    { id: 'overlay',            label: 'Overlay principal',  url: '/overlay',            visible: false, x: 0, y: 0, opacity: 1.0, order: 0  },
-    { id: 'stageveto',          label: 'Stage Veto',         url: '/stageveto',          visible: false, x: 0, y: 0, opacity: 1.0, order: 1  },
-    { id: 'casters',            label: 'Casters',            url: '/casters',            visible: false, x: 0, y: 0, opacity: 1.0, order: 2  },
-    { id: 'vs-screen',          label: 'VS Screen',          url: '/vs-screen',          visible: false, x: 0, y: 0, opacity: 1.0, order: 3  },
-    { id: 'player-stats',       label: 'Stats joueurs',      url: '/player-stats',       visible: false, x: 0, y: 0, opacity: 1.0, order: 4  },
-    { id: 'twitch-layout',      label: 'Twitch Layout',      url: '/twitch-layout',      visible: false, x: 0, y: 0, opacity: 1.0, order: 5  },
-    { id: 'twitch-viewer',      label: 'Viewers Twitch',     url: '/twitch-viewer',      visible: false, x: 0, y: 0, opacity: 1.0, order: 6  },
-    { id: 'ticker',             label: 'Bandeau',            url: '/ticker',             visible: false, x: 0, y: 0, opacity: 1.0, order: 7  },
-    { id: 'frames',             label: 'Cadres',             url: '/frames',             visible: false, x: 0, y: 0, opacity: 1.0, order: 8  },
-    { id: 'h2h',                label: 'H2H',                url: '/h2h',                visible: false, x: 0, y: 0, opacity: 1.0, order: 9  },
-    { id: 'tournament-history', label: 'Historique tournoi', url: '/tournament-history', visible: false, x: 0, y: 0, opacity: 1.0, order: 10 },
-    { id: 'stream-title',       label: 'Titre du stream',   url: '/stream-title',       visible: false, x: 0, y: 0, opacity: 1.0, order: 11 },
-  ],
+  activeScene: 0,
+  scenes: Array.from({ length: 9 }, (_, i) => ({
+    name: `Scène ${i + 1}`,
+    bgColor: 'transparent',
+    layers: makeSceneLayers(),
+  })),
 };
+
+function getActiveScene() { return superState.scenes[superState.activeScene]; }
+function superBroadcast() {
+  const scene = getActiveScene();
+  io.emit('superUpdate', { bgColor: scene.bgColor, layers: scene.layers });
+  io.emit('superStateUpdate', superState);
+}
 
 app.get('/api/super', (req, res) => res.json(superState));
 
 app.post('/api/super', (req, res) => {
+  const scene = getActiveScene();
   const { bgColor, layers } = req.body;
-  if (bgColor !== undefined) superState.bgColor = String(bgColor);
+  if (bgColor !== undefined) scene.bgColor = String(bgColor);
   if (Array.isArray(layers)) {
     layers.forEach(incoming => {
-      const t = superState.layers.find(l => l.id === incoming.id);
+      const t = scene.layers.find(l => l.id === incoming.id);
       if (!t) return;
       if (incoming.visible  !== undefined) t.visible  = !!incoming.visible;
       if (incoming.x        !== undefined) t.x        = Number(incoming.x);
@@ -367,7 +387,85 @@ app.post('/api/super', (req, res) => {
       if (incoming.order    !== undefined) t.order    = Number(incoming.order);
     });
   }
-  io.emit('superUpdate', superState);
+  superBroadcast();
+  res.json({ ok: true });
+});
+
+// Mapping layer id → getter de l'état courant de l'overlay
+function getOverlaySnapshot(id) {
+  const map = {
+    'overlay':            () => matchState,
+    'cam':                () => camState,
+    'ticker':             () => tickerState,
+    'stream-title':       () => titleState,
+    'frames':             () => framesState,
+    'player-stats':       () => playerStatsState,
+    'tournament-history': () => tournamentHistoryState,
+    'twitch-chat':        () => twitchChatState,
+  };
+  const getter = map[id];
+  return getter ? JSON.parse(JSON.stringify(getter())) : null;
+}
+
+// Applique un snapshot sauvegardé à l'overlay correspondant
+function applyOverlaySnapshot(id, snapshot) {
+  if (!snapshot) return;
+  switch (id) {
+    case 'overlay':            matchState            = { ...matchState,            ...snapshot }; io.emit('stateUpdate',            matchState);            break;
+    case 'cam':                camState              = { ...camState,              ...snapshot }; io.emit('camUpdate',              camState);              break;
+    case 'ticker':             tickerState           = { ...tickerState,           ...snapshot }; io.emit('tickerUpdate',           tickerState);           break;
+    case 'stream-title':       titleState            = { ...titleState,            ...snapshot }; io.emit('titleUpdate',            titleState);            break;
+    case 'frames':             framesState           = { ...framesState,           ...snapshot }; io.emit('framesUpdate',           framesState);           break;
+    case 'player-stats':       playerStatsState      = { ...playerStatsState,      ...snapshot }; io.emit('playerStatsUpdate',      playerStatsState);      break;
+    case 'tournament-history': tournamentHistoryState= { ...tournamentHistoryState,...snapshot }; io.emit('tournamentHistoryUpdate',tournamentHistoryState);break;
+    case 'twitch-chat':        twitchChatState       = { ...twitchChatState,       ...snapshot }; io.emit('twitchChatUpdate',       twitchChatState);       break;
+  }
+}
+
+app.post('/api/super/scene/:n', (req, res) => {
+  const n = parseInt(req.params.n);
+  if (isNaN(n) || n < 0 || n > 8) return res.status(400).json({ error: 'Scène invalide' });
+  superState.activeScene = n;
+  // Appliquer les snapshots de la scène activée
+  const scene = superState.scenes[n];
+  scene.layers.forEach(layer => {
+    if (layer.snapshot) applyOverlaySnapshot(layer.id, layer.snapshot);
+  });
+  superBroadcast();
+  res.json({ ok: true });
+});
+
+// Sauvegarde l'état courant d'un overlay dans la scène
+app.post('/api/super/scene/:n/layer/:id/snapshot', (req, res) => {
+  const n = parseInt(req.params.n);
+  if (isNaN(n) || n < 0 || n > 8) return res.status(400).json({ error: 'Scène invalide' });
+  const scene = superState.scenes[n];
+  const layer = scene.layers.find(l => l.id === req.params.id);
+  if (!layer) return res.status(404).json({ error: 'Calque introuvable' });
+  const snap = getOverlaySnapshot(req.params.id);
+  if (!snap) return res.status(400).json({ error: 'Cet overlay ne supporte pas les snapshots' });
+  layer.snapshot = snap;
+  io.emit('superStateUpdate', superState);
+  res.json({ ok: true });
+});
+
+// Supprime le snapshot d'un calque
+app.delete('/api/super/scene/:n/layer/:id/snapshot', (req, res) => {
+  const n = parseInt(req.params.n);
+  if (isNaN(n) || n < 0 || n > 8) return res.status(400).json({ error: 'Scène invalide' });
+  const layer = superState.scenes[n].layers.find(l => l.id === req.params.id);
+  if (!layer) return res.status(404).json({ error: 'Calque introuvable' });
+  layer.snapshot = null;
+  io.emit('superStateUpdate', superState);
+  res.json({ ok: true });
+});
+
+app.post('/api/super/scene/:n/name', (req, res) => {
+  const n = parseInt(req.params.n);
+  if (isNaN(n) || n < 0 || n > 8) return res.status(400).json({ error: 'Scène invalide' });
+  const name = String(req.body.name || '').trim() || `Scène ${n + 1}`;
+  superState.scenes[n].name = name;
+  io.emit('superStateUpdate', superState);
   res.json({ ok: true });
 });
 
@@ -1602,7 +1700,9 @@ io.on('connection', (socket) => {
   socket.emit('tickerUpdate', tickerState);
   socket.emit('camUpdate', camState);
   socket.emit('framesUpdate', framesState);
-  socket.emit('superUpdate', superState);
+  const _activeScene = getActiveScene();
+  socket.emit('superUpdate', { bgColor: _activeScene.bgColor, layers: _activeScene.layers });
+  socket.emit('superStateUpdate', superState);
   socket.emit('titleUpdate', titleState);
   socket.emit('top8Update', top8State);
 
