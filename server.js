@@ -4,6 +4,7 @@ const { Server } = require('socket.io');
 const path = require('path');
 const fs = require('fs');
 const net = require('net');
+const os = require('os');
 
 const RULESETS_FILE      = path.join(__dirname, 'data', 'rulesets.json');
 const THEME_PRESETS_FILE = path.join(__dirname, 'data', 'theme-presets.json');
@@ -317,6 +318,24 @@ let titleState = {
   animation:   'slide',   // slide, drop, bounce, fade, none
   align:       'left',    // left, center, right
 };
+
+// ─── Réseau / Multi-PC ────────────────────────────────────────────────────────
+
+function getLocalIPs() {
+  const result = [];
+  for (const iface of Object.values(os.networkInterfaces())) {
+    for (const addr of iface) {
+      if (addr.family === 'IPv4' && !addr.internal) result.push(addr.address);
+    }
+  }
+  return result;
+}
+
+app.get('/api/server-info', (req, res) => {
+  res.json({ port: PORT, ips: getLocalIPs() });
+});
+
+// ─── Title ────────────────────────────────────────────────────────────────────
 
 app.get('/api/title', (req, res) => res.json(titleState));
 
@@ -2624,20 +2643,20 @@ app.post('/api/server/reload', (req, res) => {
 
 const PORT = 3002;
 server.listen(PORT, () => {
+  const ips = getLocalIPs();
   console.log('');
   console.log('🎮 PSO démarré !');
-  console.log('   Overlay scoreboard → http://localhost:' + PORT + '/overlay');
-  console.log('   Overlay slim       → http://localhost:' + PORT + '/overlay-slim');
-  console.log('   Overlay veto       → http://localhost:' + PORT + '/stageveto');
-  console.log('   Overlay casters    → http://localhost:' + PORT + '/casters');
-  console.log('   Overlay stats      → http://localhost:' + PORT + '/player-stats');
-  console.log('   Overlay historique → http://localhost:' + PORT + '/tournament-history');
-  console.log('   Overlay chat       → http://localhost:' + PORT + '/twitch-chat')
-  console.log('   Viewers YouTube    → http://localhost:' + PORT + '/youtube-viewer')
-  console.log('   Alertes YouTube    → http://localhost:' + PORT + '/youtube-alerts')
-  console.log('   Chat combiné       → http://localhost:' + PORT + '/combined-chat');
-  console.log('   Overlay bracket     → http://localhost:' + PORT + '/bracket');
-  console.log('   Overlay timer       → http://localhost:' + PORT + '/timer');
-  console.log('   Overlay top 8       → http://localhost:' + PORT + '/top8');
-  console.log('   Contrôle           → http://localhost:' + PORT + '/control');
+  console.log('');
+  console.log('  ── Ce PC (localhost) ──────────────────────────────────────');
+  console.log('   Contrôle   → http://localhost:' + PORT + '/control');
+  console.log('   Overlays   → http://localhost:' + PORT + '/overlay  (etc.)');
+  if (ips.length > 0) {
+    console.log('');
+    console.log('  ── Autre PC (réseau local) ────────────────────────────────');
+    ips.forEach(ip => {
+      console.log('   Contrôle   → http://' + ip + ':' + PORT + '/control');
+      console.log('   Overlays   → http://' + ip + ':' + PORT + '/overlay  (etc.)');
+    });
+  }
+  console.log('');
 });

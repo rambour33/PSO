@@ -1956,6 +1956,15 @@
         <div class="custom-card">
           <h3>URLs overlays OBS</h3>
           <p class="hint" style="margin-bottom:10px">Copier-coller dans OBS → Source Navigateur.</p>
+
+          <!-- Toggle multi-PC -->
+          <div id="obs-mode-bar" style="display:flex;align-items:center;gap:8px;margin-bottom:12px;padding:8px 10px;background:var(--surface2);border-radius:6px;border:1px solid var(--border)">
+            <span style="font-size:11px;color:var(--text-muted);flex-shrink:0">URLs pour :</span>
+            <button class="btn btn-sm active" id="btn-mode-local" title="Utiliser localhost (ce PC)">Ce PC</button>
+            <button class="btn btn-sm" id="btn-mode-network" title="Utiliser l'IP réseau (autre PC sur le même réseau)">Autre PC</button>
+            <span id="obs-mode-ip" style="font-size:11px;color:var(--text-muted);margin-left:4px;font-family:monospace"></span>
+          </div>
+
           <div class="obs-url-list">
             <div class="obs-url-item">
               <span>Scoreboard</span>
