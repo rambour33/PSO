@@ -1884,6 +1884,18 @@ kbd {
 .accordion-body .custom-card { margin-bottom: 12px; }
 .accordion-body .custom-card:last-child { margin-bottom: 0; }
 
+/* ── Scene selector buttons ── */
+.scene-select-btn {
+  min-width: 72px;
+  padding: 6px 10px;
+  text-align: center;
+  line-height: 1.3;
+  flex-shrink: 0;
+}
+.scene-select-btn.btn-primary {
+  box-shadow: 0 0 0 2px var(--gold);
+}
+
 .custom-card h3 {
   font-family: 'Russo One', sans-serif;
   font-size: 12px;
@@ -2616,6 +2628,26 @@ kbd {
   font-size: 13px;
   font-weight: 500;
   color: var(--text);
+}
+
+/* Snapshot */
+.sli-snap-wrap { flex-shrink: 0; }
+.sli-snap-btn {
+  font-size: 11px;
+  padding: 3px 8px;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+.sli-snap-empty {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+}
+.sli-snap-empty:hover { border-color: var(--gold); color: var(--gold); }
+.sli-snap-saved {
+  background: rgba(74,222,128,0.1);
+  border: 1px solid var(--success);
+  color: var(--success);
 }
 
 .sli-disabled .sli-name {

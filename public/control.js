@@ -4551,15 +4551,91 @@ const LAYER_COLORS = {
   'player-stats':       '#6BC96C',
   'twitch-layout':      '#FF8C00',
   'twitch-viewer':      '#9B59D0',
+  'twitch-chat':        '#B065E8',
   'ticker':             '#FF4500',
   'frames':             '#29B6F6',
+  'cam':                '#20C9A0',
+  'stream-title':       '#A8FF78',
   'h2h':                '#FFD700',
   'tournament-history': '#FF218C',
-  'stream-title':       '#A8FF78',
 };
 
+// État complet multi-scènes (synchronisé depuis le serveur)
+let superFullState = { activeScene: 0, scenes: [] };
+// Vue locale de la scène active (utilisée par renderLayerList/renderCanvas)
 let superLocal = { bgColor: 'transparent', layers: [] };
 let studioScale = 0.5;
+
+/* ── Scène active → superLocal ─────────────────────────────── */
+function syncSceneToLocal() {
+  const scene = superFullState.scenes[superFullState.activeScene];
+  if (!scene) return;
+  superLocal.bgColor = scene.bgColor;
+  superLocal.layers  = scene.layers; // inclut snapshot si présent
+}
+
+/* ── Rendu du sélecteur de scènes ──────────────────────────── */
+function renderSceneButtons() {
+  const container = document.getElementById('studio-scene-btns');
+  if (!container) return;
+  container.innerHTML = '';
+  superFullState.scenes.forEach((scene, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'btn btn-sm scene-select-btn' + (i === superFullState.activeScene ? ' btn-primary' : ' btn-outline');
+    btn.dataset.idx = i;
+    btn.title = 'Double-clic pour renommer';
+    btn.innerHTML = `<span style="font-size:10px;color:inherit;opacity:0.6;display:block;line-height:1">${i + 1}</span><span style="font-size:11px;font-weight:600;max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block">${scene.name}</span>`;
+    btn.addEventListener('click', () => switchScene(i));
+    btn.addEventListener('dblclick', () => startRename(i));
+    container.appendChild(btn);
+  });
+}
+
+function switchScene(idx) {
+  if (idx === superFullState.activeScene) return;
+  superFullState.activeScene = idx;
+  syncSceneToLocal();
+  renderSceneButtons();
+  renderLayerList();
+  renderCanvas();
+  renderLayerControls();
+  // Sync fond
+  document.querySelectorAll('.so-bg-preset').forEach(btn => {
+    btn.classList.toggle('active-sep', btn.dataset.bg === superLocal.bgColor);
+  });
+  fetch(`/api/super/scene/${idx}`, { method: 'POST' }).catch(() => {});
+}
+
+function startRename(idx) {
+  const row   = document.getElementById('studio-scene-rename-row');
+  const input = document.getElementById('studio-scene-name-input');
+  if (!row || !input) return;
+  input.value = superFullState.scenes[idx].name;
+  input.dataset.idx = idx;
+  row.style.display = 'flex';
+  input.focus();
+  input.select();
+}
+
+document.getElementById('btn-scene-rename-ok')?.addEventListener('click', () => {
+  const input = document.getElementById('studio-scene-name-input');
+  const row   = document.getElementById('studio-scene-rename-row');
+  if (!input) return;
+  const idx  = parseInt(input.dataset.idx);
+  const name = input.value.trim() || `Scène ${idx + 1}`;
+  superFullState.scenes[idx].name = name;
+  row.style.display = 'none';
+  renderSceneButtons();
+  fetch(`/api/super/scene/${idx}/name`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name }),
+  }).catch(() => {});
+});
+document.getElementById('btn-scene-rename-cancel')?.addEventListener('click', () => {
+  const row = document.getElementById('studio-scene-rename-row');
+  if (row) row.style.display = 'none';
+});
 
 /* ── Envoi au serveur ────────────────────────────────────────── */
 let _superDebounce = null;
@@ -4589,6 +4665,12 @@ function recalcStudioScale() {
   inner.style.transform = `scale(${studioScale})`;
 }
 
+// Overlays qui supportent les snapshots
+const SNAPSHOT_SUPPORTED = new Set([
+  'overlay','cam','ticker','stream-title','frames',
+  'player-stats','tournament-history','twitch-chat'
+]);
+
 /* ── Rendu de la liste de calques ──────────────────────────── */
 function renderLayerList() {
   const list = document.getElementById('studio-layer-list');
@@ -4599,10 +4681,20 @@ function renderLayerList() {
 
   sorted.forEach(layer => {
     const color = LAYER_COLORS[layer.id] || '#888';
+    const hasSnap = !!layer.snapshot;
+    const canSnap = SNAPSHOT_SUPPORTED.has(layer.id);
     const li = document.createElement('li');
     li.className   = 'studio-layer-item' + (layer.visible ? '' : ' sli-disabled');
     li.draggable   = true;
     li.dataset.id  = layer.id;
+
+    const snapBtns = canSnap ? `
+      <button class="btn btn-sm sli-snap-btn ${hasSnap ? 'sli-snap-saved' : 'sli-snap-empty'}"
+        data-id="${layer.id}"
+        title="Shift+clic pour supprimer le snapshot">
+        ${hasSnap ? '💾 Sauvegardé' : '💾 Sauvegarder'}
+      </button>
+    ` : '';
 
     li.innerHTML = `
       <span class="sli-drag" title="Glisser pour réordonner">⠿</span>
@@ -4612,6 +4704,7 @@ function renderLayerList() {
         <span style="font-size:11px;">${layer.visible ? 'ON' : 'OFF'}</span>
       </label>
       <span class="sli-name">${layer.label}</span>
+      <span class="sli-snap-wrap">${snapBtns}</span>
     `;
 
     list.appendChild(li);
@@ -4619,6 +4712,42 @@ function renderLayerList() {
 
   bindListDrag();
   bindVisToggles();
+  bindSnapButtons();
+}
+
+function bindSnapButtons() {
+  document.querySelectorAll('.sli-snap-btn').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      const id       = btn.dataset.id;
+      const sceneIdx = superFullState.activeScene;
+      btn.disabled   = true;
+
+      try {
+        if (e.shiftKey) {
+          const r = await fetch(`/api/super/scene/${sceneIdx}/layer/${id}/snapshot`, { method: 'DELETE' });
+          if (!r.ok) throw new Error((await r.json()).error || r.statusText);
+          setStatus(`Snapshot supprimé — ${id}`);
+        } else {
+          btn.textContent = '⏳';
+          const r = await fetch(`/api/super/scene/${sceneIdx}/layer/${id}/snapshot`, { method: 'POST' });
+          if (!r.ok) throw new Error((await r.json()).error || r.statusText);
+          setStatus(`💾 Snapshot sauvegardé — ${id}`);
+        }
+      } catch (err) {
+        setStatus(`Erreur snapshot : ${err.message}`);
+      }
+      btn.disabled = false;
+    });
+  });
+}
+
+function saveLayerSnapshot(id) {
+  const sceneIdx = superFullState.activeScene;
+  fetch(`/api/super/scene/${sceneIdx}/layer/${id}/snapshot`, { method: 'POST' })
+    .then(r => r.json())
+    .then(d => { if (d.error) setStatus('Erreur : ' + d.error); else setStatus(`💾 Snapshot sauvegardé — ${id}`); })
+    .catch(e => setStatus('Erreur snapshot : ' + e.message));
 }
 
 /* ── Drag-to-reorder la liste ──────────────────────────────── */
@@ -4831,6 +4960,14 @@ function renderLayerControls() {
     const row   = document.createElement('div');
     row.className = 'studio-ctrl-card';
 
+    const hasSnap   = !!layer.snapshot;
+    const canSnap   = SNAPSHOT_SUPPORTED.has(layer.id);
+    const snapStyle = hasSnap ? 'color:var(--success);border-color:var(--success)' : '';
+    const snapLabel = hasSnap ? '💾 À jour' : '💾 Sauvegarder l\'état';
+    const snapBtn   = canSnap
+      ? `<button class="btn btn-outline btn-sm sc-snap-btn" data-id="${layer.id}" style="${snapStyle}" title="Sauvegarde les paramètres actuels de cet overlay dans cette scène">${snapLabel}</button>`
+      : '';
+
     row.innerHTML = `
       <span class="studio-ctrl-dot" style="background:${color}"></span>
       <span class="studio-ctrl-name">${layer.label}</span>
@@ -4849,6 +4986,7 @@ function renderLayerControls() {
         <span class="studio-ctrl-opacity-val" id="sc-opval-${layer.id}">${Math.round((layer.opacity ?? 1) * 100)}%</span>
       </span>
       <button class="btn btn-outline btn-sm sc-reset-pos" data-id="${layer.id}" title="Remettre à X=0 Y=0">↺ 0,0</button>
+      ${snapBtn}
     `;
     wrap.appendChild(row);
   });
@@ -4901,6 +5039,23 @@ function bindLayerControlInputs() {
       superSend();
     });
   });
+
+  document.querySelectorAll('.sc-snap-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const id = btn.dataset.id;
+      btn.disabled = true;
+      btn.textContent = '⏳';
+      try {
+        const r = await fetch(`/api/super/scene/${superFullState.activeScene}/layer/${id}/snapshot`, { method: 'POST' });
+        const d = await r.json();
+        if (d.error) throw new Error(d.error);
+        setStatus(`💾 État de "${id}" sauvegardé dans la scène`);
+      } catch (err) {
+        setStatus('Erreur : ' + err.message);
+      }
+      btn.disabled = false;
+    });
+  });
 }
 
 function updateCanvasLayerPos(layer) {
@@ -4951,21 +5106,38 @@ document.getElementById('btn-copy-super-url')?.addEventListener('click', () => {
     .catch(() => { el.select(); document.execCommand('copy'); setStatus('URL Super Overlay copiée'); });
 });
 
-/* ── Mise à jour globale depuis le serveur ──────────────────── */
-function updateStudioUI(s) {
-  superLocal = Object.assign(superLocal, s);
+/* ── Mise à jour complète depuis le serveur (superStateUpdate) ── */
+function updateStudioFullState(s) {
+  superFullState = s;
+  syncSceneToLocal();
+  renderSceneButtons();
   renderLayerList();
   renderCanvas();
   renderLayerControls();
-
-  // Sync fond
   document.querySelectorAll('.so-bg-preset').forEach(btn => {
-    btn.classList.toggle('active-sep', btn.dataset.bg === s.bgColor);
+    btn.classList.toggle('active-sep', btn.dataset.bg === superLocal.bgColor);
+  });
+}
+
+/* ── Mise à jour scène active uniquement (superUpdate) ─────── */
+function updateStudioUI(s) {
+  // s = { bgColor, layers } de la scène active
+  const scene = superFullState.scenes[superFullState.activeScene];
+  if (scene) {
+    scene.bgColor = s.bgColor;
+    scene.layers  = s.layers;
+  }
+  syncSceneToLocal();
+  renderLayerList();
+  renderCanvas();
+  renderLayerControls();
+  document.querySelectorAll('.so-bg-preset').forEach(btn => {
+    btn.classList.toggle('active-sep', btn.dataset.bg === superLocal.bgColor);
   });
 }
 
 /* ── Init ────────────────────────────────────────────────────── */
-fetch('/api/super').then(r => r.json()).then(updateStudioUI).catch(() => {});
+fetch('/api/super').then(r => r.json()).then(updateStudioFullState).catch(() => {});
 
 // Recalcul scale si le panneau est redimensionné
 if (typeof ResizeObserver !== 'undefined') {
@@ -4998,7 +5170,8 @@ if (typeof socket !== 'undefined') {
   socket.on('titleUpdate',  updateTitleUI);
   socket.on('tickerUpdate', updateTickerUI);
   socket.on('framesUpdate', updateFramesUI);
-  socket.on('superUpdate', updateStudioUI);
+  socket.on('superUpdate',      updateStudioUI);
+  socket.on('superStateUpdate', updateStudioFullState);
 }
 
 /* ═══════════════════════════════════════════════════════════════

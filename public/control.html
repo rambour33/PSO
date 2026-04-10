@@ -95,7 +95,7 @@
     <button class="tab-btn" data-tab="connexions">Connexions</button>
     <button class="tab-btn" data-tab="startgg">start.gg</button>
     <button class="tab-btn" data-tab="overlays">Overlays</button>
-    <button class="tab-btn" data-tab="studio">Studio</button>
+    <button class="tab-btn" data-tab="studio">Créateur de scènes</button>
     <button class="tab-btn" data-tab="twitch">Twitch</button>
     <button class="tab-btn" data-tab="youtube">YouTube</button>
     <button class="tab-btn" data-tab="obstools">Outils Streaming</button>
@@ -3982,9 +3982,24 @@
   <div class="tab-content" id="tab-studio">
     <section class="section">
       <div class="section-header">
-        <h2>Studio — Composition</h2>
+        <h2>Créateur de scènes</h2>
         <a href="/super-overlay" target="_blank" class="btn btn-outline btn-sm">Ouvrir le Super Overlay ↗</a>
       </div>
+
+      <!-- ── Sélecteur de scènes ── -->
+      <div class="custom-card" id="studio-scenes-card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+          <h3>Scènes</h3>
+          <span style="font-size:11px;color:var(--text-muted)">Double-clic sur le nom pour renommer</span>
+        </div>
+        <div id="studio-scene-btns" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;"></div>
+        <div id="studio-scene-rename-row" style="display:none;gap:8px;align-items:center">
+          <input type="text" id="studio-scene-name-input" maxlength="24" style="flex:1;padding:6px 10px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:13px;" />
+          <button class="btn btn-primary btn-sm" id="btn-scene-rename-ok">Renommer</button>
+          <button class="btn btn-outline btn-sm" id="btn-scene-rename-cancel">Annuler</button>
+        </div>
+      </div>
+
       <div class="custom-card" id="studio-layers-card">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
           <h3>Calques <span class="hint">glisser ⠿ pour réordonner · cocher pour activer dans le Super Overlay</span></h3>
