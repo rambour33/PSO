@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<title>A/V Sync Test</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    width: 1920px; height: 1080px;
+    overflow: hidden;
+    background: transparent;
+    font-family: 'Courier New', monospace;
+  }
+
+  #sync-wrap {
+    position: absolute;
+    left: 0; right: 0;
+    top: 50%; transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    pointer-events: none;
+  }
+
+  /* ── Ruler ── */
+  #ruler {
+    position: relative;
+    width: 1700px;
+    height: 120px;
+  }
+
+  #ruler-track {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 3px;
+    background: rgba(255,255,255,0.25);
+  }
+
+  /* graduation ticks */
+  .tick {
+    position: absolute;
+    bottom: 0;
+    width: 2px;
+    transform: translateX(-50%);
+    background: rgba(255,255,255,0.5);
+  }
+  .tick.major {
+    height: 40px;
+    background: rgba(255,255,255,0.8);
+  }
+  .tick.zero {
+    height: 80px;
+    width: 3px;
+    background: #ff4444;
+    box-shadow: 0 0 12px #ff4444, 0 0 30px rgba(255,68,68,0.4);
+  }
+  .tick-label {
+    position: absolute;
+    bottom: 46px;
+    transform: translateX(-50%);
+    font-size: 18px;
+    color: rgba(255,255,255,0.6);
+    letter-spacing: 1px;
+    white-space: nowrap;
+  }
+  .tick-label.zero-label {
+    color: #ff4444;
+    font-size: 22px;
+    font-weight: bold;
+    bottom: 86px;
+    text-shadow: 0 0 10px #ff4444;
+  }
+
+  /* ── Cursor ── */
+  #cursor {
+    position: absolute;
+    bottom: -8px;
+    width: 4px;
+    height: 110px;
+    background: #ffffff;
+    transform: translateX(-50%);
+    border-radius: 2px;
+    box-shadow: 0 0 16px rgba(255,255,255,0.9), 0 0 40px rgba(255,255,255,0.3);
+    transition: box-shadow 0.05s;
+  }
+  #cursor.flash {
+    background: #ffdd00;
+    box-shadow: 0 0 30px #ffdd00, 0 0 80px rgba(255,221,0,0.6);
+  }
+  #cursor-head {
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0; height: 0;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-top: 14px solid #ffffff;
+  }
+  #cursor.flash #cursor-head {
+    border-top-color: #ffdd00;
+  }
+
+  /* ── Info text ── */
+  #info-bar {
+    width: 1700px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-top: 18px;
+  }
+  #offset-display {
+    font-size: 28px;
+    color: #fff;
+    letter-spacing: 2px;
+    min-width: 200px;
+  }
+  #offset-display span {
+    color: #ffdd00;
+  }
+  #label-center {
+    font-size: 16px;
+    color: rgba(255,255,255,0.35);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    text-align: center;
+  }
+  #interval-display {
+    font-size: 16px;
+    color: rgba(255,255,255,0.35);
+    letter-spacing: 2px;
+    text-align: right;
+    min-width: 200px;
+  }
+
+  /* ── Flash overlay (full screen) ── */
+  #flash-bg {
+    position: fixed;
+    inset: 0;
+    background: white;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.06s;
+  }
+  #flash-bg.active {
+    opacity: 0.08;
+  }
+</style>
+</head>
+<body>
+
+<div id="flash-bg"></div>
+
+<div id="sync-wrap">
+  <div id="ruler">
+    <div id="ruler-track"></div>
+    <!-- ticks générés en JS -->
+    <div id="cursor"><div id="cursor-head"></div></div>
+  </div>
+  <div id="info-bar">
+    <div id="offset-display">OFFSET <span id="offset-val">0</span> ms</div>
+    <div id="label-center">A/V SYNC TEST · PSO</div>
+    <div id="interval-display">Intervalle : <span id="interval-val">3</span>s</div>
+  </div>
+</div>
+
+<script>
+// ── Paramètres ─────────────────────────────────────────────────────────────
+const INTERVAL_SEC   = 3;       // secondes entre chaque beep
+const RULER_WIDTH    = 1700;    // px, correspond à #ruler
+const RANGE_MS       = 400;     // ±400ms de part et d'autre du zéro
+const MAJOR_STEP_MS  = 100;     // graduation major tous les 100ms
+const MINOR_STEP_MS  = 50;      // graduation minor tous les 50ms
+const BEEP_FREQ      = 1000;    // Hz
+const BEEP_DUR       = 0.04;    // secondes
+
+document.getElementById('interval-val').textContent = INTERVAL_SEC;
+
+// ── Ruler ticks ────────────────────────────────────────────────────────────
+const ruler = document.getElementById('ruler');
+const totalRange = RANGE_MS * 2;
+
+function msToX(ms) {
+  return ((ms + RANGE_MS) / totalRange) * RULER_WIDTH;
+}
+
+for (let ms = -RANGE_MS; ms <= RANGE_MS; ms += MINOR_STEP_MS) {
+  const isMajor = ms % MAJOR_STEP_MS === 0;
+  const isZero  = ms === 0;
+
+  const tick = document.createElement('div');
+  tick.className = 'tick' + (isZero ? ' zero' : isMajor ? ' major' : '');
+  tick.style.left = msToX(ms) + 'px';
+  if (!isZero) tick.style.height = isMajor ? '40px' : '18px';
+  ruler.appendChild(tick);
+
+  if (isMajor || isZero) {
+    const lbl = document.createElement('div');
+    lbl.className = 'tick-label' + (isZero ? ' zero-label' : '');
+    lbl.style.left = msToX(ms) + 'px';
+    lbl.textContent = isZero ? '0' : (ms > 0 ? '+' : '') + ms;
+    ruler.appendChild(lbl);
+  }
+}
+
+// ── Web Audio ──────────────────────────────────────────────────────────────
+let audioCtx = null;
+function ensureAudio() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+}
+function playBeep(when) {
+  ensureAudio();
+  const osc  = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.connect(gain);
+  gain.connect(audioCtx.destination);
+  osc.type      = 'sine';
+  osc.frequency.value = BEEP_FREQ;
+  gain.gain.setValueAtTime(0.8, when);
+  gain.gain.exponentialRampToValueAtTime(0.001, when + BEEP_DUR);
+  osc.start(when);
+  osc.stop(when + BEEP_DUR + 0.01);
+}
+
+// ── Animation ─────────────────────────────────────────────────────────────
+const cursor   = document.getElementById('cursor');
+const flashBg  = document.getElementById('flash-bg');
+const offsetVal = document.getElementById('offset-val');
+
+const INTERVAL_MS = INTERVAL_SEC * 1000;
+let startTime = null;
+let lastBeepCycle = -1;
+
+// Position du curseur : va de -RANGE_MS à +RANGE_MS sur INTERVAL_MS
+// Le zéro est au milieu exact → beep déclenché quand t=0 dans le cycle
+function tick(ts) {
+  if (!startTime) startTime = ts;
+  const elapsed = ts - startTime; // ms total
+
+  // cycle actuel
+  const cycle     = Math.floor(elapsed / INTERVAL_MS);
+  // position dans le cycle : 0 → INTERVAL_MS
+  const cyclePos  = elapsed % INTERVAL_MS;
+  // normalise en -0.5 … +0.5
+  const norm      = cyclePos / INTERVAL_MS - 0.5;
+  // ms position sur la règle : -RANGE_MS … +RANGE_MS (sur la moitié du cycle)
+  // on veut que 0ms arrive pile au milieu du cycle
+  const cursorMs  = norm * RANGE_MS * 2;
+  const x         = msToX(cursorMs);
+
+  cursor.style.left = x + 'px';
+  offsetVal.textContent = Math.round(cursorMs);
+
+  // Beep planifié exactement au passage à 0 (milieu du cycle)
+  if (audioCtx && cycle !== lastBeepCycle) {
+    lastBeepCycle = cycle;
+    const msUntilZero = (INTERVAL_MS / 2) - cyclePos;
+    const beepAt = audioCtx.currentTime + Math.max(0, msUntilZero / 1000);
+    playBeep(beepAt);
+  }
+
+  // Flash visuel au zéro
+  if (Math.abs(cursorMs) < 15) {
+    cursor.classList.add('flash');
+    flashBg.classList.add('active');
+  } else {
+    cursor.classList.remove('flash');
+    flashBg.classList.remove('active');
+  }
+
+  requestAnimationFrame(tick);
+}
+
+// Démarrer sur interaction (nécessaire pour Web Audio)
+document.addEventListener('click', () => {
+  ensureAudio();
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  if (!startTime) requestAnimationFrame(tick);
+}, { once: false });
+
+// Tenter de démarrer directement (marche si la page est déjà en focus)
+requestAnimationFrame(tick);
+</script>
+</body>
+</html>

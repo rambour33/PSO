@@ -95,13 +95,10 @@
     <button class="tab-btn" data-tab="connexions">Connexions</button>
     <button class="tab-btn" data-tab="startgg">start.gg</button>
     <button class="tab-btn" data-tab="twitch">Layouts Twitch</button>
-    <button class="tab-btn" data-tab="titre">Titre</button>
-    <button class="tab-btn" data-tab="ticker">Bandeau</button>
-    <button class="tab-btn" data-tab="frames">Cadres</button>
-    <button class="tab-btn" data-tab="cam">Cam</button>
+    <button class="tab-btn" data-tab="overlays">Overlays</button>
     <button class="tab-btn" data-tab="studio">Studio</button>
     <button class="tab-btn" data-tab="youtube">YouTube</button>
-    <button class="tab-btn" data-tab="obstools">OBS Tools</button>
+    <button class="tab-btn" data-tab="obstools">Outils Streaming</button>
   </nav>
 
   <!-- ═══════════════════════════════════════════════════════════ -->
@@ -3267,197 +3264,123 @@
   </div><!-- /tab-twitch -->
 
   <!-- ═══════════════════════════════════════════════════════════ -->
-  <!-- TAB : CAM                                                   -->
+  <!-- TAB : OVERLAYS (Cam + Cadres + Titre + Bandeau)              -->
   <!-- ═══════════════════════════════════════════════════════════ -->
-  <div class="tab-content" id="tab-cam">
+  <div class="tab-content" id="tab-overlays">
     <section class="section">
-      <div class="section-header">
-        <h2>Cam Overlay</h2>
-        <a href="/cam" target="_blank" class="btn btn-outline btn-sm">Ouvrir l'overlay ↗</a>
-      </div>
+      <div class="section-header"><h2>Overlays</h2></div>
 
-      <!-- Visibilité -->
-      <div class="custom-card">
-        <div style="display:flex;align-items:center;justify-content:space-between">
-          <h3>Afficher la cam</h3>
-          <label class="toggle-switch">
-            <input type="checkbox" id="cam-visible" />
-            <span class="toggle-slider"></span>
-          </label>
-        </div>
-      </div>
-
-      <!-- Taille -->
-      <div class="custom-card">
-        <h3>Taille</h3>
-        <div class="form-group" style="margin-bottom:12px">
-          <label>Largeur <span class="hint">px</span></label>
-          <div class="logo-particles-row">
-            <input type="range"  id="cam-width-range"  min="80" max="960" value="360" step="4" />
-            <input type="number" id="cam-width-num"    min="80" max="960" value="360" style="width:70px" />
-          </div>
-        </div>
-        <div class="form-group">
-          <label>Hauteur <span class="hint">px</span></label>
-          <div class="logo-particles-row">
-            <input type="range"  id="cam-height-range"  min="60" max="720" value="270" step="4" />
-            <input type="number" id="cam-height-num"    min="60" max="720" value="270" style="width:70px" />
-          </div>
-        </div>
-        <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
-          <button class="btn btn-outline btn-sm cam-preset-size" data-w="320" data-h="240">320×240</button>
-          <button class="btn btn-outline btn-sm cam-preset-size" data-w="360" data-h="270">360×270</button>
-          <button class="btn btn-outline btn-sm cam-preset-size" data-w="480" data-h="270">480×270 (16:9)</button>
-          <button class="btn btn-outline btn-sm cam-preset-size" data-w="640" data-h="360">640×360 (16:9)</button>
-        </div>
-      </div>
-
-      <!-- Position -->
-      <div class="custom-card">
-        <h3>Position</h3>
-        <div class="form-group" style="margin-bottom:12px">
-          <label>Décalage X <span class="hint">gauche / droite depuis le centre</span></label>
-          <div class="logo-particles-row">
-            <input type="range"  id="cam-x-range"  min="-960" max="960" value="0" step="4" />
-            <input type="number" id="cam-x-num"    min="-960" max="960" value="0" style="width:70px" />
-          </div>
-        </div>
-        <div class="form-group">
-          <label>Distance du bas <span class="hint">px</span></label>
-          <div class="logo-particles-row">
-            <input type="range"  id="cam-y-range"  min="0" max="600" value="40" step="4" />
-            <input type="number" id="cam-y-num"    min="0" max="600" value="40" style="width:70px" />
-          </div>
-        </div>
-        <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
-          <button class="btn btn-outline btn-sm" id="cam-pos-center">⬛ Centre bas</button>
-          <button class="btn btn-outline btn-sm" id="cam-pos-left">⬛ Gauche bas</button>
-          <button class="btn btn-outline btn-sm" id="cam-pos-right">⬛ Droite bas</button>
-        </div>
-      </div>
-
-      <!-- Label -->
-      <div class="custom-card">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-          <h3>Label</h3>
-          <label class="toggle-switch">
-            <input type="checkbox" id="cam-show-label" checked />
-            <span class="toggle-slider"></span>
-          </label>
-        </div>
-        <input type="text" id="cam-label-text" value="CAM" maxlength="30"
-          style="width:100%;padding:8px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:14px" />
-      </div>
-
-      <!-- Aperçu -->
-      <div class="custom-card" style="padding:0;overflow:hidden;border-radius:8px;">
-        <div style="background:#111;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;">
-          <span style="font-size:12px;font-weight:600;color:var(--text-muted);letter-spacing:1px;text-transform:uppercase;">Aperçu</span>
-          <span style="font-size:11px;color:var(--text-muted)">1920 × 1080</span>
-        </div>
-        <div style="position:relative;width:100%;padding-bottom:56.25%;background:#0a0a0f;overflow:hidden;">
-          <iframe src="/cam" id="cam-preview"
-            style="position:absolute;top:0;left:0;width:100%;height:100%;border:none;pointer-events:none;"
-            scrolling="no"></iframe>
-        </div>
-      </div>
-
-    </section>
-  </div>
-
-  <!-- ═══════════════════════════════════════════════════════════ -->
-  <!-- TAB : STUDIO                                                -->
-  <!-- ═══════════════════════════════════════════════════════════ -->
-  <div class="tab-content" id="tab-studio">
-    <section class="section">
-
-      <div class="section-header">
-        <h2>Studio — Composition</h2>
-        <a href="/super-overlay" target="_blank" class="btn btn-outline btn-sm">Ouvrir le Super Overlay ↗</a>
-      </div>
-
-      <!-- ── Calques ── -->
-      <div class="custom-card" id="studio-layers-card">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
-          <h3>Calques <span class="hint">glisser ⠿ pour réordonner · cocher pour activer dans le Super Overlay</span></h3>
-          <button class="btn btn-outline btn-sm" id="btn-super-none">Tout masquer</button>
-        </div>
-        <ul id="studio-layer-list" class="studio-layer-list">
-          <!-- Généré par JS -->
-        </ul>
-      </div>
-
-      <!-- ── Canvas (aperçu empilé) ── -->
-      <div class="custom-card" style="padding:0;overflow:hidden;border-radius:8px;">
-        <div style="background:#111;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;">
-          <span style="font-size:12px;font-weight:600;color:var(--text-muted);letter-spacing:1px;text-transform:uppercase;">
-            Canvas 1920×1080 — glisser les badges colorés pour décaler
-          </span>
-          <button class="btn btn-outline btn-sm" id="btn-reset-all-pos" style="font-size:11px;">↺ Réinitialiser positions</button>
-        </div>
-
-        <!-- Zone canvas -->
-        <div id="studio-canvas-container" style="background:#0a0a0f;position:relative;">
-          <!-- La taille est gérée par JS (scale dynamique) -->
-          <div id="studio-canvas-wrap" style="position:relative;overflow:hidden;">
-            <!-- Iframes (1920x1080, transform scale) -->
-            <div id="studio-canvas-inner" style="position:relative;width:1920px;height:1080px;transform-origin:top left;">
-              <!-- Généré par JS -->
+      <!-- ── Cam ── -->
+      <div class="accordion-tile" id="accordion-cam">
+        <div class="accordion-header">
+          <div class="accordion-title">
+            <span class="accordion-emoji">📷</span>
+            <div>
+              <h3>Cam Overlay</h3>
+              <div class="accordion-meta">Cadre caméra bas-centre</div>
             </div>
-            <!-- Grille de repères -->
-            <div id="studio-grid" style="position:absolute;inset:0;pointer-events:none;z-index:50;"></div>
-            <!-- Handles de déplacement (en coordonnées écran) -->
-            <div id="studio-drag-layer" style="position:absolute;inset:0;z-index:100;pointer-events:none;"></div>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <a href="/cam" target="_blank" class="btn btn-outline btn-sm" onclick="event.stopPropagation()">Ouvrir ↗</a>
+            <span class="accordion-chevron">▼</span>
+          </div>
+        </div>
+        <div class="accordion-body">
+          <div class="custom-card">
+            <div style="display:flex;align-items:center;justify-content:space-between">
+              <h3>Afficher la cam</h3>
+              <label class="toggle-switch">
+                <input type="checkbox" id="cam-visible" />
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+          </div>
+          <div class="custom-card">
+            <h3>Taille</h3>
+            <div class="form-group" style="margin-bottom:12px">
+              <label>Largeur <span class="hint">px</span></label>
+              <div class="logo-particles-row">
+                <input type="range"  id="cam-width-range"  min="80" max="960" value="360" step="4" />
+                <input type="number" id="cam-width-num"    min="80" max="960" value="360" style="width:70px" />
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Hauteur <span class="hint">px</span></label>
+              <div class="logo-particles-row">
+                <input type="range"  id="cam-height-range"  min="60" max="720" value="270" step="4" />
+                <input type="number" id="cam-height-num"    min="60" max="720" value="270" style="width:70px" />
+              </div>
+            </div>
+            <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+              <button class="btn btn-outline btn-sm cam-preset-size" data-w="320" data-h="240">320×240</button>
+              <button class="btn btn-outline btn-sm cam-preset-size" data-w="360" data-h="270">360×270</button>
+              <button class="btn btn-outline btn-sm cam-preset-size" data-w="480" data-h="270">480×270 (16:9)</button>
+              <button class="btn btn-outline btn-sm cam-preset-size" data-w="640" data-h="360">640×360 (16:9)</button>
+            </div>
+          </div>
+          <div class="custom-card">
+            <h3>Position</h3>
+            <div class="form-group" style="margin-bottom:12px">
+              <label>Décalage X <span class="hint">gauche / droite depuis le centre</span></label>
+              <div class="logo-particles-row">
+                <input type="range"  id="cam-x-range"  min="-960" max="960" value="0" step="4" />
+                <input type="number" id="cam-x-num"    min="-960" max="960" value="0" style="width:70px" />
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Distance du bas <span class="hint">px</span></label>
+              <div class="logo-particles-row">
+                <input type="range"  id="cam-y-range"  min="0" max="600" value="40" step="4" />
+                <input type="number" id="cam-y-num"    min="0" max="600" value="40" style="width:70px" />
+              </div>
+            </div>
+            <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+              <button class="btn btn-outline btn-sm" id="cam-pos-center">⬛ Centre bas</button>
+              <button class="btn btn-outline btn-sm" id="cam-pos-left">⬛ Gauche bas</button>
+              <button class="btn btn-outline btn-sm" id="cam-pos-right">⬛ Droite bas</button>
+            </div>
+          </div>
+          <div class="custom-card">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+              <h3>Label</h3>
+              <label class="toggle-switch">
+                <input type="checkbox" id="cam-show-label" checked />
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+            <input type="text" id="cam-label-text" value="CAM" maxlength="30"
+              style="width:100%;padding:8px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:14px" />
+          </div>
+          <div class="custom-card" style="padding:0;overflow:hidden;border-radius:8px;">
+            <div style="background:#111;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;">
+              <span style="font-size:12px;font-weight:600;color:var(--text-muted);letter-spacing:1px;text-transform:uppercase;">Aperçu</span>
+              <span style="font-size:11px;color:var(--text-muted)">1920 × 1080</span>
+            </div>
+            <div style="position:relative;width:100%;padding-bottom:56.25%;background:#0a0a0f;overflow:hidden;">
+              <iframe src="/cam" id="cam-preview"
+                style="position:absolute;top:0;left:0;width:100%;height:100%;border:none;pointer-events:none;"
+                scrolling="no"></iframe>
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- ── Options par calque visible ── -->
-      <div id="studio-layer-controls">
-        <!-- Généré par JS : apparaît quand au moins 1 calque est visible -->
-      </div>
-
-      <!-- ── Fond du Super Overlay ── -->
-      <div class="custom-card">
-        <h3>Fond du Super Overlay</h3>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
-          <button class="btn btn-outline btn-sm so-bg-preset active-sep" data-bg="transparent">Transparent</button>
-          <button class="btn btn-outline btn-sm so-bg-preset" data-bg="#000000">Noir</button>
-          <button class="btn btn-outline btn-sm so-bg-preset" data-bg="#111118">Presque noir</button>
-          <button class="btn btn-outline btn-sm so-bg-preset" data-bg="#1a1a2e">Bleu nuit</button>
-          <div style="display:flex;align-items:center;gap:6px;">
-            <label style="font-size:12px;color:var(--text-muted);">Perso :</label>
-            <input type="color" id="so-bg-color-picker" value="#000000" style="width:32px;height:28px;cursor:pointer;border:none;background:none;" />
+      <!-- ── Cadres ── -->
+      <div class="accordion-tile" id="accordion-frames">
+        <div class="accordion-header">
+          <div class="accordion-title">
+            <span class="accordion-emoji">🖼️</span>
+            <div>
+              <h3>Cadres</h3>
+              <div class="accordion-meta">Jusqu'à 6 cadres multi-sources</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <a href="/frames" target="_blank" class="btn btn-outline btn-sm" onclick="event.stopPropagation()">Ouvrir ↗</a>
+            <span class="accordion-chevron">▼</span>
           </div>
         </div>
-      </div>
-
-      <!-- ── URL OBS ── -->
-      <div class="custom-card">
-        <h3>Source OBS – Super Overlay</h3>
-        <p style="font-size:13px;color:var(--text-muted);margin-bottom:10px;line-height:1.6;">
-          Une seule <strong>Source Navigateur 1920 × 1080</strong> qui regroupe tous vos calques actifs.
-        </p>
-        <div class="name-row" style="gap:8px;">
-          <input type="text" id="super-url" readonly
-            style="flex:1;font-size:12px;background:var(--surface2);border:1px solid var(--border);color:var(--text-muted);"
-            value="http://localhost:3002/super-overlay" />
-          <button class="btn btn-primary btn-sm" id="btn-copy-super-url">Copier</button>
-        </div>
-      </div>
-
-    </section>
-  </div><!-- /tab-studio -->
-
-  <!-- ═══════════════════════════════════════════════════════════ -->
-  <!-- TAB : CADRES (FRAMES)                                       -->
-  <!-- ═══════════════════════════════════════════════════════════ -->
-  <div class="tab-content" id="tab-frames">
-    <section class="section">
-      <div class="section-header">
-        <h2>Cadres</h2>
-        <a href="/frames" target="_blank" class="btn btn-outline btn-sm">Ouvrir l'overlay ↗</a>
-      </div>
+        <div class="accordion-body">
 
       <!-- Nombre de cadres -->
       <div class="custom-card">
@@ -3763,19 +3686,25 @@
         </div>
       </div>
 
-    </section>
-  </div><!-- /tab-frames -->
+        </div><!-- /accordion-body-frames -->
+      </div><!-- /accordion-frames -->
 
-  <!-- ═══════════════════════════════════════════════════════════ -->
-  <!-- TAB : TITRE DU STREAM                                       -->
-  <!-- ═══════════════════════════════════════════════════════════ -->
-  <div class="tab-content" id="tab-titre">
-    <section class="section">
-
-      <div class="section-header">
-        <h2>Titre du stream</h2>
-        <a href="/stream-title" target="_blank" class="btn btn-outline btn-sm">Ouvrir l'overlay ↗</a>
-      </div>
+      <!-- ── Titre ── -->
+      <div class="accordion-tile" id="accordion-titre">
+        <div class="accordion-header">
+          <div class="accordion-title">
+            <span class="accordion-emoji">📝</span>
+            <div>
+              <h3>Titre du stream</h3>
+              <div class="accordion-meta">Bandeau titre animé</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <a href="/stream-title" target="_blank" class="btn btn-outline btn-sm" onclick="event.stopPropagation()">Ouvrir ↗</a>
+            <span class="accordion-chevron">▼</span>
+          </div>
+        </div>
+        <div class="accordion-body">
 
       <!-- Activation -->
       <div class="custom-card">
@@ -3939,18 +3868,25 @@
         </div>
       </div>
 
-    </section>
-  </div><!-- /tab-titre -->
+        </div><!-- /accordion-body-titre -->
+      </div><!-- /accordion-titre -->
 
-  <!-- ═══════════════════════════════════════════════════════════ -->
-  <!-- TAB : BANDEAU / TICKER                                      -->
-  <!-- ═══════════════════════════════════════════════════════════ -->
-  <div class="tab-content" id="tab-ticker">
-    <section class="section">
-      <div class="section-header">
-        <h2>Bandeau défilant</h2>
-        <a href="/ticker" target="_blank" class="btn btn-outline btn-sm">Ouvrir l'overlay ↗</a>
-      </div>
+      <!-- ── Bandeau ── -->
+      <div class="accordion-tile" id="accordion-ticker">
+        <div class="accordion-header">
+          <div class="accordion-title">
+            <span class="accordion-emoji">📰</span>
+            <div>
+              <h3>Bandeau défilant</h3>
+              <div class="accordion-meta">Ticker de messages en bas d'écran</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <a href="/ticker" target="_blank" class="btn btn-outline btn-sm" onclick="event.stopPropagation()">Ouvrir ↗</a>
+            <span class="accordion-chevron">▼</span>
+          </div>
+        </div>
+        <div class="accordion-body">
 
       <!-- Activation + position -->
       <div class="custom-card">
@@ -4034,8 +3970,65 @@
         </div>
       </div>
 
+        </div><!-- /accordion-body-ticker -->
+      </div><!-- /accordion-ticker -->
+
     </section>
-  </div><!-- /tab-ticker -->
+  </div><!-- /tab-overlays -->
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- TAB : STUDIO                                                -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <div class="tab-content" id="tab-studio">
+    <section class="section">
+      <div class="section-header">
+        <h2>Studio — Composition</h2>
+        <a href="/super-overlay" target="_blank" class="btn btn-outline btn-sm">Ouvrir le Super Overlay ↗</a>
+      </div>
+      <div class="custom-card" id="studio-layers-card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+          <h3>Calques <span class="hint">glisser ⠿ pour réordonner · cocher pour activer dans le Super Overlay</span></h3>
+          <button class="btn btn-outline btn-sm" id="btn-super-none">Tout masquer</button>
+        </div>
+        <ul id="studio-layer-list" class="studio-layer-list"><!-- Généré par JS --></ul>
+      </div>
+      <div class="custom-card" style="padding:0;overflow:hidden;border-radius:8px;">
+        <div style="background:#111;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;">
+          <span style="font-size:12px;font-weight:600;color:var(--text-muted);letter-spacing:1px;text-transform:uppercase;">Canvas 1920×1080 — glisser les badges colorés pour décaler</span>
+          <button class="btn btn-outline btn-sm" id="btn-reset-all-pos" style="font-size:11px;">↺ Réinitialiser positions</button>
+        </div>
+        <div id="studio-canvas-container" style="background:#0a0a0f;position:relative;">
+          <div id="studio-canvas-wrap" style="position:relative;overflow:hidden;">
+            <div id="studio-canvas-inner" style="position:relative;width:1920px;height:1080px;transform-origin:top left;"><!-- Généré par JS --></div>
+            <div id="studio-grid" style="position:absolute;inset:0;pointer-events:none;z-index:50;"></div>
+            <div id="studio-drag-layer" style="position:absolute;inset:0;z-index:100;pointer-events:none;"></div>
+          </div>
+        </div>
+      </div>
+      <div id="studio-layer-controls"><!-- Généré par JS --></div>
+      <div class="custom-card">
+        <h3>Fond du Super Overlay</h3>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+          <button class="btn btn-outline btn-sm so-bg-preset active-sep" data-bg="transparent">Transparent</button>
+          <button class="btn btn-outline btn-sm so-bg-preset" data-bg="#000000">Noir</button>
+          <button class="btn btn-outline btn-sm so-bg-preset" data-bg="#111118">Presque noir</button>
+          <button class="btn btn-outline btn-sm so-bg-preset" data-bg="#1a1a2e">Bleu nuit</button>
+          <div style="display:flex;align-items:center;gap:6px;">
+            <label style="font-size:12px;color:var(--text-muted);">Perso :</label>
+            <input type="color" id="so-bg-color-picker" value="#000000" style="width:32px;height:28px;cursor:pointer;border:none;background:none;" />
+          </div>
+        </div>
+      </div>
+      <div class="custom-card">
+        <h3>Source OBS – Super Overlay</h3>
+        <p style="font-size:13px;color:var(--text-muted);margin-bottom:10px;line-height:1.6;">Une seule <strong>Source Navigateur 1920 × 1080</strong> qui regroupe tous vos calques actifs.</p>
+        <div class="name-row" style="gap:8px;">
+          <input type="text" id="super-url" readonly style="flex:1;font-size:12px;background:var(--surface2);border:1px solid var(--border);color:var(--text-muted);" value="http://localhost:3002/super-overlay" />
+          <button class="btn btn-primary btn-sm" id="btn-copy-super-url">Copier</button>
+        </div>
+      </div>
+    </section>
+  </div><!-- /tab-studio -->
 
   <!-- ═══════════════════════════════════════════════════════════ -->
   <!-- TAB : YOUTUBE                                               -->
@@ -4168,11 +4161,37 @@
 
     <section class="section">
       <div class="section-header">
-        <h2>OBS Tools</h2>
+        <h2>Outils Streaming</h2>
         <a href="/timer" target="_blank" class="btn btn-outline btn-sm">Timer Overlay ↗</a>
       </div>
 
       <div class="custom-card-grid">
+
+        <!-- ── A/V Sync ── -->
+        <div class="custom-card" style="grid-column: span 2; border-color: var(--blue); background: linear-gradient(135deg, var(--surface) 0%, rgba(58,127,232,0.06) 100%)">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+            <div>
+              <h3 style="color:var(--blue);margin-bottom:4px">Test de délai audio/vidéo</h3>
+              <p style="font-size:12px;color:var(--text-muted);max-width:520px">Un curseur sweep déclenche un bip pile au passage à 0. Regarde où se trouve le curseur quand tu entends le son — l'écart indique ton délai A/V.</p>
+            </div>
+            <a href="/avsync" target="_blank" class="btn btn-primary" style="white-space:nowrap;flex-shrink:0">Ouvrir l'overlay ↗</a>
+          </div>
+          <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap">
+            <div style="display:flex;flex-direction:column;align-items:center;gap:4px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px 20px">
+              <span style="font-size:11px;color:var(--text-muted);letter-spacing:2px;text-transform:uppercase">Son en avance</span>
+              <span style="font-size:20px;color:var(--text)">◀ curseur à gauche du 0</span>
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:4px;background:rgba(255,68,68,0.1);border:1px solid rgba(255,68,68,0.3);border-radius:8px;padding:12px 20px;min-width:80px">
+              <span style="font-size:11px;color:rgba(255,68,68,0.7);letter-spacing:2px;text-transform:uppercase">Parfait</span>
+              <span style="font-size:26px;font-weight:bold;color:#ff4444;font-family:'Russo One',sans-serif">0 ms</span>
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:4px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px 20px">
+              <span style="font-size:11px;color:var(--text-muted);letter-spacing:2px;text-transform:uppercase">Son en retard</span>
+              <span style="font-size:20px;color:var(--text)">curseur à droite du 0 ▶</span>
+            </div>
+          </div>
+          <p style="font-size:11px;color:var(--text-muted);margin-top:10px">Dans OBS : Filtres sur la source audio → <strong style="color:var(--text)">Compensation de sync</strong> → entre la valeur observée (en ms).</p>
+        </div>
 
         <!-- ── Timer ── -->
         <div class="custom-card" style="grid-column: span 2">
