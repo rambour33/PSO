@@ -318,10 +318,10 @@ body {
 }
 
 .win-dot {
-  width: 12px;
-  height: 12px;
+  width: 24px;
+  height: 7px;
   background: var(--smash-border);
-  border-radius: 50%;
+  border-radius: 3px;
   border: 1px solid var(--smash-muted);
   transition: all 0.3s;
 }
@@ -427,8 +427,45 @@ body {
 
 /* ── Toggle layouts ───────────────────────────────────────────── */
 
-.scoreboard:not(.style-slim) .slim-layout { display: none; }
-.scoreboard.style-slim .full-layout       { display: none; }
+/* slim-layout visible pour style-slim ET style-compact-rounded */
+.scoreboard:not(.style-slim):not(.style-compact-rounded) .slim-layout { display: none; }
+/* full-layout masquée pour slim et compact-rounded */
+.scoreboard.style-slim .full-layout            { display: none; }
+.scoreboard.style-compact-rounded .full-layout { display: none; }
+
+/* ═══ Affichage du score (full & full-rounded uniquement) ═══════ */
+
+/* Mode chiffres — masque les points */
+.scoreboard.score-display-numbers:not(.style-slim):not(.style-compact-rounded) .series-dots {
+  display: none;
+}
+
+/* Mode points — masque les chiffres, agrandit les cercles */
+.scoreboard.score-display-dots:not(.style-slim):not(.style-compact-rounded) .score {
+  display: none !important;
+}
+
+/* Mode points sur full (pas full-rounded qui a son propre style) */
+.scoreboard.score-display-dots:not(.style-full-rounded):not(.style-slim):not(.style-compact-rounded) .win-dot {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid var(--smash-muted);
+}
+
+.scoreboard.score-display-dots:not(.style-full-rounded):not(.style-slim):not(.style-compact-rounded) .win-dot.filled {
+  background: var(--dot-color, var(--smash-gold));
+  border-color: var(--dot-color, var(--smash-gold));
+  box-shadow:
+    0 0 10px var(--dot-color, var(--smash-gold)),
+    0 0 24px var(--dot-color, var(--smash-gold)),
+    0 0 4px rgba(255,255,255,0.5);
+}
+
+.scoreboard.score-display-dots:not(.style-full-rounded):not(.style-slim):not(.style-compact-rounded) .series-dots {
+  gap: 10px;
+  padding: 6px 12px 14px;
+}
 
 /* ── Slim layout ─────────────────────────────────────────────── */
 
@@ -2943,4 +2980,252 @@ body {
 
 #scoreboard.theme-transparent .slim-vs {
   text-shadow: 0 2px 8px rgba(0,0,0,0.9);
+}
+
+
+/* ═══════════════════════════════════════════════════════════════ */
+/* STYLE : FULL ARRONDI                                            */
+/* ═══════════════════════════════════════════════════════════════ */
+
+.scoreboard.style-full-rounded .slim-layout { display: none; }
+
+.scoreboard.style-full-rounded {
+  gap: 0;
+  border-radius: 18px;
+  overflow: hidden;
+  filter: drop-shadow(0 8px 48px rgba(0,0,0,0.95));
+}
+
+/* ── Event bar : arrondie en haut, sans clip-path ─────────────── */
+.scoreboard.style-full-rounded .event-bar {
+  clip-path: none;
+  border-radius: 18px 18px 0 0;
+  border-bottom: 1px solid rgba(232,184,48,0.4);
+  padding: 7px 28px;
+  width: 100%;
+}
+
+/* ── Players container : arrondie en bas ──────────────────────── */
+.scoreboard.style-full-rounded .players-container {
+  border: none;
+  border-top: 1px solid var(--smash-border);
+  border-radius: 0 0 18px 18px;
+  overflow: hidden;
+}
+
+/* ── Blocs joueurs ────────────────────────────────────────────── */
+.scoreboard.style-full-rounded .player {
+  min-width: 270px;
+}
+
+.scoreboard.style-full-rounded .player-left {
+  border-bottom: none;
+  box-shadow: inset 5px 0 0 var(--p1-color, var(--smash-red));
+}
+
+.scoreboard.style-full-rounded .player-right {
+  border-bottom: none;
+  box-shadow: inset -5px 0 0 var(--p2-color, var(--smash-blue));
+}
+
+/* ── Portrait circulaire ──────────────────────────────────────── */
+.scoreboard.style-full-rounded .player-character {
+  border-radius: 50%;
+  width: 78px;
+  height: 78px;
+  margin: 10px 12px;
+  border: 3px solid var(--smash-border);
+  animation: none; /* retire le charGlow carré */
+}
+
+.scoreboard.style-full-rounded .player-left .player-character {
+  border-color: var(--p1-color, var(--smash-red));
+  box-shadow:
+    0 0 12px rgba(var(--p1-color, #E83030), 0.4),
+    inset 0 0 8px rgba(0,0,0,0.4);
+  animation: charGlowRound 2.8s ease-in-out infinite;
+}
+
+.scoreboard.style-full-rounded .player-right .player-character {
+  border-color: var(--p2-color, var(--smash-blue));
+  box-shadow:
+    0 0 12px rgba(var(--p2-color, #3070E8), 0.4),
+    inset 0 0 8px rgba(0,0,0,0.4);
+  animation: charGlowRound 2.8s ease-in-out infinite;
+}
+
+@keyframes charGlowRound {
+  0%, 100% { box-shadow: 0 0  8px rgba(255,255,255,0.1), inset 0 0 6px rgba(0,0,0,0.4); }
+  50%       { box-shadow: 0 0 18px rgba(255,255,255,0.22), inset 0 0 10px rgba(0,0,0,0.3); }
+}
+
+.scoreboard.style-full-rounded .player-character img {
+  object-fit: cover;
+  object-position: top center;
+  width: 100%;
+  height: 100%;
+}
+
+/* ── Score center ─────────────────────────────────────────────── */
+.scoreboard.style-full-rounded .score-center {
+  border: none;
+  background: rgba(0,0,0,0.25);
+  padding: 4px 0;
+}
+
+.scoreboard.style-full-rounded .score-center::after {
+  display: none;
+}
+
+.scoreboard.style-full-rounded .score-box {
+  background: rgba(0,0,0,0.45);
+  border: 1px solid var(--smash-border);
+  border-radius: 14px;
+  padding: 7px 18px;
+  margin: 6px 10px 2px;
+  gap: 10px;
+}
+
+/* ── Scores : masqués en mode points (défaut full-rounded) ──── */
+.scoreboard.style-full-rounded:not(.score-display-numbers) .score {
+  display: none;
+}
+
+.scoreboard.style-full-rounded:not(.score-display-numbers) .score-box {
+  padding: 6px 12px;
+  gap: 8px;
+}
+
+/* ── Series dots : cercles larges remplis (full-rounded) ─────── */
+.scoreboard.style-full-rounded .win-dot {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid var(--smash-muted);
+}
+
+.scoreboard.style-full-rounded .win-dot.filled {
+  background: var(--dot-color, var(--smash-gold));
+  border-color: var(--dot-color, var(--smash-gold));
+  box-shadow:
+    0 0 10px var(--dot-color, var(--smash-gold)),
+    0 0 24px var(--dot-color, var(--smash-gold)),
+    0 0 4px rgba(255,255,255,0.6);
+}
+
+.scoreboard.style-full-rounded .series-dots {
+  padding: 6px 12px 12px;
+  gap: 10px;
+}
+
+/* Dots J1 : couleur du joueur 1 */
+.scoreboard.style-full-rounded .dots-left .win-dot.filled {
+  --dot-color: var(--p1-color, var(--smash-red));
+}
+
+/* Dots J2 : couleur du joueur 2 */
+.scoreboard.style-full-rounded .dots-right .win-dot.filled {
+  --dot-color: var(--p2-color, var(--smash-blue));
+}
+
+/* ── En mode chiffres : masque les points sous full-rounded ──── */
+.scoreboard.style-full-rounded.score-display-numbers .series-dots {
+  display: none;
+}
+
+
+/* ═══════════════════════════════════════════════════════════════ */
+/* STYLE : COMPACT ARRONDI                                         */
+/* ═══════════════════════════════════════════════════════════════ */
+
+/* Event bar compact-rounded : petite pilule arrondie au-dessus de la barre */
+.scoreboard.style-compact-rounded .event-bar {
+  clip-path: none;
+  border-radius: 100px;
+  border: 1.5px solid rgba(232,184,48,0.35);
+  border-bottom: 1.5px solid rgba(232,184,48,0.35);
+  padding: 4px 22px;
+  font-size: 10px;
+  letter-spacing: 2px;
+  align-self: center;
+  margin-bottom: 4px;
+}
+
+.scoreboard.style-compact-rounded {
+  filter: drop-shadow(0 4px 24px rgba(0,0,0,0.95));
+  overflow: visible; /* laisse le drop-shadow passer */
+}
+
+/* ── Barre pill ───────────────────────────────────────────────── */
+.scoreboard.style-compact-rounded .slim-bar {
+  border-radius: 100px;
+  min-height: 52px;
+  border: 1.5px solid var(--smash-border);
+  overflow: hidden;
+}
+
+/* Pas de streaks diagonaux */
+.scoreboard.style-compact-rounded .slim-bar::before {
+  display: none;
+}
+
+/* ── Joueurs ──────────────────────────────────────────────────── */
+.scoreboard.style-compact-rounded .slim-player {
+  padding: 0 22px;
+  gap: 10px;
+}
+
+/* Accent latéral au lieu du bas */
+.scoreboard.style-compact-rounded .slim-left {
+  border-bottom: none;
+  box-shadow: inset 5px 0 0 var(--p1-color, var(--smash-red));
+}
+
+.scoreboard.style-compact-rounded .slim-right {
+  border-bottom: none;
+  box-shadow: inset -5px 0 0 var(--p2-color, var(--smash-blue));
+}
+
+.scoreboard.style-compact-rounded .slim-name {
+  font-size: 17px;
+  letter-spacing: 1.5px;
+}
+
+/* ── Scores centre ────────────────────────────────────────────── */
+.scoreboard.style-compact-rounded .slim-scores {
+  background: rgba(0,0,0,0.35);
+  border-left: 1px solid var(--smash-border);
+  border-right: 1px solid var(--smash-border);
+  border-bottom: none;
+  padding: 0 22px;
+  gap: 12px;
+}
+
+/* Retire les coins dorés */
+.scoreboard.style-compact-rounded .slim-scores::before,
+.scoreboard.style-compact-rounded .slim-scores::after {
+  display: none;
+}
+
+.scoreboard.style-compact-rounded .slim-score {
+  font-size: 28px;
+  min-width: 26px;
+}
+
+.scoreboard.style-compact-rounded .slim-vs {
+  font-size: 10px;
+  letter-spacing: 1px;
+}
+
+.scoreboard.style-compact-rounded .slim-center-logo {
+  width: 28px;
+  height: 28px;
+}
+
+/* Stock icons : circulaires */
+.scoreboard.style-compact-rounded .slim-stock-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255,255,255,0.15);
 }

@@ -1963,26 +1963,62 @@ kbd {
   gap: 8px;
 }
 
+/* ── Grille multi-colonnes thématiques ───────────────────────── */
+
+.obs-url-cols {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.obs-url-col {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.obs-url-col-header {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--smash-gold, #E8B830);
+  padding: 4px 2px 6px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 2px;
+}
+
+.obs-url-col-header--twitch {
+  color: #C9AAFF;
+  border-bottom-color: rgba(145, 71, 255, 0.3);
+}
+
+.obs-url-col-header--yt {
+  color: #FF8A8A;
+  border-bottom-color: rgba(255, 0, 0, 0.25);
+}
+
 .obs-url-item {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   background: var(--surface2);
   border: 1px solid var(--border);
   border-radius: 4px;
-  padding: 7px 10px;
+  padding: 6px 8px;
 }
 
 .obs-url-item span {
   font-size: 11px;
   color: var(--text-muted);
-  min-width: 110px;
+  min-width: 80px;
   flex-shrink: 0;
 }
 
 .obs-url-item code {
   flex: 1;
-  font-size: 11px;
+  font-size: 10px;
   color: var(--text);
   white-space: nowrap;
   overflow: hidden;

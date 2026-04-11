@@ -130,6 +130,11 @@ function syncFromState(s) {
     b.classList.toggle('active', b.dataset.style === (s.overlayStyle || 'full'));
   });
 
+  // Score display buttons
+  document.querySelectorAll('.score-display-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.display === (s.scoreDisplay || 'numbers'));
+  });
+
   // Event bar position buttons
   document.querySelectorAll('.event-bar-pos-btn').forEach(b => {
     b.classList.toggle('active', b.dataset.pos === (s.eventBarPosition || 'top'));
@@ -253,6 +258,7 @@ function buildStateFromForm() {
     centerLogo: document.getElementById('center-logo').value.trim(),
     swapped: state.swapped ?? false,
     overlayStyle: state.overlayStyle || 'full',
+    scoreDisplay: state.scoreDisplay || 'numbers',
     eventBarPosition: state.eventBarPosition || 'top',
     tagColor: document.getElementById('tag-color')?.value || '#E8B830',
     nameColor: document.getElementById('name-color')?.value || '#F0EEF8',
@@ -421,6 +427,16 @@ document.querySelectorAll('.overlay-style-btn').forEach(btn => {
     });
     emitState(buildStateFromForm());
     setStatus(`Style : ${state.overlayStyle}`);
+  });
+});
+
+document.querySelectorAll('.score-display-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    state.scoreDisplay = btn.dataset.display;
+    document.querySelectorAll('.score-display-btn').forEach(b => {
+      b.classList.toggle('active', b.dataset.display === state.scoreDisplay);
+    });
+    emitState(buildStateFromForm());
   });
 });
 
@@ -6273,6 +6289,7 @@ document.querySelectorAll('.conn-copy-btn').forEach(btn => {
 
 const CT_DEFAULTS = {
   bgType: 'gradient', bgColor1: '#0E0E12', bgColor2: '#16161E', bgAngle: 135,
+  bgTexture: null, bgTextureOpacity: 80, bgTextureSize: 'cover',
   accentColor: '#E8B830', p1Color: '#E83030', p2Color: '#3070E8',
   nameColor: '#F0EEF8', tagColor: '#E8B830', pronounsColor: '#5A5A7A',
   scoreColor: '#F0EEF8', eventColor: '#5A5A7A', scoreSepColor: '#E8B830',
@@ -6286,10 +6303,12 @@ const CT_DEFAULTS = {
 let customTheme = { ...CT_DEFAULTS };
 
 function ctGet() {
-  customTheme.bgType      = document.querySelector('input[name="ct-bg-type"]:checked')?.value || 'gradient';
-  customTheme.bgColor1    = document.getElementById('ct-bg-color1')?.value    || CT_DEFAULTS.bgColor1;
-  customTheme.bgColor2    = document.getElementById('ct-bg-color2')?.value    || CT_DEFAULTS.bgColor2;
-  customTheme.bgAngle     = parseInt(document.getElementById('ct-bg-angle-num')?.value    || 135);
+  customTheme.bgType           = document.querySelector('input[name="ct-bg-type"]:checked')?.value || 'gradient';
+  customTheme.bgColor1         = document.getElementById('ct-bg-color1')?.value    || CT_DEFAULTS.bgColor1;
+  customTheme.bgColor2         = document.getElementById('ct-bg-color2')?.value    || CT_DEFAULTS.bgColor2;
+  customTheme.bgAngle          = parseInt(document.getElementById('ct-bg-angle-num')?.value    || 135);
+  customTheme.bgTextureOpacity = parseInt(document.getElementById('ct-bg-texture-opacity-num')?.value ?? 80);
+  customTheme.bgTextureSize    = document.getElementById('ct-bg-texture-size')?.value || 'cover';
   customTheme.accentColor = document.getElementById('ct-accent-color')?.value || CT_DEFAULTS.accentColor;
   customTheme.p1Color     = document.getElementById('ct-p1-color')?.value     || CT_DEFAULTS.p1Color;
   customTheme.p2Color     = document.getElementById('ct-p2-color')?.value     || CT_DEFAULTS.p2Color;
@@ -6329,10 +6348,19 @@ function ctUpdatePreview() {
   const ct = customTheme;
   const bg = document.getElementById('ct-preview-bg');
   if (bg) {
-    let bgVal = ct.bgType === 'gradient'
-      ? `linear-gradient(${ct.bgAngle}deg, ${ct.bgColor1}, ${ct.bgColor2})`
-      : ct.bgColor1;
-    if (ct.coverImage) {
+    let bgVal;
+    if (ct.bgType === 'transparent') {
+      bgVal = 'repeating-conic-gradient(#444 0% 25%, #222 0% 50%) 0 0 / 12px 12px';
+    } else if (ct.bgType === 'texture' && ct.bgTexture) {
+      const sz = ct.bgTextureSize === 'repeat' ? 'auto' : (ct.bgTextureSize || 'cover');
+      const rp = ct.bgTextureSize === 'repeat' ? 'repeat' : 'no-repeat';
+      bgVal = `url('${ct.bgTexture}') center / ${sz} ${rp}`;
+    } else if (ct.bgType === 'gradient') {
+      bgVal = `linear-gradient(${ct.bgAngle}deg, ${ct.bgColor1}, ${ct.bgColor2})`;
+    } else {
+      bgVal = ct.bgColor1;
+    }
+    if (ct.coverImage && ct.bgType !== 'transparent') {
       bgVal = `url('${ct.coverImage}') center / ${ct.coverMode || 'cover'} no-repeat, ` + bgVal;
     }
     bg.style.background = bgVal;
@@ -6406,6 +6434,23 @@ function ctUpdatePreview() {
    'ct-neon-color'].forEach(id => syncHex(id));
 }
 
+function updateBgTypeVisibility(bgType) {
+  const isGrad   = bgType === 'gradient';
+  const isSolid  = bgType === 'solid';
+  const isTransp = bgType === 'transparent';
+  const isTexture= bgType === 'texture';
+  const colorsGrp = document.getElementById('ct-bg-colors-group');
+  const col2      = document.getElementById('ct-bg-color2-group');
+  const angGrp    = document.getElementById('ct-bg-angle-group');
+  const transpGrp = document.getElementById('ct-bg-transparent-group');
+  const texGrp    = document.getElementById('ct-bg-texture-group');
+  if (colorsGrp) colorsGrp.style.display = (isGrad || isSolid) ? '' : 'none';
+  if (col2)      col2.style.display      = isGrad ? '' : 'none';
+  if (angGrp)    angGrp.style.display    = isGrad ? '' : 'none';
+  if (transpGrp) transpGrp.style.display = isTransp ? '' : 'none';
+  if (texGrp)    texGrp.style.display    = isTexture ? '' : 'none';
+}
+
 function ctWire() {
   // Color pickers
   const colorIds = [
@@ -6427,11 +6472,8 @@ function ctWire() {
   // Background type radios
   document.querySelectorAll('input[name="ct-bg-type"]').forEach(r => {
     r.addEventListener('change', () => {
-      const isGrad = document.querySelector('input[name="ct-bg-type"]:checked')?.value === 'gradient';
-      const col2   = document.getElementById('ct-bg-color2-group');
-      const angGrp = document.getElementById('ct-bg-angle-group');
-      if (col2)   col2.style.display   = isGrad ? '' : 'none';
-      if (angGrp) angGrp.style.display = isGrad ? '' : 'none';
+      const bgType = document.querySelector('input[name="ct-bg-type"]:checked')?.value || 'gradient';
+      updateBgTypeVisibility(bgType);
       ctSend();
     });
   });
@@ -6444,6 +6486,7 @@ function ctWire() {
     ['ct-letter-spacing-range',   'ct-letter-spacing-num'],
     ['ct-particle-count-range',   'ct-particle-count-num'],
     ['ct-cover-opacity-range',    'ct-cover-opacity-num'],
+    ['ct-bg-texture-opacity-range', 'ct-bg-texture-opacity-num'],
   ];
   sliderPairs.forEach(([rId, nId]) => {
     const r = document.getElementById(rId);
@@ -6468,7 +6511,7 @@ function ctWire() {
   });
 
   // Select dropdowns
-  ['ct-font-family','ct-particle-type','ct-cover-mode'].forEach(id => {
+  ['ct-font-family','ct-particle-type','ct-cover-mode','ct-bg-texture-size'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.addEventListener('change', ctSend);
   });
@@ -6500,6 +6543,37 @@ function ctWire() {
     const empty = document.getElementById('ct-cover-empty');
     if (empty) empty.style.display = '';
     const inp = document.getElementById('ct-cover-input');
+    if (inp) inp.value = '';
+    ctSend();
+  });
+
+  // Texture image upload
+  const textureInput = document.getElementById('ct-bg-texture-input');
+  if (textureInput) {
+    textureInput.addEventListener('change', (e) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        customTheme.bgTexture = ev.target.result;
+        const preview = document.getElementById('ct-bg-texture-preview');
+        if (preview) { preview.src = ev.target.result; preview.style.display = 'block'; }
+        const empty = document.getElementById('ct-bg-texture-empty');
+        if (empty) empty.style.display = 'none';
+        ctSend();
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  // Texture image clear
+  document.getElementById('ct-bg-texture-clear')?.addEventListener('click', () => {
+    customTheme.bgTexture = null;
+    const preview = document.getElementById('ct-bg-texture-preview');
+    if (preview) { preview.src = ''; preview.style.display = 'none'; }
+    const empty = document.getElementById('ct-bg-texture-empty');
+    if (empty) empty.style.display = '';
+    const inp = document.getElementById('ct-bg-texture-input');
     if (inp) inp.value = '';
     ctSend();
   });
@@ -6540,11 +6614,7 @@ function ctLoad(ct) {
   // bg type radio
   const bgRad = document.querySelector(`input[name="ct-bg-type"][value="${customTheme.bgType}"]`);
   if (bgRad) bgRad.checked = true;
-  const isGrad   = customTheme.bgType === 'gradient';
-  const col2Grp  = document.getElementById('ct-bg-color2-group');
-  const angGrp   = document.getElementById('ct-bg-angle-group');
-  if (col2Grp) col2Grp.style.display = isGrad ? '' : 'none';
-  if (angGrp)  angGrp.style.display  = isGrad ? '' : 'none';
+  updateBgTypeVisibility(customTheme.bgType || 'gradient');
 
   set('ct-bg-color1', customTheme.bgColor1);
   set('ct-bg-color2', customTheme.bgColor2);
@@ -6585,6 +6655,21 @@ function ctLoad(ct) {
     if (preview) { preview.src = customTheme.coverImage; preview.style.display = 'block'; }
     const empty = document.getElementById('ct-cover-empty');
     if (empty) empty.style.display = 'none';
+  }
+
+  set('ct-bg-texture-opacity-range', customTheme.bgTextureOpacity ?? 80);
+  set('ct-bg-texture-opacity-num',   customTheme.bgTextureOpacity ?? 80);
+  set('ct-bg-texture-size',          customTheme.bgTextureSize || 'cover');
+  if (customTheme.bgTexture) {
+    const prev = document.getElementById('ct-bg-texture-preview');
+    if (prev) { prev.src = customTheme.bgTexture; prev.style.display = 'block'; }
+    const empty = document.getElementById('ct-bg-texture-empty');
+    if (empty) empty.style.display = 'none';
+  } else {
+    const prev = document.getElementById('ct-bg-texture-preview');
+    if (prev) { prev.src = ''; prev.style.display = 'none'; }
+    const empty = document.getElementById('ct-bg-texture-empty');
+    if (empty) empty.style.display = '';
   }
 
   const neonControls = document.getElementById('ct-neon-controls');

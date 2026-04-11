@@ -89,9 +89,8 @@
   <nav class="tab-nav">
     <button class="tab-btn active" data-tab="match">Match</button>
     <button class="tab-btn" data-tab="themes">Thèmes</button>
-    <button class="tab-btn" data-tab="veto">Stage Veto</button>
-    <button class="tab-btn" data-tab="ruleset">Ruleset</button>
     <button class="tab-btn" data-tab="custom">Customisation</button>
+    <button class="tab-btn" data-tab="veto">Veto & Ruleset</button>
     <button class="tab-btn" data-tab="chars" style="display:none">Personnages</button>
     <button class="tab-btn" data-tab="connexions">Connexions</button>
     <button class="tab-btn" data-tab="startgg">start.gg</button>
@@ -321,7 +320,11 @@
   <!-- ═══════════════════════════════════════════════════════════ -->
   <!-- TAB : STAGE VETO                                            -->
   <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- TAB : VETO & RULESET                                        -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
   <div class="tab-content" id="tab-veto">
+
     <section class="section veto-section">
       <div class="section-header">
         <div class="veto-title-row">
@@ -364,12 +367,7 @@
         </div>
       </div>
     </section>
-  </div><!-- /tab-veto -->
 
-  <!-- ═══════════════════════════════════════════════════════════ -->
-  <!-- TAB : RULESET                                               -->
-  <!-- ═══════════════════════════════════════════════════════════ -->
-  <div class="tab-content" id="tab-ruleset">
     <section class="section">
       <div class="section-header"><h2>Ruleset &amp; Banlist</h2></div>
       <div class="ruleset-card">
@@ -438,7 +436,8 @@
 
       </div>
     </section>
-  </div><!-- /tab-ruleset -->
+
+  </div><!-- /tab-veto -->
 
   <!-- ═══════════════════════════════════════════════════════════ -->
   <!-- TAB : THÈMES                                                -->
@@ -1511,7 +1510,7 @@
 
         <div class="form-group" style="margin-bottom:10px">
           <label style="font-size:12px;color:var(--text-muted);display:block;margin-bottom:6px">Type de fond</label>
-          <div style="display:flex;gap:12px">
+          <div style="display:flex;flex-wrap:wrap;gap:10px">
             <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px">
               <input type="radio" name="ct-bg-type" id="ct-bg-type-grad" value="gradient" checked />
               Dégradé
@@ -1520,33 +1519,82 @@
               <input type="radio" name="ct-bg-type" id="ct-bg-type-solid" value="solid" />
               Couleur unie
             </label>
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px">
+              <input type="radio" name="ct-bg-type" id="ct-bg-type-transparent" value="transparent" />
+              Transparent
+            </label>
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px">
+              <input type="radio" name="ct-bg-type" id="ct-bg-type-texture" value="texture" />
+              Texture
+            </label>
           </div>
         </div>
 
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-          <div class="form-group">
-            <label for="ct-bg-color1" style="font-size:12px;color:var(--text-muted)">Couleur 1</label>
-            <div style="display:flex;gap:6px;align-items:center;margin-top:4px">
-              <input type="color" id="ct-bg-color1" value="#0E0E12" style="width:36px;height:32px;border:none;padding:0;cursor:pointer;border-radius:4px" />
-              <input type="text" value="#0E0E12" style="flex:1;font-size:12px" oninput="document.getElementById('ct-bg-color1').value=this.value;document.getElementById('ct-bg-color1').dispatchEvent(new Event('input'))" />
+        <!-- Couleurs (gradient / solid) -->
+        <div id="ct-bg-colors-group">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+            <div class="form-group">
+              <label for="ct-bg-color1" style="font-size:12px;color:var(--text-muted)">Couleur 1</label>
+              <div style="display:flex;gap:6px;align-items:center;margin-top:4px">
+                <input type="color" id="ct-bg-color1" value="#0E0E12" style="width:36px;height:32px;border:none;padding:0;cursor:pointer;border-radius:4px" />
+                <input type="text" value="#0E0E12" style="flex:1;font-size:12px" oninput="document.getElementById('ct-bg-color1').value=this.value;document.getElementById('ct-bg-color1').dispatchEvent(new Event('input'))" />
+              </div>
+            </div>
+            <div class="form-group" id="ct-bg-color2-group">
+              <label for="ct-bg-color2" style="font-size:12px;color:var(--text-muted)">Couleur 2</label>
+              <div style="display:flex;gap:6px;align-items:center;margin-top:4px">
+                <input type="color" id="ct-bg-color2" value="#16161E" style="width:36px;height:32px;border:none;padding:0;cursor:pointer;border-radius:4px" />
+                <input type="text" value="#16161E" style="flex:1;font-size:12px" oninput="document.getElementById('ct-bg-color2').value=this.value;document.getElementById('ct-bg-color2').dispatchEvent(new Event('input'))" />
+              </div>
             </div>
           </div>
-          <div class="form-group" id="ct-bg-color2-group">
-            <label for="ct-bg-color2" style="font-size:12px;color:var(--text-muted)">Couleur 2</label>
-            <div style="display:flex;gap:6px;align-items:center;margin-top:4px">
-              <input type="color" id="ct-bg-color2" value="#16161E" style="width:36px;height:32px;border:none;padding:0;cursor:pointer;border-radius:4px" />
-              <input type="text" value="#16161E" style="flex:1;font-size:12px" oninput="document.getElementById('ct-bg-color2').value=this.value;document.getElementById('ct-bg-color2').dispatchEvent(new Event('input'))" />
-            </div>
+          <div class="form-group" id="ct-bg-angle-group" style="margin-top:8px">
+            <label style="font-size:12px;color:var(--text-muted);display:flex;justify-content:space-between">
+              <span>Angle du dégradé</span>
+              <span><input type="number" id="ct-bg-angle-num" value="135" min="0" max="360" style="width:52px;font-size:12px;text-align:right" />°</span>
+            </label>
+            <input type="range" id="ct-bg-angle-range" min="0" max="360" value="135" style="width:100%;margin-top:4px" />
           </div>
         </div>
 
-        <div class="form-group" id="ct-bg-angle-group" style="margin-top:8px">
-          <label style="font-size:12px;color:var(--text-muted);display:flex;justify-content:space-between">
-            <span>Angle du dégradé</span>
-            <span><input type="number" id="ct-bg-angle-num" value="135" min="0" max="360" style="width:52px;font-size:12px;text-align:right" />°</span>
-          </label>
-          <input type="range" id="ct-bg-angle-range" min="0" max="360" value="135" style="width:100%;margin-top:4px" />
+        <!-- Transparent : message info -->
+        <div id="ct-bg-transparent-group" style="display:none">
+          <p class="hint" style="margin:6px 0 0">Le fond du scoreboard sera entièrement transparent — idéal pour OBS avec fond vert ou composition.</p>
         </div>
+
+        <!-- Texture -->
+        <div id="ct-bg-texture-group" style="display:none;margin-top:6px">
+          <!-- Upload -->
+          <div style="border:2px dashed rgba(255,255,255,0.15);border-radius:6px;padding:12px;text-align:center;cursor:pointer;margin-bottom:10px" onclick="document.getElementById('ct-bg-texture-input').click()">
+            <img id="ct-bg-texture-preview" src="" alt="" style="display:none;max-width:100%;max-height:100px;border-radius:4px;margin-bottom:6px;object-fit:cover" />
+            <div id="ct-bg-texture-empty" style="color:var(--text-muted);font-size:12px;padding:6px 0">
+              Cliquer pour choisir une image
+            </div>
+            <input type="file" id="ct-bg-texture-input" accept="image/*" style="display:none" />
+          </div>
+          <div style="display:flex;gap:6px;margin-bottom:6px">
+            <button id="ct-bg-texture-clear" class="btn btn-outline btn-sm" style="flex:1">Supprimer</button>
+          </div>
+          <!-- Remplissage -->
+          <div class="form-group" style="margin-bottom:8px">
+            <label style="font-size:12px;color:var(--text-muted);display:block;margin-bottom:4px">Remplissage</label>
+            <select id="ct-bg-texture-size" style="width:100%">
+              <option value="cover">Couvrir (cover)</option>
+              <option value="contain">Contenir (contain)</option>
+              <option value="repeat">Mosaïque (repeat)</option>
+              <option value="auto">Original (auto)</option>
+            </select>
+          </div>
+          <!-- Opacité -->
+          <div class="form-group" style="margin:0">
+            <label style="font-size:12px;color:var(--text-muted);display:flex;justify-content:space-between">
+              <span>Opacité</span>
+              <span><input type="number" id="ct-bg-texture-opacity-num" value="80" min="0" max="100" style="width:44px;font-size:12px;text-align:right" /> %</span>
+            </label>
+            <input type="range" id="ct-bg-texture-opacity-range" min="0" max="100" value="80" style="width:100%;margin-top:4px" />
+          </div>
+        </div>
+
       </div>
 
       <!-- ── Couleurs des éléments ── -->
@@ -1806,6 +1854,13 @@
           <div class="theme-btn-row">
             <button class="overlay-style-btn theme-btn active" data-style="full">Full ▬</button>
             <button class="overlay-style-btn theme-btn" data-style="slim">Slim —</button>
+            <button class="overlay-style-btn theme-btn" data-style="full-rounded">Full arrondi ◉</button>
+            <button class="overlay-style-btn theme-btn" data-style="compact-rounded">Compact arrondi ◉</button>
+          </div>
+          <p class="hint" style="margin:12px 0 8px">Affichage du score</p>
+          <div class="theme-btn-row">
+            <button class="score-display-btn theme-btn active" data-display="numbers">123 Chiffres</button>
+            <button class="score-display-btn theme-btn" data-display="dots">◉ Points</button>
           </div>
           <p class="hint" style="margin:12px 0 8px">Position de la barre événement</p>
           <div class="theme-btn-row">
@@ -1968,127 +2023,154 @@
             <span id="obs-mode-ip" style="font-size:11px;color:var(--text-muted);margin-left:4px;font-family:monospace"></span>
           </div>
 
-          <div class="obs-url-list">
-            <div class="obs-url-item">
-              <span>Scoreboard</span>
-              <code>localhost:3002/overlay</code>
-              <button class="btn-copy" data-url="http://localhost:3002/overlay">📋</button>
+          <div class="obs-url-cols">
+
+            <!-- Colonne Scoreboard -->
+            <div class="obs-url-col">
+              <div class="obs-url-col-header">Scoreboard</div>
+              <div class="obs-url-item">
+                <span>Scoreboard</span>
+                <code>localhost:3002/overlay</code>
+                <button class="btn-copy" data-url="http://localhost:3002/overlay">📋</button>
+              </div>
+              <div class="obs-url-item">
+                <span>Scoreboard Slim</span>
+                <code>localhost:3002/overlay-slim</code>
+                <button class="btn-copy" data-url="http://localhost:3002/overlay-slim">📋</button>
+              </div>
+              <div class="obs-url-item">
+                <span>Éléments libres</span>
+                <code>localhost:3002/scoreboard-elements</code>
+                <button class="btn-copy" data-url="http://localhost:3002/scoreboard-elements">📋</button>
+              </div>
+              <div class="obs-url-item">
+                <span>VS Screen</span>
+                <code>localhost:3002/vs-screen</code>
+                <button class="btn-copy" data-url="http://localhost:3002/vs-screen">📋</button>
+              </div>
+              <div class="obs-url-item">
+                <span>Casters</span>
+                <code>localhost:3002/casters</code>
+                <button class="btn-copy" data-url="http://localhost:3002/casters">📋</button>
+              </div>
+              <div class="obs-url-item">
+                <span>Cam</span>
+                <code>localhost:3002/cam</code>
+                <button class="btn-copy" data-url="http://localhost:3002/cam">📋</button>
+              </div>
             </div>
-            <div class="obs-url-item">
-              <span>Scoreboard Slim</span>
-              <code>localhost:3002/overlay-slim</code>
-              <button class="btn-copy" data-url="http://localhost:3002/overlay-slim">📋</button>
+
+            <!-- Colonne Tournoi -->
+            <div class="obs-url-col">
+              <div class="obs-url-col-header">Tournoi</div>
+              <div class="obs-url-item">
+                <span>Stage Veto</span>
+                <code>localhost:3002/stageveto</code>
+                <button class="btn-copy" data-url="http://localhost:3002/stageveto">📋</button>
+              </div>
+              <div class="obs-url-item">
+                <span>Bracket</span>
+                <code>localhost:3002/bracket</code>
+                <button class="btn-copy" data-url="http://localhost:3002/bracket">📋</button>
+              </div>
+              <div class="obs-url-item">
+                <span>Top 8</span>
+                <code>localhost:3002/top8</code>
+                <button class="btn-copy" data-url="http://localhost:3002/top8">📋</button>
+              </div>
+              <div class="obs-url-item">
+                <span>H2H</span>
+                <code>localhost:3002/h2h</code>
+                <button class="btn-copy" data-url="http://localhost:3002/h2h">📋</button>
+              </div>
+              <div class="obs-url-item">
+                <span>Stats joueur</span>
+                <code>localhost:3002/player-stats</code>
+                <button class="btn-copy" data-url="http://localhost:3002/player-stats">📋</button>
+              </div>
+              <div class="obs-url-item">
+                <span>Historique</span>
+                <code>localhost:3002/tournament-history</code>
+                <button class="btn-copy" data-url="http://localhost:3002/tournament-history">📋</button>
+              </div>
             </div>
-            <div class="obs-url-item">
-              <span>Stage Veto</span>
-              <code>localhost:3002/stageveto</code>
-              <button class="btn-copy" data-url="http://localhost:3002/stageveto">📋</button>
+
+            <!-- Colonne Stream -->
+            <div class="obs-url-col">
+              <div class="obs-url-col-header">Stream</div>
+              <div class="obs-url-item">
+                <span>Titre du stream</span>
+                <code>localhost:3002/stream-title</code>
+                <button class="btn-copy" data-url="http://localhost:3002/stream-title">📋</button>
+              </div>
+              <div class="obs-url-item">
+                <span>Bandeau</span>
+                <code>localhost:3002/ticker</code>
+                <button class="btn-copy" data-url="http://localhost:3002/ticker">📋</button>
+              </div>
+              <div class="obs-url-item">
+                <span>Cadres</span>
+                <code>localhost:3002/frames</code>
+                <button class="btn-copy" data-url="http://localhost:3002/frames">📋</button>
+              </div>
+              <div class="obs-url-item">
+                <span>Timer</span>
+                <code>localhost:3002/timer</code>
+                <button class="btn-copy" data-url="http://localhost:3002/timer">📋</button>
+              </div>
+              <div class="obs-url-item">
+                <span>Super Overlay</span>
+                <code>localhost:3002/super-overlay</code>
+                <button class="btn-copy" data-url="http://localhost:3002/super-overlay">📋</button>
+              </div>
             </div>
-            <div class="obs-url-item">
-              <span>VS Screen</span>
-              <code>localhost:3002/vs-screen</code>
-              <button class="btn-copy" data-url="http://localhost:3002/vs-screen">📋</button>
+
+            <!-- Colonne Alertes & Chat -->
+            <div class="obs-url-col">
+              <div class="obs-url-col-header obs-url-col-header--twitch">Twitch</div>
+              <div class="obs-url-item">
+                <span>Layout</span>
+                <code>localhost:3002/twitch-layout</code>
+                <button class="btn-copy" data-url="http://localhost:3002/twitch-layout">📋</button>
+              </div>
+              <div class="obs-url-item">
+                <span>Viewers</span>
+                <code>localhost:3002/twitch-viewer</code>
+                <button class="btn-copy" data-url="http://localhost:3002/twitch-viewer">📋</button>
+              </div>
+              <div class="obs-url-item">
+                <span>Alertes</span>
+                <code>localhost:3002/twitch-alerts</code>
+                <button class="btn-copy" data-url="http://localhost:3002/twitch-alerts">📋</button>
+              </div>
+              <div class="obs-url-item">
+                <span>Chat</span>
+                <code>localhost:3002/twitch-chat</code>
+                <button class="btn-copy" data-url="http://localhost:3002/twitch-chat">📋</button>
+              </div>
+              <div class="obs-url-col-header obs-url-col-header--yt" style="margin-top:10px">YouTube</div>
+              <div class="obs-url-item">
+                <span>Chat</span>
+                <code>localhost:3002/youtube-chat</code>
+                <button class="btn-copy" data-url="http://localhost:3002/youtube-chat">📋</button>
+              </div>
+              <div class="obs-url-item">
+                <span>Viewers</span>
+                <code>localhost:3002/youtube-viewer</code>
+                <button class="btn-copy" data-url="http://localhost:3002/youtube-viewer">📋</button>
+              </div>
+              <div class="obs-url-item">
+                <span>Alertes</span>
+                <code>localhost:3002/youtube-alerts</code>
+                <button class="btn-copy" data-url="http://localhost:3002/youtube-alerts">📋</button>
+              </div>
+              <div class="obs-url-item">
+                <span>Chat Twitch+YT</span>
+                <code>localhost:3002/combined-chat</code>
+                <button class="btn-copy" data-url="http://localhost:3002/combined-chat">📋</button>
+              </div>
             </div>
-            <div class="obs-url-item">
-              <span>Casters</span>
-              <code>localhost:3002/casters</code>
-              <button class="btn-copy" data-url="http://localhost:3002/casters">📋</button>
-            </div>
-            <div class="obs-url-item">
-              <span>Cam</span>
-              <code>localhost:3002/cam</code>
-              <button class="btn-copy" data-url="http://localhost:3002/cam">📋</button>
-            </div>
-            <div class="obs-url-item">
-              <span>Cadres</span>
-              <code>localhost:3002/frames</code>
-              <button class="btn-copy" data-url="http://localhost:3002/frames">📋</button>
-            </div>
-            <div class="obs-url-item">
-              <span>Bandeau</span>
-              <code>localhost:3002/ticker</code>
-              <button class="btn-copy" data-url="http://localhost:3002/ticker">📋</button>
-            </div>
-            <div class="obs-url-item">
-              <span>Titre du stream</span>
-              <code>localhost:3002/stream-title</code>
-              <button class="btn-copy" data-url="http://localhost:3002/stream-title">📋</button>
-            </div>
-            <div class="obs-url-item">
-              <span>Twitch Layout</span>
-              <code>localhost:3002/twitch-layout</code>
-              <button class="btn-copy" data-url="http://localhost:3002/twitch-layout">📋</button>
-            </div>
-            <div class="obs-url-item">
-              <span>Viewers Twitch</span>
-              <code>localhost:3002/twitch-viewer</code>
-              <button class="btn-copy" data-url="http://localhost:3002/twitch-viewer">📋</button>
-            </div>
-            <div class="obs-url-item">
-              <span>Alertes Twitch</span>
-              <code>localhost:3002/twitch-alerts</code>
-              <button class="btn-copy" data-url="http://localhost:3002/twitch-alerts">📋</button>
-            </div>
-            <div class="obs-url-item">
-              <span>Chat Twitch</span>
-              <code>localhost:3002/twitch-chat</code>
-              <button class="btn-copy" data-url="http://localhost:3002/twitch-chat">📋</button>
-            </div>
-            <div class="obs-url-item">
-              <span>Chat YouTube</span>
-              <code>localhost:3002/youtube-chat</code>
-              <button class="btn-copy" data-url="http://localhost:3002/youtube-chat">📋</button>
-            </div>
-            <div class="obs-url-item">
-              <span>Viewers YouTube</span>
-              <code>localhost:3002/youtube-viewer</code>
-              <button class="btn-copy" data-url="http://localhost:3002/youtube-viewer">📋</button>
-            </div>
-            <div class="obs-url-item">
-              <span>Alertes YouTube</span>
-              <code>localhost:3002/youtube-alerts</code>
-              <button class="btn-copy" data-url="http://localhost:3002/youtube-alerts">📋</button>
-            </div>
-            <div class="obs-url-item">
-              <span>Chat combiné Twitch+YT</span>
-              <code>localhost:3002/combined-chat</code>
-              <button class="btn-copy" data-url="http://localhost:3002/combined-chat">📋</button>
-            </div>
-            <div class="obs-url-item">
-              <span>H2H</span>
-              <code>localhost:3002/h2h</code>
-              <button class="btn-copy" data-url="http://localhost:3002/h2h">📋</button>
-            </div>
-            <div class="obs-url-item">
-              <span>Stats joueur</span>
-              <code>localhost:3002/player-stats</code>
-              <button class="btn-copy" data-url="http://localhost:3002/player-stats">📋</button>
-            </div>
-            <div class="obs-url-item">
-              <span>Historique tournoi</span>
-              <code>localhost:3002/tournament-history</code>
-              <button class="btn-copy" data-url="http://localhost:3002/tournament-history">📋</button>
-            </div>
-            <div class="obs-url-item">
-              <span>Bracket</span>
-              <code>localhost:3002/bracket</code>
-              <button class="btn-copy" data-url="http://localhost:3002/bracket">📋</button>
-            </div>
-            <div class="obs-url-item">
-              <span>Top 8</span>
-              <code>localhost:3002/top8</code>
-              <button class="btn-copy" data-url="http://localhost:3002/top8">📋</button>
-            </div>
-            <div class="obs-url-item">
-              <span>Timer</span>
-              <code>localhost:3002/timer</code>
-              <button class="btn-copy" data-url="http://localhost:3002/timer">📋</button>
-            </div>
-            <div class="obs-url-item">
-              <span>Super Overlay</span>
-              <code>localhost:3002/super-overlay</code>
-              <button class="btn-copy" data-url="http://localhost:3002/super-overlay">📋</button>
-            </div>
+
           </div>
         </div>
 

@@ -230,9 +230,14 @@ function applyCustomTheme(ct, sb) {
 
   // ── CSS vars on scoreboard element ───────────────────────────
   // Background
-  const bgValue = c.bgType === 'gradient'
-    ? `linear-gradient(${c.bgAngle}deg, ${c.bgColor1}, ${c.bgColor2})`
-    : c.bgColor1;
+  let bgValue;
+  if (c.bgType === 'transparent' || c.bgType === 'texture') {
+    bgValue = 'transparent';
+  } else if (c.bgType === 'gradient') {
+    bgValue = `linear-gradient(${c.bgAngle}deg, ${c.bgColor1}, ${c.bgColor2})`;
+  } else {
+    bgValue = c.bgColor1;
+  }
   sb.style.setProperty('--sb-bg', bgValue);
   sb.style.setProperty('--name-color',      c.nameColor);
   sb.style.setProperty('--tag-color',       c.tagColor);
@@ -303,8 +308,19 @@ function applyCustomTheme(ct, sb) {
     css += `.scoreboard.theme-custom .event-bar { text-shadow: none; }\n`;
   }
 
+  // Texture background
+  if (c.bgType === 'texture' && c.bgTexture) {
+    const op = (c.bgTextureOpacity ?? 80) / 100;
+    const sz = c.bgTextureSize === 'repeat' ? 'auto' : (c.bgTextureSize || 'cover');
+    const rp = c.bgTextureSize === 'repeat' ? 'repeat' : 'no-repeat';
+    css += `.scoreboard.theme-custom { position: relative; }\n`;
+    css += `.scoreboard.theme-custom::before { content: ''; position: absolute; inset: 0; background: url('${c.bgTexture}') center / ${sz} ${rp}; opacity: ${op}; pointer-events: none; z-index: 0; border-radius: inherit; }\n`;
+  } else {
+    css += `.scoreboard.theme-custom::before { content: none; }\n`;
+  }
+
   // Cover image overlay
-  if (c.coverImage) {
+  if (c.coverImage && c.bgType !== 'transparent') {
     const op = (c.coverOpacity ?? 50) / 100;
     const mode = c.coverMode || 'cover';
     css += `.scoreboard.theme-custom .players-container { position: relative; overflow: hidden; }\n`;
@@ -343,7 +359,14 @@ function update(s) {
   const isTransparent = (s.overlayTheme || 'default') === 'transparent';
   sb.classList.toggle('hidden', !s.visible);
   // swapped est géré côté données (player1/player2 physiquement échangés)
-  sb.classList.toggle('style-slim', s.overlayStyle === 'slim');
+  const _style = s.overlayStyle || 'full';
+  ['slim', 'full-rounded', 'compact-rounded'].forEach(st => {
+    sb.classList.toggle('style-' + st, _style === st);
+  });
+  const _scoreDisplay = s.scoreDisplay || 'numbers';
+  ['numbers', 'dots'].forEach(d => {
+    sb.classList.toggle('score-display-' + d, _scoreDisplay === d);
+  });
   sb.classList.toggle('event-bar-bottom', s.eventBarPosition === 'bottom');
 
   // Theme class
