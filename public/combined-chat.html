@@ -12,28 +12,34 @@
 <div class="cc-overlay hidden pso-surface" id="cc-overlay">
   <canvas id="cc-particle-canvas"></canvas>
 
-  <!-- Header avec les deux sources -->
+  <!-- Header unifié -->
   <div class="cc-header">
-    <div class="cc-source" id="cc-twitch-status">
+    <div class="cc-header-logos">
       <svg class="cc-logo cc-logo-twitch" viewBox="0 0 24 24" fill="currentColor">
         <path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714z"/>
       </svg>
-      <span class="cc-channel-name" id="cc-twitch-name">—</span>
-      <span class="cc-dot cc-dot-twitch" id="cc-dot-twitch" title="Twitch déconnecté"></span>
-    </div>
-
-    <div class="cc-sep"></div>
-
-    <div class="cc-source" id="cc-yt-status">
+      <span class="cc-header-plus">+</span>
       <svg class="cc-logo cc-logo-yt" viewBox="0 0 24 24" fill="currentColor">
         <path d="M21.8 8s-.2-1.4-.8-2c-.8-.8-1.6-.8-2-.9C16.3 5 12 5 12 5s-4.3 0-7 .1c-.4.1-1.2.1-2 .9-.6.6-.8 2-.8 2S2 9.6 2 11.2v1.5c0 1.6.2 3.2.2 3.2s.2 1.4.8 2c.8.8 1.8.7 2.3.8C6.8 19 12 19 12 19s4.3 0 7-.2c.4-.1 1.2-.1 2-.9.6-.6.8-2 .8-2s.2-1.6.2-3.2v-1.5C22 9.6 21.8 8 21.8 8zM9.7 14.5V9l5.4 2.8-5.4 2.7z"/>
       </svg>
-      <span class="cc-channel-name" id="cc-yt-name">—</span>
-      <span class="cc-dot cc-dot-yt" id="cc-dot-yt" title="YouTube déconnecté"></span>
+    </div>
+    <div class="cc-header-info">
+      <span class="cc-header-title">Chat combiné</span>
+      <div class="cc-header-statuses">
+        <span class="cc-status-item" id="cc-twitch-status">
+          <span class="cc-dot cc-dot-twitch" id="cc-dot-twitch"></span>
+          <span class="cc-channel-name" id="cc-twitch-name">—</span>
+        </span>
+        <span class="cc-status-sep">·</span>
+        <span class="cc-status-item" id="cc-yt-status">
+          <span class="cc-dot cc-dot-yt" id="cc-dot-yt"></span>
+          <span class="cc-channel-name" id="cc-yt-name">—</span>
+        </span>
+      </div>
     </div>
   </div>
 
-  <!-- Liste des messages combinés -->
+  <!-- Liste unique des messages -->
   <div class="cc-messages" id="cc-messages"></div>
 </div>
 

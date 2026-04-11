@@ -1,0 +1,142 @@
+@import url('https://fonts.googleapis.com/css2?family=Russo+One&family=Inter:wght@400;600;700&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: transparent;
+  width: 1920px;
+  height: 1080px;
+  overflow: hidden;
+  font-family: 'Inter', sans-serif;
+}
+
+#sel-root {
+  position: relative;
+  width: 1920px;
+  height: 1080px;
+}
+
+/* ── Élément de base — centré sur sa coordonnée ─────────────────── */
+
+.sel-el {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  transition: opacity 0.3s;
+  white-space: nowrap;
+  pointer-events: none;
+  user-select: none;
+}
+
+.sel-el.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ── Personnage ─────────────────────────────────────────────────── */
+
+.sel-char { transform: translate(-50%, -50%); }
+
+.sel-char-img {
+  display: block;
+  height: auto;
+  filter: drop-shadow(0 4px 16px rgba(0,0,0,0.7));
+}
+
+/* ── Drapeau ────────────────────────────────────────────────────── */
+
+.sel-flag { transform: translate(-50%, -50%); }
+
+.sel-flag-img {
+  display: block;
+  height: auto;
+  border-radius: 2px;
+  filter: drop-shadow(0 2px 6px rgba(0,0,0,0.6));
+}
+
+/* ── Score ──────────────────────────────────────────────────────── */
+
+.sel-score {
+  font-family: 'Russo One', sans-serif;
+  font-size: 80px;
+  color: #FFFFFF;
+  text-shadow:
+    0 0 30px currentColor,
+    0 3px 12px rgba(0,0,0,0.9),
+    0 0  2px rgba(0,0,0,1);
+  line-height: 1;
+  letter-spacing: -2px;
+}
+
+/* ── Tag ────────────────────────────────────────────────────────── */
+
+.sel-tag {
+  font-family: 'Russo One', sans-serif;
+  font-size: 22px;
+  color: #E8B830;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.9), 0 0 1px #000;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+/* ── Pseudo (nom) ────────────────────────────────────────────────── */
+
+.sel-name {
+  font-family: 'Russo One', sans-serif;
+  font-size: 30px;
+  color: #F0EEF8;
+  text-shadow: 0 2px 10px rgba(0,0,0,0.95), 0 0 1px #000;
+  letter-spacing: 0.5px;
+}
+
+/* ── Pronoms ─────────────────────────────────────────────────────── */
+
+.sel-pron {
+  font-family: 'Inter', sans-serif;
+  font-size: 16px;
+  color: #8888aa;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.9);
+  font-style: italic;
+}
+
+/* ── Seed ────────────────────────────────────────────────────────── */
+
+.sel-seed {
+  font-family: 'Inter', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: #aaaacc;
+  text-shadow: 0 1px 6px rgba(0,0,0,0.9);
+}
+
+/* ── Événement ───────────────────────────────────────────────────── */
+
+.sel-event {
+  font-family: 'Russo One', sans-serif;
+  font-size: 18px;
+  color: #E8B830;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.9), 0 0 1px #000;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+
+/* ── Phase ───────────────────────────────────────────────────────── */
+
+.sel-phase {
+  font-family: 'Russo One', sans-serif;
+  font-size: 24px;
+  color: #FFFFFF;
+  text-shadow: 0 2px 10px rgba(0,0,0,0.95), 0 0 1px #000;
+  letter-spacing: 1px;
+}
+
+/* ── Format ──────────────────────────────────────────────────────── */
+
+.sel-format {
+  font-family: 'Inter', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  color: #aaaacc;
+  text-shadow: 0 1px 6px rgba(0,0,0,0.9);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}

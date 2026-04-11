@@ -1,6 +1,6 @@
 /* ── Combined Chat Overlay — Twitch + YouTube ───────────────────── */
 
-/* ── Helpers communs ─────────────────────────────────────────────── */
+/* ── Helpers ─────────────────────────────────────────────────────── */
 
 const FALLBACK_COLORS = [
   '#FF6B6B','#FFD93D','#6BCB77','#4D96FF','#C77DFF',
@@ -77,7 +77,7 @@ function buildYtAvatar(profileImage, displayName) {
   return `<div class="cc-avatar-placeholder">${escapeHtml(initial)}</div>`;
 }
 
-/* ── Icônes plateforme ───────────────────────────────────────────── */
+/* ── Icônes plateforme (petites, inline dans chaque message) ─────── */
 
 const ICON_TWITCH = `<span class="cc-platform twitch"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714z"/></svg></span>`;
 const ICON_YT     = `<span class="cc-platform youtube"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M21.8 8s-.2-1.4-.8-2c-.8-.8-1.6-.8-2-.9C16.3 5 12 5 12 5s-4.3 0-7 .1c-.4.1-1.2.1-2 .9-.6.6-.8 2-.8 2S2 9.6 2 11.2v1.5c0 1.6.2 3.2.2 3.2s.2 1.4.8 2c.8.8 1.8.7 2.3.8C6.8 19 12 19 12 19s4.3 0 7-.2c.4-.1 1.2-.1 2-.9.6-.6.8-2 .8-2s.2-1.6.2-3.2v-1.5C22 9.6 21.8 8 21.8 8zM9.7 14.5V9l5.4 2.8-5.4 2.7z"/></svg></span>`;
@@ -96,7 +96,7 @@ let state = {
   maxMessages: 20, transparentMode: false,
 };
 
-/* ── Appliquer la position / taille ─────────────────────────────── */
+/* ── Position / taille ──────────────────────────────────────────── */
 
 function applyState(s) {
   if (!s) return;
@@ -109,18 +109,25 @@ function applyState(s) {
   overlay.style.maxHeight = (state.maxHeight || 620) + 'px';
 }
 
-/* ── Trim ────────────────────────────────────────────────────────── */
+/* ── Trim — supprime les plus vieux messages ────────────────────── */
 
 function trim() {
   const max = state.maxMessages || 20;
   while (msgList.children.length > max) msgList.lastChild.remove();
 }
 
-/* ── Twitch message ─────────────────────────────────────────────── */
+/* ── Ajout d'un message dans la colonne commune ─────────────────── */
+
+function appendMsg(el) {
+  msgList.prepend(el);   // nouveau message en haut, anciens tombent en bas
+  trim();
+}
+
+/* ── Message Twitch ─────────────────────────────────────────────── */
 
 function addTwitchMessage({ displayName, color, badges, emotes, message, isAction }) {
-  const col  = color || hashColor(displayName || '?');
-  const el   = document.createElement('div');
+  const col = color || hashColor(displayName || '?');
+  const el  = document.createElement('div');
   el.className = 'cc-msg from-twitch' + (isAction ? ' is-action' : '');
 
   const text = buildTwitchEmotes(message, emotes);
@@ -129,27 +136,25 @@ function addTwitchMessage({ displayName, color, badges, emotes, message, isActio
     : `<span class="cc-text">${text}</span>`;
 
   el.innerHTML = `${ICON_TWITCH}${buildTwitchBadges(badges)}<span class="cc-author" style="color:${col}">${escapeHtml(displayName || '?')}</span><span class="cc-colon">:</span>${msgHtml}`;
-  msgList.prepend(el);
-  trim();
+  appendMsg(el);
 }
 
-/* ── YouTube message ─────────────────────────────────────────────── */
+/* ── Message YouTube ─────────────────────────────────────────────── */
 
 function addYtMessage({ displayName, profileImage, isOwner, isModerator, isMember, message, superChat }) {
   if (superChat) {
     addYtSuperChat({ displayName, profileImage, message, superChat });
     return;
   }
-  const color   = hashColor(displayName || '?');
-  const el      = document.createElement('div');
-  el.className  = 'cc-msg from-youtube';
+  const color  = hashColor(displayName || '?');
+  const el     = document.createElement('div');
+  el.className = 'cc-msg from-youtube';
 
   const badges = buildYtBadges(!!isOwner, !!isModerator, !!isMember);
   const avatar = buildYtAvatar(profileImage, displayName);
 
-  el.innerHTML = `${ICON_YT}${avatar}<span class="cc-yt-badges-wrap">${badges}</span><span class="cc-author" style="color:${color}">${escapeHtml(displayName || '?')}</span><span class="cc-colon">:</span><span class="cc-text">${escapeHtml(message)}</span>`;
-  msgList.prepend(el);
-  trim();
+  el.innerHTML = `${ICON_YT}${avatar}${badges}<span class="cc-author" style="color:${color}">${escapeHtml(displayName || '?')}</span><span class="cc-colon">:</span><span class="cc-text">${escapeHtml(message)}</span>`;
+  appendMsg(el);
 }
 
 function addYtSuperChat({ displayName, profileImage, message, superChat }) {
@@ -169,8 +174,7 @@ function addYtSuperChat({ displayName, profileImage, message, superChat }) {
     </div>
     ${message ? `<div class="cc-superchat-msg">${escapeHtml(message)}</div>` : ''}
   `;
-  msgList.prepend(el);
-  trim();
+  appendMsg(el);
 }
 
 /* ── Notices ─────────────────────────────────────────────────────── */
@@ -179,8 +183,7 @@ function addNotice(text, platform) {
   const el     = document.createElement('div');
   el.className = `cc-notice ${platform}`;
   el.textContent = text;
-  msgList.prepend(el);
-  trim();
+  appendMsg(el);
 }
 
 /* ── Status des sources ─────────────────────────────────────────── */
@@ -239,7 +242,6 @@ function applyTheme(s) {
 
 initParticles();
 
-/* Charge l'état initial des deux sources */
 fetch('/api/combined-chat').then(r => r.json()).then(applyState).catch(() => {});
 fetch('/api/twitch-chat').then(r => r.json()).then(setTwitchStatus).catch(() => {});
 fetch('/api/youtube-chat').then(r => r.json()).then(setYtStatus).catch(() => {});
@@ -254,6 +256,7 @@ try {
   socket.on('twitchChatUpdate',    setTwitchStatus);
   socket.on('youtubeChatUpdate',   setYtStatus);
 
+  // Les deux événements alimentent la MÊME colonne de messages
   socket.on('twitchChatMessage',   addTwitchMessage);
   socket.on('youtubeChatMessage',  addYtMessage);
 

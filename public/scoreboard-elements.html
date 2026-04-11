@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Éléments libres – PSO</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Russo+One&family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="scoreboard-elements.css" />
+</head>
+<body>
+
+<div id="sel-root">
+
+  <!-- ── Joueur 1 ── -->
+  <div class="sel-el sel-char"  id="sel-p1char">
+    <img class="sel-char-img" id="sel-p1char-img" alt="" />
+  </div>
+
+  <div class="sel-el sel-flag"  id="sel-p1flag">
+    <img class="sel-flag-img"  id="sel-p1flag-img" alt="" />
+  </div>
+
+  <div class="sel-el sel-tag"   id="sel-p1tag"></div>
+  <div class="sel-el sel-name"  id="sel-p1name"></div>
+  <div class="sel-el sel-pron"  id="sel-p1pronouns"></div>
+  <div class="sel-el sel-seed"  id="sel-p1seed"></div>
+  <div class="sel-el sel-score" id="sel-p1score"></div>
+
+  <!-- ── Joueur 2 ── -->
+  <div class="sel-el sel-char"  id="sel-p2char">
+    <img class="sel-char-img" id="sel-p2char-img" alt="" />
+  </div>
+
+  <div class="sel-el sel-flag"  id="sel-p2flag">
+    <img class="sel-flag-img"  id="sel-p2flag-img" alt="" />
+  </div>
+
+  <div class="sel-el sel-tag"   id="sel-p2tag"></div>
+  <div class="sel-el sel-name"  id="sel-p2name"></div>
+  <div class="sel-el sel-pron"  id="sel-p2pronouns"></div>
+  <div class="sel-el sel-seed"  id="sel-p2seed"></div>
+  <div class="sel-el sel-score" id="sel-p2score"></div>
+
+  <!-- ── Infos match ── -->
+  <div class="sel-el sel-event"  id="sel-event"></div>
+  <div class="sel-el sel-phase"  id="sel-phase"></div>
+  <div class="sel-el sel-format" id="sel-format"></div>
+
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="scoreboard-elements.js"></script>
+</body>
+</html>

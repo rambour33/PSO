@@ -297,7 +297,43 @@ app.get('/ticker', (req, res) => res.sendFile(path.join(__dirname, 'public', 'ti
 app.get('/frames', (req, res) => res.sendFile(path.join(__dirname, 'public', 'frames.html')));
 app.get('/stream-title',  (req, res) => res.sendFile(path.join(__dirname, 'public', 'stream-title.html')));
 app.get('/super-overlay', (req, res) => res.sendFile(path.join(__dirname, 'public', 'super-overlay.html')));
-app.get('/avsync',       (req, res) => res.sendFile(path.join(__dirname, 'public', 'avsync.html')));
+app.get('/avsync',              (req, res) => res.sendFile(path.join(__dirname, 'public', 'avsync.html')));
+app.get('/scoreboard-elements', (req, res) => res.sendFile(path.join(__dirname, 'public', 'scoreboard-elements.html')));
+
+// ─── Éléments libres (overlay transparent indépendant) ───────────────────────
+
+let elementsOverlayState = {
+  visible: true,
+  elements: {
+    p1char:     { x: 300,  y: 400, visible: true, size: 220 },
+    p1flag:     { x: 200,  y: 630, visible: true, size: 90  },
+    p1tag:      { x: 220,  y: 500, visible: true, size: 22  },
+    p1name:     { x: 220,  y: 540, visible: true, size: 32  },
+    p1pronouns: { x: 220,  y: 580, visible: true, size: 16  },
+    p1seed:     { x: 220,  y: 460, visible: true, size: 18  },
+    p1score:    { x: 560,  y: 500, visible: true, size: 90  },
+    p2char:     { x: 1620, y: 400, visible: true, size: 220 },
+    p2flag:     { x: 1720, y: 630, visible: true, size: 90  },
+    p2tag:      { x: 1700, y: 500, visible: true, size: 22  },
+    p2name:     { x: 1700, y: 540, visible: true, size: 32  },
+    p2pronouns: { x: 1700, y: 580, visible: true, size: 16  },
+    p2seed:     { x: 1700, y: 460, visible: true, size: 18  },
+    p2score:    { x: 1360, y: 500, visible: true, size: 90  },
+    event:      { x: 960,  y:  35, visible: true, size: 18  },
+    phase:      { x: 960,  y:  68, visible: true, size: 26  },
+    format:     { x: 960,  y: 104, visible: true, size: 16  },
+  },
+};
+
+app.get('/api/elements-overlay', (req, res) => res.json(elementsOverlayState));
+app.post('/api/elements-overlay', (req, res) => {
+  elementsOverlayState = { ...elementsOverlayState, ...req.body };
+  if (req.body.elements) {
+    elementsOverlayState.elements = { ...elementsOverlayState.elements, ...req.body.elements };
+  }
+  io.emit('elementsOverlayUpdate', elementsOverlayState);
+  res.json(elementsOverlayState);
+});
 
 // ─── Titre du stream ──────────────────────────────────────────────────────────
 
@@ -421,6 +457,7 @@ function getOverlaySnapshot(id) {
     'player-stats':       () => playerStatsState,
     'tournament-history': () => tournamentHistoryState,
     'twitch-chat':        () => twitchChatState,
+    'scoreboard-elements': () => elementsOverlayState,
   };
   const getter = map[id];
   return getter ? JSON.parse(JSON.stringify(getter())) : null;
@@ -1724,6 +1761,7 @@ io.on('connection', (socket) => {
   socket.emit('superStateUpdate', superState);
   socket.emit('titleUpdate', titleState);
   socket.emit('top8Update', top8State);
+  socket.emit('elementsOverlayUpdate', elementsOverlayState);
 
   // Déclenche l'animation d'entrée sur la VS screen
   socket.on('triggerVsScreen', () => {

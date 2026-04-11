@@ -2779,3 +2779,230 @@ kbd {
 #btn-ticker-toggle.btn-danger:hover {
   background: #a93226;
 }
+
+
+/* ─── Onglet Overlay multi-PC ───────────────────────────────────────────────── */
+
+.ip-tuto-card {
+  background: var(--surface-alt, #1a1a26);
+  border: 1px solid var(--border, #2a2a3a);
+  border-radius: 10px;
+  padding: 16px 20px;
+  margin-bottom: 20px;
+}
+.ip-tuto-card-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--accent, #7c6af7);
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  margin-bottom: 12px;
+}
+.ip-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.ip-chip {
+  background: var(--surface, #12121A);
+  border: 1px solid var(--accent, #7c6af7);
+  border-radius: 6px;
+  padding: 6px 14px;
+  font-size: 18px;
+  font-family: 'Courier New', monospace;
+  font-weight: 700;
+  color: #c9c2ff;
+  cursor: pointer;
+  transition: background .15s;
+  user-select: all;
+}
+.ip-chip:hover { background: rgba(124,106,247,.15); }
+.ip-loading { font-size: 13px; color: var(--text-muted); font-style: italic; }
+.ip-port-info { font-size: 12px; color: var(--text-muted); }
+.ip-port-info strong { color: var(--text, #e0e0ee); }
+
+/* Schéma */
+.ip-schema {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  margin: 24px 0;
+  flex-wrap: wrap;
+}
+.ip-schema-box {
+  text-align: center;
+  background: var(--surface-alt, #1a1a26);
+  border: 1px solid var(--border, #2a2a3a);
+  border-radius: 12px;
+  padding: 18px 28px;
+  min-width: 140px;
+}
+.ip-schema-box--server { border-color: var(--accent, #7c6af7); }
+.ip-schema-box--client { border-color: #4ade80; }
+.ip-schema-icon { font-size: 30px; margin-bottom: 6px; }
+.ip-schema-label { font-weight: 700; font-size: 14px; color: var(--text, #e0e0ee); }
+.ip-schema-sub { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+.ip-schema-arrow {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 0 12px;
+}
+.ip-schema-arrow-line {
+  width: 80px;
+  height: 2px;
+  background: linear-gradient(90deg, var(--accent, #7c6af7), #4ade80);
+  border-radius: 2px;
+}
+.ip-schema-arrow-tip {
+  font-size: 10px;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+/* Étapes */
+.ip-tuto-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.ip-step {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  background: var(--surface-alt, #1a1a26);
+  border: 1px solid var(--border, #2a2a3a);
+  border-radius: 10px;
+  padding: 14px 18px;
+}
+.ip-step-num {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--accent, #7c6af7);
+  color: #fff;
+  font-weight: 700;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 1px;
+}
+.ip-step-body { flex: 1; }
+.ip-step-title { font-weight: 600; font-size: 14px; color: var(--text, #e0e0ee); margin-bottom: 6px; }
+.ip-step-desc { font-size: 13px; color: var(--text-muted); line-height: 1.55; }
+.ip-step-desc code {
+  background: rgba(255,255,255,.08);
+  border-radius: 4px;
+  padding: 1px 5px;
+  font-size: 12px;
+  font-family: 'Courier New', monospace;
+  color: #c9c2ff;
+}
+
+.ip-url-example {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+  background: var(--surface, #12121A);
+  border: 1px solid var(--accent, #7c6af7);
+  border-radius: 7px;
+  padding: 8px 12px;
+}
+#ip-url-text {
+  font-family: 'Courier New', monospace;
+  font-size: 14px;
+  color: #c9c2ff;
+  flex: 1;
+}
+.ip-copy-btn { flex-shrink: 0; }
+
+/* Dépannage */
+.ip-troubleshoot-list {
+  margin: 0;
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.ip-troubleshoot-list li { font-size: 13px; color: var(--text-muted); line-height: 1.5; }
+.ip-troubleshoot-list li strong { color: var(--text, #e0e0ee); }
+.ip-troubleshoot-list li em { color: #c9c2ff; font-style: normal; }
+.ip-troubleshoot-list li code {
+  background: rgba(255,255,255,.08);
+  border-radius: 4px;
+  padding: 1px 5px;
+  font-size: 12px;
+  font-family: 'Courier New', monospace;
+  color: #c9c2ff;
+}
+
+/* ─── Onglet Éléments libres ────────────────────────────────────────────────── */
+
+.sel-group-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--gold, #E8B830);
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  margin-bottom: 6px;
+}
+
+.sel-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.sel-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--surface-alt, #1a1a26);
+  border: 1px solid var(--border, #2a2a3a);
+  border-radius: 7px;
+  padding: 7px 12px;
+  flex-wrap: wrap;
+}
+
+.sel-row-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text, #e0e0ee);
+  min-width: 96px;
+  flex-shrink: 0;
+}
+
+.sel-vis-label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--text-muted);
+  cursor: pointer;
+  flex-shrink: 0;
+  min-width: 36px;
+}
+
+.sel-coord {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.sel-coord input[type="number"] {
+  width: 64px;
+  background: var(--surface, #12121A);
+  border: 1px solid var(--border, #2a2a3a);
+  border-radius: 5px;
+  color: var(--text, #e0e0ee);
+  font-size: 12px;
+  padding: 3px 6px;
+}

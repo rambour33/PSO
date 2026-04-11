@@ -6605,3 +6605,148 @@ if (typeof state !== 'undefined' && state && state.customTheme) {
 socket.on('stateUpdate', (s) => {
   if (s && s.customTheme) ctLoad(s.customTheme);
 });
+
+// ─── Onglet Overlay multi-PC ─────────────────────────────────────────────────
+
+(function initOverlayIP() {
+  let _ipsLoaded = false;
+
+  function loadIPs() {
+    if (_ipsLoaded) return;
+    fetch('/api/server-info')
+      .then(r => r.json())
+      .then(data => {
+        _ipsLoaded = true;
+        const list = document.getElementById('ip-list');
+        const portEl = document.getElementById('ip-port');
+        const urlText = document.getElementById('ip-url-text');
+        const urlControl = document.getElementById('ip-control-url');
+        if (!list) return;
+
+        const port = data.port || 3002;
+        if (portEl) portEl.textContent = port;
+
+        const ips = data.ips || [];
+        if (ips.length === 0) {
+          list.innerHTML = '<span class="ip-loading">Aucune IP trouvée (réseau non disponible)</span>';
+          return;
+        }
+
+        list.innerHTML = ips.map(ip =>
+          `<span class="ip-chip" title="Cliquer pour copier">${ip}</span>`
+        ).join('');
+
+        // Clic sur un chip = copie l'IP
+        list.querySelectorAll('.ip-chip').forEach(chip => {
+          chip.addEventListener('click', () => {
+            navigator.clipboard.writeText(chip.textContent.trim()).then(() => {
+              const orig = chip.textContent;
+              chip.textContent = 'Copié !';
+              setTimeout(() => { chip.textContent = orig; }, 1200);
+            });
+          });
+        });
+
+        // Mettre à jour l'URL d'exemple avec la première IP
+        const firstIP = ips[0];
+        if (urlText) urlText.textContent = `http://${firstIP}:${port}/overlay`;
+        if (urlControl) urlControl.textContent = `http://${firstIP}:${port}/control`;
+
+        // Bouton copier l'URL overlay
+        const copyBtn = document.getElementById('ip-copy-btn');
+        if (copyBtn) {
+          copyBtn.addEventListener('click', () => {
+            navigator.clipboard.writeText(`http://${firstIP}:${port}/overlay`).then(() => {
+              copyBtn.textContent = 'Copié !';
+              setTimeout(() => { copyBtn.textContent = 'Copier'; }, 1500);
+            });
+          });
+        }
+      })
+      .catch(() => {
+        const list = document.getElementById('ip-list');
+        if (list) list.innerHTML = '<span class="ip-loading">Erreur lors de la récupération de l\'IP</span>';
+      });
+  }
+
+  // Charger l'IP quand l'onglet est ouvert
+  document.querySelectorAll('.tab-btn[data-tab="overlayip"]').forEach(btn => {
+    btn.addEventListener('click', loadIPs);
+  });
+})();
+
+// ─── Onglet Éléments libres ──────────────────────────────────────────────────
+
+(function initSelElements() {
+  let _debounce = null;
+  let _loaded = false;
+
+  // Envoie l'état complet de tous les éléments
+  function sendAll() {
+    clearTimeout(_debounce);
+    _debounce = setTimeout(() => {
+      const elements = {};
+      document.querySelectorAll('.sel-row').forEach(row => {
+        const visEl  = row.querySelector('.sel-vis');
+        const xEl    = row.querySelector('.sel-x');
+        const yEl    = row.querySelector('.sel-y');
+        const sizeEl = row.querySelector('.sel-size');
+        if (!xEl) return;
+        const key = xEl.dataset.key;
+        elements[key] = {
+          x:       parseInt(xEl.value)    || 0,
+          y:       parseInt(yEl.value)    || 0,
+          visible: visEl ? visEl.checked : true,
+          size:    sizeEl ? (parseInt(sizeEl.value) || 0) : undefined,
+        };
+        if (elements[key].size === undefined) delete elements[key].size;
+      });
+
+      const visible = document.getElementById('sel-visible')?.checked ?? true;
+      fetch('/api/elements-overlay', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ visible, elements }),
+      });
+    }, 80);
+  }
+
+  // Charge l'état depuis le serveur et remplit les inputs
+  function loadState() {
+    if (_loaded) return;
+    fetch('/api/elements-overlay').then(r => r.json()).then(s => {
+      _loaded = true;
+
+      const visEl = document.getElementById('sel-visible');
+      if (visEl) visEl.checked = s.visible !== false;
+
+      const els = s.elements || {};
+      for (const [key, conf] of Object.entries(els)) {
+        const xEl    = document.querySelector(`.sel-x[data-key="${key}"]`);
+        const yEl    = document.querySelector(`.sel-y[data-key="${key}"]`);
+        const sEl    = document.querySelector(`.sel-size[data-key="${key}"]`);
+        const vEl    = document.querySelector(`.sel-vis[data-key="${key}"]`);
+        if (xEl) xEl.value = conf.x ?? xEl.value;
+        if (yEl) yEl.value = conf.y ?? yEl.value;
+        if (sEl && conf.size != null) sEl.value = conf.size;
+        if (vEl) vEl.checked = conf.visible !== false;
+      }
+    }).catch(() => {});
+  }
+
+  // Wire les événements
+  function wire() {
+    document.querySelectorAll('.sel-x, .sel-y, .sel-size, .sel-vis').forEach(inp => {
+      inp.addEventListener('input', sendAll);
+    });
+    const visEl = document.getElementById('sel-visible');
+    if (visEl) visEl.addEventListener('change', sendAll);
+  }
+
+  // Charge quand l'onglet est ouvert
+  document.querySelectorAll('.tab-btn[data-tab="elements"]').forEach(btn => {
+    btn.addEventListener('click', loadState);
+  });
+
+  wire();
+})();

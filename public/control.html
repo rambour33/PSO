@@ -29,6 +29,7 @@
         <div class="overlay-group-menu">
           <a href="/overlay" target="_blank">Scoreboard</a>
           <a href="/overlay-slim" target="_blank">Slim</a>
+          <a href="/scoreboard-elements" target="_blank">Éléments libres</a>
           <a href="/vs-screen" target="_blank">VS Screen</a>
           <a href="/cam" target="_blank">Cam</a>
           <a href="/casters" target="_blank">Casters</a>
@@ -95,10 +96,12 @@
     <button class="tab-btn" data-tab="connexions">Connexions</button>
     <button class="tab-btn" data-tab="startgg">start.gg</button>
     <button class="tab-btn" data-tab="overlays">Overlays</button>
+    <button class="tab-btn" data-tab="elements">Éléments libres</button>
     <button class="tab-btn" data-tab="studio">Créateur de scènes</button>
     <button class="tab-btn" data-tab="twitch">Twitch</button>
     <button class="tab-btn" data-tab="youtube">YouTube</button>
     <button class="tab-btn" data-tab="obstools">Outils Streaming</button>
+    <button class="tab-btn" data-tab="overlayip">Overlay multi-PC</button>
   </nav>
 
   <!-- ═══════════════════════════════════════════════════════════ -->
@@ -3991,6 +3994,164 @@
   </div><!-- /tab-overlays -->
 
   <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- TAB : ÉLÉMENTS LIBRES                                       -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <div class="tab-content" id="tab-elements">
+    <section class="section">
+      <div class="section-header">
+        <h2>Éléments libres</h2>
+        <div style="display:flex;gap:8px;align-items:center">
+          <a href="/scoreboard-elements" target="_blank" class="btn btn-outline btn-sm">Overlay ↗</a>
+          <label style="display:flex;align-items:center;gap:6px;font-size:12px">
+            <input type="checkbox" id="sel-visible" checked />
+            Visible
+          </label>
+        </div>
+      </div>
+
+      <p style="font-size:12px;color:var(--text-muted);margin-bottom:16px;line-height:1.5">
+        Chaque élément est positionné indépendamment — la coordonnée correspond au <strong>centre</strong> de l'élément.<br>
+        Dans OBS, ajoute une <strong>Source Navigateur</strong> · URL : <code>localhost:3002/scoreboard-elements</code> · 1920×1080 · fond transparent.
+      </p>
+
+      <!-- ── Match ─────────────────────────────────────────────── -->
+      <div class="sel-group-label">Match</div>
+      <div class="sel-rows">
+        <div class="sel-row">
+          <span class="sel-row-name">Événement</span>
+          <label class="sel-vis-label"><input type="checkbox" class="sel-vis" data-key="event" checked />Vis</label>
+          <label class="sel-coord">X<input type="number" class="sel-x" data-key="event" value="960" min="0" max="1920" /></label>
+          <label class="sel-coord">Y<input type="number" class="sel-y" data-key="event" value="35"  min="0" max="1080" /></label>
+          <label class="sel-coord">Taille<input type="number" class="sel-size" data-key="event" value="18" min="8" max="120" /></label>
+        </div>
+        <div class="sel-row">
+          <span class="sel-row-name">Phase</span>
+          <label class="sel-vis-label"><input type="checkbox" class="sel-vis" data-key="phase" checked />Vis</label>
+          <label class="sel-coord">X<input type="number" class="sel-x" data-key="phase" value="960" min="0" max="1920" /></label>
+          <label class="sel-coord">Y<input type="number" class="sel-y" data-key="phase" value="68"  min="0" max="1080" /></label>
+          <label class="sel-coord">Taille<input type="number" class="sel-size" data-key="phase" value="26" min="8" max="120" /></label>
+        </div>
+        <div class="sel-row">
+          <span class="sel-row-name">Format</span>
+          <label class="sel-vis-label"><input type="checkbox" class="sel-vis" data-key="format" checked />Vis</label>
+          <label class="sel-coord">X<input type="number" class="sel-x" data-key="format" value="960" min="0" max="1920" /></label>
+          <label class="sel-coord">Y<input type="number" class="sel-y" data-key="format" value="104" min="0" max="1080" /></label>
+          <label class="sel-coord">Taille<input type="number" class="sel-size" data-key="format" value="16" min="8" max="120" /></label>
+        </div>
+      </div>
+
+      <!-- ── Joueur 1 ───────────────────────────────────────────── -->
+      <div class="sel-group-label" style="margin-top:16px">Joueur 1</div>
+      <div class="sel-rows">
+        <div class="sel-row">
+          <span class="sel-row-name">Personnage</span>
+          <label class="sel-vis-label"><input type="checkbox" class="sel-vis" data-key="p1char" checked />Vis</label>
+          <label class="sel-coord">X<input type="number" class="sel-x" data-key="p1char" value="300"  min="0" max="1920" /></label>
+          <label class="sel-coord">Y<input type="number" class="sel-y" data-key="p1char" value="400"  min="0" max="1080" /></label>
+          <label class="sel-coord">Largeur<input type="number" class="sel-size" data-key="p1char" value="220" min="20" max="800" /></label>
+        </div>
+        <div class="sel-row">
+          <span class="sel-row-name">Score J1</span>
+          <label class="sel-vis-label"><input type="checkbox" class="sel-vis" data-key="p1score" checked />Vis</label>
+          <label class="sel-coord">X<input type="number" class="sel-x" data-key="p1score" value="560"  min="0" max="1920" /></label>
+          <label class="sel-coord">Y<input type="number" class="sel-y" data-key="p1score" value="500"  min="0" max="1080" /></label>
+          <label class="sel-coord">Taille<input type="number" class="sel-size" data-key="p1score" value="90" min="8" max="300" /></label>
+        </div>
+        <div class="sel-row">
+          <span class="sel-row-name">Tag J1</span>
+          <label class="sel-vis-label"><input type="checkbox" class="sel-vis" data-key="p1tag" checked />Vis</label>
+          <label class="sel-coord">X<input type="number" class="sel-x" data-key="p1tag" value="220"  min="0" max="1920" /></label>
+          <label class="sel-coord">Y<input type="number" class="sel-y" data-key="p1tag" value="500"  min="0" max="1080" /></label>
+          <label class="sel-coord">Taille<input type="number" class="sel-size" data-key="p1tag" value="22" min="8" max="120" /></label>
+        </div>
+        <div class="sel-row">
+          <span class="sel-row-name">Pseudo J1</span>
+          <label class="sel-vis-label"><input type="checkbox" class="sel-vis" data-key="p1name" checked />Vis</label>
+          <label class="sel-coord">X<input type="number" class="sel-x" data-key="p1name" value="220"  min="0" max="1920" /></label>
+          <label class="sel-coord">Y<input type="number" class="sel-y" data-key="p1name" value="540"  min="0" max="1080" /></label>
+          <label class="sel-coord">Taille<input type="number" class="sel-size" data-key="p1name" value="32" min="8" max="120" /></label>
+        </div>
+        <div class="sel-row">
+          <span class="sel-row-name">Pronoms J1</span>
+          <label class="sel-vis-label"><input type="checkbox" class="sel-vis" data-key="p1pronouns" checked />Vis</label>
+          <label class="sel-coord">X<input type="number" class="sel-x" data-key="p1pronouns" value="220"  min="0" max="1920" /></label>
+          <label class="sel-coord">Y<input type="number" class="sel-y" data-key="p1pronouns" value="580"  min="0" max="1080" /></label>
+          <label class="sel-coord">Taille<input type="number" class="sel-size" data-key="p1pronouns" value="16" min="8" max="80" /></label>
+        </div>
+        <div class="sel-row">
+          <span class="sel-row-name">Seed J1</span>
+          <label class="sel-vis-label"><input type="checkbox" class="sel-vis" data-key="p1seed" checked />Vis</label>
+          <label class="sel-coord">X<input type="number" class="sel-x" data-key="p1seed" value="220"  min="0" max="1920" /></label>
+          <label class="sel-coord">Y<input type="number" class="sel-y" data-key="p1seed" value="460"  min="0" max="1080" /></label>
+          <label class="sel-coord">Taille<input type="number" class="sel-size" data-key="p1seed" value="18" min="8" max="80" /></label>
+        </div>
+        <div class="sel-row">
+          <span class="sel-row-name">Drapeau J1</span>
+          <label class="sel-vis-label"><input type="checkbox" class="sel-vis" data-key="p1flag" checked />Vis</label>
+          <label class="sel-coord">X<input type="number" class="sel-x" data-key="p1flag" value="200"  min="0" max="1920" /></label>
+          <label class="sel-coord">Y<input type="number" class="sel-y" data-key="p1flag" value="630"  min="0" max="1080" /></label>
+          <label class="sel-coord">Largeur<input type="number" class="sel-size" data-key="p1flag" value="90" min="16" max="300" /></label>
+        </div>
+      </div>
+
+      <!-- ── Joueur 2 ───────────────────────────────────────────── -->
+      <div class="sel-group-label" style="margin-top:16px">Joueur 2</div>
+      <div class="sel-rows">
+        <div class="sel-row">
+          <span class="sel-row-name">Personnage</span>
+          <label class="sel-vis-label"><input type="checkbox" class="sel-vis" data-key="p2char" checked />Vis</label>
+          <label class="sel-coord">X<input type="number" class="sel-x" data-key="p2char" value="1620" min="0" max="1920" /></label>
+          <label class="sel-coord">Y<input type="number" class="sel-y" data-key="p2char" value="400"  min="0" max="1080" /></label>
+          <label class="sel-coord">Largeur<input type="number" class="sel-size" data-key="p2char" value="220" min="20" max="800" /></label>
+        </div>
+        <div class="sel-row">
+          <span class="sel-row-name">Score J2</span>
+          <label class="sel-vis-label"><input type="checkbox" class="sel-vis" data-key="p2score" checked />Vis</label>
+          <label class="sel-coord">X<input type="number" class="sel-x" data-key="p2score" value="1360" min="0" max="1920" /></label>
+          <label class="sel-coord">Y<input type="number" class="sel-y" data-key="p2score" value="500"  min="0" max="1080" /></label>
+          <label class="sel-coord">Taille<input type="number" class="sel-size" data-key="p2score" value="90" min="8" max="300" /></label>
+        </div>
+        <div class="sel-row">
+          <span class="sel-row-name">Tag J2</span>
+          <label class="sel-vis-label"><input type="checkbox" class="sel-vis" data-key="p2tag" checked />Vis</label>
+          <label class="sel-coord">X<input type="number" class="sel-x" data-key="p2tag" value="1700" min="0" max="1920" /></label>
+          <label class="sel-coord">Y<input type="number" class="sel-y" data-key="p2tag" value="500"  min="0" max="1080" /></label>
+          <label class="sel-coord">Taille<input type="number" class="sel-size" data-key="p2tag" value="22" min="8" max="120" /></label>
+        </div>
+        <div class="sel-row">
+          <span class="sel-row-name">Pseudo J2</span>
+          <label class="sel-vis-label"><input type="checkbox" class="sel-vis" data-key="p2name" checked />Vis</label>
+          <label class="sel-coord">X<input type="number" class="sel-x" data-key="p2name" value="1700" min="0" max="1920" /></label>
+          <label class="sel-coord">Y<input type="number" class="sel-y" data-key="p2name" value="540"  min="0" max="1080" /></label>
+          <label class="sel-coord">Taille<input type="number" class="sel-size" data-key="p2name" value="32" min="8" max="120" /></label>
+        </div>
+        <div class="sel-row">
+          <span class="sel-row-name">Pronoms J2</span>
+          <label class="sel-vis-label"><input type="checkbox" class="sel-vis" data-key="p2pronouns" checked />Vis</label>
+          <label class="sel-coord">X<input type="number" class="sel-x" data-key="p2pronouns" value="1700" min="0" max="1920" /></label>
+          <label class="sel-coord">Y<input type="number" class="sel-y" data-key="p2pronouns" value="580"  min="0" max="1080" /></label>
+          <label class="sel-coord">Taille<input type="number" class="sel-size" data-key="p2pronouns" value="16" min="8" max="80" /></label>
+        </div>
+        <div class="sel-row">
+          <span class="sel-row-name">Seed J2</span>
+          <label class="sel-vis-label"><input type="checkbox" class="sel-vis" data-key="p2seed" checked />Vis</label>
+          <label class="sel-coord">X<input type="number" class="sel-x" data-key="p2seed" value="1700" min="0" max="1920" /></label>
+          <label class="sel-coord">Y<input type="number" class="sel-y" data-key="p2seed" value="460"  min="0" max="1080" /></label>
+          <label class="sel-coord">Taille<input type="number" class="sel-size" data-key="p2seed" value="18" min="8" max="80" /></label>
+        </div>
+        <div class="sel-row">
+          <span class="sel-row-name">Drapeau J2</span>
+          <label class="sel-vis-label"><input type="checkbox" class="sel-vis" data-key="p2flag" checked />Vis</label>
+          <label class="sel-coord">X<input type="number" class="sel-x" data-key="p2flag" value="1720" min="0" max="1920" /></label>
+          <label class="sel-coord">Y<input type="number" class="sel-y" data-key="p2flag" value="630"  min="0" max="1080" /></label>
+          <label class="sel-coord">Largeur<input type="number" class="sel-size" data-key="p2flag" value="90" min="16" max="300" /></label>
+        </div>
+      </div>
+
+    </section>
+  </div><!-- /tab-elements -->
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
   <!-- TAB : STUDIO                                                -->
   <!-- ═══════════════════════════════════════════════════════════ -->
   <div class="tab-content" id="tab-studio">
@@ -4341,6 +4502,108 @@
     </section>
 
   </div><!-- /tab-obstools -->
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- TAB : OVERLAY MULTI-PC                                      -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <div class="tab-content" id="tab-overlayip">
+    <section class="section">
+      <div class="section-header">
+        <h2>Overlay multi-PC</h2>
+      </div>
+
+      <!-- Adresses IP du serveur -->
+      <div class="ip-tuto-card" id="ip-addresses-card">
+        <div class="ip-tuto-card-title">Adresses IP de ce PC (serveur)</div>
+        <div id="ip-list" class="ip-list">
+          <span class="ip-loading">Chargement…</span>
+        </div>
+        <div class="ip-port-info">Port : <strong id="ip-port">3002</strong></div>
+      </div>
+
+      <!-- Schéma visuel -->
+      <div class="ip-schema">
+        <div class="ip-schema-box ip-schema-box--server">
+          <div class="ip-schema-icon">🖥️</div>
+          <div class="ip-schema-label">PC Serveur</div>
+          <div class="ip-schema-sub">Lance PSO (npm start)</div>
+        </div>
+        <div class="ip-schema-arrow">
+          <div class="ip-schema-arrow-line"></div>
+          <div class="ip-schema-arrow-tip">Réseau local (Wi-Fi / Ethernet)</div>
+        </div>
+        <div class="ip-schema-box ip-schema-box--client">
+          <div class="ip-schema-icon">💻</div>
+          <div class="ip-schema-label">PC Client</div>
+          <div class="ip-schema-sub">OBS / Navigateur</div>
+        </div>
+      </div>
+
+      <!-- Étapes -->
+      <div class="ip-tuto-steps">
+
+        <div class="ip-step">
+          <div class="ip-step-num">1</div>
+          <div class="ip-step-body">
+            <div class="ip-step-title">Connecter les deux PCs au même réseau</div>
+            <div class="ip-step-desc">Les deux machines doivent être sur le même réseau local — Wi-Fi domestique ou câble Ethernet. Un hotspot mobile <strong>ne fonctionnera pas</strong> si les appareils sont isolés.</div>
+          </div>
+        </div>
+
+        <div class="ip-step">
+          <div class="ip-step-num">2</div>
+          <div class="ip-step-body">
+            <div class="ip-step-title">Relever l'adresse IP du PC serveur</div>
+            <div class="ip-step-desc">L'adresse IP est affichée dans le cadre ci-dessus (ex : <code>192.168.1.42</code>). C'est l'IP à utiliser depuis le PC client. Si plusieurs adresses apparaissent, essaie la première.</div>
+          </div>
+        </div>
+
+        <div class="ip-step">
+          <div class="ip-step-num">3</div>
+          <div class="ip-step-body">
+            <div class="ip-step-title">Ouvrir l'overlay depuis le PC client</div>
+            <div class="ip-step-desc">Sur le PC client, ouvre un navigateur ou OBS et entre l'URL suivante :</div>
+            <div class="ip-url-example" id="ip-url-example">
+              <span id="ip-url-text">http://&lt;IP&gt;:3002/overlay</span>
+              <button class="btn btn-sm btn-outline ip-copy-btn" id="ip-copy-btn" title="Copier l'URL">Copier</button>
+            </div>
+            <div class="ip-step-desc" style="margin-top:8px">Remplace <code>/overlay</code> par l'overlay voulu (ex : <code>/overlay-slim</code>, <code>/frames</code>, <code>/ticker</code>…).</div>
+          </div>
+        </div>
+
+        <div class="ip-step">
+          <div class="ip-step-num">4</div>
+          <div class="ip-step-body">
+            <div class="ip-step-title">Ajouter dans OBS (source Navigateur)</div>
+            <div class="ip-step-desc">Dans OBS sur le PC client : <strong>Source → Navigateur</strong>. Colle l'URL ci-dessus dans le champ URL. Largeur : <strong>1920</strong>, Hauteur : <strong>1080</strong>.</div>
+          </div>
+        </div>
+
+        <div class="ip-step">
+          <div class="ip-step-num">5</div>
+          <div class="ip-step-body">
+            <div class="ip-step-title">Contrôler depuis n'importe quel PC</div>
+            <div class="ip-step-desc">Le panneau de contrôle est aussi accessible depuis le PC client :<br>
+              <code id="ip-control-url">http://&lt;IP&gt;:3002/control</code>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Dépannage -->
+      <div class="ip-tuto-card" style="margin-top:24px">
+        <div class="ip-tuto-card-title" style="color:var(--accent-warn, #f59e0b)">Dépannage</div>
+        <ul class="ip-troubleshoot-list">
+          <li><strong>L'overlay ne se charge pas</strong> — vérifie que le serveur PSO tourne bien sur le PC serveur (<code>npm start</code>), et que le pare-feu Windows autorise le port <strong>3002</strong> en entrée.</li>
+          <li><strong>Autoriser le pare-feu</strong> — Panneau de configuration → Pare-feu Windows Defender → Autoriser une application… → Ajouter <em>Node.js</em> ou ouvrir le port 3002 manuellement.</li>
+          <li><strong>Plusieurs IP affichées</strong> — essaie chaque adresse jusqu'à ce que l'overlay réponde. Généralement la <code>192.168.x.x</code> est la bonne.</li>
+          <li><strong>Connexion intermittente</strong> — préfère une connexion Ethernet plutôt que Wi-Fi pour plus de stabilité pendant un stream.</li>
+        </ul>
+      </div>
+
+    </section>
+  </div><!-- /tab-overlayip -->
 
   <!-- FOOTER -->
   <footer class="footer">
