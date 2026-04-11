@@ -239,6 +239,12 @@ for (const [key, id] of Object.entries(DOM_MAP)) {
   ELEMENTS[key].el = document.getElementById(id);
 }
 
+/* ── Mode élément unique (?el=xxx) ──────────────────────────────── */
+// Quand l'URL contient ?el=p1char, seul cet élément est affiché.
+// Tous les autres sont masqués définitivement.
+
+const SINGLE_KEY = new URLSearchParams(location.search).get('el') || null;
+
 /* ── État courant ────────────────────────────────────────────────── */
 
 let matchState = null;
@@ -250,20 +256,27 @@ function applyElState(s) {
   if (!s) return;
   elState = s;
 
-  const root = document.getElementById('sel-root');
-  if (root) root.style.opacity = s.visible === false ? '0' : '1';
+  // En mode élément unique, on ignore la visibilité globale
+  if (!SINGLE_KEY) {
+    const root = document.getElementById('sel-root');
+    if (root) root.style.opacity = s.visible === false ? '0' : '1';
+  }
 
   const els = s.elements || {};
   for (const [key, conf] of Object.entries(els)) {
     const def = ELEMENTS[key];
     if (!def?.el) continue;
 
+    // En mode élément unique : masquer tout sauf la clé cible
+    if (SINGLE_KEY) {
+      def.el.classList.toggle('hidden', key !== SINGLE_KEY);
+    } else {
+      def.el.classList.toggle('hidden', conf.visible === false);
+    }
+
     // Position : centré sur (x, y)
     def.el.style.left = (conf.x ?? 0) + 'px';
     def.el.style.top  = (conf.y ?? 0) + 'px';
-
-    // Visibilité
-    def.el.classList.toggle('hidden', conf.visible === false);
 
     // Taille
     if (conf.size != null) def.applySize(conf.size);

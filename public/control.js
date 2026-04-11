@@ -6750,3 +6750,50 @@ socket.on('stateUpdate', (s) => {
 
   wire();
 })();
+
+// ─── Boutons copier URL par élément (onglet Éléments libres) ────────────────
+
+(function initSelCopyButtons() {
+  function buildButtons() {
+    document.querySelectorAll('#tab-elements .sel-row').forEach(row => {
+      if (row.querySelector('.sel-copy-btn')) return; // déjà ajouté
+
+      const xInput = row.querySelector('.sel-x');
+      if (!xInput) return;
+      const key = xInput.dataset.key;
+      const url = `${location.origin}/scoreboard-elements?el=${key}`;
+
+      const wrap = document.createElement('div');
+      wrap.className = 'sel-copy-wrap';
+      wrap.title = url;
+
+      const code = document.createElement('code');
+      code.className = 'sel-copy-url';
+      code.textContent = `?el=${key}`;
+
+      const btn = document.createElement('button');
+      btn.className = 'btn btn-sm btn-outline sel-copy-btn';
+      btn.textContent = 'OBS';
+      btn.addEventListener('click', () => {
+        navigator.clipboard.writeText(url).then(() => {
+          btn.textContent = '✓';
+          setTimeout(() => { btn.textContent = 'OBS'; }, 1400);
+        });
+      });
+
+      wrap.appendChild(code);
+      wrap.appendChild(btn);
+      row.appendChild(wrap);
+    });
+  }
+
+  // Injecte lors de l'ouverture de l'onglet
+  document.querySelectorAll('.tab-btn[data-tab="elements"]').forEach(btn => {
+    btn.addEventListener('click', buildButtons);
+  });
+
+  // Si l'onglet est déjà actif au chargement
+  if (document.getElementById('tab-elements')?.classList.contains('active')) {
+    buildButtons();
+  }
+})();

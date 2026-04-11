@@ -3006,3 +3006,36 @@ kbd {
   font-size: 12px;
   padding: 3px 6px;
 }
+
+/* ─── Boutons copier URL – onglet Éléments libres ──────────────────────────── */
+
+.sel-copy-wrap {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+.sel-copy-url {
+  font-family: 'Courier New', monospace;
+  font-size: 10px;
+  color: var(--text-muted);
+  background: rgba(255,255,255,0.05);
+  border-radius: 4px;
+  padding: 2px 6px;
+  white-space: nowrap;
+}
+
+.sel-copy-btn {
+  font-size: 10px;
+  padding: 2px 8px;
+  border-color: rgba(124,106,247,0.4);
+  color: #c9c2ff;
+  white-space: nowrap;
+  min-width: 36px;
+}
+
+.sel-copy-btn:hover {
+  background: rgba(124,106,247,0.15);
+}
