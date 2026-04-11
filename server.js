@@ -74,6 +74,7 @@ let matchState = {
   sbY: 0,
   eventBarPosition: 'top',
   scoreDisplay: 'numbers',
+  dotsOrientation: 'row',
   transparentPositions: {
     event:  { x: 720,  y: 0  },
     p1Icon: { x: 631,  y: 28 },

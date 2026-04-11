@@ -433,11 +433,77 @@ body {
 .scoreboard.style-slim .full-layout            { display: none; }
 .scoreboard.style-compact-rounded .full-layout { display: none; }
 
+/* ── Dots en colonne (dans le score-box, aux extrémités du VS) ── */
+
+.dots-col-left,
+.dots-col-right {
+  display: none; /* cachés par défaut (mode ligne) */
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 6px 10px;
+  align-self: stretch;
+}
+
+.dots-col-left {
+  border-right: 2px solid var(--p1-color, var(--smash-red));
+  margin-right: 6px;
+}
+
+.dots-col-right {
+  border-left: 2px solid var(--p2-color, var(--smash-blue));
+  margin-left: 6px;
+}
+
+/* Activation du mode colonne */
+.scoreboard.dots-column:not(.style-slim):not(.style-compact-rounded) .series-dots {
+  display: none;
+}
+
+.scoreboard.dots-column:not(.style-slim):not(.style-compact-rounded) .dots-col-left,
+.scoreboard.dots-column:not(.style-slim):not(.style-compact-rounded) .dots-col-right {
+  display: flex;
+}
+
+/* Ronds en mode colonne */
+.scoreboard.dots-column .dots-col-left .win-dot,
+.scoreboard.dots-column .dots-col-right .win-dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid var(--smash-muted);
+  background: transparent;
+  box-shadow: none;
+  transition: all 0.3s;
+}
+
+.scoreboard.dots-column .dots-col-left .win-dot.filled {
+  background: var(--dot-color, var(--p1-color, var(--smash-red)));
+  border-color: var(--dot-color, var(--p1-color, var(--smash-red)));
+  box-shadow:
+    0 0 8px var(--dot-color, var(--p1-color, var(--smash-red))),
+    0 0 18px var(--dot-color, var(--p1-color, var(--smash-red)));
+}
+
+.scoreboard.dots-column .dots-col-right .win-dot.filled {
+  background: var(--dot-color, var(--p2-color, var(--smash-blue)));
+  border-color: var(--dot-color, var(--p2-color, var(--smash-blue)));
+  box-shadow:
+    0 0 8px var(--dot-color, var(--p2-color, var(--smash-blue))),
+    0 0 18px var(--dot-color, var(--p2-color, var(--smash-blue)));
+}
+
 /* ═══ Affichage du score (full & full-rounded uniquement) ═══════ */
 
 /* Mode chiffres — masque les points */
 .scoreboard.score-display-numbers:not(.style-slim):not(.style-compact-rounded) .series-dots {
   display: none;
+}
+
+.scoreboard.score-display-numbers:not(.style-slim):not(.style-compact-rounded) .dots-col-left,
+.scoreboard.score-display-numbers:not(.style-slim):not(.style-compact-rounded) .dots-col-right {
+  display: none !important;
 }
 
 /* Mode points — masque les chiffres, agrandit les cercles */

@@ -135,6 +135,11 @@ function syncFromState(s) {
     b.classList.toggle('active', b.dataset.display === (s.scoreDisplay || 'numbers'));
   });
 
+  // Dots orientation buttons
+  document.querySelectorAll('.dots-orientation-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.orientation === (s.dotsOrientation || 'row'));
+  });
+
   // Event bar position buttons
   document.querySelectorAll('.event-bar-pos-btn').forEach(b => {
     b.classList.toggle('active', b.dataset.pos === (s.eventBarPosition || 'top'));
@@ -259,6 +264,7 @@ function buildStateFromForm() {
     swapped: state.swapped ?? false,
     overlayStyle: state.overlayStyle || 'full',
     scoreDisplay: state.scoreDisplay || 'numbers',
+    dotsOrientation: state.dotsOrientation || 'row',
     eventBarPosition: state.eventBarPosition || 'top',
     tagColor: document.getElementById('tag-color')?.value || '#E8B830',
     nameColor: document.getElementById('name-color')?.value || '#F0EEF8',
@@ -435,6 +441,16 @@ document.querySelectorAll('.score-display-btn').forEach(btn => {
     state.scoreDisplay = btn.dataset.display;
     document.querySelectorAll('.score-display-btn').forEach(b => {
       b.classList.toggle('active', b.dataset.display === state.scoreDisplay);
+    });
+    emitState(buildStateFromForm());
+  });
+});
+
+document.querySelectorAll('.dots-orientation-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    state.dotsOrientation = btn.dataset.orientation;
+    document.querySelectorAll('.dots-orientation-btn').forEach(b => {
+      b.classList.toggle('active', b.dataset.orientation === state.dotsOrientation);
     });
     emitState(buildStateFromForm());
   });

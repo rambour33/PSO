@@ -656,8 +656,12 @@ function update(s) {
 
   // Series dots
   const max = getFormatMax(s.format, s.customWins);
-  renderDots('p1-dots', s.player1.score, max, c1);
-  renderDots('p2-dots', s.player2.score, max, c2);
+  const dotsOrientation = s.dotsOrientation || 'row';
+  sb.classList.toggle('dots-column', dotsOrientation === 'column');
+  renderDots('p1-dots',     s.player1.score, max, c1);
+  renderDots('p2-dots',     s.player2.score, max, c2);
+  renderDots('p1-dots-col', s.player1.score, max, c1);
+  renderDots('p2-dots-col', s.player2.score, max, c2);
 
   // ── Transparent theme — positions CSS vars ───────────────────
   if (isTransparent) {
