@@ -352,6 +352,86 @@ function renderDots(containerId, score, totalGames, color) {
   }
 }
 
+// ── Lower-third : carousel réseaux sociaux ──────────────────────
+const _ltCarousel = { p1: { idx: 0, timer: null, socials: [] }, p2: { idx: 0, timer: null, socials: [] } };
+
+function _ltSetSocial(player, textEl) {
+  const c = _ltCarousel[player];
+  const active = c.socials.filter(s => s.trim());
+  if (!active.length) { textEl.textContent = ''; return; }
+  const text = active[c.idx % active.length];
+  textEl.classList.add('fading');
+  setTimeout(() => {
+    textEl.textContent = text;
+    textEl.classList.remove('fading');
+  }, 400);
+}
+
+function _ltStartCarousel(player, socials, textEl) {
+  const c = _ltCarousel[player];
+  clearInterval(c.timer);
+  c.socials = socials || [];
+  c.idx = 0;
+  const active = c.socials.filter(s => s.trim());
+  if (!active.length) { textEl.textContent = ''; return; }
+  textEl.textContent = active[0];
+  if (active.length > 1) {
+    c.timer = setInterval(() => {
+      c.idx = (c.idx + 1) % active.length;
+      _ltSetSocial(player, textEl);
+    }, 4000);
+  }
+}
+
+function _ltSetFlag(imgEl, codeEl, boxEl, flagPath) {
+  if (flagPath) {
+    imgEl.src = '/' + flagPath;
+    imgEl.style.display = 'block';
+    const code = flagPath.replace(/^flags\//, '').replace(/\.[^.]+$/, '');
+    codeEl.textContent = code;
+    boxEl.style.display = '';
+  } else {
+    imgEl.style.display = 'none';
+    codeEl.textContent = '';
+    boxEl.style.display = 'none';
+  }
+}
+
+function _ltUpdate(s) {
+  const p1 = s.player1;
+  const p2 = s.player2;
+
+  // Player 1
+  document.getElementById('lt-p1-name').textContent  = p1.name || 'PLAYER 1';
+  document.getElementById('lt-p1-tag').textContent   = p1.tag  || '';
+  document.getElementById('lt-p1-score').textContent = p1.score ?? 0;
+  const ltP1Pron = document.getElementById('lt-p1-pronouns');
+  if (ltP1Pron) ltP1Pron.textContent = p1.pronouns || '';
+  _ltSetFlag(
+    document.getElementById('lt-p1-flag-img'),
+    document.getElementById('lt-p1-flag-code'),
+    document.getElementById('lt-p1-flag-box'),
+    p1.flag
+  );
+  document.getElementById('lt-p1').style.setProperty('--p1-color', p1.color || '#E83030');
+  _ltStartCarousel('p1', p1.socials || [], document.getElementById('lt-p1-social-text'));
+
+  // Player 2
+  document.getElementById('lt-p2-name').textContent  = p2.name || 'PLAYER 2';
+  document.getElementById('lt-p2-tag').textContent   = p2.tag  || '';
+  document.getElementById('lt-p2-score').textContent = p2.score ?? 0;
+  const ltP2Pron = document.getElementById('lt-p2-pronouns');
+  if (ltP2Pron) ltP2Pron.textContent = p2.pronouns || '';
+  _ltSetFlag(
+    document.getElementById('lt-p2-flag-img'),
+    document.getElementById('lt-p2-flag-code'),
+    document.getElementById('lt-p2-flag-box'),
+    p2.flag
+  );
+  document.getElementById('lt-p2').style.setProperty('--p2-color', p2.color || '#3070E8');
+  _ltStartCarousel('p2', p2.socials || [], document.getElementById('lt-p2-social-text'));
+}
+
 function update(s) {
   const prev = currentState;
 
@@ -360,7 +440,7 @@ function update(s) {
   sb.classList.toggle('hidden', !s.visible);
   // swapped est géré côté données (player1/player2 physiquement échangés)
   const _style = s.overlayStyle || 'full';
-  ['slim', 'full-rounded', 'compact-rounded'].forEach(st => {
+  ['slim', 'full-rounded', 'compact-rounded', 'lower-third'].forEach(st => {
     sb.classList.toggle('style-' + st, _style === st);
   });
   const _scoreDisplay = s.scoreDisplay || 'numbers';
@@ -662,6 +742,32 @@ function update(s) {
   renderDots('p2-dots',     s.player2.score, max, c2);
   renderDots('p1-dots-col', s.player1.score, max, c1);
   renderDots('p2-dots-col', s.player2.score, max, c2);
+
+  // ── Lower-third layout ───────────────────────────────────────
+  const ltEl = document.getElementById('lt-layout');
+  if (ltEl) {
+    // Sync theme class
+    const _theme = s.overlayTheme || 'default';
+    [...ltEl.classList].filter(c => c.startsWith('theme-')).forEach(c => ltEl.classList.remove(c));
+    ltEl.classList.add('theme-' + _theme);
+
+    // Sync background var from scoreboard so lt-inner adapts to user's bg color
+    ltEl.style.setProperty('--sb-bg', sb.style.getPropertyValue('--sb-bg') || '#0E0E12');
+
+    // Dual theme: copy per-player character theme vars for glow effects
+    if (isDual) {
+      ['--p1-theme-primary','--p1-theme-glow','--p1-theme-bg',
+       '--p2-theme-primary','--p2-theme-glow','--p2-theme-bg'].forEach(v => {
+        ltEl.style.setProperty(v, sb.style.getPropertyValue(v));
+      });
+    }
+
+    const showLt = !!s.ltVisible || _style === 'lower-third';
+    ltEl.classList.toggle('lt-visible', showLt);
+    ltEl.style.setProperty('--lt-bottom',    (s.ltBottom   ?? 150) + 'px');
+    ltEl.style.setProperty('--lt-padding-x', (s.ltPaddingX ?? 60)  + 'px');
+    if (showLt) _ltUpdate(s);
+  }
 
   // ── Transparent theme — positions CSS vars ───────────────────
   if (isTransparent) {

@@ -44,8 +44,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 // ─── State ────────────────────────────────────────────────────────────────────
 
 let matchState = {
-  player1: { name: 'PLAYER 1', score: 0, character: null, color: '#E83030', tag: '', pronouns: '', stockColor: 0, flag: '', flagOffsetX: 0, flagOffsetY: 0, seeding: null },
-  player2: { name: 'PLAYER 2', score: 0, character: null, color: '#3070E8', tag: '', pronouns: '', stockColor: 0, flag: '', flagOffsetX: 0, flagOffsetY: 0, seeding: null },
+  player1: { name: 'PLAYER 1', score: 0, character: null, color: '#E83030', tag: '', pronouns: '', stockColor: 0, flag: '', flagOffsetX: 0, flagOffsetY: 0, seeding: null, socials: ['', '', ''] },
+  player2: { name: 'PLAYER 2', score: 0, character: null, color: '#3070E8', tag: '', pronouns: '', stockColor: 0, flag: '', flagOffsetX: 0, flagOffsetY: 0, seeding: null, socials: ['', '', ''] },
   flagSize: 52,
   format: 'Bo3',
   customWins: 2,
@@ -75,6 +75,9 @@ let matchState = {
   eventBarPosition: 'top',
   scoreDisplay: 'numbers',
   dotsOrientation: 'row',
+  ltVisible: false,
+  ltBottom: 150,
+  ltPaddingX: 60,
   transparentPositions: {
     event:  { x: 720,  y: 0  },
     p1Icon: { x: 631,  y: 28 },
@@ -1660,6 +1663,28 @@ app.post('/api/state', (req, res) => {
   res.json(matchState);
 });
 
+// ── Logo upload ────────────────────────────────────────────────
+const LOGOS_DIR = path.join(__dirname, 'public', 'logos');
+if (!fs.existsSync(LOGOS_DIR)) fs.mkdirSync(LOGOS_DIR, { recursive: true });
+
+app.post('/api/logo/upload', (req, res) => {
+  const { filename, data } = req.body;
+  if (!filename || !data) return res.status(400).json({ error: 'filename and data required' });
+  const safe = path.basename(filename).replace(/[^a-zA-Z0-9._-]/g, '_');
+  const b64  = data.includes(',') ? data.split(',')[1] : data;
+  fs.writeFileSync(path.join(LOGOS_DIR, safe), Buffer.from(b64, 'base64'));
+  res.json({ url: '/logos/' + safe });
+});
+
+app.delete('/api/logo/upload', (req, res) => {
+  const { filename } = req.body || {};
+  if (filename) {
+    const safe = path.basename(filename).replace(/[^a-zA-Z0-9._-]/g, '_');
+    try { fs.unlinkSync(path.join(LOGOS_DIR, safe)); } catch (e) {}
+  }
+  res.json({ ok: true });
+});
+
 // ── Texture upload ─────────────────────────────────────────────
 const TEXTURES_DIR = path.join(__dirname, 'public', 'textures');
 if (!fs.existsSync(TEXTURES_DIR)) fs.mkdirSync(TEXTURES_DIR, { recursive: true });
@@ -2679,6 +2704,52 @@ app.get('/api/flags', (req, res) => {
 app.post('/api/server/reload', (req, res) => {
   res.json({ ok: true });
   setTimeout(() => process.exit(0), 300);
+});
+
+// ─── Scoreboard builder layouts ───────────────────────────────────────────────
+
+let sbLayouts = (function () {
+  try { return getConfig().sbLayouts || []; } catch { return []; }
+})();
+
+function saveSbLayouts() {
+  const cfg = getConfig();
+  cfg.sbLayouts = sbLayouts;
+  saveConfig(cfg);
+}
+
+app.get('/api/sb-layouts', (req, res) => res.json({ layouts: sbLayouts }));
+
+app.post('/api/sb-layouts', (req, res) => {
+  const layout = {
+    id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+    name: req.body.name || 'Nouveau scoreboard',
+    shapes: [],
+  };
+  sbLayouts.push(layout);
+  saveSbLayouts();
+  res.json({ layout });
+});
+
+app.patch('/api/sb-layouts/:id', (req, res) => {
+  const idx = sbLayouts.findIndex(l => l.id === req.params.id);
+  if (idx === -1) return res.status(404).json({ error: 'not found' });
+  sbLayouts[idx] = { ...sbLayouts[idx], ...req.body };
+  saveSbLayouts();
+  io.emit('sbLayoutUpdate', { id: sbLayouts[idx].id, shapes: sbLayouts[idx].shapes });
+  res.json({ layout: sbLayouts[idx] });
+});
+
+app.delete('/api/sb-layouts/:id', (req, res) => {
+  const idx = sbLayouts.findIndex(l => l.id === req.params.id);
+  if (idx === -1) return res.status(404).json({ error: 'not found' });
+  sbLayouts.splice(idx, 1);
+  saveSbLayouts();
+  res.json({ ok: true });
+});
+
+app.get('/scoreboard-custom', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'scoreboard-custom.html'));
 });
 
 // ─── Start ────────────────────────────────────────────────────────────────────

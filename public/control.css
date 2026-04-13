@@ -3075,3 +3075,64 @@ kbd {
 .sel-copy-btn:hover {
   background: rgba(124,106,247,0.15);
 }
+
+/* ── Scoreboard builder canvas ──────────────────────────────── */
+#sbb-canvas-wrap {
+  width: 100%;
+}
+
+#sbb-canvas-inner {
+  pointer-events: auto;
+}
+
+.sbb-shape-preview {
+  user-select: none;
+}
+
+.sbb-layer-row:hover {
+  background: rgba(255,255,255,0.05) !important;
+}
+
+/* ── Sous-onglets ────────────────────────────────────────────── */
+.subtab-nav {
+  display: flex;
+  gap: 4px;
+  padding: 12px 16px 0;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 0;
+}
+
+.subtab-btn {
+  padding: 8px 20px;
+  border: none;
+  border-radius: 6px 6px 0 0;
+  background: var(--surface2);
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  border: 1px solid var(--border);
+  border-bottom: none;
+  margin-bottom: -1px;
+}
+
+.subtab-btn:hover {
+  background: var(--surface);
+  color: var(--text);
+}
+
+.subtab-btn.active {
+  background: var(--bg);
+  color: var(--text);
+  border-color: var(--border);
+  border-bottom-color: var(--bg);
+}
+
+.subtab-content {
+  display: none;
+}
+
+.subtab-content.active {
+  display: block;
+}

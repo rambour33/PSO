@@ -7,7 +7,6 @@ let state = {
   customWins: 2,
   event: 'TOURNAMENT',
   stage: 'Grand Final',
-  currentStage: '',
   visible: true,
 };
 let vetoState = null;
@@ -64,7 +63,6 @@ function syncFromState(s) {
   document.getElementById('p2-score-display').textContent = s.player2.score;
   document.getElementById('event-name').value = s.event;
   document.getElementById('event-stage').value = s.stage;
-  document.getElementById('current-stage').value = s.currentStage || '';
   document.getElementById('center-logo').value = s.centerLogo || '';
   const lpVal = s.logoParticleCount ?? 3;
   document.getElementById('logo-particles-range').value = lpVal;
@@ -89,6 +87,16 @@ function syncFromState(s) {
   // Character previews
   updateCharPreview(1, s.player1.character);
   updateCharPreview(2, s.player2.character);
+
+  // Socials restore
+  const p1Soc = s.player1.socials || ['', '', ''];
+  const p2Soc = s.player2.socials || ['', '', ''];
+  ['1','2','3'].forEach((n, i) => {
+    const e1 = document.getElementById('p1-social-' + n);
+    const e2 = document.getElementById('p2-social-' + n);
+    if (e1) e1.value = p1Soc[i] || '';
+    if (e2) e2.value = p2Soc[i] || '';
+  });
 
   // Flag restore
   if (window.flagPickerRestore) {
@@ -129,6 +137,11 @@ function syncFromState(s) {
   document.querySelectorAll('.overlay-style-btn').forEach(b => {
     b.classList.toggle('active', b.dataset.style === (s.overlayStyle || 'full'));
   });
+  const _showLtControls = s.ltVisible || s.overlayStyle === 'lower-third';
+  const ltCard = document.getElementById('lt-position-card');
+  if (ltCard) ltCard.style.display = _showLtControls ? '' : 'none';
+  const ltBtn = document.getElementById('btn-lt-toggle');
+  if (ltBtn) { ltBtn.textContent = s.ltVisible ? 'Lower Third extra : ON' : 'Lower Third extra : OFF'; ltBtn.classList.toggle('btn-primary', !!s.ltVisible); ltBtn.classList.toggle('btn-outline', !s.ltVisible); }
 
   // Score display buttons
   document.querySelectorAll('.score-display-btn').forEach(b => {
@@ -178,6 +191,15 @@ function syncFromState(s) {
   if (scaleR) { scaleR.value = sbScale; scaleN.value = sbScale; }
   if (xR) { xR.value = sbX; xN.value = sbX; }
   if (yR) { yR.value = sbY; yN.value = sbY; }
+
+  const ltB = s.ltBottom ?? 150;
+  const ltPx = s.ltPaddingX ?? 60;
+  const ltBR = document.getElementById('lt-bottom-range');
+  const ltBN = document.getElementById('lt-bottom-num');
+  const ltPxR = document.getElementById('lt-padding-x-range');
+  const ltPxN = document.getElementById('lt-padding-x-num');
+  if (ltBR) { ltBR.value = ltB; ltBN.value = ltB; }
+  if (ltPxR) { ltPxR.value = ltPx; ltPxN.value = ltPx; }
 
   // Texture (customisation tab)
   const txOp = s.overlayTextureOpacity ?? 50;
@@ -244,6 +266,11 @@ function buildStateFromForm() {
       flagOffsetX: parseInt(document.getElementById('p1-flag-x-num')?.value ?? 0),
       flagOffsetY: parseInt(document.getElementById('p1-flag-y-num')?.value ?? 0),
       seeding:    document.getElementById('p1-seed')?.value.trim() ? parseInt(document.getElementById('p1-seed').value) : null,
+      socials: [
+        document.getElementById('p1-social-1')?.value.trim() || '',
+        document.getElementById('p1-social-2')?.value.trim() || '',
+        document.getElementById('p1-social-3')?.value.trim() || '',
+      ],
     },
     player2: {
       ...state.player2,
@@ -256,10 +283,14 @@ function buildStateFromForm() {
       flagOffsetX: parseInt(document.getElementById('p2-flag-x-num')?.value ?? 0),
       flagOffsetY: parseInt(document.getElementById('p2-flag-y-num')?.value ?? 0),
       seeding:    document.getElementById('p2-seed')?.value.trim() ? parseInt(document.getElementById('p2-seed').value) : null,
+      socials: [
+        document.getElementById('p2-social-1')?.value.trim() || '',
+        document.getElementById('p2-social-2')?.value.trim() || '',
+        document.getElementById('p2-social-3')?.value.trim() || '',
+      ],
     },
     event: document.getElementById('event-name').value.trim() || 'TOURNAMENT',
     stage: document.getElementById('event-stage').value.trim() || '',
-    currentStage: document.getElementById('current-stage').value.trim(),
     centerLogo: document.getElementById('center-logo').value.trim(),
     swapped: state.swapped ?? false,
     overlayStyle: state.overlayStyle || 'full',
@@ -280,9 +311,12 @@ function buildStateFromForm() {
     particleCountScale: parseInt(document.getElementById('particle-count-num')?.value ?? 100),
     particlesEnabled:   state.particlesEnabled !== false,
     hidePlayerColors:   state.hidePlayerColors === true,
-    sbScale:  parseInt(document.getElementById('sb-scale-num')?.value ?? 100),
-    sbX:      parseInt(document.getElementById('sb-x-num')?.value ?? 0),
-    sbY:      parseInt(document.getElementById('sb-y-num')?.value ?? 0),
+    sbScale:     parseInt(document.getElementById('sb-scale-num')?.value ?? 100),
+    sbX:         parseInt(document.getElementById('sb-x-num')?.value ?? 0),
+    sbY:         parseInt(document.getElementById('sb-y-num')?.value ?? 0),
+    ltVisible:   state.ltVisible || false,
+    ltBottom:    parseInt(document.getElementById('lt-bottom-num')?.value ?? 150),
+    ltPaddingX:  parseInt(document.getElementById('lt-padding-x-num')?.value ?? 60),
     flagSize: parseInt(document.getElementById('flag-size-num')?.value ?? 52),
     overlayTexture:        state.overlayTexture || null,
     overlayTextureOpacity: parseInt(document.getElementById('texture-opacity-num')?.value ?? 50),
@@ -431,6 +465,8 @@ document.querySelectorAll('.overlay-style-btn').forEach(btn => {
     document.querySelectorAll('.overlay-style-btn').forEach(b => {
       b.classList.toggle('active', b.dataset.style === state.overlayStyle);
     });
+    const ltCard = document.getElementById('lt-position-card');
+    if (ltCard) ltCard.style.display = (state.overlayStyle === 'lower-third' || state.ltVisible) ? '' : 'none';
     emitState(buildStateFromForm());
     setStatus(`Style : ${state.overlayStyle}`);
   });
@@ -454,6 +490,15 @@ document.querySelectorAll('.dots-orientation-btn').forEach(btn => {
     });
     emitState(buildStateFromForm());
   });
+});
+
+document.getElementById('btn-lt-toggle')?.addEventListener('click', () => {
+  state.ltVisible = !state.ltVisible;
+  const ltCard = document.getElementById('lt-position-card');
+  if (ltCard) ltCard.style.display = state.ltVisible ? '' : 'none';
+  const ltBtn = document.getElementById('btn-lt-toggle');
+  if (ltBtn) { ltBtn.textContent = state.ltVisible ? 'Lower Third : ON' : 'Lower Third : OFF'; ltBtn.classList.toggle('btn-primary', state.ltVisible); ltBtn.classList.toggle('btn-outline', !state.ltVisible); }
+  emitState(buildStateFromForm());
 });
 
 document.querySelectorAll('.event-bar-pos-btn').forEach(btn => {
@@ -1495,6 +1540,19 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
   });
 });
 
+// ── Sous-onglets ──────────────────────────────────────────────
+
+document.querySelectorAll('.subtab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const parent = btn.closest('.tab-content');
+    parent.querySelectorAll('.subtab-btn').forEach(b => b.classList.remove('active'));
+    parent.querySelectorAll('.subtab-content').forEach(c => c.classList.remove('active'));
+    btn.classList.add('active');
+    const target = parent.querySelector('#subtab-' + btn.dataset.subtab);
+    if (target) target.classList.add('active');
+  });
+});
+
 // ── Accordions ────────────────────────────────────────────────
 
 document.querySelectorAll('.accordion-header').forEach(header => {
@@ -1503,9 +1561,37 @@ document.querySelectorAll('.accordion-header').forEach(header => {
   });
 });
 
-// ── Logo preview ──────────────────────────────────────────────
+// ── Logo preview & upload fichier local ──────────────────────
 
 document.getElementById('center-logo').addEventListener('input', updateLogoPreview);
+
+// Bouton 📁 → ouvre le file picker
+document.getElementById('btn-logo-file-pick')?.addEventListener('click', () => {
+  document.getElementById('center-logo-file-input')?.click();
+});
+
+// Upload du fichier vers /api/logo/upload
+document.getElementById('center-logo-file-input')?.addEventListener('change', (e) => {
+  const file = e.target.files?.[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    fetch('/api/logo/upload', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ filename: file.name, data: ev.target.result }),
+    })
+      .then(r => r.json())
+      .then(({ url }) => {
+        if (!url) return;
+        document.getElementById('center-logo').value = url;
+        updateLogoPreview();
+        e.target.value = '';
+      })
+      .catch(() => alert('Erreur upload logo'));
+  };
+  reader.readAsDataURL(file);
+});
 
 function updateLogoPreview() {
   const url = document.getElementById('center-logo').value.trim();
@@ -1594,9 +1680,11 @@ document.getElementById('logo-particles-num').addEventListener('change', functio
 
 // Scoreboard scale/position sliders — sync range ↔ number and emit
 [
-  { id: 'sb-scale', min: 50,   max: 200 },
-  { id: 'sb-x',    min: -960,  max: 960 },
-  { id: 'sb-y',    min: -200,  max: 600 },
+  { id: 'sb-scale',      min: 50,   max: 200 },
+  { id: 'sb-x',          min: -960, max: 960 },
+  { id: 'sb-y',          min: -200, max: 600 },
+  { id: 'lt-bottom',     min: 0,    max: 500 },
+  { id: 'lt-padding-x',  min: 0,    max: 400 },
 ].forEach(({ id, min, max }) => {
   document.getElementById(id + '-range').addEventListener('input', function () {
     document.getElementById(id + '-num').value = this.value;
@@ -6312,7 +6400,7 @@ const CT_DEFAULTS = {
   neonEnabled: false, neonColor: '#E8B830', neonIntensity: 8,
   neonName: true, neonScore: true, neonTag: false, neonEvent: false, neonAccent: true,
   fontFamily: 'Russo One', letterSpacing: 2, nameFontSize: 24,
-  particleType: 'sparkle', particleCount: 60,
+  particleType: 'sparkle', particleCount: 0,
   coverImage: null, coverOpacity: 50, coverMode: 'cover',
 };
 
@@ -6845,7 +6933,7 @@ socket.on('stateUpdate', (s) => {
   }
 
   // Charge quand l'onglet est ouvert
-  document.querySelectorAll('.tab-btn[data-tab="elements"]').forEach(btn => {
+  document.querySelectorAll('.tab-btn[data-tab="builder"]').forEach(btn => {
     btn.addEventListener('click', loadState);
   });
 
@@ -6856,7 +6944,7 @@ socket.on('stateUpdate', (s) => {
 
 (function initSelCopyButtons() {
   function buildButtons() {
-    document.querySelectorAll('#tab-elements .sel-row').forEach(row => {
+    document.querySelectorAll('#tab-builder .sel-row').forEach(row => {
       if (row.querySelector('.sel-copy-btn')) return; // déjà ajouté
 
       const xInput = row.querySelector('.sel-x');
@@ -6864,6 +6952,20 @@ socket.on('stateUpdate', (s) => {
       const key = xInput.dataset.key;
       const url = `${location.origin}/scoreboard-elements?el=${key}`;
 
+      // Bouton +Canvas
+      const canvasBtn = document.createElement('button');
+      canvasBtn.className = 'btn btn-sm btn-primary sel-canvas-btn';
+      canvasBtn.textContent = '+';
+      canvasBtn.title = 'Ajouter au canvas du builder';
+      canvasBtn.style.cssText = 'font-size:13px;padding:2px 7px;min-width:24px;';
+      canvasBtn.addEventListener('click', () => {
+        if (window.sbbAddFromElement) window.sbbAddFromElement(key);
+        canvasBtn.textContent = '✓';
+        setTimeout(() => { canvasBtn.textContent = '+'; }, 1000);
+      });
+      row.appendChild(canvasBtn);
+
+      // Bouton OBS (copier URL)
       const wrap = document.createElement('div');
       wrap.className = 'sel-copy-wrap';
       wrap.title = url;
@@ -6889,12 +6991,1290 @@ socket.on('stateUpdate', (s) => {
   }
 
   // Injecte lors de l'ouverture de l'onglet
-  document.querySelectorAll('.tab-btn[data-tab="elements"]').forEach(btn => {
+  document.querySelectorAll('.tab-btn[data-tab="builder"]').forEach(btn => {
     btn.addEventListener('click', buildButtons);
   });
 
-  // Si l'onglet est déjà actif au chargement
-  if (document.getElementById('tab-elements')?.classList.contains('active')) {
+  // Injecte immédiatement si l'onglet est actif au chargement
+  if (document.getElementById('tab-builder')?.classList.contains('active')) {
     buildButtons();
   }
+})();
+
+// ══════════════════════════════════════════════════════════════
+// CRÉATEUR DE SCOREBOARD
+// ══════════════════════════════════════════════════════════════
+(function () {
+
+  /* ── État ───────────────────────────────────────────────── */
+  let layouts      = [];
+  let activeId     = null;
+  let selectedId   = null;  // shape id
+  let sbbScale     = 1;
+  let dragState    = null;  // { type:'move'|'resize', shapeId, handle, startX, startY, origShape }
+
+  const _GEOM = { fill:'#E8B830', fillOpacity:1, border:'#FFFFFF', borderWidth:0, opacity:1, shadow:false, shadowBlur:16, shadowColor:'rgba(0,0,0,0.6)' };
+
+  const SHAPE_DEFAULTS = {
+    rect:         { w:400, h:80,  fill:'#0E0E12', fillOpacity:1, border:'#E8B830', borderWidth:2, radius:4, opacity:1, shadow:false, shadowBlur:16, shadowColor:'rgba(0,0,0,0.6)', linkedTo:'', linkPadLeft:0, linkPadRight:0, linkPadTop:0, linkPadBottom:0 },
+    text:         { w:300, h:60,  text:'Texte',   fontSize:24,   fontFamily:'Russo One', fontWeight:'normal', textColor:'#FFFFFF', textAlign:'center', letterSpacing:0, uppercase:false, opacity:1, dynamic:'', shadow:false, shadowBlur:8, shadowColor:'rgba(0,0,0,0.6)', background:false, fill:'#000000', fillOpacity:0.5, radius:0, paddingX:12, autoWidth:false, anchorSide:'left', minW:50, maxW:900 },
+    image:        { w:200, h:200, src:'',         objectFit:'cover', radius:0, opacity:1 },
+    circle:       { w:100, h:100, ..._GEOM },
+    oval:         { w:200, h:100, ..._GEOM },
+    'semi-circle':{ w:200, h:100, direction:'top',  ..._GEOM },
+    triangle:     { w:120, h:120, direction:'up',   ..._GEOM },
+    star:         { w:120, h:120, ..._GEOM },
+    diamond:      { w:100, h:140, ..._GEOM },
+    hexagon:      { w:130, h:140, ..._GEOM },
+  };
+
+  const DYNAMIC_OPTS = [
+    { v:'', label:'(statique)' },
+    { v:'p1.name',     label:'Joueur 1 — Nom' },
+    { v:'p1.tag',      label:'Joueur 1 — Tag' },
+    { v:'p1.score',    label:'Joueur 1 — Score' },
+    { v:'p1.pronouns', label:'Joueur 1 — Pronoms' },
+    { v:'p1.seed',     label:'Joueur 1 — Seed' },
+    { v:'p2.name',     label:'Joueur 2 — Nom' },
+    { v:'p2.tag',      label:'Joueur 2 — Tag' },
+    { v:'p2.score',    label:'Joueur 2 — Score' },
+    { v:'p2.pronouns', label:'Joueur 2 — Pronoms' },
+    { v:'p2.seed',     label:'Joueur 2 — Seed' },
+    { v:'event',       label:'Événement' },
+    { v:'stage',       label:'Round / Poule' },
+    { v:'format',      label:'Format' },
+  ];
+
+  /* ── Helpers ────────────────────────────────────────────── */
+  function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
+  function getLayout() { return layouts.find(l => l.id === activeId) || null; }
+  function getShape(id) { const l = getLayout(); return l?.shapes.find(s => s.id === id) || null; }
+
+  function hex2rgba(hex, a) {
+    const h = (hex||'#000').replace('#','');
+    return `rgba(${parseInt(h.slice(0,2),16)||0},${parseInt(h.slice(2,4),16)||0},${parseInt(h.slice(4,6),16)||0},${a??1})`;
+  }
+
+  /* ── Valeurs dynamiques (visualisateur) ─────────────────── */
+  function getDynamicValue(key) {
+    const s = state;
+    const map = {
+      'p1.name':     () => s.player1?.name     || '',
+      'p1.tag':      () => s.player1?.tag      || '',
+      'p1.score':    () => String(s.player1?.score ?? 0),
+      'p1.pronouns': () => s.player1?.pronouns || '',
+      'p1.seed':     () => s.player1?.seeding  != null ? String(s.player1.seeding) : '',
+      'p2.name':     () => s.player2?.name     || '',
+      'p2.tag':      () => s.player2?.tag      || '',
+      'p2.score':    () => String(s.player2?.score ?? 0),
+      'p2.pronouns': () => s.player2?.pronouns || '',
+      'p2.seed':     () => s.player2?.seeding  != null ? String(s.player2.seeding) : '',
+      'event':       () => s.event  || '',
+      'stage':       () => s.stage  || '',
+      'format':      () => s.format || '',
+    };
+    return map[key] ? map[key]() : '';
+  }
+
+  function getDynamicImageSrc(key) {
+    const s = state;
+    if (key === 'p1.char') return s.player1?.character ? `/full/chara_1_${s.player1.character.name}_00.png` : '';
+    if (key === 'p2.char') return s.player2?.character ? `/full/chara_1_${s.player2.character.name}_00.png` : '';
+    if (key === 'p1.flag') return s.player1?.flag ? '/' + s.player1.flag : '';
+    if (key === 'p2.flag') return s.player2?.flag ? '/' + s.player2.flag : '';
+    return '';
+  }
+
+  /* ── Auto-layout : étirement + liaisons ─────────────────── */
+  function applyAutoLayout() {
+    const l = getLayout(); if (!l) return;
+    const inner = document.getElementById('sbb-canvas-inner'); if (!inner) return;
+
+    // Passe 1 : auto-largeur des textes dynamiques
+    l.shapes.forEach(sh => {
+      if (sh.type !== 'text' || !sh.autoWidth) return;
+      const el = inner.querySelector(`[data-id="${sh.id}"]`); if (!el) return;
+
+      // Mesure la largeur réelle du contenu
+      el.style.width = 'fit-content';
+      el.style.maxWidth = (sh.maxW || 900) + 'px';
+      const measured = Math.min(sh.maxW || 900, Math.max(sh.minW || 50, el.scrollWidth));
+      el.style.width = measured + 'px';
+      el.style.maxWidth = '';
+
+      const prevW = sh.w;
+      if (sh.anchorSide === 'right') {
+        // Le bord droit est fixe : le gauche recule
+        sh.x = (sh.x + prevW) - measured;
+        el.style.left = sh.x + 'px';
+      }
+      sh.w = measured;
+    });
+
+    // Passe 2 : formes liées à un texte
+    l.shapes.forEach(sh => {
+      if (!sh.linkedTo) return;
+      const textSh = l.shapes.find(s => s.id === sh.linkedTo); if (!textSh) return;
+      const pL = sh.linkPadLeft  || 0;
+      const pR = sh.linkPadRight || 0;
+      const pT = sh.linkPadTop   || 0;
+      const pB = sh.linkPadBottom|| 0;
+      sh.x = textSh.x - pL;
+      sh.y = textSh.y - pT;
+      sh.w = textSh.w + pL + pR;
+      sh.h = textSh.h + pT + pB;
+      const el = inner.querySelector(`[data-id="${sh.id}"]`);
+      if (el) {
+        el.style.left   = sh.x + 'px';
+        el.style.top    = sh.y + 'px';
+        el.style.width  = sh.w + 'px';
+        el.style.height = sh.h + 'px';
+      }
+    });
+
+    renderHandles();
+  }
+
+  const GEOM_TYPES = ['circle','oval','semi-circle','triangle','star','diamond','hexagon'];
+
+  const SEMI_RADIUS = {
+    top:    '50% 50% 0 0 / 100% 100% 0 0',
+    bottom: '0 0 50% 50% / 0 0 100% 100%',
+    left:   '50% 0 0 50% / 100% 0 0 100%',
+    right:  '0 50% 50% 0 / 0 100% 100% 0',
+  };
+
+  const SVG_DEFS = {
+    'tri-up':    { pts: '50,3 97,97 3,97' },
+    'tri-down':  { pts: '3,3 97,3 50,97' },
+    'tri-left':  { pts: '97,3 97,97 3,50' },
+    'tri-right': { pts: '3,3 97,50 3,97' },
+    star:        { pts: '50,3 61,37 95,37 68,58 79,92 50,71 21,92 32,58 5,37 39,37' },
+    diamond:     { pts: '50,3 97,50 50,97 3,50' },
+    hexagon:     { pts: '50,3 97,27 97,73 50,97 3,73 3,27' },
+  };
+
+  /* ── Helpers points polygone ─────────────────────────────── */
+  function parsePts(str) {
+    return str.trim().split(/\s+/).map(p => p.split(',').map(Number));
+  }
+  function ptsToStr(arr) {
+    return arr.map(([x,y]) => `${Math.round(x*10)/10},${Math.round(y*10)/10}`).join(' ');
+  }
+  function getShapePts(sh) {
+    if (sh.customPoints) return sh.customPoints;
+    if (sh.type === 'rect') return [[0,0],[100,0],[100,100],[0,100]];
+    let key = sh.type;
+    if (sh.type === 'triangle') key = 'tri-' + (sh.direction || 'up');
+    const def = SVG_DEFS[key];
+    return def ? parsePts(def.pts) : [];
+  }
+  const VERTEX_TYPES = ['rect','triangle','star','diamond','hexagon'];
+
+  function applyGeomStyles(el, sh) {
+    const bg = sh.type === 'rect'
+      ? hex2rgba(sh.fill || '#0E0E12', sh.fillOpacity ?? 1)
+      : hex2rgba(sh.fill || '#E8B830', sh.fillOpacity ?? 1);
+    const bw = sh.borderWidth || 0;
+    const bc = sh.type === 'rect' ? (sh.border || '#E8B830') : (sh.border || '#FFFFFF');
+
+    if (sh.type === 'circle' || sh.type === 'oval') {
+      el.style.background   = bg;
+      el.style.borderRadius = '50%';
+      if (bw > 0) el.style.border = `${bw}px solid ${bc}`;
+      if (sh.shadow) el.style.boxShadow = `0 4px ${sh.shadowBlur||16}px ${sh.shadowColor||'rgba(0,0,0,0.6)'}`;
+      return;
+    }
+
+    if (sh.type === 'semi-circle') {
+      el.style.background   = bg;
+      el.style.borderRadius = SEMI_RADIUS[sh.direction || 'top'];
+      if (bw > 0) el.style.border = `${bw}px solid ${bc}`;
+      if (sh.shadow) el.style.boxShadow = `0 4px ${sh.shadowBlur||16}px ${sh.shadowColor||'rgba(0,0,0,0.6)'}`;
+      return;
+    }
+
+    // SVG shapes
+    const ptsArr = getShapePts(sh);
+    if (!ptsArr.length) return;
+    const ptsStr = ptsToStr(ptsArr);
+
+    const ns  = 'http://www.w3.org/2000/svg';
+    const svg = document.createElementNS(ns, 'svg');
+    svg.setAttribute('viewBox', '0 0 100 100');
+    svg.setAttribute('preserveAspectRatio', 'none');
+    svg.style.cssText = 'width:100%;height:100%;display:block;position:absolute;inset:0;overflow:visible;';
+    const poly = document.createElementNS(ns, 'polygon');
+    poly.setAttribute('points', ptsStr);
+    poly.setAttribute('fill', bg);
+    if (bw > 0) {
+      poly.setAttribute('stroke', bc);
+      poly.setAttribute('stroke-width', String(bw * 1.2));
+      poly.setAttribute('vector-effect', 'non-scaling-stroke');
+    }
+    if (sh.shadow) {
+      const filterId = 'sf-' + sh.id.replace(/[^a-z0-9]/gi,'');
+      const defs = document.createElementNS(ns, 'defs');
+      const filt = document.createElementNS(ns, 'filter');
+      filt.setAttribute('id', filterId);
+      filt.setAttribute('x','-20%'); filt.setAttribute('y','-20%');
+      filt.setAttribute('width','140%'); filt.setAttribute('height','140%');
+      const blur = document.createElementNS(ns, 'feGaussianBlur');
+      blur.setAttribute('stdDeviation', String((sh.shadowBlur||16) * 0.3));
+      blur.setAttribute('in', 'SourceAlpha');
+      blur.setAttribute('result','blur');
+      const flood = document.createElementNS(ns, 'feFlood');
+      flood.setAttribute('flood-color', sh.shadowColor||'rgba(0,0,0,0.6)');
+      flood.setAttribute('result','color');
+      const comp = document.createElementNS(ns, 'feComposite');
+      comp.setAttribute('in','color'); comp.setAttribute('in2','blur');
+      comp.setAttribute('operator','in'); comp.setAttribute('result','shadow');
+      const merge = document.createElementNS(ns, 'feMerge');
+      const mn1 = document.createElementNS(ns, 'feMergeNode'); mn1.setAttribute('in','shadow');
+      const mn2 = document.createElementNS(ns, 'feMergeNode'); mn2.setAttribute('in','SourceGraphic');
+      merge.appendChild(mn1); merge.appendChild(mn2);
+      filt.appendChild(blur); filt.appendChild(flood); filt.appendChild(comp); filt.appendChild(merge);
+      defs.appendChild(filt);
+      svg.appendChild(defs);
+      poly.setAttribute('filter', `url(#${filterId})`);
+    }
+    svg.appendChild(poly);
+    el.style.overflow = 'visible';
+    el.appendChild(svg);
+  }
+
+  /* ── API ────────────────────────────────────────────────── */
+  async function apiLoad() {
+    const d = await fetch('/api/sb-layouts').then(r=>r.json()).catch(()=>({layouts:[]}));
+    layouts = d.layouts || [];
+  }
+
+  async function apiCreate(name) {
+    const d = await fetch('/api/sb-layouts',{ method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({name}) }).then(r=>r.json());
+    layouts.push(d.layout);
+    return d.layout;
+  }
+
+  async function apiSave() {
+    const l = getLayout(); if (!l) return;
+    await fetch(`/api/sb-layouts/${l.id}`,{ method:'PATCH', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ name:l.name, shapes:l.shapes }) });
+  }
+
+  let _saveTimer = null;
+  function scheduleSave() {
+    clearTimeout(_saveTimer);
+    _saveTimer = setTimeout(apiSave, 300);
+  }
+
+  async function apiDelete(id) {
+    await fetch(`/api/sb-layouts/${id}`,{ method:'DELETE' });
+    layouts = layouts.filter(l=>l.id!==id);
+  }
+
+  /* ── Canvas scaling ─────────────────────────────────────── */
+  function updateScale() {
+    const wrap  = document.getElementById('sbb-canvas-wrap');
+    const inner = document.getElementById('sbb-canvas-inner');
+    if (!wrap || !inner) return;
+    sbbScale = wrap.clientWidth / 1920;
+    inner.style.transform = `scale(${sbbScale})`;
+    wrap.style.height = Math.round(1080 * sbbScale) + 'px';
+  }
+
+  function clientToCanvas(clientX, clientY) {
+    const wrap = document.getElementById('sbb-canvas-wrap');
+    const rect = wrap.getBoundingClientRect();
+    return {
+      x: (clientX - rect.left)  / sbbScale,
+      y: (clientY - rect.top)   / sbbScale,
+    };
+  }
+
+  /* ── Render canvas ──────────────────────────────────────── */
+  function renderCanvas() {
+    const inner = document.getElementById('sbb-canvas-inner'); if (!inner) return;
+    const inter = document.getElementById('sbb-interact-layer'); if (!inter) return;
+    inner.innerHTML = '';
+    inter.innerHTML = '';
+    const l = getLayout(); if (!l) return;
+
+    l.shapes.forEach((sh, idx) => {
+      const el = document.createElement('div');
+      el.className  = 'sbb-shape-preview';
+      el.dataset.id = sh.id;
+      el.style.cssText = `
+        position:absolute;
+        left:${sh.x}px;top:${sh.y}px;
+        width:${sh.w}px;height:${sh.h}px;
+        opacity:${sh.visible===false?0.25:sh.opacity??1};
+        cursor:move;
+        box-sizing:border-box;
+        overflow:hidden;
+        pointer-events:auto;
+        z-index:${idx+1};
+      `;
+
+      if (sh.type === 'rect') {
+        if (sh.customPoints) {
+          // Déformé → rendu SVG polygone
+          applyGeomStyles(el, sh);
+        } else {
+          el.style.background   = hex2rgba(sh.fill||'#0E0E12', sh.fillOpacity??1);
+          el.style.borderRadius = (sh.radius||0) + 'px';
+          if ((sh.borderWidth||0)>0) el.style.border = `${sh.borderWidth}px solid ${sh.border||'#E8B830'}`;
+          if (sh.shadow) el.style.boxShadow = `0 4px ${sh.shadowBlur||16}px ${sh.shadowColor||'rgba(0,0,0,0.6)'}`;
+        }
+      }
+
+      if (GEOM_TYPES.includes(sh.type)) {
+        applyGeomStyles(el, sh);
+      }
+
+      if (sh.type === 'text') {
+        el.style.display       = 'flex';
+        el.style.alignItems    = 'center';
+        el.style.justifyContent = sh.textAlign==='left'?'flex-start':sh.textAlign==='right'?'flex-end':'center';
+        el.style.fontFamily    = `'${sh.fontFamily||'Russo One'}', sans-serif`;
+        el.style.fontSize      = (sh.fontSize||24) + 'px';
+        el.style.fontWeight    = sh.fontWeight||'normal';
+        el.style.color         = sh.textColor||'#FFFFFF';
+        el.style.letterSpacing = (sh.letterSpacing||0) + 'px';
+        el.style.textTransform = sh.uppercase?'uppercase':'none';
+        el.style.padding       = '0 ' + (sh.paddingX||0) + 'px';
+        el.style.whiteSpace    = 'nowrap';
+        el.style.overflow      = 'hidden';
+        if (sh.background) {
+          el.style.background   = hex2rgba(sh.fill||'#000000', sh.fillOpacity??0.5);
+          el.style.borderRadius = (sh.radius||0) + 'px';
+        }
+        el.textContent = sh.dynamic ? (getDynamicValue(sh.dynamic) || sh.text || 'Texte') : (sh.text||'Texte');
+      }
+
+      if (sh.type === 'image') {
+        el.style.borderRadius = (sh.radius||0) + 'px';
+        const resolvedSrc = sh.dynamicSrc ? getDynamicImageSrc(sh.dynamicSrc) : sh.src;
+        if (resolvedSrc) {
+          const img = document.createElement('img');
+          img.src = resolvedSrc;
+          if (sh.dynamicSrc) el.dataset.dynamicSrc = sh.dynamicSrc;
+          img.style.width='100%'; img.style.height='100%'; img.style.objectFit=sh.objectFit||'cover';
+          img.style.borderRadius=(sh.radius||0)+'px';
+          el.appendChild(img);
+        } else {
+          el.style.border='2px dashed rgba(255,255,255,0.2)';
+          el.style.display='flex'; el.style.alignItems='center'; el.style.justifyContent='center';
+          el.style.color='rgba(255,255,255,0.3)'; el.style.fontSize='12px';
+          el.textContent = sh.dynamicSrc ? sh.dynamicSrc : 'Image';
+        }
+      }
+
+      el.addEventListener('mousedown', e => { e.stopPropagation(); sbbSelectShape(sh.id); sbbStartDrag(e, sh.id); });
+      inner.appendChild(el);
+    });
+
+    renderHandles();
+    applyAutoLayout();
+  }
+
+  function renderHandles() {
+    const inter = document.getElementById('sbb-interact-layer'); if (!inter) return;
+    inter.innerHTML = '';
+    if (!selectedId) return;
+    const sh = getShape(selectedId); if (!sh) return;
+
+    // Outline
+    const outline = document.createElement('div');
+    outline.style.cssText = `
+      position:absolute;
+      left:${sh.x * sbbScale}px;top:${sh.y * sbbScale}px;
+      width:${sh.w * sbbScale}px;height:${sh.h * sbbScale}px;
+      border:2px solid #4AF;
+      box-shadow:0 0 0 1px rgba(0,0,0,0.4);
+      pointer-events:none;
+      z-index:300;
+    `;
+    inter.appendChild(outline);
+
+    // Handles
+    const HANDLES = [
+      { id:'nw', cx:0,   cy:0   }, { id:'n',  cx:0.5, cy:0   }, { id:'ne', cx:1,   cy:0   },
+      { id:'w',  cx:0,   cy:0.5 }, { id:'e',  cx:1,   cy:0.5 },
+      { id:'sw', cx:0,   cy:1   }, { id:'s',  cx:0.5, cy:1   }, { id:'se', cx:1,   cy:1   },
+    ];
+    const CURSORS = { nw:'nw-resize',n:'n-resize',ne:'ne-resize',w:'w-resize',e:'e-resize',sw:'sw-resize',s:'s-resize',se:'se-resize' };
+
+    HANDLES.forEach(h => {
+      const hEl = document.createElement('div');
+      const hx = (sh.x + sh.w * h.cx) * sbbScale;
+      const hy = (sh.y + sh.h * h.cy) * sbbScale;
+      hEl.style.cssText = `
+        position:absolute;
+        left:${hx - 5}px;top:${hy - 5}px;
+        width:10px;height:10px;
+        background:#fff;border:2px solid #4AF;
+        border-radius:2px;
+        cursor:${CURSORS[h.id]};
+        z-index:301;
+        pointer-events:auto;
+      `;
+      hEl.dataset.handle = h.id;
+      hEl.addEventListener('mousedown', e => { e.stopPropagation(); sbbStartResize(e, sh.id, h.id); });
+      inter.appendChild(hEl);
+    });
+
+    // Poignées de vertex pour les polygones
+    if (VERTEX_TYPES.includes(sh.type)) {
+      const pts = getShapePts(sh);
+      pts.forEach(([vx, vy], idx) => {
+        const hx = (sh.x + (vx / 100) * sh.w) * sbbScale;
+        const hy = (sh.y + (vy / 100) * sh.h) * sbbScale;
+        const vh = document.createElement('div');
+        vh.style.cssText = `
+          position:absolute;
+          left:${hx}px; top:${hy}px;
+          width:10px; height:10px;
+          transform:translate(-50%,-50%);
+          border-radius:50%;
+          background:#F80; border:2px solid #FFF;
+          cursor:crosshair;
+          z-index:302;
+          pointer-events:auto;
+          box-shadow:0 0 4px rgba(0,0,0,0.6);
+        `;
+        vh.title = `Point ${idx + 1} (${Math.round(vx)},${Math.round(vy)})`;
+        vh.addEventListener('mousedown', e => { e.stopPropagation(); sbbStartVertexDrag(e, sh.id, idx); });
+        inter.appendChild(vh);
+      });
+    }
+  }
+
+  /* ── Layers list ─────────────────────────────────────────── */
+  function renderLayers() {
+    const container = document.getElementById('sbb-layers'); if (!container) return;
+    const l = getLayout();
+    if (!l || l.shapes.length === 0) {
+      container.innerHTML = '<p style="font-size:12px;color:var(--text-muted);text-align:center;padding:16px 0;">Aucune forme — cliquer sur "Ajouter" à gauche</p>';
+      return;
+    }
+    container.innerHTML = '';
+    // Render in reverse order (top layers first)
+    [...l.shapes].reverse().forEach((sh, _i) => {
+      const realIdx = l.shapes.indexOf(sh);
+      const row = document.createElement('div');
+      row.className = 'sbb-layer-row';
+      row.dataset.id = sh.id;
+      row.style.cssText = `
+        display:flex;align-items:center;gap:6px;
+        padding:5px 8px;border-radius:5px;cursor:pointer;
+        background:${sh.id===selectedId?'rgba(68,170,255,0.12)':'transparent'};
+        border:1px solid ${sh.id===selectedId?'rgba(68,170,255,0.3)':'transparent'};
+        font-size:12px;color:var(--text);
+      `;
+
+      // Drag handle
+      const grip = document.createElement('span');
+      grip.textContent = '⠿';
+      grip.style.cssText='color:var(--text-muted);cursor:ns-resize;flex-shrink:0;font-size:14px;';
+      grip.dataset.gripFor = sh.id;
+
+      // Type icon
+      const icon = document.createElement('span');
+      icon.textContent = sh.type==='rect'?'▬':sh.type==='text'?'T':'🖼';
+      icon.style.cssText='flex-shrink:0;font-size:10px;width:16px;text-align:center;';
+
+      // Name
+      const name = document.createElement('span');
+      name.textContent = sh.name || sh.type;
+      name.style.cssText='flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;';
+
+      // Visibility
+      const vis = document.createElement('button');
+      vis.textContent = sh.visible===false ? '👁‍🗨' : '👁';
+      vis.title = sh.visible===false ? 'Afficher' : 'Masquer';
+      vis.style.cssText='background:none;border:none;cursor:pointer;color:var(--text-muted);font-size:12px;padding:2px;';
+      vis.addEventListener('click', e => {
+        e.stopPropagation();
+        sh.visible = sh.visible === false ? true : false;
+        renderCanvas(); renderLayers(); scheduleSave();
+      });
+
+      row.appendChild(grip);
+      row.appendChild(icon);
+      row.appendChild(name);
+      row.appendChild(vis);
+
+      row.addEventListener('click', () => sbbSelectShape(sh.id));
+      container.appendChild(row);
+    });
+
+    // Layer drag-to-reorder
+    setupLayerDrag(container, l);
+  }
+
+  function setupLayerDrag(container, l) {
+    let draggingId = null;
+    container.querySelectorAll('[data-grip-for]').forEach(grip => {
+      grip.addEventListener('mousedown', e => {
+        e.preventDefault();
+        draggingId = grip.dataset.gripFor;
+        const row = grip.closest('.sbb-layer-row');
+        row.style.opacity = '0.5';
+
+        function onMove(ev) {
+          const els = [...container.querySelectorAll('.sbb-layer-row')];
+          const target = els.find(r => {
+            const rect = r.getBoundingClientRect();
+            return ev.clientY >= rect.top && ev.clientY <= rect.bottom && r.dataset.id !== draggingId;
+          });
+          if (target) {
+            container.querySelectorAll('.sbb-layer-row').forEach(r => r.style.borderTop='');
+            target.style.borderTop = '2px solid #4AF';
+          }
+        }
+
+        function onUp(ev) {
+          document.removeEventListener('mousemove', onMove);
+          document.removeEventListener('mouseup', onUp);
+          row.style.opacity='';
+          container.querySelectorAll('.sbb-layer-row').forEach(r => r.style.borderTop='');
+
+          // find drop target
+          const els = [...container.querySelectorAll('.sbb-layer-row')];
+          const target = els.find(r => {
+            const rect = r.getBoundingClientRect();
+            return ev.clientY >= rect.top && ev.clientY <= rect.bottom && r.dataset.id !== draggingId;
+          });
+          if (target) {
+            // layers are rendered reversed, so we need to invert
+            const fromIdx = l.shapes.findIndex(s=>s.id===draggingId);
+            const toIdx   = l.shapes.findIndex(s=>s.id===target.dataset.id);
+            if (fromIdx>-1 && toIdx>-1 && fromIdx!==toIdx) {
+              const [sh] = l.shapes.splice(fromIdx,1);
+              l.shapes.splice(toIdx,0,sh);
+              renderCanvas(); renderLayers(); scheduleSave();
+            }
+          }
+          draggingId = null;
+        }
+
+        document.addEventListener('mousemove', onMove);
+        document.addEventListener('mouseup', onUp);
+      });
+    });
+  }
+
+  /* ── Shape selection ─────────────────────────────────────── */
+  function sbbSelectShape(id) {
+    selectedId = id;
+    renderHandles();
+    renderLayers();
+    renderProps();
+  }
+
+  function sbbDeselect() {
+    selectedId = null;
+    renderHandles();
+    renderLayers();
+    renderProps();
+  }
+
+  /* ── Drag to move ────────────────────────────────────────── */
+  function sbbStartDrag(e, shapeId) {
+    e.preventDefault();
+    const sh = getShape(shapeId); if (!sh) return;
+    const start = clientToCanvas(e.clientX, e.clientY);
+    dragState = { type:'move', shapeId, startX:start.x, startY:start.y, origX:sh.x, origY:sh.y };
+
+    function onMove(ev) {
+      const pos = clientToCanvas(ev.clientX, ev.clientY);
+      const dx = pos.x - dragState.startX;
+      const dy = pos.y - dragState.startY;
+      sh.x = Math.round(dragState.origX + dx);
+      sh.y = Math.round(dragState.origY + dy);
+      // Update DOM directly for performance
+      const el = document.querySelector(`#sbb-canvas-inner [data-id="${shapeId}"]`);
+      if (el) { el.style.left = sh.x+'px'; el.style.top = sh.y+'px'; }
+      renderHandles();
+      renderProps();
+    }
+
+    function onUp() {
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseup', onUp);
+      dragState = null;
+      scheduleSave();
+    }
+
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
+  }
+
+  /* ── Resize ──────────────────────────────────────────────── */
+  function sbbStartResize(e, shapeId, handle) {
+    e.preventDefault();
+    const sh = getShape(shapeId); if (!sh) return;
+    const start = clientToCanvas(e.clientX, e.clientY);
+    dragState = { type:'resize', shapeId, handle, startX:start.x, startY:start.y, orig:{ x:sh.x, y:sh.y, w:sh.w, h:sh.h } };
+    const MIN = 20;
+
+    function onMove(ev) {
+      const pos  = clientToCanvas(ev.clientX, ev.clientY);
+      const dx   = pos.x - dragState.startX;
+      const dy   = pos.y - dragState.startY;
+      const o    = dragState.orig;
+      let { x, y, w, h } = o;
+
+      if (handle.includes('e')) w = Math.max(MIN, o.w + dx);
+      if (handle.includes('s')) h = Math.max(MIN, o.h + dy);
+      if (handle.includes('w')) { const nw = Math.max(MIN, o.w - dx); x = o.x + (o.w - nw); w = nw; }
+      if (handle.includes('n')) { const nh = Math.max(MIN, o.h - dy); y = o.y + (o.h - nh); h = nh; }
+
+      sh.x = Math.round(x); sh.y = Math.round(y);
+      sh.w = Math.round(w); sh.h = Math.round(h);
+
+      const el = document.querySelector(`#sbb-canvas-inner [data-id="${shapeId}"]`);
+      if (el) { el.style.left=sh.x+'px'; el.style.top=sh.y+'px'; el.style.width=sh.w+'px'; el.style.height=sh.h+'px'; }
+      renderHandles();
+      renderProps();
+    }
+
+    function onUp() {
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseup', onUp);
+      dragState = null;
+      scheduleSave();
+    }
+
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
+  }
+
+  /* ── Vertex drag ─────────────────────────────────────────── */
+  function sbbStartVertexDrag(e, shapeId, vtxIdx) {
+    e.preventDefault();
+    const sh = getShape(shapeId); if (!sh) return;
+    // Initialise customPoints depuis les défauts si pas encore modifié
+    if (!sh.customPoints) sh.customPoints = getShapePts(sh);
+
+    function onMove(ev) {
+      const pos = clientToCanvas(ev.clientX, ev.clientY);
+      const vx = ((pos.x - sh.x) / sh.w) * 100;
+      const vy = ((pos.y - sh.y) / sh.h) * 100;
+      sh.customPoints[vtxIdx] = [Math.round(vx * 10) / 10, Math.round(vy * 10) / 10];
+      // Redessine juste le SVG dans l'élément canvas
+      const el = document.querySelector(`#sbb-canvas-inner [data-id="${shapeId}"]`);
+      if (el) {
+        const oldSvg = el.querySelector('svg');
+        if (oldSvg) oldSvg.remove();
+        applyGeomStyles(el, sh);
+      }
+      renderHandles();
+    }
+
+    function onUp() {
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseup', onUp);
+      scheduleSave();
+    }
+
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
+  }
+
+  /* ── Properties panel ────────────────────────────────────── */
+  function row(label, input) {
+    const d = document.createElement('div');
+    d.style.cssText = 'display:flex;align-items:center;gap:10px;';
+    const l = document.createElement('label');
+    l.textContent = label;
+    l.style.cssText = 'font-size:12px;color:var(--text-muted);min-width:100px;flex-shrink:0;';
+    d.appendChild(l);
+    if (input) d.appendChild(input);
+    return d;
+  }
+
+  function makeInput(type, val, onChange, opts={}) {
+    const el = document.createElement('input');
+    el.type  = type;
+    if (type==='checkbox') el.checked = !!val;
+    else el.value = val ?? '';
+    if (opts.min !== undefined) el.min = opts.min;
+    if (opts.max !== undefined) el.max = opts.max;
+    if (opts.step !== undefined) el.step = opts.step;
+    el.style.cssText = type==='color'
+      ? 'width:36px;height:28px;cursor:pointer;border:none;background:none;padding:0;'
+      : type==='checkbox'
+      ? 'cursor:pointer;'
+      : 'flex:1;padding:5px 8px;background:var(--surface2);border:1px solid var(--border);border-radius:5px;color:var(--text);font-size:12px;min-width:0;';
+    const evt = type==='checkbox'?'change':'input';
+    el.addEventListener(evt, () => onChange(type==='checkbox'?el.checked:(type==='number'?parseFloat(el.value):el.value)));
+    return el;
+  }
+
+  function makeSelect(options, val, onChange) {
+    const el = document.createElement('select');
+    el.style.cssText = 'flex:1;padding:5px 8px;background:var(--surface2);border:1px solid var(--border);border-radius:5px;color:var(--text);font-size:12px;';
+    options.forEach(o => {
+      const opt = document.createElement('option');
+      opt.value = o.v || o; opt.textContent = o.label || o;
+      if (opt.value === val) opt.selected = true;
+      el.appendChild(opt);
+    });
+    el.addEventListener('change', () => onChange(el.value));
+    return el;
+  }
+
+  function renderProps() {
+    const card  = document.getElementById('sbb-props-card');
+    const body  = document.getElementById('sbb-props-body');
+    const title = document.getElementById('sbb-props-title');
+    if (!card||!body||!title) return;
+
+    const sh = selectedId ? getShape(selectedId) : null;
+    card.style.display = sh ? '' : 'none';
+    if (!sh) return;
+
+    title.textContent = 'Propriétés — ' + (sh.name||sh.type);
+    body.innerHTML = '';
+
+    function prop(key) { return v => { sh[key]=v; scheduleSave(); renderCanvas(); if(['x','y','w','h'].includes(key)) renderHandles(); } }
+
+    // Name
+    const nameInput = makeInput('text', sh.name, v => { sh.name=v; renderLayers(); scheduleSave(); });
+    nameInput.placeholder='Nom de la forme';
+    body.appendChild(row('Nom', nameInput));
+
+    // Geometry
+    const gRow = document.createElement('div');
+    gRow.style.cssText='display:flex;gap:6px;flex-wrap:wrap;';
+    [['X',sh.x,'x'],['Y',sh.y,'y'],['L',sh.w,'w'],['H',sh.h,'h']].forEach(([l,v,k])=>{
+      const wrapper = document.createElement('div');
+      wrapper.style.cssText='display:flex;align-items:center;gap:4px;';
+      const lbl = document.createElement('span');
+      lbl.textContent=l; lbl.style.cssText='font-size:11px;color:var(--text-muted);min-width:10px;';
+      const inp = makeInput('number',v, val => { sh[k]=Math.round(val); scheduleSave(); renderCanvas(); renderHandles(); },{step:1});
+      inp.style.width='70px'; inp.style.flex='none';
+      wrapper.appendChild(lbl); wrapper.appendChild(inp); gRow.appendChild(wrapper);
+    });
+    body.appendChild(row('Position / Taille', gRow));
+
+    // Opacity
+    body.appendChild(row('Opacité', makeInput('number', Math.round((sh.opacity??1)*100), v=>{sh.opacity=v/100;prop('opacity')(sh.opacity);}, {min:0,max:100,step:1})));
+
+    // Shared fill+border props for rect and all geometric shapes
+    if (sh.type === 'rect' || GEOM_TYPES.includes(sh.type)) {
+      const fillRow = document.createElement('div');
+      fillRow.style.cssText='display:flex;gap:8px;align-items:center;flex:1;';
+      fillRow.appendChild(makeInput('color', sh.fill||'#E8B830', v=>{sh.fill=v;prop('fill')(v);}));
+      const opInput = makeInput('number', Math.round((sh.fillOpacity??1)*100), v=>{sh.fillOpacity=v/100;scheduleSave();renderCanvas();},{min:0,max:100,step:1});
+      opInput.style.width='60px';opInput.style.flex='none';
+      const opLabel = document.createElement('span'); opLabel.textContent='% opacité'; opLabel.style.cssText='font-size:11px;color:var(--text-muted);';
+      fillRow.appendChild(opInput); fillRow.appendChild(opLabel);
+      body.appendChild(row('Fond', fillRow));
+
+      const borderRow = document.createElement('div');
+      borderRow.style.cssText='display:flex;gap:8px;align-items:center;flex:1;';
+      borderRow.appendChild(makeInput('color', sh.border||'#FFFFFF', v=>{sh.border=v;prop('border')(v);}));
+      const bwInput = makeInput('number', sh.borderWidth??0, v=>{sh.borderWidth=v;scheduleSave();renderCanvas();},{min:0,max:20,step:1});
+      bwInput.style.width='60px';bwInput.style.flex='none';
+      const bwLabel = document.createElement('span'); bwLabel.textContent='px'; bwLabel.style.cssText='font-size:11px;color:var(--text-muted);';
+      borderRow.appendChild(bwInput); borderRow.appendChild(bwLabel);
+      body.appendChild(row('Contour', borderRow));
+
+      if (sh.type === 'rect') {
+        body.appendChild(row('Rayon', makeInput('number', sh.radius||0, v=>{sh.radius=v;prop('radius')(v);},{min:0,max:200,step:1})));
+      }
+
+      // Direction selector for semi-circle and triangle
+      if (sh.type === 'semi-circle') {
+        body.appendChild(row('Direction', makeSelect(
+          [{v:'top',label:'Haut (dôme)'},{v:'bottom',label:'Bas'},{v:'left',label:'Gauche'},{v:'right',label:'Droite'}],
+          sh.direction||'top', v=>{sh.direction=v;scheduleSave();renderCanvas();}
+        )));
+      }
+      if (sh.type === 'triangle') {
+        body.appendChild(row('Direction', makeSelect(
+          [{v:'up',label:'▲ Haut'},{v:'down',label:'▼ Bas'},{v:'left',label:'◀ Gauche'},{v:'right',label:'▶ Droite'}],
+          sh.direction||'up', v=>{sh.direction=v;scheduleSave();renderCanvas();}
+        )));
+      }
+
+      // Liaison à un texte
+      const l = getLayout();
+      const textShapes = (l ? l.shapes : []).filter(s => s.type === 'text' && s.id !== sh.id);
+      const linkedOpts = [{v:'',label:'— aucune liaison —'}, ...textShapes.map(s=>({v:s.id,label:s.name||s.text||s.id}))];
+      body.appendChild(row('Lié à (texte)', makeSelect(linkedOpts, sh.linkedTo||'', v=>{
+        sh.linkedTo=v; scheduleSave(); renderCanvas();
+        linkPadSection.style.display = v ? 'contents' : 'none';
+      })));
+
+      const linkPadSection = document.createElement('div');
+      linkPadSection.style.display = sh.linkedTo ? 'contents' : 'none';
+      const padRow = document.createElement('div');
+      padRow.style.cssText='display:flex;gap:6px;flex-wrap:wrap;';
+      [['G',sh.linkPadLeft||0,'linkPadLeft'],['D',sh.linkPadRight||0,'linkPadRight'],['H',sh.linkPadTop||0,'linkPadTop'],['B',sh.linkPadBottom||0,'linkPadBottom']].forEach(([pl,v,k])=>{
+        const wrapper = document.createElement('div');
+        wrapper.style.cssText='display:flex;align-items:center;gap:3px;';
+        const lbl=document.createElement('span');lbl.textContent=pl;lbl.style.cssText='font-size:11px;color:var(--text-muted);';
+        const inp=makeInput('number',v,val=>{sh[k]=Math.round(val);scheduleSave();renderCanvas();},{step:1,min:-200,max:200});
+        inp.style.width='60px';
+        wrapper.appendChild(lbl);wrapper.appendChild(inp);padRow.appendChild(wrapper);
+      });
+      linkPadSection.appendChild(padRow);
+      body.appendChild(row('Marge liaison', linkPadSection));
+    }
+
+    if (sh.type === 'text') {
+      // Dynamic binding
+      body.appendChild(row('Dynamique', makeSelect(DYNAMIC_OPTS, sh.dynamic||'', v=>{sh.dynamic=v;scheduleSave();renderCanvas();})));
+
+      // Static text (hidden if dynamic)
+      const textInput = makeInput('text', sh.text||'', v=>{sh.text=v;prop('text')(v);});
+      textInput.placeholder='Texte statique';
+      const textRow = row('Texte', textInput);
+      textRow.style.display = sh.dynamic?'none':'flex';
+      body.appendChild(textRow);
+
+      // Font family
+      body.appendChild(row('Police', makeSelect(
+        [{v:'Russo One',label:'Russo One'},{v:'Inter',label:'Inter'},{v:'Bebas Neue',label:'Bebas Neue'},{v:'Oswald',label:'Oswald'},{v:'Rajdhani',label:'Rajdhani'}],
+        sh.fontFamily||'Russo One', v=>{sh.fontFamily=v;prop('fontFamily')(v);}
+      )));
+
+      const fsRow = document.createElement('div');
+      fsRow.style.cssText='display:flex;gap:8px;align-items:center;flex:1;';
+      const fsInput = makeInput('number', sh.fontSize||24, v=>{sh.fontSize=v;scheduleSave();renderCanvas();},{min:6,max:300,step:1});
+      fsInput.style.width='70px';fsInput.style.flex='none';
+      const tcInput = makeInput('color', sh.textColor||'#FFFFFF', v=>{sh.textColor=v;prop('textColor')(v);});
+      fsRow.appendChild(fsInput); fsRow.appendChild(tcInput);
+      body.appendChild(row('Taille / Couleur', fsRow));
+
+      body.appendChild(row('Alignement', makeSelect(
+        [{v:'left',label:'Gauche'},{v:'center',label:'Centre'},{v:'right',label:'Droite'}],
+        sh.textAlign||'center', v=>{sh.textAlign=v;prop('textAlign')(v);}
+      )));
+
+      body.appendChild(row('Espacement', makeInput('number', sh.letterSpacing||0, v=>{sh.letterSpacing=v;prop('letterSpacing')(v);},{min:0,max:30,step:0.5})));
+
+      const upperRow = document.createElement('div');
+      upperRow.style.cssText='display:flex;gap:8px;align-items:center;';
+      upperRow.appendChild(makeInput('checkbox', sh.uppercase||false, v=>{sh.uppercase=v;prop('uppercase')(v);}));
+      const ul=document.createElement('span');ul.textContent='MAJUSCULES';ul.style.fontSize='12px';
+      upperRow.appendChild(ul);
+      body.appendChild(row('Style', upperRow));
+
+      // Background on text
+      const bgRow = document.createElement('div');
+      bgRow.style.cssText='display:flex;gap:8px;align-items:center;';
+      bgRow.appendChild(makeInput('checkbox', sh.background||false, v=>{sh.background=v;scheduleSave();renderCanvas();}));
+      const bgl=document.createElement('span');bgl.textContent='Fond coloré';bgl.style.fontSize='12px';
+      bgRow.appendChild(bgl);
+      if (sh.background) {
+        bgRow.appendChild(makeInput('color', sh.fill||'#000000', v=>{sh.fill=v;scheduleSave();renderCanvas();}));
+        const foa = makeInput('number', Math.round((sh.fillOpacity??0.5)*100), v=>{sh.fillOpacity=v/100;scheduleSave();renderCanvas();},{min:0,max:100,step:1});
+        foa.style.width='60px';foa.style.flex='none';bgRow.appendChild(foa);
+      }
+      body.appendChild(row('Fond', bgRow));
+
+      // Auto-width
+      const awRow = document.createElement('div');
+      awRow.style.cssText='display:flex;gap:8px;align-items:center;';
+      const awChk = makeInput('checkbox', sh.autoWidth||false, v=>{
+        sh.autoWidth=v; scheduleSave(); renderCanvas();
+        awOptionsRow.style.display = v ? 'flex' : 'none';
+      });
+      awRow.appendChild(awChk);
+      const awLbl=document.createElement('span');awLbl.textContent='Auto-largeur';awLbl.style.fontSize='12px';
+      awRow.appendChild(awLbl);
+      body.appendChild(row('Étirement', awRow));
+
+      const awOptionsRow = document.createElement('div');
+      awOptionsRow.style.cssText='display:' + (sh.autoWidth?'flex':'none') + ';gap:6px;flex-wrap:wrap;align-items:center;';
+      const anchorSel = makeSelect(
+        [{v:'left',label:'Ancrage gauche'},{v:'right',label:'Ancrage droit'}],
+        sh.anchorSide||'left', v=>{sh.anchorSide=v;scheduleSave();renderCanvas();}
+      );
+      awOptionsRow.appendChild(anchorSel);
+      const minWInp = makeInput('number', sh.minW||50, v=>{sh.minW=v;scheduleSave();renderCanvas();},{min:10,max:1920,step:1});
+      minWInp.style.width='70px'; minWInp.title='Largeur min';
+      const maxWInp = makeInput('number', sh.maxW||900, v=>{sh.maxW=v;scheduleSave();renderCanvas();},{min:10,max:1920,step:1});
+      maxWInp.style.width='70px'; maxWInp.title='Largeur max';
+      const minLbl=document.createElement('span');minLbl.textContent='min';minLbl.style.cssText='font-size:11px;color:var(--text-muted);';
+      const maxLbl=document.createElement('span');maxLbl.textContent='max';maxLbl.style.cssText='font-size:11px;color:var(--text-muted);';
+      awOptionsRow.appendChild(minLbl); awOptionsRow.appendChild(minWInp);
+      awOptionsRow.appendChild(maxLbl); awOptionsRow.appendChild(maxWInp);
+      body.appendChild(row('', awOptionsRow));
+    }
+
+    if (sh.type === 'image') {
+      const srcInput = makeInput('text', sh.src||'', v=>{sh.src=v;prop('src')(v);});
+      srcInput.placeholder='URL de l\'image';
+      body.appendChild(row('URL', srcInput));
+
+      body.appendChild(row('Ajustement', makeSelect(
+        [{v:'cover',label:'Cover'},{v:'contain',label:'Contain'},{v:'fill',label:'Remplir'},{v:'none',label:'Aucun'}],
+        sh.objectFit||'cover', v=>{sh.objectFit=v;prop('objectFit')(v);}
+      )));
+
+      body.appendChild(row('Rayon', makeInput('number', sh.radius||0, v=>{sh.radius=v;prop('radius')(v);},{min:0,max:200,step:1})));
+    }
+
+    // Shadow (rect + text)
+    if (sh.type !== 'image') {
+      const shadowRow = document.createElement('div');
+      shadowRow.style.cssText='display:flex;gap:8px;align-items:center;';
+      shadowRow.appendChild(makeInput('checkbox', sh.shadow||false, v=>{sh.shadow=v;scheduleSave();renderCanvas();}));
+      const sl=document.createElement('span');sl.textContent='Activer l\'ombre';sl.style.fontSize='12px';
+      shadowRow.appendChild(sl);
+      body.appendChild(row('Ombre', shadowRow));
+    }
+
+    // Reset points (polygones seulement)
+    if (VERTEX_TYPES.includes(sh.type) && sh.customPoints) {
+      const resetBtn = document.createElement('button');
+      resetBtn.className = 'btn btn-outline btn-sm';
+      resetBtn.textContent = 'Réinitialiser les points';
+      resetBtn.style.fontSize = '11px';
+      resetBtn.addEventListener('click', () => {
+        delete sh.customPoints;
+        scheduleSave(); renderCanvas(); renderProps();
+      });
+      body.appendChild(row('Points', resetBtn));
+    }
+
+    // ── Duplication parallèle (toutes les formes) ────────────
+    const dupRow = document.createElement('div');
+    dupRow.style.cssText = 'display:flex;gap:6px;flex-wrap:wrap;';
+
+    function swapP1P2(val) {
+      if (!val) return val;
+      return val.replace(/^p1\./, '\x00').replace(/^p2\./, 'p1.').replace(/^\x00/, 'p2.');
+    }
+    function makeMirrorCopy(mirrorH, mirrorV) {
+      const layout = getLayout(); if (!layout) return;
+      const newSh = JSON.parse(JSON.stringify(sh));
+      newSh.id   = uid();
+      newSh.name = (sh.name || sh.type) + (mirrorH ? ' ↔' : ' ↕');
+      if (mirrorH) newSh.x = 1920 - sh.x - sh.w;
+      if (mirrorV) newSh.y = 1080 - sh.y - sh.h;
+      // Swap liaisons J1↔J2
+      if (newSh.dynamic)    newSh.dynamic    = swapP1P2(newSh.dynamic);
+      if (newSh.dynamicSrc) newSh.dynamicSrc = swapP1P2(newSh.dynamicSrc);
+      if (newSh.linkedTo) newSh.linkedTo = ''; // pas de liaison automatique
+      layout.shapes.push(newSh);
+      scheduleSave(); renderCanvas(); renderLayers(); sbbSelectShape(newSh.id);
+    }
+
+    const btnH = document.createElement('button');
+    btnH.className = 'btn btn-outline btn-sm';
+    btnH.textContent = '↔ Miroir H';
+    btnH.title = 'Copie symétrique horizontale (autour de X=960), swap J1↔J2';
+    btnH.addEventListener('click', () => makeMirrorCopy(true, false));
+
+    const btnV = document.createElement('button');
+    btnV.className = 'btn btn-outline btn-sm';
+    btnV.textContent = '↕ Miroir V';
+    btnV.title = 'Copie symétrique verticale (autour de Y=540)';
+    btnV.addEventListener('click', () => makeMirrorCopy(false, true));
+
+    const btnOffset = document.createElement('button');
+    btnOffset.className = 'btn btn-outline btn-sm';
+    btnOffset.textContent = '+ Décaler';
+    btnOffset.title = 'Dupliquer avec décalage personnalisé';
+    btnOffset.addEventListener('click', () => {
+      const dx = parseInt(prompt('Décalage X (px) :', '20') || '0');
+      const dy = parseInt(prompt('Décalage Y (px) :', '20') || '0');
+      const layout = getLayout(); if (!layout) return;
+      const newSh = JSON.parse(JSON.stringify(sh));
+      newSh.id   = uid();
+      newSh.name = (sh.name || sh.type) + ' (copie)';
+      newSh.x   += dx;
+      newSh.y   += dy;
+      if (newSh.linkedTo) newSh.linkedTo = '';
+      layout.shapes.push(newSh);
+      scheduleSave(); renderCanvas(); renderLayers(); sbbSelectShape(newSh.id);
+    });
+
+    dupRow.appendChild(btnH);
+    dupRow.appendChild(btnV);
+    dupRow.appendChild(btnOffset);
+    body.appendChild(row('Dupliquer', dupRow));
+  }
+
+  /* ── Mapping éléments libres → forme canvas ─────────────── */
+  const SEL_TO_SHAPE = {
+    'event':      { type:'text',  dynamic:'event',       name:'Événement',    w:400, h:50 },
+    'phase':      { type:'text',  dynamic:'stage',       name:'Round/Phase',  w:400, h:60 },
+    'format':     { type:'text',  dynamic:'format',      name:'Format',       w:200, h:40 },
+    'p1score':    { type:'text',  dynamic:'p1.score',    name:'Score J1',     w:120, h:80, fontSize:64 },
+    'p1tag':      { type:'text',  dynamic:'p1.tag',      name:'Tag J1',       w:200, h:50 },
+    'p1name':     { type:'text',  dynamic:'p1.name',     name:'Pseudo J1',    w:300, h:60 },
+    'p1pronouns': { type:'text',  dynamic:'p1.pronouns', name:'Pronoms J1',   w:200, h:40, fontSize:16 },
+    'p1seed':     { type:'text',  dynamic:'p1.seed',     name:'Seed J1',      w:100, h:40, fontSize:16 },
+    'p1flag':     { type:'image', dynamicSrc:'p1.flag',  name:'Drapeau J1',   w:90,  h:60, objectFit:'contain' },
+    'p1char':     { type:'image', dynamicSrc:'p1.char',  name:'Personnage J1',w:220, h:220, objectFit:'contain' },
+    'p2score':    { type:'text',  dynamic:'p2.score',    name:'Score J2',     w:120, h:80, fontSize:64 },
+    'p2tag':      { type:'text',  dynamic:'p2.tag',      name:'Tag J2',       w:200, h:50 },
+    'p2name':     { type:'text',  dynamic:'p2.name',     name:'Pseudo J2',    w:300, h:60 },
+    'p2pronouns': { type:'text',  dynamic:'p2.pronouns', name:'Pronoms J2',   w:200, h:40, fontSize:16 },
+    'p2seed':     { type:'text',  dynamic:'p2.seed',     name:'Seed J2',      w:100, h:40, fontSize:16 },
+    'p2flag':     { type:'image', dynamicSrc:'p2.flag',  name:'Drapeau J2',   w:90,  h:60, objectFit:'contain' },
+    'p2char':     { type:'image', dynamicSrc:'p2.char',  name:'Personnage J2',w:220, h:220, objectFit:'contain' },
+  };
+
+  function addShapeFromElement(selKey) {
+    const l = getLayout();
+    if (!l) { alert('Crée d\'abord un layout !'); return; }
+    const cfg = SEL_TO_SHAPE[selKey]; if (!cfg) return;
+    const base = { ...SHAPE_DEFAULTS[cfg.type] };
+    const sh = {
+      id:      uid(),
+      visible: true,
+      x: Math.round((1920 - (cfg.w || base.w)) / 2),
+      y: Math.round((1080 - (cfg.h || base.h)) / 2),
+      ...base,
+      ...cfg,
+      // cfg.w/h override base defaults
+      w: cfg.w || base.w,
+      h: cfg.h || base.h,
+    };
+    l.shapes.push(sh);
+    scheduleSave();
+    renderCanvas();
+    renderLayers();
+    sbbSelectShape(sh.id);
+  }
+
+  /* ── Add shape ───────────────────────────────────────────── */
+  function addShape(type) {
+    const l = getLayout(); if (!l) return;
+    const def = { ...SHAPE_DEFAULTS[type] };
+    const NAMES = { rect:'Rectangle', text:'Texte', image:'Image', circle:'Cercle', oval:'Ovale', 'semi-circle':'Demi-cercle', triangle:'Triangle', star:'Étoile', diamond:'Diamant', hexagon:'Hexagone' };
+    const sh = {
+      id:      uid(),
+      type,
+      name:    NAMES[type] || type,
+      visible: true,
+      x: Math.round((1920 - def.w) / 2),
+      y: Math.round((1080 - def.h) / 2),
+      ...def,
+    };
+    l.shapes.push(sh);
+    scheduleSave();
+    renderCanvas();
+    renderLayers();
+    sbbSelectShape(sh.id);
+  }
+
+  /* ── Layout management ───────────────────────────────────── */
+  function refreshLayoutSelect() {
+    const sel = document.getElementById('sbb-layout-select'); if (!sel) return;
+    sel.innerHTML = '';
+    if (layouts.length === 0) {
+      const opt = document.createElement('option');
+      opt.textContent = '— aucun layout —';
+      opt.disabled = true;
+      sel.appendChild(opt);
+    } else {
+      layouts.forEach(l => {
+        const opt = document.createElement('option');
+        opt.value = l.id;
+        opt.textContent = l.name;
+        if (l.id === activeId) opt.selected = true;
+        sel.appendChild(opt);
+      });
+    }
+    refreshOverlayLink();
+  }
+
+  function refreshOverlayLink() {
+    const a   = document.getElementById('sbb-overlay-link'); if (!a) return;
+    const url = activeId ? `http://localhost:3002/scoreboard-custom?layout=${activeId}` : '#';
+    a.href = url;
+    const urlInput = document.getElementById('sbb-url-display');
+    if (urlInput) urlInput.value = url;
+  }
+
+  function switchLayout(id) {
+    activeId   = id;
+    selectedId = null;
+    renderCanvas();
+    renderLayers();
+    renderProps();
+    refreshOverlayLink();
+  }
+
+  /* ── Init & events ───────────────────────────────────────── */
+  async function init() {
+    await apiLoad();
+    if (layouts.length > 0) activeId = layouts[0].id;
+    refreshLayoutSelect();
+    renderCanvas();
+    renderLayers();
+    renderProps();
+    updateScale();
+  }
+
+  // Layout select
+  document.getElementById('sbb-layout-select')?.addEventListener('change', e => switchLayout(e.target.value));
+
+  // Nouveau layout
+  document.getElementById('sbb-btn-new')?.addEventListener('click', async () => {
+    const name = prompt('Nom du scoreboard :');
+    if (!name) return;
+    const l = await apiCreate(name);
+    activeId = l.id;
+    refreshLayoutSelect();
+    switchLayout(l.id);
+  });
+
+  // Renommer
+  document.getElementById('sbb-btn-rename')?.addEventListener('click', async () => {
+    const l = getLayout(); if (!l) return;
+    const name = prompt('Nouveau nom :', l.name);
+    if (!name || name === l.name) return;
+    l.name = name;
+    await apiSave();
+    refreshLayoutSelect();
+  });
+
+  // Dupliquer layout
+  document.getElementById('sbb-btn-duplicate')?.addEventListener('click', async () => {
+    const l = getLayout(); if (!l) return;
+    const newL = await apiCreate(l.name + ' (copie)');
+    // Copy shapes with new ids
+    newL.shapes = l.shapes.map(sh => ({ ...sh, id: uid() }));
+    layouts[layouts.length-1] = newL;
+    await fetch(`/api/sb-layouts/${newL.id}`,{ method:'PATCH', headers:{'Content-Type':'application/json'}, body:JSON.stringify(newL) });
+    activeId = newL.id;
+    refreshLayoutSelect();
+    switchLayout(newL.id);
+  });
+
+  // Supprimer layout
+  document.getElementById('sbb-btn-delete')?.addEventListener('click', async () => {
+    const l = getLayout(); if (!l) return;
+    if (!confirm(`Supprimer "${l.name}" ?`)) return;
+    await apiDelete(l.id);
+    activeId = layouts.length > 0 ? layouts[0].id : null;
+    refreshLayoutSelect();
+    selectedId = null;
+    renderCanvas(); renderLayers(); renderProps();
+  });
+
+  // Copier URL
+  document.getElementById('sbb-btn-copy-url')?.addEventListener('click', () => {
+    if (!activeId) return;
+    const url = `http://localhost:3002/scoreboard-custom?layout=${activeId}`;
+    navigator.clipboard.writeText(url).then(() => setStatus('URL copiée !'));
+  });
+
+  // ── Image de fond de référence (builder uniquement) ──────────
+  const bgLayer  = document.getElementById('sbb-bg-layer');
+  const bgFile   = document.getElementById('sbb-bg-file');
+  const bgPick   = document.getElementById('sbb-bg-pick');
+  const bgUrl    = document.getElementById('sbb-bg-url');
+  const bgSlider = document.getElementById('sbb-bg-opacity');
+  const bgOpVal  = document.getElementById('sbb-bg-opacity-val');
+  const bgClear  = document.getElementById('sbb-bg-clear');
+
+  function applyBg(src) {
+    if (!bgLayer) return;
+    if (src) {
+      bgLayer.style.backgroundImage = `url('${src}')`;
+      bgLayer.style.display = 'block';
+    } else {
+      bgLayer.style.backgroundImage = 'none';
+      bgLayer.style.display = 'none';
+    }
+  }
+
+  if (bgPick) bgPick.addEventListener('click', () => bgFile?.click());
+
+  if (bgFile) bgFile.addEventListener('change', () => {
+    const file = bgFile.files[0]; if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => { applyBg(e.target.result); if (bgUrl) bgUrl.value = ''; };
+    reader.readAsDataURL(file);
+  });
+
+  if (bgUrl) bgUrl.addEventListener('input', () => {
+    const v = bgUrl.value.trim();
+    applyBg(v || null);
+  });
+
+  if (bgSlider) bgSlider.addEventListener('input', () => {
+    const v = bgSlider.value;
+    if (bgOpVal) bgOpVal.textContent = v + '%';
+    if (bgLayer) bgLayer.style.opacity = v / 100;
+  });
+
+  if (bgClear) bgClear.addEventListener('click', () => {
+    applyBg(null);
+    if (bgUrl) bgUrl.value = '';
+    if (bgFile) bgFile.value = '';
+  });
+
+  // Désélectionner (clic sur canvas vide)
+  document.getElementById('sbb-canvas-inner')?.addEventListener('mousedown', e => {
+    if (e.target.id === 'sbb-canvas-inner') sbbDeselect();
+  });
+  document.getElementById('sbb-btn-deselect')?.addEventListener('click', sbbDeselect);
+
+  // Centrer la forme sélectionnée
+  document.getElementById('sbb-btn-center')?.addEventListener('click', () => {
+    const sh = getShape(selectedId); if (!sh) return;
+    sh.x = Math.round((1920 - sh.w) / 2);
+    sh.y = Math.round((1080 - sh.h) / 2);
+    renderCanvas(); renderHandles(); renderProps(); scheduleSave();
+  });
+
+  // Dupliquer forme
+  document.getElementById('sbb-btn-duplicate-shape')?.addEventListener('click', () => {
+    const l = getLayout(); const sh = getShape(selectedId); if (!l||!sh) return;
+    const copy = { ...JSON.parse(JSON.stringify(sh)), id: uid(), name: (sh.name||sh.type)+' (copie)', x:sh.x+20, y:sh.y+20 };
+    l.shapes.push(copy);
+    scheduleSave(); renderCanvas(); renderLayers(); sbbSelectShape(copy.id);
+  });
+
+  // Supprimer forme
+  document.getElementById('sbb-btn-delete-shape')?.addEventListener('click', () => {
+    const l = getLayout(); if (!l||!selectedId) return;
+    l.shapes = l.shapes.filter(s=>s.id!==selectedId);
+    selectedId = null;
+    scheduleSave(); renderCanvas(); renderLayers(); renderProps();
+  });
+
+  // Ajouter forme
+  document.querySelectorAll('.sbb-add-shape').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const l = getLayout();
+      if (!l) { alert('Créez d\'abord un layout.'); return; }
+      addShape(btn.dataset.type);
+    });
+  });
+
+  // Resize observer pour recalculer l'échelle
+  const canvasWrap = document.getElementById('sbb-canvas-wrap');
+  if (canvasWrap && window.ResizeObserver) {
+    new ResizeObserver(() => { updateScale(); renderHandles(); }).observe(canvasWrap);
+  }
+
+  // Ouvrir l'onglet → init ou refresh
+  document.querySelectorAll('.tab-btn[data-tab="builder"]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (layouts.length === 0 && !activeId) init();
+      else { updateScale(); renderCanvas(); renderLayers(); }
+    });
+  });
+
+  // Pré-charger les layouts en background
+  apiLoad().then(() => {
+    if (layouts.length > 0 && !activeId) activeId = layouts[0].id;
+    refreshLayoutSelect();
+  });
+
+  // Exposer pour les boutons col.1
+  window.sbbAddFromElement = addShapeFromElement;
+
 })();

@@ -96,6 +96,49 @@
 
   </div>
 
+  <!-- Lower-third : overlay indépendant (hors scoreboard) -->
+  <div id="lt-layout" class="lt-layout">
+
+    <!-- Panneau Joueur 1 (gauche) -->
+    <div class="lt-panel lt-panel-left" id="lt-p1">
+      <div class="lt-pronouns-badge" id="lt-p1-pronouns"></div>
+      <div class="lt-inner">
+        <div class="lt-flag-box" id="lt-p1-flag-box">
+          <img class="lt-flag-img" id="lt-p1-flag-img" src="" alt="" style="display:none" />
+          <span class="lt-flag-code" id="lt-p1-flag-code"></span>
+        </div>
+        <div class="lt-info">
+          <span class="lt-tag" id="lt-p1-tag"></span>
+          <span class="lt-name" id="lt-p1-name">PLAYER 1</span>
+        </div>
+        <div class="lt-score" id="lt-p1-score">0</div>
+      </div>
+      <div class="lt-social-bar" id="lt-p1-social-bar">
+        <span class="lt-social-text" id="lt-p1-social-text"></span>
+      </div>
+    </div>
+
+    <!-- Panneau Joueur 2 (droite) -->
+    <div class="lt-panel lt-panel-right" id="lt-p2">
+      <div class="lt-pronouns-badge lt-pronouns-right" id="lt-p2-pronouns"></div>
+      <div class="lt-inner">
+        <div class="lt-flag-box" id="lt-p2-flag-box">
+          <img class="lt-flag-img" id="lt-p2-flag-img" src="" alt="" style="display:none" />
+          <span class="lt-flag-code" id="lt-p2-flag-code"></span>
+        </div>
+        <div class="lt-info">
+          <span class="lt-tag" id="lt-p2-tag"></span>
+          <span class="lt-name" id="lt-p2-name">PLAYER 2</span>
+        </div>
+        <div class="lt-score" id="lt-p2-score">0</div>
+      </div>
+      <div class="lt-social-bar" id="lt-p2-social-bar">
+        <span class="lt-social-text" id="lt-p2-social-text"></span>
+      </div>
+    </div>
+
+  </div>
+
   <script src="/socket.io/socket.io.js"></script>
   <script src="/texture.js"></script>
   <script src="particle-engine.js"></script>

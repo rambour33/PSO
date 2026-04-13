@@ -26,6 +26,7 @@ body {
   height: 1080px;
   overflow: hidden;
   font-family: 'Inter', sans-serif;
+  position: relative;
 }
 
 /* ── Scoreboard ──────────────────────────────────────────────── */
@@ -3294,4 +3295,333 @@ body {
   height: 34px;
   border-radius: 50%;
   border: 1.5px solid rgba(255,255,255,0.15);
+}
+
+
+/* ═══════════════════════════════════════════════════════════════ */
+/* STYLE : LOWER THIRD                                             */
+/* Event bar + scores en haut, noms dans les panneaux du bas      */
+/* ═══════════════════════════════════════════════════════════════ */
+
+/* Masquer les blocs joueurs (portraits, noms) — garder score-center */
+.scoreboard.style-lower-third .player-left,
+.scoreboard.style-lower-third .player-right {
+  display: none;
+}
+
+/* Score-center seul dans le players-container */
+.scoreboard.style-lower-third .players-container {
+  justify-content: center;
+  border-bottom: 2px solid var(--smash-gold);
+}
+
+.scoreboard.style-lower-third .score-center {
+  border-left: none;
+  border-right: none;
+  padding: 0 24px;
+}
+
+.scoreboard.style-lower-third .score-box {
+  padding: 8px 20px;
+  gap: 16px;
+}
+
+.scoreboard.style-lower-third .score {
+  font-size: 42px;
+}
+
+/* Masquer les dots en lower-third (les scores suffisent) */
+.scoreboard.style-lower-third .series-dots,
+.scoreboard.style-lower-third .dots-col-left,
+.scoreboard.style-lower-third .dots-col-right {
+  display: none !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════ */
+/* LOWER THIRD — overlay indépendant (hors scoreboard)            */
+/* ═══════════════════════════════════════════════════════════════ */
+
+/* Conteneur pleine-fenêtre, caché par défaut */
+.lt-layout {
+  display: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1920px;
+  height: 1080px;
+  pointer-events: none;
+  z-index: 20;
+}
+
+.lt-layout.lt-visible {
+  display: block;
+}
+
+/* ── Panneau joueur ───────────────────────────────────────────── */
+.lt-panel {
+  position: absolute;
+  bottom: var(--lt-bottom, 150px);
+  display: flex;
+  flex-direction: column;
+  min-width: 520px;
+  max-width: 640px;
+  filter: drop-shadow(0 4px 24px rgba(0,0,0,0.85));
+}
+
+/* Panneaux positionnés en absolu dans le canvas 1920×1080 */
+.lt-panel-left {
+  left: var(--lt-padding-x, 60px);
+}
+
+.lt-panel-right {
+  right: var(--lt-padding-x, 60px);
+}
+
+/* ── Badge pronoms ────────────────────────────────────────────── */
+.lt-pronouns-badge {
+  position: absolute;
+  top: -22px;
+  right: 0;
+  background: var(--p1-color, var(--smash-red));
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 3px 3px 0 0;
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.lt-pronouns-badge:not(:empty) {
+  opacity: 1;
+}
+
+.lt-panel-right .lt-pronouns-badge {
+  background: var(--p2-color, var(--smash-blue));
+}
+
+/* ── Barre principale ─────────────────────────────────────────── */
+.lt-inner {
+  display: flex;
+  align-items: stretch;
+  background: var(--sb-bg, #0E0E12);
+  border-left: 4px solid var(--p1-color, #E83030);
+  overflow: hidden;
+}
+
+.lt-panel-right .lt-inner {
+  border-left: none;
+  border-right: 4px solid var(--p2-color, #3070E8);
+}
+
+/* ── Boîte drapeau ────────────────────────────────────────────── */
+.lt-flag-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 10px;
+  background: rgba(0,0,0,0.3);
+  border-right: 1px solid rgba(255,255,255,0.08);
+  min-width: 62px;
+  gap: 3px;
+}
+
+.lt-flag-img {
+  width: 36px;
+  height: 24px;
+  object-fit: cover;
+  border-radius: 2px;
+  border: 1px solid rgba(255,255,255,0.15);
+}
+
+.lt-flag-code {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: var(--smash-muted);
+  text-transform: uppercase;
+}
+
+/* ── Infos joueur ─────────────────────────────────────────────── */
+.lt-info {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex: 1;
+  padding: 12px 14px;
+  overflow: hidden;
+}
+
+.lt-tag {
+  font-family: 'Russo One', sans-serif;
+  font-size: 14px;
+  color: var(--p1-color, var(--smash-red));
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.lt-panel-right .lt-tag {
+  color: var(--p2-color, var(--smash-blue));
+}
+
+.lt-name {
+  font-family: 'Russo One', sans-serif;
+  font-size: 22px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--smash-white, #F0EEF8);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── Score ────────────────────────────────────────────────────── */
+.lt-score {
+  font-family: 'Russo One', sans-serif;
+  font-size: 34px;
+  color: var(--smash-white, #F0EEF8);
+  padding: 0 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 64px;
+  background: rgba(255,255,255,0.06);
+  border-left: 1px solid rgba(255,255,255,0.08);
+  flex-shrink: 0;
+}
+
+/* ── Barre réseaux sociaux ────────────────────────────────────── */
+.lt-social-bar {
+  background: rgba(0,0,0,0.55);
+  border-top: 1px solid rgba(255,255,255,0.06);
+  padding: 5px 14px 5px 72px; /* indent pour aligner avec lt-info */
+  min-height: 26px;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+}
+
+.lt-social-text {
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.65);
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+  opacity: 1;
+  transition: opacity 0.4s ease;
+}
+
+.lt-social-text.fading {
+  opacity: 0;
+}
+
+/* Masquer les social bar si vide */
+.lt-social-bar:not(:has(.lt-social-text:not(:empty))) {
+  display: none;
+}
+
+/* ── Lower-third : adaptations thème ────────────────────────── */
+
+/* Cyberpunk */
+.lt-layout.theme-cyberpunk .lt-inner {
+  box-shadow: 0 0 14px rgba(0,245,255,0.25), inset 0 0 16px rgba(0,0,0,0.4);
+}
+.lt-layout.theme-cyberpunk .lt-name  { animation: glitch 9s steps(1) infinite; }
+.lt-layout.theme-cyberpunk .lt-tag   { animation: neon-pulse-pink 2s ease-in-out infinite; }
+.lt-layout.theme-cyberpunk .lt-score { animation: neon-pulse-cyan 1.8s ease-in-out infinite; }
+.lt-layout.theme-cyberpunk .lt-social-text { color: #00F5FF; }
+
+/* Synthwave */
+.lt-layout.theme-synthwave .lt-inner {
+  box-shadow: 0 0 12px rgba(255,110,199,0.25);
+}
+.lt-layout.theme-synthwave .lt-tag   { animation: synthwave-tag 2.5s ease-in-out infinite; }
+.lt-layout.theme-synthwave .lt-score { animation: synthwave-score 2s ease-in-out infinite; }
+.lt-layout.theme-synthwave .lt-social-text { color: #C77DFF; }
+
+/* Midnight */
+.lt-layout.theme-midnight .lt-inner {
+  box-shadow: 0 0 12px rgba(79,195,247,0.2);
+}
+.lt-layout.theme-midnight .lt-score { color: #4FC3F7; }
+.lt-layout.theme-midnight .lt-social-text { color: #4FC3F7; opacity: 0.75; }
+
+/* Fire */
+.lt-layout.theme-fire .lt-inner {
+  box-shadow: 0 0 14px rgba(255,69,0,0.3);
+}
+.lt-layout.theme-fire .lt-score { color: #FF8C00; }
+.lt-layout.theme-fire .lt-social-text { color: #FF8C00; }
+
+/* Water */
+.lt-layout.theme-water .lt-inner {
+  box-shadow: 0 0 12px rgba(0,180,216,0.3);
+}
+.lt-layout.theme-water .lt-score { color: #00D4FF; }
+.lt-layout.theme-water .lt-social-text { color: #00D4FF; opacity: 0.8; }
+
+/* Egypt */
+.lt-layout.theme-egypt .lt-inner {
+  box-shadow: 0 0 10px rgba(212,160,23,0.25);
+}
+.lt-layout.theme-egypt .lt-score { color: #D4A017; }
+.lt-layout.theme-egypt .lt-social-text { color: #D4A017; opacity: 0.8; }
+
+/* City */
+.lt-layout.theme-city .lt-inner {
+  box-shadow: 0 0 12px rgba(0,212,255,0.2);
+}
+.lt-layout.theme-city .lt-social-text { color: #00D4FF; opacity: 0.8; }
+
+/* Eco */
+.lt-layout.theme-eco .lt-inner {
+  box-shadow: 0 0 10px rgba(139,195,74,0.25);
+}
+.lt-layout.theme-eco .lt-score { color: #8BC34A; }
+.lt-layout.theme-eco .lt-social-text { color: #8BC34A; opacity: 0.8; }
+
+/* Rainbow */
+.lt-layout.theme-rainbow .lt-inner      { animation: rainbow-border 4s linear infinite; }
+.lt-layout.theme-rainbow .lt-social-text { animation: rainbow-text 4s linear infinite; }
+
+/* Trans */
+.lt-layout.theme-trans .lt-inner {
+  box-shadow: 0 0 10px rgba(85,205,252,0.3);
+}
+.lt-layout.theme-trans .lt-social-text { color: #55CDFC; }
+
+/* Pan */
+.lt-layout.theme-pan .lt-inner {
+  box-shadow: 0 0 10px rgba(255,33,140,0.3);
+}
+.lt-layout.theme-pan .lt-social-text { color: #FFD800; }
+
+/* Bi */
+.lt-layout.theme-bi .lt-inner {
+  box-shadow: 0 0 10px rgba(214,2,112,0.3);
+}
+.lt-layout.theme-bi .lt-social-text { color: #9B4F96; }
+
+/* Lesbian */
+.lt-layout.theme-lesbian .lt-inner {
+  box-shadow: 0 0 10px rgba(214,41,0,0.3);
+}
+.lt-layout.theme-lesbian .lt-social-text { color: #FF9A56; }
+
+/* Plage */
+.lt-layout.theme-plage .lt-inner {
+  box-shadow: 0 0 10px rgba(255,200,50,0.2);
+}
+.lt-layout.theme-plage .lt-social-text { color: #FFD700; }
+
+/* Dual — glows par couleur de perso */
+.lt-layout.theme-dual #lt-p1 .lt-inner {
+  box-shadow: 0 0 12px var(--p1-theme-glow, rgba(212,0,26,0.3));
+}
+.lt-layout.theme-dual #lt-p2 .lt-inner {
+  box-shadow: 0 0 12px var(--p2-theme-glow, rgba(58,127,232,0.3));
 }

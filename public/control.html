@@ -95,8 +95,8 @@
     <button class="tab-btn" data-tab="connexions">Connexions</button>
     <button class="tab-btn" data-tab="startgg">start.gg</button>
     <button class="tab-btn" data-tab="overlays">Overlays</button>
-    <button class="tab-btn" data-tab="elements">Éléments libres</button>
     <button class="tab-btn" data-tab="studio">Créateur de scènes</button>
+    <button class="tab-btn" data-tab="builder">Scoreboard Builder</button>
     <button class="tab-btn" data-tab="twitch">Twitch</button>
     <button class="tab-btn" data-tab="youtube">YouTube</button>
     <button class="tab-btn" data-tab="obstools">Outils Streaming</button>
@@ -132,6 +132,12 @@
               <input type="text" id="p1-pronouns" placeholder="il/elle" class="input-pronouns" />
               <input type="number" id="p1-seed" placeholder="#" min="1" class="input-seed" title="Seeding" />
             </div>
+          </div>
+          <div class="form-group">
+            <label>Réseaux sociaux <span class="hint">(Lower Third — jusqu'à 3, carrousel)</span></label>
+            <input type="text" id="p1-social-1" placeholder="ex: Twitter @kamex714" style="margin-bottom:4px" />
+            <input type="text" id="p1-social-2" placeholder="ex: Twitch kamex" style="margin-bottom:4px" />
+            <input type="text" id="p1-social-3" placeholder="ex: YouTube @kamex" />
           </div>
           <div class="form-group flag-picker-group">
             <label>Drapeau</label>
@@ -187,10 +193,6 @@
             <input type="text" id="event-stage" value="Grand Final" />
           </div>
           <div class="form-group">
-            <label>Stage actuel</label>
-            <input type="text" id="current-stage" placeholder="Nom du stage joué" />
-          </div>
-          <div class="form-group">
             <label>Format</label>
             <div class="format-selector">
               <button class="format-btn" data-fmt="Bo1">Bo1</button>
@@ -239,6 +241,12 @@
               <input type="text" id="p2-pronouns" placeholder="il/elle" class="input-pronouns" />
               <input type="number" id="p2-seed" placeholder="#" min="1" class="input-seed" title="Seeding" />
             </div>
+          </div>
+          <div class="form-group">
+            <label>Réseaux sociaux <span class="hint">(Lower Third — jusqu'à 3, carrousel)</span></label>
+            <input type="text" id="p2-social-1" placeholder="ex: Twitter @kamex714" style="margin-bottom:4px" />
+            <input type="text" id="p2-social-2" placeholder="ex: Twitch kamex" style="margin-bottom:4px" />
+            <input type="text" id="p2-social-3" placeholder="ex: YouTube @kamex" />
           </div>
           <div class="form-group flag-picker-group">
             <label>Drapeau</label>
@@ -1392,8 +1400,8 @@
                 <div class="form-group" style="margin:0">
                   <label>Densité</label>
                   <div class="logo-particles-row">
-                    <input type="range" id="tc-particle-count-range" min="10" max="500" value="100" />
-                    <input type="number" id="tc-particle-count-num" min="10" max="500" value="100" style="width:54px;background:var(--surface);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:13px;padding:4px 6px;text-align:center" />
+                    <input type="range" id="tc-particle-count-range" min="0" max="500" value="100" />
+                    <input type="number" id="tc-particle-count-num" min="0" max="500" value="100" style="width:54px;background:var(--surface);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:13px;padding:4px 6px;text-align:center" />
                   </div>
                 </div>
               </div>
@@ -1794,9 +1802,9 @@
         <div class="form-group">
           <label style="font-size:12px;color:var(--text-muted);display:flex;justify-content:space-between;margin-bottom:4px">
             <span>Densité</span>
-            <span><input type="number" id="ct-particle-count-num" value="60" min="1" max="300" style="width:52px;font-size:12px;text-align:right" /></span>
+            <span><input type="number" id="ct-particle-count-num" value="0" min="0" max="300" style="width:52px;font-size:12px;text-align:right" /></span>
           </label>
-          <input type="range" id="ct-particle-count-range" min="1" max="300" value="60" style="width:100%" />
+          <input type="range" id="ct-particle-count-range" min="0" max="300" value="0" style="width:100%" />
         </div>
       </div>
 
@@ -1856,6 +1864,7 @@
             <button class="overlay-style-btn theme-btn" data-style="slim">Slim —</button>
             <button class="overlay-style-btn theme-btn" data-style="full-rounded">Full arrondi ◉</button>
             <button class="overlay-style-btn theme-btn" data-style="compact-rounded">Compact arrondi ◉</button>
+            <button class="overlay-style-btn theme-btn" data-style="lower-third">Lower Third ↓</button>
           </div>
           <p class="hint" style="margin:12px 0 8px">Affichage du score</p>
           <div class="theme-btn-row">
@@ -1867,6 +1876,8 @@
             <button class="dots-orientation-btn theme-btn active" data-orientation="row">— Ligne</button>
             <button class="dots-orientation-btn theme-btn" data-orientation="column">| Colonne</button>
           </div>
+          <p class="hint" style="margin:12px 0 8px">Lower Third</p>
+          <button id="btn-lt-toggle" class="btn btn-outline btn-full">Lower Third : OFF</button>
           <p class="hint" style="margin:12px 0 8px">Position de la barre événement</p>
           <div class="theme-btn-row">
             <button class="event-bar-pos-btn theme-btn active" data-pos="top">↑ Haut</button>
@@ -1895,6 +1906,25 @@
             <div class="logo-particles-row">
               <input type="range" id="sb-y-range" min="-200" max="600" value="0" step="1" />
               <input type="number" id="sb-y-num" min="-200" max="600" value="0" step="1" style="width:66px" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Contrôles Lower Third (visibles uniquement en mode lower-third) -->
+        <div class="custom-card" id="lt-position-card" style="display:none;margin-top:0">
+          <h3>Position — Lower Third</h3>
+          <div class="form-group" style="margin-bottom:12px">
+            <label>Hauteur depuis le bas <span class="hint">px — éviter de couvrir le HUD du jeu</span></label>
+            <div class="logo-particles-row">
+              <input type="range" id="lt-bottom-range" min="0" max="500" value="150" step="1" />
+              <input type="number" id="lt-bottom-num" min="0" max="500" value="150" step="1" style="width:66px" />
+            </div>
+          </div>
+          <div class="form-group" style="margin:0">
+            <label>Marges latérales <span class="hint">px</span></label>
+            <div class="logo-particles-row">
+              <input type="range" id="lt-padding-x-range" min="0" max="400" value="60" step="4" />
+              <input type="number" id="lt-padding-x-num" min="0" max="400" value="60" step="4" style="width:66px" />
             </div>
           </div>
         </div>
@@ -1955,10 +1985,10 @@
               </div>
             </div>
             <div class="form-group" style="margin:0">
-              <label>Quantité <span class="hint">10 – 500 %</span></label>
+              <label>Quantité <span class="hint">0 – 500 %</span></label>
               <div class="logo-particles-row">
-                <input type="range" id="particle-count-range" min="10" max="500" value="100" />
-                <input type="number" id="particle-count-num" min="10" max="500" value="100" style="width:56px" />
+                <input type="range" id="particle-count-range" min="0" max="500" value="100" />
+                <input type="number" id="particle-count-num" min="0" max="500" value="100" style="width:56px" />
               </div>
             </div>
           </div>
@@ -1998,8 +2028,12 @@
           <h3>Logo central — Scoreboard</h3>
           <p class="hint" style="margin-bottom:10px">Remplace le texte « VS » au centre.</p>
           <div class="form-group">
-            <label>URL</label>
-            <input type="text" id="center-logo" placeholder="https://..." />
+            <label>URL ou fichier local</label>
+            <div style="display:flex;gap:6px">
+              <input type="text" id="center-logo" placeholder="https://... ou choisir un fichier →" style="flex:1" />
+              <button id="btn-logo-file-pick" class="btn btn-outline btn-sm" title="Choisir un fichier local">📁</button>
+              <input type="file" id="center-logo-file-input" accept="image/*" style="display:none" />
+            </div>
           </div>
           <div class="logo-preview-row">
             <div class="logo-preview-box" id="center-logo-preview">
@@ -2008,10 +2042,10 @@
             <button id="btn-apply-logo" class="btn btn-primary btn-sm">Appliquer</button>
           </div>
           <div class="form-group" style="margin-top:12px">
-            <label>Particules logo (thèmes custom) <span class="hint">1 – 100</span></label>
+            <label>Particules logo (thèmes custom) <span class="hint">0 – 100</span></label>
             <div class="logo-particles-row">
-              <input type="range" id="logo-particles-range" min="1" max="100" value="3" />
-              <input type="number" id="logo-particles-num" min="1" max="100" value="3" />
+              <input type="range" id="logo-particles-range" min="0" max="100" value="0" />
+              <input type="number" id="logo-particles-num" min="0" max="100" value="0" />
             </div>
           </div>
         </div>
@@ -4081,162 +4115,257 @@
   </div><!-- /tab-overlays -->
 
   <!-- ═══════════════════════════════════════════════════════════ -->
-  <!-- TAB : ÉLÉMENTS LIBRES                                       -->
+  <!-- TAB : SCOREBOARD BUILDER                                     -->
   <!-- ═══════════════════════════════════════════════════════════ -->
-  <div class="tab-content" id="tab-elements">
+  <div class="tab-content" id="tab-builder">
+
+    <!-- ── Créateur visuel (vue principale) ── -->
     <section class="section">
       <div class="section-header">
-        <h2>Éléments libres</h2>
-        <div style="display:flex;gap:8px;align-items:center">
-          <a href="/scoreboard-elements" target="_blank" class="btn btn-outline btn-sm">Overlay ↗</a>
-          <label style="display:flex;align-items:center;gap:6px;font-size:12px">
-            <input type="checkbox" id="sel-visible" checked />
-            Visible
-          </label>
+        <h2>Créateur de scoreboard</h2>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <select id="sbb-layout-select" style="background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:5px 10px;border-radius:6px;font-size:13px;min-width:160px;"></select>
+          <button class="btn btn-primary btn-sm" id="sbb-btn-new">+ Nouveau</button>
+          <button class="btn btn-outline btn-sm" id="sbb-btn-rename">Renommer</button>
+          <button class="btn btn-outline btn-sm" id="sbb-btn-duplicate">Dupliquer</button>
+          <button class="btn btn-outline btn-sm" id="sbb-btn-delete" style="border-color:#e05;color:#e05">Supprimer</button>
+          <a id="sbb-overlay-link" href="#" target="_blank" class="btn btn-outline btn-sm" style="border-color:#4a9;">Overlay ↗</a>
+          <button class="btn btn-outline btn-sm" id="sbb-btn-copy-url">Copier URL</button>
         </div>
       </div>
 
-      <p style="font-size:12px;color:var(--text-muted);margin-bottom:16px;line-height:1.5">
-        Chaque élément est positionné indépendamment — la coordonnée correspond au <strong>centre</strong> de l'élément.<br>
-        Dans OBS, ajoute une <strong>Source Navigateur</strong> · URL : <code>localhost:3002/scoreboard-elements</code> · 1920×1080 · fond transparent.
-      </p>
+      <div style="display:flex;gap:12px;margin-top:12px;align-items:flex-start;">
 
-      <!-- ── Match ─────────────────────────────────────────────── -->
-      <div class="sel-group-label">Match</div>
-      <div class="sel-rows">
-        <div class="sel-row">
-          <span class="sel-row-name">Événement</span>
-          <label class="sel-vis-label"><input type="checkbox" class="sel-vis" data-key="event" checked />Vis</label>
-          <label class="sel-coord">X<input type="number" class="sel-x" data-key="event" value="960" min="0" max="1920" /></label>
-          <label class="sel-coord">Y<input type="number" class="sel-y" data-key="event" value="35"  min="0" max="1080" /></label>
-          <label class="sel-coord">Taille<input type="number" class="sel-size" data-key="event" value="18" min="8" max="120" /></label>
+        <!-- ── Colonne 1 : Éléments libres ────────────────────── -->
+        <div style="width:260px;flex-shrink:0;display:flex;flex-direction:column;gap:8px;max-height:calc(100vh - 200px);overflow-y:auto;">
+          <div class="custom-card" style="padding:12px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+              <h3>Éléments libres</h3>
+              <div style="display:flex;gap:6px;align-items:center;">
+                <a href="/scoreboard-elements" target="_blank" class="btn btn-outline btn-sm" style="font-size:11px;">Overlay ↗</a>
+                <label style="display:flex;align-items:center;gap:4px;font-size:11px;cursor:pointer;">
+                  <input type="checkbox" id="sel-visible" checked />Vis
+                </label>
+              </div>
+            </div>
+
+            <div class="sel-group-label">Match</div>
+            <div class="sel-rows" style="margin-bottom:10px;">
+              <div class="sel-row">
+                <span class="sel-row-name">Événement</span>
+                <label class="sel-vis-label"><input type="checkbox" class="sel-vis" data-key="event" checked />Vis</label>
+                <label class="sel-coord">X<input type="number" class="sel-x" data-key="event" value="960" min="0" max="1920" /></label>
+                <label class="sel-coord">Y<input type="number" class="sel-y" data-key="event" value="35"  min="0" max="1080" /></label>
+                <label class="sel-coord">Taille<input type="number" class="sel-size" data-key="event" value="18" min="8" max="120" /></label>
+              </div>
+              <div class="sel-row">
+                <span class="sel-row-name">Phase</span>
+                <label class="sel-vis-label"><input type="checkbox" class="sel-vis" data-key="phase" checked />Vis</label>
+                <label class="sel-coord">X<input type="number" class="sel-x" data-key="phase" value="960" min="0" max="1920" /></label>
+                <label class="sel-coord">Y<input type="number" class="sel-y" data-key="phase" value="68"  min="0" max="1080" /></label>
+                <label class="sel-coord">Taille<input type="number" class="sel-size" data-key="phase" value="26" min="8" max="120" /></label>
+              </div>
+              <div class="sel-row">
+                <span class="sel-row-name">Format</span>
+                <label class="sel-vis-label"><input type="checkbox" class="sel-vis" data-key="format" checked />Vis</label>
+                <label class="sel-coord">X<input type="number" class="sel-x" data-key="format" value="960" min="0" max="1920" /></label>
+                <label class="sel-coord">Y<input type="number" class="sel-y" data-key="format" value="104" min="0" max="1080" /></label>
+                <label class="sel-coord">Taille<input type="number" class="sel-size" data-key="format" value="16" min="8" max="120" /></label>
+              </div>
+            </div>
+
+            <div class="sel-group-label">Joueur 1</div>
+            <div class="sel-rows" style="margin-bottom:10px;">
+              <div class="sel-row">
+                <span class="sel-row-name">Personnage</span>
+                <label class="sel-vis-label"><input type="checkbox" class="sel-vis" data-key="p1char" checked />Vis</label>
+                <label class="sel-coord">X<input type="number" class="sel-x" data-key="p1char" value="300"  min="0" max="1920" /></label>
+                <label class="sel-coord">Y<input type="number" class="sel-y" data-key="p1char" value="400"  min="0" max="1080" /></label>
+                <label class="sel-coord">Largeur<input type="number" class="sel-size" data-key="p1char" value="220" min="20" max="800" /></label>
+              </div>
+              <div class="sel-row">
+                <span class="sel-row-name">Score J1</span>
+                <label class="sel-vis-label"><input type="checkbox" class="sel-vis" data-key="p1score" checked />Vis</label>
+                <label class="sel-coord">X<input type="number" class="sel-x" data-key="p1score" value="560"  min="0" max="1920" /></label>
+                <label class="sel-coord">Y<input type="number" class="sel-y" data-key="p1score" value="500"  min="0" max="1080" /></label>
+                <label class="sel-coord">Taille<input type="number" class="sel-size" data-key="p1score" value="90" min="8" max="300" /></label>
+              </div>
+              <div class="sel-row">
+                <span class="sel-row-name">Tag J1</span>
+                <label class="sel-vis-label"><input type="checkbox" class="sel-vis" data-key="p1tag" checked />Vis</label>
+                <label class="sel-coord">X<input type="number" class="sel-x" data-key="p1tag" value="220"  min="0" max="1920" /></label>
+                <label class="sel-coord">Y<input type="number" class="sel-y" data-key="p1tag" value="500"  min="0" max="1080" /></label>
+                <label class="sel-coord">Taille<input type="number" class="sel-size" data-key="p1tag" value="22" min="8" max="120" /></label>
+              </div>
+              <div class="sel-row">
+                <span class="sel-row-name">Pseudo J1</span>
+                <label class="sel-vis-label"><input type="checkbox" class="sel-vis" data-key="p1name" checked />Vis</label>
+                <label class="sel-coord">X<input type="number" class="sel-x" data-key="p1name" value="220"  min="0" max="1920" /></label>
+                <label class="sel-coord">Y<input type="number" class="sel-y" data-key="p1name" value="540"  min="0" max="1080" /></label>
+                <label class="sel-coord">Taille<input type="number" class="sel-size" data-key="p1name" value="32" min="8" max="120" /></label>
+              </div>
+              <div class="sel-row">
+                <span class="sel-row-name">Pronoms J1</span>
+                <label class="sel-vis-label"><input type="checkbox" class="sel-vis" data-key="p1pronouns" checked />Vis</label>
+                <label class="sel-coord">X<input type="number" class="sel-x" data-key="p1pronouns" value="220"  min="0" max="1920" /></label>
+                <label class="sel-coord">Y<input type="number" class="sel-y" data-key="p1pronouns" value="580"  min="0" max="1080" /></label>
+                <label class="sel-coord">Taille<input type="number" class="sel-size" data-key="p1pronouns" value="16" min="8" max="80" /></label>
+              </div>
+              <div class="sel-row">
+                <span class="sel-row-name">Seed J1</span>
+                <label class="sel-vis-label"><input type="checkbox" class="sel-vis" data-key="p1seed" checked />Vis</label>
+                <label class="sel-coord">X<input type="number" class="sel-x" data-key="p1seed" value="220"  min="0" max="1920" /></label>
+                <label class="sel-coord">Y<input type="number" class="sel-y" data-key="p1seed" value="460"  min="0" max="1080" /></label>
+                <label class="sel-coord">Taille<input type="number" class="sel-size" data-key="p1seed" value="18" min="8" max="80" /></label>
+              </div>
+              <div class="sel-row">
+                <span class="sel-row-name">Drapeau J1</span>
+                <label class="sel-vis-label"><input type="checkbox" class="sel-vis" data-key="p1flag" checked />Vis</label>
+                <label class="sel-coord">X<input type="number" class="sel-x" data-key="p1flag" value="200"  min="0" max="1920" /></label>
+                <label class="sel-coord">Y<input type="number" class="sel-y" data-key="p1flag" value="630"  min="0" max="1080" /></label>
+                <label class="sel-coord">Largeur<input type="number" class="sel-size" data-key="p1flag" value="90" min="16" max="300" /></label>
+              </div>
+            </div>
+
+            <div class="sel-group-label">Joueur 2</div>
+            <div class="sel-rows">
+              <div class="sel-row">
+                <span class="sel-row-name">Personnage</span>
+                <label class="sel-vis-label"><input type="checkbox" class="sel-vis" data-key="p2char" checked />Vis</label>
+                <label class="sel-coord">X<input type="number" class="sel-x" data-key="p2char" value="1620" min="0" max="1920" /></label>
+                <label class="sel-coord">Y<input type="number" class="sel-y" data-key="p2char" value="400"  min="0" max="1080" /></label>
+                <label class="sel-coord">Largeur<input type="number" class="sel-size" data-key="p2char" value="220" min="20" max="800" /></label>
+              </div>
+              <div class="sel-row">
+                <span class="sel-row-name">Score J2</span>
+                <label class="sel-vis-label"><input type="checkbox" class="sel-vis" data-key="p2score" checked />Vis</label>
+                <label class="sel-coord">X<input type="number" class="sel-x" data-key="p2score" value="1360" min="0" max="1920" /></label>
+                <label class="sel-coord">Y<input type="number" class="sel-y" data-key="p2score" value="500"  min="0" max="1080" /></label>
+                <label class="sel-coord">Taille<input type="number" class="sel-size" data-key="p2score" value="90" min="8" max="300" /></label>
+              </div>
+              <div class="sel-row">
+                <span class="sel-row-name">Tag J2</span>
+                <label class="sel-vis-label"><input type="checkbox" class="sel-vis" data-key="p2tag" checked />Vis</label>
+                <label class="sel-coord">X<input type="number" class="sel-x" data-key="p2tag" value="1700" min="0" max="1920" /></label>
+                <label class="sel-coord">Y<input type="number" class="sel-y" data-key="p2tag" value="500"  min="0" max="1080" /></label>
+                <label class="sel-coord">Taille<input type="number" class="sel-size" data-key="p2tag" value="22" min="8" max="120" /></label>
+              </div>
+              <div class="sel-row">
+                <span class="sel-row-name">Pseudo J2</span>
+                <label class="sel-vis-label"><input type="checkbox" class="sel-vis" data-key="p2name" checked />Vis</label>
+                <label class="sel-coord">X<input type="number" class="sel-x" data-key="p2name" value="1700" min="0" max="1920" /></label>
+                <label class="sel-coord">Y<input type="number" class="sel-y" data-key="p2name" value="540"  min="0" max="1080" /></label>
+                <label class="sel-coord">Taille<input type="number" class="sel-size" data-key="p2name" value="32" min="8" max="120" /></label>
+              </div>
+              <div class="sel-row">
+                <span class="sel-row-name">Pronoms J2</span>
+                <label class="sel-vis-label"><input type="checkbox" class="sel-vis" data-key="p2pronouns" checked />Vis</label>
+                <label class="sel-coord">X<input type="number" class="sel-x" data-key="p2pronouns" value="1700" min="0" max="1920" /></label>
+                <label class="sel-coord">Y<input type="number" class="sel-y" data-key="p2pronouns" value="580"  min="0" max="1080" /></label>
+                <label class="sel-coord">Taille<input type="number" class="sel-size" data-key="p2pronouns" value="16" min="8" max="80" /></label>
+              </div>
+              <div class="sel-row">
+                <span class="sel-row-name">Seed J2</span>
+                <label class="sel-vis-label"><input type="checkbox" class="sel-vis" data-key="p2seed" checked />Vis</label>
+                <label class="sel-coord">X<input type="number" class="sel-x" data-key="p2seed" value="1700" min="0" max="1920" /></label>
+                <label class="sel-coord">Y<input type="number" class="sel-y" data-key="p2seed" value="460"  min="0" max="1080" /></label>
+                <label class="sel-coord">Taille<input type="number" class="sel-size" data-key="p2seed" value="18" min="8" max="80" /></label>
+              </div>
+              <div class="sel-row">
+                <span class="sel-row-name">Drapeau J2</span>
+                <label class="sel-vis-label"><input type="checkbox" class="sel-vis" data-key="p2flag" checked />Vis</label>
+                <label class="sel-coord">X<input type="number" class="sel-x" data-key="p2flag" value="1720" min="0" max="1920" /></label>
+                <label class="sel-coord">Y<input type="number" class="sel-y" data-key="p2flag" value="630"  min="0" max="1080" /></label>
+                <label class="sel-coord">Largeur<input type="number" class="sel-size" data-key="p2flag" value="90" min="16" max="300" /></label>
+              </div>
+            </div>
+          </div>
         </div>
-        <div class="sel-row">
-          <span class="sel-row-name">Phase</span>
-          <label class="sel-vis-label"><input type="checkbox" class="sel-vis" data-key="phase" checked />Vis</label>
-          <label class="sel-coord">X<input type="number" class="sel-x" data-key="phase" value="960" min="0" max="1920" /></label>
-          <label class="sel-coord">Y<input type="number" class="sel-y" data-key="phase" value="68"  min="0" max="1080" /></label>
-          <label class="sel-coord">Taille<input type="number" class="sel-size" data-key="phase" value="26" min="8" max="120" /></label>
+
+        <!-- ── Colonne 2 : palette + calques ──────────────────── -->
+        <div style="width:260px;flex-shrink:0;display:flex;flex-direction:column;gap:12px;">
+
+          <!-- Ajouter une forme -->
+          <div class="custom-card">
+            <h3 style="margin-bottom:10px">Ajouter une forme</h3>
+            <p style="font-size:11px;color:var(--text-muted);margin-bottom:8px;">Base</p>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:10px;">
+              <button class="btn btn-outline sbb-add-shape" data-type="rect"  style="font-size:12px;padding:6px 8px;gap:5px;justify-content:center;">▬ Rectangle</button>
+              <button class="btn btn-outline sbb-add-shape" data-type="text"  style="font-size:12px;padding:6px 8px;gap:5px;justify-content:center;">T Texte</button>
+              <button class="btn btn-outline sbb-add-shape" data-type="image" style="font-size:12px;padding:6px 8px;gap:5px;justify-content:center;">🖼 Image</button>
+            </div>
+            <p style="font-size:11px;color:var(--text-muted);margin-bottom:8px;">Courbes</p>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:10px;">
+              <button class="btn btn-outline sbb-add-shape" data-type="circle"       style="font-size:12px;padding:6px 8px;justify-content:center;">● Cercle</button>
+              <button class="btn btn-outline sbb-add-shape" data-type="oval"         style="font-size:12px;padding:6px 8px;justify-content:center;">⬭ Ovale</button>
+              <button class="btn btn-outline sbb-add-shape" data-type="semi-circle"  style="font-size:12px;padding:6px 8px;justify-content:center;">◗ Demi-cercle</button>
+            </div>
+            <p style="font-size:11px;color:var(--text-muted);margin-bottom:8px;">Polygones</p>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;">
+              <button class="btn btn-outline sbb-add-shape" data-type="triangle" style="font-size:12px;padding:6px 8px;justify-content:center;">▲ Triangle</button>
+              <button class="btn btn-outline sbb-add-shape" data-type="star"     style="font-size:12px;padding:6px 8px;justify-content:center;">★ Étoile</button>
+              <button class="btn btn-outline sbb-add-shape" data-type="diamond"  style="font-size:12px;padding:6px 8px;justify-content:center;">◆ Diamant</button>
+              <button class="btn btn-outline sbb-add-shape" data-type="hexagon"  style="font-size:12px;padding:6px 8px;justify-content:center;">⬡ Hexagone</button>
+            </div>
+          </div>
+
+          <!-- Calques -->
+          <div class="custom-card" style="flex:1;min-height:200px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+              <h3>Calques</h3>
+              <span class="hint">glisser ⠿ pour réordonner</span>
+            </div>
+            <div id="sbb-layers" style="display:flex;flex-direction:column;gap:4px;"></div>
+          </div>
         </div>
-        <div class="sel-row">
-          <span class="sel-row-name">Format</span>
-          <label class="sel-vis-label"><input type="checkbox" class="sel-vis" data-key="format" checked />Vis</label>
-          <label class="sel-coord">X<input type="number" class="sel-x" data-key="format" value="960" min="0" max="1920" /></label>
-          <label class="sel-coord">Y<input type="number" class="sel-y" data-key="format" value="104" min="0" max="1080" /></label>
-          <label class="sel-coord">Taille<input type="number" class="sel-size" data-key="format" value="16" min="8" max="120" /></label>
+
+        <!-- ── Canvas + propriétés ────────────────────────────── -->
+        <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:12px;">
+          <div class="custom-card" style="padding:0;overflow:hidden;">
+            <div style="background:#111;padding:8px 14px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;">
+              <span style="font-size:11px;font-weight:600;color:var(--text-muted);letter-spacing:1px;text-transform:uppercase;">
+                Canvas 1920×1080 · cliquer pour sélectionner · glisser pour déplacer
+              </span>
+              <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
+                <!-- Fond de référence -->
+                <label style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text-muted);cursor:pointer;" title="Image de référence (visible uniquement dans le builder)">
+                  <span>Fond réf.</span>
+                  <input type="file" id="sbb-bg-file" accept="image/*" style="display:none;" />
+                  <button class="btn btn-outline btn-sm" id="sbb-bg-pick" style="font-size:11px;">📁 Choisir</button>
+                </label>
+                <input type="text" id="sbb-bg-url" placeholder="ou URL…" style="font-size:11px;padding:3px 7px;background:var(--surface2);border:1px solid var(--border);border-radius:5px;color:var(--text);width:140px;" />
+                <label style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text-muted);">
+                  Opacité
+                  <input type="range" id="sbb-bg-opacity" min="5" max="100" value="30" style="width:60px;" />
+                  <span id="sbb-bg-opacity-val">30%</span>
+                </label>
+                <button class="btn btn-outline btn-sm" id="sbb-bg-clear" style="font-size:11px;border-color:#e05;color:#e05;" title="Retirer l'image de fond">✕</button>
+                <div style="width:1px;height:18px;background:var(--border);margin:0 2px;"></div>
+                <button class="btn btn-outline btn-sm" id="sbb-btn-deselect" style="font-size:11px;">Désélectionner</button>
+                <button class="btn btn-outline btn-sm" id="sbb-btn-center" style="font-size:11px;">Centrer</button>
+              </div>
+            </div>
+            <div id="sbb-canvas-wrap" style="position:relative;background:#0a0a0f;cursor:default;user-select:none;overflow:hidden;">
+              <div id="sbb-bg-layer" style="position:absolute;inset:0;background-size:cover;background-position:center;background-repeat:no-repeat;opacity:0.3;pointer-events:none;z-index:0;"></div>
+              <div id="sbb-canvas-inner" style="position:relative;width:1920px;height:1080px;transform-origin:top left;z-index:1;"></div>
+              <div id="sbb-interact-layer" style="position:absolute;inset:0;pointer-events:none;z-index:200;"></div>
+            </div>
+          </div>
+          <div class="custom-card" id="sbb-props-card" style="display:none;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+              <h3 id="sbb-props-title">Propriétés</h3>
+              <div style="display:flex;gap:6px;">
+                <button class="btn btn-outline btn-sm" id="sbb-btn-duplicate-shape">Dupliquer</button>
+                <button class="btn btn-outline btn-sm" id="sbb-btn-delete-shape" style="border-color:#e05;color:#e05">Supprimer</button>
+              </div>
+            </div>
+            <div id="sbb-props-body" style="display:flex;flex-direction:column;gap:10px;"></div>
+          </div>
         </div>
       </div>
-
-      <!-- ── Joueur 1 ───────────────────────────────────────────── -->
-      <div class="sel-group-label" style="margin-top:16px">Joueur 1</div>
-      <div class="sel-rows">
-        <div class="sel-row">
-          <span class="sel-row-name">Personnage</span>
-          <label class="sel-vis-label"><input type="checkbox" class="sel-vis" data-key="p1char" checked />Vis</label>
-          <label class="sel-coord">X<input type="number" class="sel-x" data-key="p1char" value="300"  min="0" max="1920" /></label>
-          <label class="sel-coord">Y<input type="number" class="sel-y" data-key="p1char" value="400"  min="0" max="1080" /></label>
-          <label class="sel-coord">Largeur<input type="number" class="sel-size" data-key="p1char" value="220" min="20" max="800" /></label>
-        </div>
-        <div class="sel-row">
-          <span class="sel-row-name">Score J1</span>
-          <label class="sel-vis-label"><input type="checkbox" class="sel-vis" data-key="p1score" checked />Vis</label>
-          <label class="sel-coord">X<input type="number" class="sel-x" data-key="p1score" value="560"  min="0" max="1920" /></label>
-          <label class="sel-coord">Y<input type="number" class="sel-y" data-key="p1score" value="500"  min="0" max="1080" /></label>
-          <label class="sel-coord">Taille<input type="number" class="sel-size" data-key="p1score" value="90" min="8" max="300" /></label>
-        </div>
-        <div class="sel-row">
-          <span class="sel-row-name">Tag J1</span>
-          <label class="sel-vis-label"><input type="checkbox" class="sel-vis" data-key="p1tag" checked />Vis</label>
-          <label class="sel-coord">X<input type="number" class="sel-x" data-key="p1tag" value="220"  min="0" max="1920" /></label>
-          <label class="sel-coord">Y<input type="number" class="sel-y" data-key="p1tag" value="500"  min="0" max="1080" /></label>
-          <label class="sel-coord">Taille<input type="number" class="sel-size" data-key="p1tag" value="22" min="8" max="120" /></label>
-        </div>
-        <div class="sel-row">
-          <span class="sel-row-name">Pseudo J1</span>
-          <label class="sel-vis-label"><input type="checkbox" class="sel-vis" data-key="p1name" checked />Vis</label>
-          <label class="sel-coord">X<input type="number" class="sel-x" data-key="p1name" value="220"  min="0" max="1920" /></label>
-          <label class="sel-coord">Y<input type="number" class="sel-y" data-key="p1name" value="540"  min="0" max="1080" /></label>
-          <label class="sel-coord">Taille<input type="number" class="sel-size" data-key="p1name" value="32" min="8" max="120" /></label>
-        </div>
-        <div class="sel-row">
-          <span class="sel-row-name">Pronoms J1</span>
-          <label class="sel-vis-label"><input type="checkbox" class="sel-vis" data-key="p1pronouns" checked />Vis</label>
-          <label class="sel-coord">X<input type="number" class="sel-x" data-key="p1pronouns" value="220"  min="0" max="1920" /></label>
-          <label class="sel-coord">Y<input type="number" class="sel-y" data-key="p1pronouns" value="580"  min="0" max="1080" /></label>
-          <label class="sel-coord">Taille<input type="number" class="sel-size" data-key="p1pronouns" value="16" min="8" max="80" /></label>
-        </div>
-        <div class="sel-row">
-          <span class="sel-row-name">Seed J1</span>
-          <label class="sel-vis-label"><input type="checkbox" class="sel-vis" data-key="p1seed" checked />Vis</label>
-          <label class="sel-coord">X<input type="number" class="sel-x" data-key="p1seed" value="220"  min="0" max="1920" /></label>
-          <label class="sel-coord">Y<input type="number" class="sel-y" data-key="p1seed" value="460"  min="0" max="1080" /></label>
-          <label class="sel-coord">Taille<input type="number" class="sel-size" data-key="p1seed" value="18" min="8" max="80" /></label>
-        </div>
-        <div class="sel-row">
-          <span class="sel-row-name">Drapeau J1</span>
-          <label class="sel-vis-label"><input type="checkbox" class="sel-vis" data-key="p1flag" checked />Vis</label>
-          <label class="sel-coord">X<input type="number" class="sel-x" data-key="p1flag" value="200"  min="0" max="1920" /></label>
-          <label class="sel-coord">Y<input type="number" class="sel-y" data-key="p1flag" value="630"  min="0" max="1080" /></label>
-          <label class="sel-coord">Largeur<input type="number" class="sel-size" data-key="p1flag" value="90" min="16" max="300" /></label>
-        </div>
-      </div>
-
-      <!-- ── Joueur 2 ───────────────────────────────────────────── -->
-      <div class="sel-group-label" style="margin-top:16px">Joueur 2</div>
-      <div class="sel-rows">
-        <div class="sel-row">
-          <span class="sel-row-name">Personnage</span>
-          <label class="sel-vis-label"><input type="checkbox" class="sel-vis" data-key="p2char" checked />Vis</label>
-          <label class="sel-coord">X<input type="number" class="sel-x" data-key="p2char" value="1620" min="0" max="1920" /></label>
-          <label class="sel-coord">Y<input type="number" class="sel-y" data-key="p2char" value="400"  min="0" max="1080" /></label>
-          <label class="sel-coord">Largeur<input type="number" class="sel-size" data-key="p2char" value="220" min="20" max="800" /></label>
-        </div>
-        <div class="sel-row">
-          <span class="sel-row-name">Score J2</span>
-          <label class="sel-vis-label"><input type="checkbox" class="sel-vis" data-key="p2score" checked />Vis</label>
-          <label class="sel-coord">X<input type="number" class="sel-x" data-key="p2score" value="1360" min="0" max="1920" /></label>
-          <label class="sel-coord">Y<input type="number" class="sel-y" data-key="p2score" value="500"  min="0" max="1080" /></label>
-          <label class="sel-coord">Taille<input type="number" class="sel-size" data-key="p2score" value="90" min="8" max="300" /></label>
-        </div>
-        <div class="sel-row">
-          <span class="sel-row-name">Tag J2</span>
-          <label class="sel-vis-label"><input type="checkbox" class="sel-vis" data-key="p2tag" checked />Vis</label>
-          <label class="sel-coord">X<input type="number" class="sel-x" data-key="p2tag" value="1700" min="0" max="1920" /></label>
-          <label class="sel-coord">Y<input type="number" class="sel-y" data-key="p2tag" value="500"  min="0" max="1080" /></label>
-          <label class="sel-coord">Taille<input type="number" class="sel-size" data-key="p2tag" value="22" min="8" max="120" /></label>
-        </div>
-        <div class="sel-row">
-          <span class="sel-row-name">Pseudo J2</span>
-          <label class="sel-vis-label"><input type="checkbox" class="sel-vis" data-key="p2name" checked />Vis</label>
-          <label class="sel-coord">X<input type="number" class="sel-x" data-key="p2name" value="1700" min="0" max="1920" /></label>
-          <label class="sel-coord">Y<input type="number" class="sel-y" data-key="p2name" value="540"  min="0" max="1080" /></label>
-          <label class="sel-coord">Taille<input type="number" class="sel-size" data-key="p2name" value="32" min="8" max="120" /></label>
-        </div>
-        <div class="sel-row">
-          <span class="sel-row-name">Pronoms J2</span>
-          <label class="sel-vis-label"><input type="checkbox" class="sel-vis" data-key="p2pronouns" checked />Vis</label>
-          <label class="sel-coord">X<input type="number" class="sel-x" data-key="p2pronouns" value="1700" min="0" max="1920" /></label>
-          <label class="sel-coord">Y<input type="number" class="sel-y" data-key="p2pronouns" value="580"  min="0" max="1080" /></label>
-          <label class="sel-coord">Taille<input type="number" class="sel-size" data-key="p2pronouns" value="16" min="8" max="80" /></label>
-        </div>
-        <div class="sel-row">
-          <span class="sel-row-name">Seed J2</span>
-          <label class="sel-vis-label"><input type="checkbox" class="sel-vis" data-key="p2seed" checked />Vis</label>
-          <label class="sel-coord">X<input type="number" class="sel-x" data-key="p2seed" value="1700" min="0" max="1920" /></label>
-          <label class="sel-coord">Y<input type="number" class="sel-y" data-key="p2seed" value="460"  min="0" max="1080" /></label>
-          <label class="sel-coord">Taille<input type="number" class="sel-size" data-key="p2seed" value="18" min="8" max="80" /></label>
-        </div>
-        <div class="sel-row">
-          <span class="sel-row-name">Drapeau J2</span>
-          <label class="sel-vis-label"><input type="checkbox" class="sel-vis" data-key="p2flag" checked />Vis</label>
-          <label class="sel-coord">X<input type="number" class="sel-x" data-key="p2flag" value="1720" min="0" max="1920" /></label>
-          <label class="sel-coord">Y<input type="number" class="sel-y" data-key="p2flag" value="630"  min="0" max="1080" /></label>
-          <label class="sel-coord">Largeur<input type="number" class="sel-size" data-key="p2flag" value="90" min="16" max="300" /></label>
-        </div>
-      </div>
-
     </section>
-  </div><!-- /tab-elements -->
+
+  </div><!-- /tab-builder -->
 
   <!-- ═══════════════════════════════════════════════════════════ -->
   <!-- TAB : STUDIO                                                -->
@@ -4692,7 +4821,7 @@
     </section>
   </div><!-- /tab-overlayip -->
 
-  <!-- FOOTER -->
+
   <footer class="footer">
     <div id="status-msg" class="status-msg">Prêt</div>
     <div class="footer-right">
