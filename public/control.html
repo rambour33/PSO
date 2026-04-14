@@ -4341,6 +4341,11 @@
                 </label>
                 <button class="btn btn-outline btn-sm" id="sbb-bg-clear" style="font-size:11px;border-color:#e05;color:#e05;" title="Retirer l'image de fond">✕</button>
                 <div style="width:1px;height:18px;background:var(--border);margin:0 2px;"></div>
+                <label style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text-muted);cursor:pointer;" title="Aimanter sur les bords des autres formes (±5px)">
+                  <input type="checkbox" id="sbb-snap-enabled" checked />
+                  Magnétisme
+                </label>
+                <div style="width:1px;height:18px;background:var(--border);"></div>
                 <button class="btn btn-outline btn-sm" id="sbb-btn-deselect" style="font-size:11px;">Désélectionner</button>
                 <button class="btn btn-outline btn-sm" id="sbb-btn-center" style="font-size:11px;">Centrer</button>
               </div>
@@ -4348,6 +4353,7 @@
             <div id="sbb-canvas-wrap" style="position:relative;background:#0a0a0f;cursor:default;user-select:none;overflow:hidden;">
               <div id="sbb-bg-layer" style="position:absolute;inset:0;background-size:cover;background-position:center;background-repeat:no-repeat;opacity:0.3;pointer-events:none;z-index:0;"></div>
               <div id="sbb-canvas-inner" style="position:relative;width:1920px;height:1080px;transform-origin:top left;z-index:1;"></div>
+              <div id="sbb-snap-guides" style="position:absolute;inset:0;pointer-events:none;z-index:190;overflow:hidden;"></div>
               <div id="sbb-interact-layer" style="position:absolute;inset:0;pointer-events:none;z-index:200;"></div>
             </div>
           </div>

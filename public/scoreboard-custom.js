@@ -154,9 +154,19 @@ function shapeToEl(sh) {
       el.style.borderRadius = (sh.radius || 0) + 'px';
     }
 
-    const val = sh.dynamic && DYNAMIC[sh.dynamic] ? DYNAMIC[sh.dynamic](matchState) : (sh.text || '');
+    let val;
+    if (sh.template) {
+      val = sh.template.replace(/\{([^}]+)\}/g, (_, k) => {
+        const fn = DYNAMIC[k.trim()]; return fn ? fn(matchState) : '';
+      });
+      el.dataset.template = sh.template;
+    } else if (sh.dynamic && DYNAMIC[sh.dynamic]) {
+      val = DYNAMIC[sh.dynamic](matchState);
+      el.dataset.dynamic = sh.dynamic;
+    } else {
+      val = sh.text || '';
+    }
     el.textContent = val;
-    if (sh.dynamic) el.dataset.dynamic = sh.dynamic;
   }
 
   if (sh.type === 'image') {
@@ -214,6 +224,34 @@ function applyAutoLayout(shapes) {
       el.style.height = sh.h + 'px';
     }
   });
+
+  // Passe 3 : formes collées (gluedTo) — plusieurs passes pour propager les chaînes
+  for (let _p = 0; _p < 6; _p++) {
+    let changed = false;
+    shapes.forEach(sh => {
+      if (!sh.gluedTo) return;
+      const target = shapes.find(s => s.id === sh.gluedTo); if (!target) return;
+      const gap = sh.glueGap ?? 0;
+      let nx = sh.x, ny = sh.y;
+      // Adjacence
+      if      (sh.glueSide === 'right')   nx = target.x + target.w + gap;
+      else if (sh.glueSide === 'left')    nx = target.x - sh.w - gap;
+      else if (sh.glueSide === 'bottom')  ny = target.y + target.h + gap;
+      else if (sh.glueSide === 'top')     ny = target.y - sh.h - gap;
+      // Alignement axe X
+      else if (sh.glueSide === 'ax-l')    nx = target.x;
+      else if (sh.glueSide === 'ax-c')    nx = target.x + (target.w - sh.w) / 2;
+      else if (sh.glueSide === 'ax-r')    nx = target.x + target.w - sh.w;
+      // Alignement axe Y
+      else if (sh.glueSide === 'ay-t')    ny = target.y;
+      else if (sh.glueSide === 'ay-c')    ny = target.y + (target.h - sh.h) / 2;
+      else if (sh.glueSide === 'ay-b')    ny = target.y + target.h - sh.h;
+      if (nx !== sh.x || ny !== sh.y) { sh.x = Math.round(nx); sh.y = Math.round(ny); changed = true; }
+      const el = root.querySelector(`[data-id="${sh.id}"]`);
+      if (el) { el.style.left = sh.x + 'px'; el.style.top = sh.y + 'px'; }
+    });
+    if (!changed) break;
+  }
 }
 
 function render(shapes) {
@@ -233,6 +271,12 @@ function applyState(s) {
   root.querySelectorAll('[data-dynamic]').forEach(el => {
     const fn = DYNAMIC[el.dataset.dynamic];
     if (fn) el.textContent = fn(s);
+  });
+  // Mettre à jour les templates
+  root.querySelectorAll('[data-template]').forEach(el => {
+    el.textContent = el.dataset.template.replace(/\{([^}]+)\}/g, (_, k) => {
+      const fn = DYNAMIC[k.trim()]; return fn ? fn(s) : '';
+    });
   });
   // Mettre à jour les images dynamiques
   root.querySelectorAll('[data-dynamic-src]').forEach(el => {

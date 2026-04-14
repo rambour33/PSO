@@ -7012,12 +7012,13 @@ socket.on('stateUpdate', (s) => {
   let selectedId   = null;  // shape id
   let sbbScale     = 1;
   let dragState    = null;  // { type:'move'|'resize', shapeId, handle, startX, startY, origShape }
+  let propsPosUnit = 'px';  // 'px' | '%'
 
   const _GEOM = { fill:'#E8B830', fillOpacity:1, border:'#FFFFFF', borderWidth:0, opacity:1, shadow:false, shadowBlur:16, shadowColor:'rgba(0,0,0,0.6)' };
 
   const SHAPE_DEFAULTS = {
     rect:         { w:400, h:80,  fill:'#0E0E12', fillOpacity:1, border:'#E8B830', borderWidth:2, radius:4, opacity:1, shadow:false, shadowBlur:16, shadowColor:'rgba(0,0,0,0.6)', linkedTo:'', linkPadLeft:0, linkPadRight:0, linkPadTop:0, linkPadBottom:0 },
-    text:         { w:300, h:60,  text:'Texte',   fontSize:24,   fontFamily:'Russo One', fontWeight:'normal', textColor:'#FFFFFF', textAlign:'center', letterSpacing:0, uppercase:false, opacity:1, dynamic:'', shadow:false, shadowBlur:8, shadowColor:'rgba(0,0,0,0.6)', background:false, fill:'#000000', fillOpacity:0.5, radius:0, paddingX:12, autoWidth:false, anchorSide:'left', minW:50, maxW:900 },
+    text:         { w:300, h:60,  text:'Texte',   fontSize:24,   fontFamily:'Russo One', fontWeight:'normal', textColor:'#FFFFFF', textAlign:'center', letterSpacing:0, uppercase:false, opacity:1, dynamic:'', template:'', shadow:false, shadowBlur:8, shadowColor:'rgba(0,0,0,0.6)', background:false, fill:'#000000', fillOpacity:0.5, radius:0, paddingX:12, autoWidth:false, anchorSide:'left', minW:50, maxW:900 },
     image:        { w:200, h:200, src:'',         objectFit:'cover', radius:0, opacity:1 },
     circle:       { w:100, h:100, ..._GEOM },
     oval:         { w:200, h:100, ..._GEOM },
@@ -7085,6 +7086,16 @@ socket.on('stateUpdate', (s) => {
     return '';
   }
 
+  function resolveTemplate(tpl) {
+    return tpl.replace(/\{([^}]+)\}/g, (_, key) => getDynamicValue(key.trim()));
+  }
+
+  function getTextContent(sh) {
+    if (sh.template) return resolveTemplate(sh.template);
+    if (sh.dynamic)  return getDynamicValue(sh.dynamic) || sh.text || 'Texte';
+    return sh.text || 'Texte';
+  }
+
   /* ── Auto-layout : étirement + liaisons ─────────────────── */
   function applyAutoLayout() {
     const l = getLayout(); if (!l) return;
@@ -7131,6 +7142,34 @@ socket.on('stateUpdate', (s) => {
         el.style.height = sh.h + 'px';
       }
     });
+
+    // Passe 3 : formes collées (gluedTo) — plusieurs passes pour propager les chaînes
+    for (let _p = 0; _p < 6; _p++) {
+      let changed = false;
+      l.shapes.forEach(sh => {
+        if (!sh.gluedTo) return;
+        const target = l.shapes.find(s => s.id === sh.gluedTo); if (!target) return;
+        const gap = sh.glueGap ?? 0;
+        let nx = sh.x, ny = sh.y;
+        // Adjacence
+        if      (sh.glueSide === 'right')   nx = target.x + target.w + gap;
+        else if (sh.glueSide === 'left')    nx = target.x - sh.w - gap;
+        else if (sh.glueSide === 'bottom')  ny = target.y + target.h + gap;
+        else if (sh.glueSide === 'top')     ny = target.y - sh.h - gap;
+        // Alignement axe X
+        else if (sh.glueSide === 'ax-l')    nx = target.x;
+        else if (sh.glueSide === 'ax-c')    nx = target.x + (target.w - sh.w) / 2;
+        else if (sh.glueSide === 'ax-r')    nx = target.x + target.w - sh.w;
+        // Alignement axe Y
+        else if (sh.glueSide === 'ay-t')    ny = target.y;
+        else if (sh.glueSide === 'ay-c')    ny = target.y + (target.h - sh.h) / 2;
+        else if (sh.glueSide === 'ay-b')    ny = target.y + target.h - sh.h;
+        if (nx !== sh.x || ny !== sh.y) { sh.x = Math.round(nx); sh.y = Math.round(ny); changed = true; }
+        const el = inner.querySelector(`[data-id="${sh.id}"]`);
+        if (el) { el.style.left = sh.x + 'px'; el.style.top = sh.y + 'px'; }
+      });
+      if (!changed) break;
+    }
 
     renderHandles();
   }
@@ -7347,7 +7386,7 @@ socket.on('stateUpdate', (s) => {
           el.style.background   = hex2rgba(sh.fill||'#000000', sh.fillOpacity??0.5);
           el.style.borderRadius = (sh.radius||0) + 'px';
         }
-        el.textContent = sh.dynamic ? (getDynamicValue(sh.dynamic) || sh.text || 'Texte') : (sh.text||'Texte');
+        el.textContent = getTextContent(sh);
       }
 
       if (sh.type === 'image') {
@@ -7578,6 +7617,78 @@ socket.on('stateUpdate', (s) => {
     renderProps();
   }
 
+  /* ── Snap / guides d'alignement ─────────────────────────── */
+  const SNAP_THRESHOLD = 5;
+
+  function computeSnaps(sh) {
+    const l = getLayout();
+    if (!l) return { snapX: null, snapY: null, guides: [] };
+
+    // Bords du shape déplacé (non-snappé)
+    const myX = [sh.x, sh.x + Math.round(sh.w / 2), sh.x + sh.w];
+    const myY = [sh.y, sh.y + Math.round(sh.h / 2), sh.y + sh.h];
+
+    let bestDx = null, bestDy = null;
+    const seen = new Set();
+    const guides = [];
+
+    l.shapes.forEach(o => {
+      if (o.id === sh.id || o.visible === false) return;
+      const ox = [o.x, o.x + Math.round(o.w / 2), o.x + o.w];
+      const oy = [o.y, o.y + Math.round(o.h / 2), o.y + o.h];
+
+      myX.forEach(mx => {
+        ox.forEach(ex => {
+          const d = ex - mx;
+          if (Math.abs(d) <= SNAP_THRESHOLD) {
+            if (bestDx === null || Math.abs(d) < Math.abs(bestDx)) bestDx = d;
+            const key = 'x' + ex;
+            if (!seen.has(key)) { seen.add(key); guides.push({ axis:'x', pos: ex }); }
+          }
+        });
+      });
+
+      myY.forEach(my => {
+        oy.forEach(ey => {
+          const d = ey - my;
+          if (Math.abs(d) <= SNAP_THRESHOLD) {
+            if (bestDy === null || Math.abs(d) < Math.abs(bestDy)) bestDy = d;
+            const key = 'y' + ey;
+            if (!seen.has(key)) { seen.add(key); guides.push({ axis:'y', pos: ey }); }
+          }
+        });
+      });
+    });
+
+    return { snapX: bestDx, snapY: bestDy, guides };
+  }
+
+  function renderSnapGuides(guides) {
+    const el = document.getElementById('sbb-snap-guides');
+    if (!el) return;
+    el.innerHTML = '';
+    guides.forEach(g => {
+      const line = document.createElement('div');
+      if (g.axis === 'x') {
+        const px = g.pos * sbbScale;
+        line.style.cssText = `position:absolute;left:${px}px;top:0;bottom:0;width:1px;background:#FF3D9A;box-shadow:0 0 3px #FF3D9A;`;
+      } else {
+        const py = g.pos * sbbScale;
+        line.style.cssText = `position:absolute;top:${py}px;left:0;right:0;height:1px;background:#FF3D9A;box-shadow:0 0 3px #FF3D9A;`;
+      }
+      el.appendChild(line);
+    });
+  }
+
+  function clearSnapGuides() {
+    const el = document.getElementById('sbb-snap-guides');
+    if (el) el.innerHTML = '';
+  }
+
+  function isSnapEnabled() {
+    return document.getElementById('sbb-snap-enabled')?.checked ?? true;
+  }
+
   /* ── Drag to move ────────────────────────────────────────── */
   function sbbStartDrag(e, shapeId) {
     e.preventDefault();
@@ -7591,7 +7702,16 @@ socket.on('stateUpdate', (s) => {
       const dy = pos.y - dragState.startY;
       sh.x = Math.round(dragState.origX + dx);
       sh.y = Math.round(dragState.origY + dy);
-      // Update DOM directly for performance
+
+      if (isSnapEnabled()) {
+        const { snapX, snapY, guides } = computeSnaps(sh);
+        if (snapX !== null) sh.x += Math.round(snapX);
+        if (snapY !== null) sh.y += Math.round(snapY);
+        renderSnapGuides(guides);
+      } else {
+        clearSnapGuides();
+      }
+
       const el = document.querySelector(`#sbb-canvas-inner [data-id="${shapeId}"]`);
       if (el) { el.style.left = sh.x+'px'; el.style.top = sh.y+'px'; }
       renderHandles();
@@ -7601,6 +7721,7 @@ socket.on('stateUpdate', (s) => {
     function onUp() {
       document.removeEventListener('mousemove', onMove);
       document.removeEventListener('mouseup', onUp);
+      clearSnapGuides();
       dragState = null;
       scheduleSave();
     }
@@ -7744,18 +7865,55 @@ socket.on('stateUpdate', (s) => {
     nameInput.placeholder='Nom de la forme';
     body.appendChild(row('Nom', nameInput));
 
-    // Geometry
+    // Geometry — px / % toggle
+    const CANVAS_W = 1920, CANVAS_H = 1080;
+    const GEO_BASE = {x:CANVAS_W, y:CANVAS_H, w:CANVAS_W, h:CANVAS_H};
+
+    function pxToDisp(px, k) {
+      if (propsPosUnit === '%') return Math.round(px / GEO_BASE[k] * 10000) / 100;
+      return px;
+    }
+    function dispToPx(val, k) {
+      if (propsPosUnit === '%') return Math.round(val * GEO_BASE[k] / 100);
+      return Math.round(val);
+    }
+
+    const unitToggle = document.createElement('button');
+    unitToggle.className = 'btn btn-outline btn-sm';
+    unitToggle.textContent = propsPosUnit === 'px' ? 'px' : '%';
+    unitToggle.style.cssText = 'font-size:10px;padding:1px 6px;min-width:28px;';
+    unitToggle.title = 'Basculer px / %';
+
     const gRow = document.createElement('div');
-    gRow.style.cssText='display:flex;gap:6px;flex-wrap:wrap;';
+    gRow.style.cssText='display:flex;gap:6px;flex-wrap:wrap;align-items:center;';
+
+    const geoInputs = {};
     [['X',sh.x,'x'],['Y',sh.y,'y'],['L',sh.w,'w'],['H',sh.h,'h']].forEach(([l,v,k])=>{
       const wrapper = document.createElement('div');
       wrapper.style.cssText='display:flex;align-items:center;gap:4px;';
       const lbl = document.createElement('span');
       lbl.textContent=l; lbl.style.cssText='font-size:11px;color:var(--text-muted);min-width:10px;';
-      const inp = makeInput('number',v, val => { sh[k]=Math.round(val); scheduleSave(); renderCanvas(); renderHandles(); },{step:1});
+      const step = propsPosUnit === '%' ? 0.01 : 1;
+      const inp = makeInput('number', pxToDisp(v,k), val => {
+        sh[k] = dispToPx(val, k);
+        scheduleSave(); renderCanvas(); renderHandles();
+      }, {step});
       inp.style.width='70px'; inp.style.flex='none';
+      geoInputs[k] = inp;
       wrapper.appendChild(lbl); wrapper.appendChild(inp); gRow.appendChild(wrapper);
     });
+    gRow.appendChild(unitToggle);
+
+    unitToggle.addEventListener('click', () => {
+      propsPosUnit = propsPosUnit === 'px' ? '%' : 'px';
+      unitToggle.textContent = propsPosUnit;
+      const newStep = propsPosUnit === '%' ? 0.01 : 1;
+      Object.entries(geoInputs).forEach(([k, inp]) => {
+        inp.value = pxToDisp(sh[k], k);
+        inp.step  = newStep;
+      });
+    });
+
     body.appendChild(row('Position / Taille', gRow));
 
     // Opacity
@@ -7825,15 +7983,96 @@ socket.on('stateUpdate', (s) => {
     }
 
     if (sh.type === 'text') {
-      // Dynamic binding
-      body.appendChild(row('Dynamique', makeSelect(DYNAMIC_OPTS, sh.dynamic||'', v=>{sh.dynamic=v;scheduleSave();renderCanvas();})));
+      // ── Mode texte : statique / dynamique / template ──────
+      const MODE_OPTS = [
+        {v:'static',   label:'Statique'},
+        {v:'dynamic',  label:'Dynamique (1 clé)'},
+        {v:'template', label:'Template (multi-liaisons)'},
+      ];
+      const currentMode = sh.textMode || (sh.template ? 'template' : (sh.dynamic ? 'dynamic' : 'static'));
 
-      // Static text (hidden if dynamic)
+      const modeStaticRow    = document.createElement('div');
+      const modeDynamicRow   = document.createElement('div');
+      const modeTemplateRow  = document.createElement('div');
+
+      function showMode(m) {
+        modeStaticRow.style.display   = m === 'static'   ? 'flex' : 'none';
+        modeDynamicRow.style.display  = m === 'dynamic'  ? 'flex' : 'none';
+        modeTemplateRow.style.display = m === 'template' ? '' : 'none';
+      }
+
+      body.appendChild(row('Mode', makeSelect(MODE_OPTS, currentMode, m => {
+        sh.textMode = m;
+        if (m === 'static')   { sh.template=''; sh.dynamic=''; }
+        if (m === 'dynamic')  { sh.template=''; }
+        if (m === 'template') { sh.dynamic=''; }
+        scheduleSave();
+        showMode(m);
+      })));
+
+      // Statique
       const textInput = makeInput('text', sh.text||'', v=>{sh.text=v;prop('text')(v);});
       textInput.placeholder='Texte statique';
-      const textRow = row('Texte', textInput);
-      textRow.style.display = sh.dynamic?'none':'flex';
-      body.appendChild(textRow);
+      modeStaticRow.style.cssText='display:flex;align-items:center;gap:10px;';
+      const stLbl=document.createElement('label');stLbl.textContent='Texte';
+      stLbl.style.cssText='font-size:12px;color:var(--text-muted);min-width:100px;flex-shrink:0;';
+      modeStaticRow.appendChild(stLbl); modeStaticRow.appendChild(textInput);
+      body.appendChild(modeStaticRow);
+
+      // Dynamique (1 clé)
+      modeDynamicRow.style.cssText='display:flex;align-items:center;gap:10px;';
+      const dynLbl=document.createElement('label');dynLbl.textContent='Dynamique';
+      dynLbl.style.cssText='font-size:12px;color:var(--text-muted);min-width:100px;flex-shrink:0;';
+      const dynSel=makeSelect(DYNAMIC_OPTS, sh.dynamic||'', v=>{sh.dynamic=v;scheduleSave();renderCanvas();});
+      modeDynamicRow.appendChild(dynLbl); modeDynamicRow.appendChild(dynSel);
+      body.appendChild(modeDynamicRow);
+
+      // Template multi-liaisons
+      modeTemplateRow.style.display = currentMode === 'template' ? '' : 'none';
+      const tplLabel = document.createElement('label');
+      tplLabel.textContent = 'Template';
+      tplLabel.style.cssText = 'font-size:12px;color:var(--text-muted);display:block;margin-bottom:4px;';
+      modeTemplateRow.appendChild(tplLabel);
+
+      const tplInput = document.createElement('input');
+      tplInput.type = 'text';
+      tplInput.value = sh.template || '';
+      tplInput.placeholder = 'ex: {p1.tag} | {p1.name}';
+      tplInput.style.cssText = 'width:100%;padding:6px 8px;background:var(--surface2);border:1px solid var(--border);border-radius:5px;color:var(--text);font-size:12px;font-family:monospace;';
+      tplInput.addEventListener('input', () => { sh.template = tplInput.value; scheduleSave(); renderCanvas(); });
+
+      const tplPreview = document.createElement('div');
+      tplPreview.style.cssText = 'font-size:11px;color:var(--accent);margin-top:3px;min-height:14px;';
+      function updatePreview() { tplPreview.textContent = sh.template ? '→ ' + resolveTemplate(sh.template) : ''; }
+      tplInput.addEventListener('input', updatePreview);
+      updatePreview();
+
+      // Chips cliquables pour insérer les clés
+      const chips = document.createElement('div');
+      chips.style.cssText = 'display:flex;flex-wrap:wrap;gap:4px;margin-top:6px;';
+      DYNAMIC_OPTS.filter(o => o.v).forEach(o => {
+        const chip = document.createElement('button');
+        chip.textContent = '{' + o.v + '}';
+        chip.title = o.label;
+        chip.style.cssText = 'font-size:10px;padding:2px 6px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text-muted);cursor:pointer;font-family:monospace;';
+        chip.addEventListener('click', () => {
+          const ins = '{' + o.v + '}';
+          const s = tplInput.selectionStart, e = tplInput.selectionEnd;
+          const v = tplInput.value;
+          tplInput.value = v.slice(0, s) + ins + v.slice(e);
+          tplInput.setSelectionRange(s + ins.length, s + ins.length);
+          sh.template = tplInput.value;
+          scheduleSave(); renderCanvas(); updatePreview();
+        });
+        chips.appendChild(chip);
+      });
+
+      modeTemplateRow.appendChild(tplInput);
+      modeTemplateRow.appendChild(tplPreview);
+      modeTemplateRow.appendChild(chips);
+      body.appendChild(modeTemplateRow);
+
+      showMode(currentMode);
 
       // Font family
       body.appendChild(row('Police', makeSelect(
@@ -7927,6 +8166,59 @@ socket.on('stateUpdate', (s) => {
       const sl=document.createElement('span');sl.textContent='Activer l\'ombre';sl.style.fontSize='12px';
       shadowRow.appendChild(sl);
       body.appendChild(row('Ombre', shadowRow));
+    }
+
+    // ── Collage (toutes les formes) ──────────────────────────
+    {
+      const allShapes = (getLayout()?.shapes || []).filter(s => s.id !== sh.id);
+      const glueOpts = [{v:'',label:'— aucun —'}, ...allShapes.map(s=>({v:s.id,label:s.name||s.type}))];
+      const glueSel = makeSelect(glueOpts, sh.gluedTo||'', v => {
+        sh.gluedTo = v;
+        glueSideRow.style.display = v ? 'flex' : 'none';
+        glueGapRow.style.display  = v ? 'flex' : 'none';
+        scheduleSave(); applyAutoLayout();
+      });
+      body.appendChild(row('Collé à', glueSel));
+
+      const GLUE_SIDE_OPTS = [
+        {v:'right',  label:'→ Adjacence : à droite'},
+        {v:'left',   label:'← Adjacence : à gauche'},
+        {v:'bottom', label:'↓ Adjacence : en dessous'},
+        {v:'top',    label:'↑ Adjacence : au-dessus'},
+        {v:'ax-l',   label:'⬡ Axe X — bord gauche'},
+        {v:'ax-c',   label:'⬡ Axe X — centré'},
+        {v:'ax-r',   label:'⬡ Axe X — bord droit'},
+        {v:'ay-t',   label:'⬡ Axe Y — bord haut'},
+        {v:'ay-c',   label:'⬡ Axe Y — centré'},
+        {v:'ay-b',   label:'⬡ Axe Y — bord bas'},
+      ];
+      const AXIS_MODES = ['ax-l','ax-c','ax-r','ay-t','ay-c','ay-b'];
+      function isAxisMode(side) { return AXIS_MODES.includes(side); }
+
+      const glueSideRow = document.createElement('div');
+      glueSideRow.style.display = sh.gluedTo ? 'flex' : 'none';
+      glueSideRow.appendChild(makeSelect(GLUE_SIDE_OPTS, sh.glueSide||'right', v => {
+        sh.glueSide = v;
+        glueGapRow.style.display = (sh.gluedTo && !isAxisMode(v)) ? 'flex' : 'none';
+        scheduleSave(); applyAutoLayout();
+      }));
+      body.appendChild(row('Côté', glueSideRow));
+
+      const glueGapRow = document.createElement('div');
+      glueGapRow.style.display = (sh.gluedTo && !isAxisMode(sh.glueSide||'right')) ? 'flex' : 'none';
+      const glueGapInp = makeInput('number', sh.glueGap??0, v => {
+        sh.glueGap = v; scheduleSave(); applyAutoLayout();
+      }, {min:-500, max:500, step:1});
+      glueGapInp.style.width = '70px';
+      const glueGapLbl = document.createElement('span');
+      glueGapLbl.textContent = 'px écart'; glueGapLbl.style.cssText='font-size:11px;color:var(--text-muted);';
+      glueGapRow.appendChild(glueGapInp); glueGapRow.appendChild(glueGapLbl);
+      body.appendChild(row('Écart', glueGapRow));
+
+      // Sync gap visibility when gluedTo changes
+      glueSel.addEventListener('change', () => {
+        glueGapRow.style.display = (sh.gluedTo && !isAxisMode(sh.glueSide||'right')) ? 'flex' : 'none';
+      });
     }
 
     // Reset points (polygones seulement)
