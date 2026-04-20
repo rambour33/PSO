@@ -420,10 +420,16 @@ window.setMatchScore = function(p1score, p2score) {
   if (d2) d2.textContent = p2score;
 };
 
-document.getElementById('btn-send-startgg').addEventListener('click', async () => {
-  const setId       = document.getElementById('sgg-current-set-id')?.value;
-  const p1EntrantId = document.getElementById('sgg-p1-entrant-id')?.value;
-  const p2EntrantId = document.getElementById('sgg-p2-entrant-id')?.value;
+document.getElementById('btn-send-startgg').addEventListener('click', async function() {
+  // Lire en priorité depuis le dataset du bouton (mis à jour par applySet),
+  // avec fallback sur les hidden inputs
+  const btn         = this;
+  const setId       = btn.dataset.setid       || document.getElementById('sgg-current-set-id')?.value  || '';
+  const p1EntrantId = btn.dataset.p1entrantid || document.getElementById('sgg-p1-entrant-id')?.value   || '';
+  const p2EntrantId = btn.dataset.p2entrantid || document.getElementById('sgg-p2-entrant-id')?.value   || '';
+
+  console.log('[send] setId=%s p1EntrantId=%s p2EntrantId=%s', setId, p1EntrantId, p2EntrantId);
+
   if (!setId) return;
 
   // Lire les scores depuis l'affichage (toujours à jour) plutôt que state
@@ -435,7 +441,6 @@ document.getElementById('btn-send-startgg').addEventListener('click', async () =
     return;
   }
 
-  const btn = document.getElementById('btn-send-startgg');
   btn.disabled = true;
   btn.textContent = 'Envoi…';
 
@@ -453,10 +458,8 @@ document.getElementById('btn-send-startgg').addEventListener('click', async () =
       }),
     });
     const data = await res.json();
-    console.log('[startgg report] réponse serveur:', data);
     if (data.error) {
       setStatus('Erreur start.gg : ' + data.error, 'error');
-      alert('Erreur start.gg :\n' + data.error);
     } else {
       setStatus('Score envoyé sur start.gg !');
       btn.textContent = '✓ Score envoyé';
@@ -1595,14 +1598,45 @@ document.getElementById('btn-save-chars').addEventListener('click', () => {
 
 // ── Onglets ───────────────────────────────────────────────────
 
+function switchTab(tabId) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tabId));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  const target = document.getElementById('tab-' + tabId);
+  if (target) target.classList.add('active');
+  const sel = document.getElementById('tab-select-mobile');
+  if (sel) sel.value = tabId;
+}
+
 document.querySelectorAll('.tab-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-    btn.classList.add('active');
-    document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
-  });
+  btn.addEventListener('click', () => switchTab(btn.dataset.tab));
 });
+
+document.getElementById('tab-select-mobile')?.addEventListener('change', function() {
+  switchTab(this.value);
+});
+
+// ── Mode mobile ────────────────────────────────────────────────
+
+(function () {
+  const btn = document.getElementById('btn-mobile-mode');
+  const STORAGE_KEY = 'pso-mobile-mode';
+
+  function setMobile(on) {
+    document.body.classList.toggle('mobile-mode', on);
+    if (btn) btn.classList.toggle('active', on);
+    localStorage.setItem(STORAGE_KEY, on ? '1' : '0');
+  }
+
+  // Restore saved preference, OR auto-enable on small screen
+  const saved = localStorage.getItem(STORAGE_KEY);
+  if (saved !== null) {
+    setMobile(saved === '1');
+  } else if (window.innerWidth < 768) {
+    setMobile(true);
+  }
+
+  btn?.addEventListener('click', () => setMobile(!document.body.classList.contains('mobile-mode')));
+})();
 
 // ── Sous-onglets ──────────────────────────────────────────────
 
@@ -4478,7 +4512,12 @@ let framesLocal = {
 
 // ── Cam overlay ───────────────────────────────────────────────
 (function () {
-  let camLocal = { visible: false, width: 360, height: 270, offsetX: 0, offsetY: 40, label: 'CAM', showLabel: true };
+  let camLocal = {
+    visible: false, width: 360, height: 270, offsetX: 0, offsetY: 40, label: 'CAM', showLabel: true,
+    infoVisible: false, infoPlayer: 'p1', infoPosition: 'below',
+    infoFields: { tag: true, name: true, pronouns: false, seed: false, social: false, character: false },
+    infoFontSize: 13, infoBgOpacity: 85,
+  };
 
   function camSend(patch) {
     if (patch) Object.assign(camLocal, patch);
@@ -4506,6 +4545,23 @@ let framesLocal = {
     camSetInput('cam-x-range',      s.offsetX); camSetInput('cam-x-num',      s.offsetX);
     camSetInput('cam-y-range',      s.offsetY); camSetInput('cam-y-num',      s.offsetY);
     camSetInput('cam-label-text',   s.label);
+    // Info joueur sync
+    const iv = document.getElementById('cam-info-visible');
+    if (iv) iv.checked = !!s.infoVisible;
+    if (s.infoPlayer) {
+      document.querySelectorAll('.cam-info-player-btn').forEach(b => b.classList.toggle('active', b.dataset.player === s.infoPlayer));
+    }
+    if (s.infoPosition) {
+      document.querySelectorAll('.cam-info-pos-btn').forEach(b => b.classList.toggle('active', b.dataset.pos === s.infoPosition));
+    }
+    if (s.infoFields) {
+      Object.entries(s.infoFields).forEach(([k, v]) => {
+        const cb = document.getElementById('cam-field-' + k);
+        if (cb) cb.checked = !!v;
+      });
+    }
+    if (s.infoFontSize != null) { camSetInput('cam-info-fs-range', s.infoFontSize); camSetInput('cam-info-fs-num', s.infoFontSize); }
+    if (s.infoBgOpacity != null) { camSetInput('cam-info-bg-range', s.infoBgOpacity); camSetInput('cam-info-bg-num', s.infoBgOpacity); }
   });
 
   // Visibilité
@@ -4571,6 +4627,52 @@ let framesLocal = {
     camSetInput('cam-y-range', 40); camSetInput('cam-y-num', 40);
     camSend({ offsetX: x, offsetY: 40 });
   });
+
+  // ── Infos joueur ─────────────────────────────────────────────
+  document.getElementById('cam-info-visible')?.addEventListener('change', (e) => {
+    camSend({ infoVisible: e.target.checked });
+  });
+
+  document.querySelectorAll('.cam-info-player-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.cam-info-player-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      camSend({ infoPlayer: btn.dataset.player });
+    });
+  });
+
+  document.querySelectorAll('.cam-info-pos-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.cam-info-pos-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      camSend({ infoPosition: btn.dataset.pos });
+    });
+  });
+
+  ['tag','name','pronouns','seed','social','character'].forEach(field => {
+    document.getElementById('cam-field-' + field)?.addEventListener('change', (e) => {
+      camLocal.infoFields = { ...camLocal.infoFields, [field]: e.target.checked };
+      camSend({ infoFields: camLocal.infoFields });
+    });
+  });
+
+  (function() {
+    const range = document.getElementById('cam-info-fs-range');
+    const num   = document.getElementById('cam-info-fs-num');
+    if (!range || !num) return;
+    function sync(val) { range.value = val; num.value = val; camSend({ infoFontSize: Number(val) }); }
+    range.addEventListener('input', () => sync(range.value));
+    num.addEventListener('input',   () => sync(num.value));
+  })();
+
+  (function() {
+    const range = document.getElementById('cam-info-bg-range');
+    const num   = document.getElementById('cam-info-bg-num');
+    if (!range || !num) return;
+    function sync(val) { range.value = val; num.value = val; camSend({ infoBgOpacity: Number(val) }); }
+    range.addEventListener('input', () => sync(range.value));
+    num.addEventListener('input',   () => sync(num.value));
+  })();
 })();
 
 function framesSend(patch) {
@@ -6900,6 +7002,14 @@ socket.on('stateUpdate', (s) => {
           });
         });
 
+        // Panneau de contrôle : une URL cliquable par IP
+        const controlList = document.getElementById('ip-control-list');
+        if (controlList) {
+          controlList.innerHTML = ips.map(ip =>
+            `<a class="ip-chip ip-chip-link" href="http://${ip}:${port}/control" target="_blank">http://${ip}:${port}/control</a>`
+          ).join('');
+        }
+
         // Mettre à jour l'URL d'exemple avec la première IP
         const firstIP = ips[0];
         if (urlText) urlText.textContent = `http://${firstIP}:${port}/overlay`;
@@ -6925,6 +7035,9 @@ socket.on('stateUpdate', (s) => {
   // Charger l'IP quand l'onglet est ouvert
   document.querySelectorAll('.tab-btn[data-tab="overlayip"]').forEach(btn => {
     btn.addEventListener('click', loadIPs);
+  });
+  document.getElementById('tab-select-mobile')?.addEventListener('change', function() {
+    if (this.value === 'overlayip') loadIPs();
   });
 })();
 

@@ -134,3 +134,116 @@ body {
 }
 .cam-cut-tl { top: 0;    left: 0;   clip-path: polygon(0 0, 100% 0, 0 100%); }
 .cam-cut-br { bottom: 0; right: 0;  clip-path: polygon(100% 0, 100% 100%, 0 100%); }
+
+/* ── Barre d'infos joueur ─────────────────────────────────────── */
+
+.cam-info {
+  width: var(--cam-w, 360px);
+  display: flex;
+  align-items: stretch;
+  background: rgba(14, 14, 18, var(--cam-info-bg-opacity, 0.85));
+  border: 1px solid var(--cam-primary);
+  border-top: none;
+  overflow: hidden;
+  transition: opacity 0.4s;
+}
+
+.cam-root.hidden .cam-info { opacity: 0; }
+
+.cam-info.hidden { display: none; }
+
+/* Positionnement au-dessus du cadre */
+.cam-info.above {
+  order: -2;
+  border-top: 1px solid var(--cam-primary);
+  border-bottom: none;
+}
+
+/* Slot (un joueur) */
+.cam-info-slot {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  min-width: 0;
+}
+
+.cam-info-slot.hidden { display: none; }
+
+/* Icône personnage */
+.cam-info-char {
+  width:  var(--cam-info-char-size, 36px);
+  height: var(--cam-info-char-size, 36px);
+  object-fit: contain;
+  flex-shrink: 0;
+}
+.cam-info-char.hidden { display: none; }
+
+/* Texte */
+.cam-info-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.cam-info-main {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+  flex-wrap: wrap;
+  line-height: 1.1;
+}
+
+.cam-info-tag {
+  font-family: 'Russo One', sans-serif;
+  font-size: var(--cam-info-fs, 13px);
+  color: var(--cam-primary);
+  white-space: nowrap;
+}
+.cam-info-tag.hidden { display: none; }
+
+.cam-info-name {
+  font-family: 'Russo One', sans-serif;
+  font-size: var(--cam-info-fs, 13px);
+  color: #F0EEF8;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.cam-info-name.hidden { display: none; }
+
+.cam-info-pronouns {
+  font-size: calc(var(--cam-info-fs, 13px) * 0.8);
+  color: rgba(255,255,255,0.45);
+  white-space: nowrap;
+}
+.cam-info-pronouns.hidden { display: none; }
+
+.cam-info-seed {
+  font-size: calc(var(--cam-info-fs, 13px) * 0.78);
+  color: var(--cam-primary);
+  opacity: 0.7;
+  white-space: nowrap;
+}
+.cam-info-seed.hidden { display: none; }
+
+.cam-info-social {
+  font-size: calc(var(--cam-info-fs, 13px) * 0.8);
+  color: rgba(255,255,255,0.55);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.cam-info-social:empty { display: none; }
+
+/* Séparateur vertical entre P1 et P2 */
+.cam-info-sep {
+  width: 1px;
+  background: var(--cam-primary);
+  opacity: 0.3;
+  flex-shrink: 0;
+}
+.cam-info-sep.hidden { display: none; }

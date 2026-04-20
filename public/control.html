@@ -82,11 +82,12 @@
       <button id="btn-vs-trigger" class="btn btn-primary" title="Déclenche l'animation d'entrée sur la VS Screen">⚔ VS Anim</button>
       <button id="btn-visibility" class="btn btn-primary">Masquer</button>
       <button id="btn-server-reload" class="btn btn-outline" title="Redémarre le serveur Node.js" style="border-color:#e05;color:#e05">↺ Serveur</button>
+      <button id="btn-mobile-mode" class="btn btn-outline" title="Mode mobile/tablette">📱</button>
     </div>
   </header>
 
-  <!-- TAB NAV -->
-  <nav class="tab-nav">
+  <!-- TAB NAV (desktop) -->
+  <nav class="tab-nav" id="tab-nav-desktop">
     <button class="tab-btn active" data-tab="match">Match</button>
     <button class="tab-btn" data-tab="themes">Thèmes</button>
     <button class="tab-btn" data-tab="custom">Customisation</button>
@@ -100,8 +101,27 @@
     <button class="tab-btn" data-tab="twitch">Twitch</button>
     <button class="tab-btn" data-tab="youtube">YouTube</button>
     <button class="tab-btn" data-tab="obstools">Outils Streaming</button>
-    <button class="tab-btn" data-tab="overlayip">Overlay multi-PC</button>
+    <button class="tab-btn" data-tab="overlayip">PSO multi-PC</button>
   </nav>
+
+  <!-- TAB SELECT (mobile) -->
+  <div class="tab-nav-mobile" id="tab-nav-mobile">
+    <select id="tab-select-mobile" class="tab-mobile-select">
+      <option value="match">Match</option>
+      <option value="themes">Thèmes</option>
+      <option value="custom">Customisation</option>
+      <option value="veto">Veto &amp; Ruleset</option>
+      <option value="connexions">Connexions</option>
+      <option value="startgg">start.gg</option>
+      <option value="overlays">Overlays</option>
+      <option value="studio">Créateur de scènes</option>
+      <option value="builder">Scoreboard Builder</option>
+      <option value="twitch">Twitch</option>
+      <option value="youtube">YouTube</option>
+      <option value="obstools">Outils Streaming</option>
+      <option value="overlayip">PSO multi-PC</option>
+    </select>
+  </div>
 
   <!-- ═══════════════════════════════════════════════════════════ -->
   <!-- TAB : MATCH                                                 -->
@@ -292,6 +312,44 @@
       </div>
     </section>
 
+    <!-- CONNEXION START.GG (masquée quand les participants sont chargés) -->
+    <section class="section" id="match-sgg-connect-section">
+      <div class="section-header">
+        <h2 style="display:flex;align-items:center;gap:8px">
+          <svg style="width:16px;height:16px;color:#17B978;flex-shrink:0" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>
+          Connexion start.gg
+        </h2>
+      </div>
+
+      <!-- Clé API -->
+      <div class="form-group">
+        <label>Clé API personnelle</label>
+        <div class="name-row">
+          <input type="password" id="match-sgg-api-key" placeholder="Colle ta Personal Key ici" style="flex:1" />
+          <button class="btn btn-primary btn-sm" id="match-sgg-save-key">Enregistrer</button>
+        </div>
+        <p class="hint" id="match-sgg-key-status">Chargement…</p>
+      </div>
+
+      <!-- Recherche tournoi -->
+      <div class="form-group">
+        <label>Slug ou URL start.gg</label>
+        <div class="name-row">
+          <input type="text" id="match-sgg-slug" placeholder="ex: tournament/combo-breaker-2024" style="flex:1" />
+          <button class="btn btn-primary btn-sm" id="match-sgg-search-btn">Chercher</button>
+        </div>
+        <p class="hint">Format attendu : <code>tournament/nom-du-tournoi</code></p>
+      </div>
+      <div id="match-sgg-tournament-info" style="display:none">
+        <p class="hint" id="match-sgg-tournament-name"></p>
+        <div class="form-group">
+          <label>Évènement</label>
+          <select id="match-sgg-event-select" class="input-name" style="width:100%"></select>
+          <button class="btn btn-outline btn-sm" id="match-sgg-load-event" style="margin-top:6px">Charger les participants</button>
+        </div>
+      </div>
+    </section>
+
     <!-- SETS START.GG (affiché seulement quand des sets sont chargés) -->
     <section class="section" id="match-sgg-sets-section" style="display:none">
       <div class="section-header">
@@ -299,8 +357,12 @@
           <svg style="width:16px;height:16px;color:#17B978;flex-shrink:0" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>
           Sets start.gg
         </h2>
-        <button class="btn btn-outline btn-sm" id="match-sgg-refresh-sets" title="Actualiser les sets">↺ Actualiser</button>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span id="match-sgg-refresh-countdown" class="hint"></span>
+          <button class="btn btn-outline btn-sm" id="match-sgg-refresh-sets" title="Actualiser les sets">↺ Actualiser</button>
+        </div>
       </div>
+      <div id="match-sgg-stream-queue" class="sgg-stream-queue" style="display:none"></div>
       <div id="match-sgg-sets-list" class="sgg-sets-list"></div>
     </section>
 
@@ -2798,8 +2860,12 @@
     <section class="section" id="sgg-sets-section" style="display:none">
       <div class="section-header">
         <h2>Sets en cours</h2>
-        <button class="btn btn-outline btn-sm" id="sgg-refresh-sets">Actualiser</button>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span id="sgg-refresh-countdown" class="hint"></span>
+          <button class="btn btn-outline btn-sm" id="sgg-refresh-sets">Actualiser</button>
+        </div>
       </div>
+      <div id="sgg-stream-queue" class="sgg-stream-queue" style="display:none"></div>
       <div id="sgg-sets-list" class="sgg-sets-list"></div>
     </section>
 
@@ -3501,6 +3567,75 @@
             <input type="text" id="cam-label-text" value="CAM" maxlength="30"
               style="width:100%;padding:8px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:14px" />
           </div>
+
+          <!-- ── Infos joueur ─────────────────────────────────── -->
+          <div class="custom-card">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+              <h3>Infos joueur</h3>
+              <label class="toggle-switch">
+                <input type="checkbox" id="cam-info-visible" />
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+
+            <div class="form-group" style="margin-bottom:10px">
+              <label>Joueur affiché</label>
+              <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px">
+                <button class="btn btn-outline btn-sm cam-info-player-btn active" data-player="p1">J1</button>
+                <button class="btn btn-outline btn-sm cam-info-player-btn" data-player="p2">J2</button>
+                <button class="btn btn-outline btn-sm cam-info-player-btn" data-player="both">Les deux</button>
+              </div>
+            </div>
+
+            <div class="form-group" style="margin-bottom:10px">
+              <label>Position</label>
+              <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px">
+                <button class="btn btn-outline btn-sm cam-info-pos-btn active" data-pos="below">↓ Dessous</button>
+                <button class="btn btn-outline btn-sm cam-info-pos-btn" data-pos="above">↑ Dessus</button>
+              </div>
+            </div>
+
+            <div class="form-group" style="margin-bottom:10px">
+              <label>Champs affichés</label>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px">
+                <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer">
+                  <input type="checkbox" id="cam-field-tag"       checked /> Tag
+                </label>
+                <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer">
+                  <input type="checkbox" id="cam-field-name"      checked /> Nom
+                </label>
+                <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer">
+                  <input type="checkbox" id="cam-field-pronouns"  /> Pronoms
+                </label>
+                <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer">
+                  <input type="checkbox" id="cam-field-seed"      /> Seeding
+                </label>
+                <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer">
+                  <input type="checkbox" id="cam-field-social"    /> Réseau social
+                </label>
+                <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer">
+                  <input type="checkbox" id="cam-field-character" /> Personnage
+                </label>
+              </div>
+            </div>
+
+            <div class="form-group" style="margin-bottom:10px">
+              <label>Taille police <span class="hint">px</span></label>
+              <div class="logo-particles-row">
+                <input type="range"  id="cam-info-fs-range" min="8" max="28" value="13" step="1" />
+                <input type="number" id="cam-info-fs-num"   min="8" max="28" value="13" style="width:60px" />
+              </div>
+            </div>
+
+            <div class="form-group" style="margin-bottom:0">
+              <label>Opacité fond <span class="hint">%</span></label>
+              <div class="logo-particles-row">
+                <input type="range"  id="cam-info-bg-range" min="0" max="100" value="85" step="1" />
+                <input type="number" id="cam-info-bg-num"   min="0" max="100" value="85" style="width:60px" />
+              </div>
+            </div>
+          </div>
+
           <div class="custom-card" style="padding:0;overflow:hidden;border-radius:8px;">
             <div style="background:#111;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;">
               <span style="font-size:12px;font-weight:600;color:var(--text-muted);letter-spacing:1px;text-transform:uppercase;">Aperçu</span>
@@ -4743,16 +4878,28 @@
   <div class="tab-content" id="tab-overlayip">
     <section class="section">
       <div class="section-header">
-        <h2>Overlay multi-PC</h2>
+        <h2>PSO multi-PC</h2>
       </div>
 
       <!-- Adresses IP du serveur -->
-      <div class="ip-tuto-card" id="ip-addresses-card">
-        <div class="ip-tuto-card-title">Adresses IP de ce PC (serveur)</div>
-        <div id="ip-list" class="ip-list">
-          <span class="ip-loading">Chargement…</span>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:start">
+
+        <div class="ip-tuto-card" id="ip-addresses-card">
+          <div class="ip-tuto-card-title">Adresses IP de ce PC (serveur)</div>
+          <div id="ip-list" class="ip-list">
+            <span class="ip-loading">Chargement…</span>
+          </div>
+          <div class="ip-port-info">Port : <strong id="ip-port">3002</strong></div>
         </div>
-        <div class="ip-port-info">Port : <strong id="ip-port">3002</strong></div>
+
+        <div class="ip-tuto-card">
+          <div class="ip-tuto-card-title">Panneau de contrôle</div>
+          <div id="ip-control-list" class="ip-list">
+            <span class="ip-loading">Chargement…</span>
+          </div>
+          <div class="ip-port-info" style="color:var(--text-muted)">Ouvre dans un navigateur sur n'importe quel appareil du réseau</div>
+        </div>
+
       </div>
 
       <!-- Schéma visuel -->

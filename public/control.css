@@ -2211,14 +2211,176 @@ kbd {
   gap: 8px;
 }
 
+/* ── Phase boutons avec jauge ─────────────────────────────── */
+
+.sgg-phase-btn {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  cursor: pointer;
+  user-select: none;
+  background: var(--bg-card);
+  transition: border-color 0.2s;
+}
+
+.sgg-phase-btn:hover { border-color: var(--accent); }
+.sgg-phase-btn.open  { border-color: var(--accent); border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
+
+.sgg-phase-btn-fill {
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  background: rgba(232, 184, 48, 0.15);
+  transition: width 0.5s ease;
+  pointer-events: none;
+}
+
+.sgg-phase-btn-content {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+}
+
+.sgg-phase-btn-name {
+  flex: 1;
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-primary);
+}
+
+.sgg-phase-btn-stats {
+  font-size: 12px;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.sgg-phase-active-dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #4caf50;
+  animation: sgg-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes sgg-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.3; }
+}
+
+.sgg-phase-btn-arrow {
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+/* ── Liste de sets dépliable ──────────────────────────────── */
+
+.sgg-phase-sets {
+  display: none;
+  flex-direction: column;
+  gap: 6px;
+  border: 1px solid var(--accent);
+  border-top: none;
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
+  padding: 8px;
+  background: var(--bg-surface);
+}
+
+.sgg-phase-sets.open { display: flex; }
+
+/* ── Boutons de round (niveau 2) ──────────────────────────── */
+
+.sgg-round-btn {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+  user-select: none;
+  background: var(--bg-surface);
+  transition: border-color 0.2s;
+}
+
+.sgg-round-btn:hover { border-color: var(--accent); }
+.sgg-round-btn.open  { border-color: var(--accent); border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
+
+.sgg-round-btn-fill {
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  background: rgba(232, 184, 48, 0.12);
+  transition: width 0.5s ease;
+  pointer-events: none;
+}
+
+.sgg-round-btn-content {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 12px;
+}
+
+.sgg-round-btn-name {
+  flex: 1;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-secondary, var(--text-muted));
+}
+
+.sgg-round-btn-stats {
+  font-size: 11px;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.sgg-round-btn-arrow {
+  font-size: 9px;
+  color: var(--text-muted);
+}
+
+/* ── Liste de sets dans un round ──────────────────────────── */
+
+.sgg-round-sets {
+  display: none;
+  flex-direction: column;
+  gap: 4px;
+  border: 1px solid var(--accent);
+  border-top: none;
+  border-bottom-left-radius: 6px;
+  border-bottom-right-radius: 6px;
+  padding: 6px;
+  background: var(--bg-card);
+}
+
+.sgg-round-sets.open { display: flex; }
+
+/* ── Cards de set ─────────────────────────────────────────── */
+
 .sgg-set-card {
   background: var(--bg-card);
   border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 10px 14px;
+  border-radius: 6px;
+  padding: 8px 12px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 5px;
+}
+
+.sgg-set-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .sgg-set-round {
@@ -2226,28 +2388,181 @@ kbd {
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: var(--accent);
+  flex: 1;
+}
+
+.sgg-state-badge {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  padding: 2px 7px;
+  border-radius: 10px;
+  color: #0E0E12;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.sgg-mini-info {
+  font-size: 10px;
+  color: var(--text-muted);
 }
 
 .sgg-set-players {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
   color: var(--text-primary);
 }
 
 .sgg-set-score {
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 700;
   color: var(--accent);
-  padding: 0 12px;
+  padding: 0 10px;
+  white-space: nowrap;
 }
 
 .sgg-set-actions {
   display: flex;
   justify-content: flex-end;
+  gap: 6px;
 }
+
+/* ── Panneau de report inline ─────────────────────────────── */
+
+.sgg-report-panel {
+  border-top: 1px solid var(--border);
+  padding-top: 8px;
+  margin-top: 2px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.sgg-report-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sgg-report-name {
+  flex: 1;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sgg-report-name-right { text-align: right; }
+
+.sgg-report-sep {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.sgg-score-stepper {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.sgg-score-btn {
+  background: var(--bg-surface);
+  border: none;
+  color: var(--text-primary);
+  font-size: 15px;
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+  padding: 0;
+}
+
+.sgg-score-btn:hover { background: var(--bg-hover, rgba(255,255,255,0.07)); }
+.sgg-score-btn:active { background: var(--accent); color: #0E0E12; }
+
+.sgg-score-val {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--accent);
+  min-width: 26px;
+  text-align: center;
+  padding: 0 2px;
+}
+
+.sgg-report-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.sgg-report-status {
+  font-size: 11px;
+}
+
+/* ── Stream Queue ─────────────────────────────────────────── */
+
+.sgg-stream-queue {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.sgg-stream-block {
+  border: 1px solid rgba(232, 184, 48, 0.4);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.sgg-stream-header {
+  background: rgba(232, 184, 48, 0.12);
+  border-bottom: 1px solid rgba(232, 184, 48, 0.3);
+  padding: 7px 12px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.sgg-stream-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 6px;
+  background: var(--bg-surface);
+}
+
+.sgg-stream-order {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #0E0E12;
+  font-size: 10px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+/* ── Pagination ───────────────────────────────────────────── */
 
 .sgg-pagination {
   display: flex;
@@ -2854,6 +3169,14 @@ kbd {
   user-select: all;
 }
 .ip-chip:hover { background: rgba(124,106,247,.15); }
+.ip-chip-link {
+  text-decoration: none;
+  color: var(--gold);
+  border-color: rgba(232,184,48,0.4);
+  word-break: break-all;
+  white-space: normal;
+}
+.ip-chip-link:hover { background: rgba(232,184,48,0.1); border-color: var(--gold); }
 .ip-loading { font-size: 13px; color: var(--text-muted); font-style: italic; }
 .ip-port-info { font-size: 12px; color: var(--text-muted); }
 .ip-port-info strong { color: var(--text, #e0e0ee); }
@@ -3135,4 +3458,214 @@ kbd {
 
 .subtab-content.active {
   display: block;
+}
+
+
+/* ═══════════════════════════════════════════════════════════════
+   MODE MOBILE / TABLETTE (activé via body.mobile-mode)
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Navigation mobile : select déroulant */
+.tab-nav-mobile { display: none; }
+
+body.mobile-mode .tab-nav-mobile {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 99;
+}
+
+.tab-mobile-select {
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--gold);
+  font-family: 'Russo One', sans-serif;
+  font-size: 13px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  padding: 10px 14px;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23E8B830' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 32px;
+}
+
+.tab-mobile-select option {
+  background: var(--surface2);
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+/* Masquer la nav desktop en mode mobile */
+body.mobile-mode #tab-nav-desktop {
+  display: none;
+}
+
+/* Header adapté */
+body.mobile-mode .header {
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 10px 14px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+body.mobile-mode .header-right {
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+body.mobile-mode .header-right .btn {
+  padding: 8px 12px;
+  font-size: 11px;
+}
+
+/* Sections */
+body.mobile-mode .section {
+  padding: 14px 12px;
+}
+
+body.mobile-mode .section-header {
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* Grille scoreboard → colonne unique */
+body.mobile-mode .scoreboard-grid {
+  grid-template-columns: 1fr !important;
+}
+
+body.mobile-mode .match-card { order: -1; }
+
+/* Inputs et labels plus grands */
+body.mobile-mode input[type="text"],
+body.mobile-mode input[type="number"],
+body.mobile-mode input[type="password"],
+body.mobile-mode select,
+body.mobile-mode textarea {
+  font-size: 16px; /* évite le zoom auto iOS */
+  padding: 10px 12px;
+  min-height: 44px;
+}
+
+body.mobile-mode .name-row {
+  flex-wrap: wrap;
+}
+
+body.mobile-mode .name-row .input-tag,
+body.mobile-mode .name-row .input-pronouns,
+body.mobile-mode .name-row .input-seed {
+  width: auto;
+  flex: 1;
+  min-width: 60px;
+}
+
+/* Boutons plus grands */
+body.mobile-mode .btn {
+  min-height: 44px;
+  padding: 10px 16px;
+  font-size: 12px;
+}
+
+body.mobile-mode .btn-sm {
+  min-height: 38px;
+  padding: 8px 12px;
+  font-size: 11px;
+}
+
+/* Boutons inline (score +/−) */
+body.mobile-mode .sgg-score-btn {
+  width: 38px;
+  height: 38px;
+  font-size: 18px;
+}
+
+body.mobile-mode .sgg-score-val {
+  font-size: 18px;
+  min-width: 32px;
+}
+
+/* Grilles personnalisation → 1 colonne */
+body.mobile-mode .custom-card-grid {
+  grid-template-columns: 1fr !important;
+}
+
+body.mobile-mode .conn-form-grid,
+body.mobile-mode .conn-unlocks-grid {
+  grid-template-columns: 1fr !important;
+}
+
+/* Phase / round buttons */
+body.mobile-mode .sgg-phase-btn-content,
+body.mobile-mode .sgg-round-btn-content {
+  padding: 12px 14px;
+}
+
+/* Set cards */
+body.mobile-mode .sgg-set-players {
+  font-size: 13px;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+body.mobile-mode .sgg-set-score {
+  width: 100%;
+  text-align: center;
+  padding: 0;
+  order: -1;
+}
+
+body.mobile-mode .sgg-set-actions {
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+/* Report panel */
+body.mobile-mode .sgg-report-row {
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+body.mobile-mode .sgg-report-name {
+  width: 100%;
+  flex: none;
+}
+
+body.mobile-mode .sgg-report-name-right {
+  text-align: left;
+  order: -1;
+}
+
+/* Toggle button actif */
+#btn-mobile-mode.active {
+  border-color: var(--gold);
+  color: var(--gold);
+  background: rgba(232,184,48,0.1);
+}
+
+/* Sliders range */
+body.mobile-mode input[type="range"] {
+  height: 6px;
+}
+
+/* Accordion/cards padding */
+body.mobile-mode .custom-card {
+  padding: 12px;
+}
+
+/* Auto-enable sur petits écrans */
+@media (max-width: 600px) {
+  body:not(.mobile-mode-off) .tab-nav-mobile { display: flex; }
+  body:not(.mobile-mode-off) #tab-nav-desktop { display: none; }
 }

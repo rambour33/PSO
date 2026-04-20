@@ -2,10 +2,20 @@
 
 (function () {
   // State
-  let currentEventId = null;
-  let allEntrants = [];
-  let currentPage = 1;
-  const PER_PAGE = 100;
+  let currentEventId      = null;
+  let currentTournamentSlug = null;
+  let allEntrants         = [];
+  let currentPage         = 1;
+  const PER_PAGE          = 100;
+  let tournamentName      = '';
+  let tournamentLogo      = '';
+  let currentEventName    = '';
+
+  // Auto-refresh
+  const REFRESH_INTERVAL  = 60; // secondes
+  let _refreshTimer       = null;
+  let _countdownTimer     = null;
+  let _countdownSec       = 0;
 
   // ── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -29,37 +39,37 @@
   async function loadKeyStatus() {
     const res = await fetch('/api/startgg/config');
     const data = await res.json();
-    const hint = document.getElementById('sgg-key-status');
-    if (data.hasKey) {
-      hint.textContent = '✓ Clé API enregistrée';
-      hint.style.color = '#4caf50';
-    } else {
-      hint.textContent = 'Aucune clé API enregistrée.';
-      hint.style.color = '#e05050';
-    }
+    ['sgg-key-status', 'match-sgg-key-status'].forEach(id => {
+      const hint = document.getElementById(id);
+      if (!hint) return;
+      if (data.hasKey) { hint.textContent = '✓ Clé API enregistrée'; hint.style.color = '#4caf50'; }
+      else             { hint.textContent = 'Aucune clé API enregistrée.'; hint.style.color = '#e05050'; }
+    });
   }
 
-  document.getElementById('sgg-save-key').addEventListener('click', async () => {
-    const key = document.getElementById('sgg-api-key').value.trim();
+  async function saveApiKey(inputId) {
+    const key = document.getElementById(inputId)?.value.trim();
     if (!key) return;
     await fetch('/api/startgg/config', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ apiKey: key })
     });
-    document.getElementById('sgg-api-key').value = '';
+    document.getElementById(inputId).value = '';
     await loadKeyStatus();
     showStatus('Clé API start.gg enregistrée');
-  });
+  }
+
+  document.getElementById('sgg-save-key').addEventListener('click', () => saveApiKey('sgg-api-key'));
+  document.getElementById('match-sgg-save-key')?.addEventListener('click', () => saveApiKey('match-sgg-api-key'));
 
   // ── Tournament Search ─────────────────────────────────────────────────────────
 
-  document.getElementById('sgg-search-btn').addEventListener('click', async () => {
-    const raw = document.getElementById('sgg-slug').value;
+  async function searchTournament(slugInputId, infoId, nameId, selectId) {
+    const raw = document.getElementById(slugInputId)?.value || '';
     if (!raw.trim()) return;
     const slug = slugFromInput(raw);
     showStatus('Recherche du tournoi…');
-    document.getElementById('sgg-tournament-info').style.display = 'none';
+    document.getElementById(infoId).style.display = 'none';
     document.getElementById('sgg-entrants-section').style.display = 'none';
     document.getElementById('sgg-sets-section').style.display = 'none';
 
@@ -67,30 +77,61 @@
     const data = await res.json();
     if (data.error) { showStatus('Erreur : ' + data.error, true); return; }
 
-    document.getElementById('sgg-tournament-name').textContent = '🏆 ' + data.name;
-    const sel = document.getElementById('sgg-event-select');
-    sel.innerHTML = '';
-    (data.events || []).forEach(ev => {
-      const opt = document.createElement('option');
-      opt.value = ev.id;
-      opt.textContent = `${ev.name} (${ev.numEntrants ?? '?'} joueurs)`;
-      sel.appendChild(opt);
+    currentTournamentSlug = slug;
+    tournamentName = data.name || '';
+    const logoImg = (data.images || []).find(i => i.type === 'profile') || data.images?.[0];
+    tournamentLogo = logoImg?.url || '';
+
+    // Mettre à jour TOUS les sélecteurs d'événements (onglet startgg + onglet match)
+    ['sgg-tournament-info', 'match-sgg-tournament-info'].forEach(tid => {
+      const info = document.getElementById(tid);
+      if (!info) return;
+      const tname = info.querySelector('[id$="-tournament-name"]') || document.getElementById(tid.replace('tournament-info', 'tournament-name'));
+      if (tname) tname.textContent = '🏆 ' + data.name;
+      const sel = info.querySelector('select') || document.getElementById(tid.replace('tournament-info', 'event-select'));
+      if (sel) {
+        sel.innerHTML = '';
+        (data.events || []).forEach(ev => {
+          const opt = document.createElement('option');
+          opt.value = ev.id;
+          opt.textContent = `${ev.name} (${ev.numEntrants ?? '?'} joueurs)`;
+          sel.appendChild(opt);
+        });
+      }
+      info.style.display = '';
     });
-    document.getElementById('sgg-tournament-info').style.display = '';
     showStatus('Tournoi chargé : ' + data.name);
-  });
+  }
+
+  document.getElementById('sgg-search-btn').addEventListener('click', () =>
+    searchTournament('sgg-slug', 'sgg-tournament-info', 'sgg-tournament-name', 'sgg-event-select'));
+  document.getElementById('match-sgg-search-btn')?.addEventListener('click', () =>
+    searchTournament('match-sgg-slug', 'match-sgg-tournament-info', 'match-sgg-tournament-name', 'match-sgg-event-select'));
 
   // ── Load Entrants ─────────────────────────────────────────────────────────────
 
-  document.getElementById('sgg-load-event').addEventListener('click', async () => {
-    const eventId = document.getElementById('sgg-event-select').value;
+  async function loadEvent(selectId) {
+    const sel = document.getElementById(selectId);
+    const eventId = sel?.value;
     if (!eventId) return;
-    currentEventId = eventId;
+    currentEventId   = eventId;
+    currentEventName = sel.options[sel.selectedIndex]?.text?.replace(/\s*\(\d+.*\)$/, '').trim() || '';
+    // Synchroniser l'autre sélecteur si besoin
+    const otherId = selectId === 'sgg-event-select' ? 'match-sgg-event-select' : 'sgg-event-select';
+    const other = document.getElementById(otherId);
+    if (other && other.value !== eventId) other.value = eventId;
     currentPage = 1;
     await fetchEntrants(eventId, 1);
     document.getElementById('sgg-sets-section').style.display = '';
-    await fetchSets(eventId);
-  });
+    await Promise.all([fetchSets(eventId), fetchStreamQueue()]);
+    startAutoRefresh();
+    // Masquer la section connexion dans l'onglet match une fois chargée
+    const matchConnect = document.getElementById('match-sgg-connect-section');
+    if (matchConnect) matchConnect.style.display = 'none';
+  }
+
+  document.getElementById('sgg-load-event').addEventListener('click', () => loadEvent('sgg-event-select'));
+  document.getElementById('match-sgg-load-event')?.addEventListener('click', () => loadEvent('match-sgg-event-select'));
 
   async function fetchEntrants(eventId, page) {
     showStatus('Chargement des participants…');
@@ -174,6 +215,158 @@
     showStatus(`Joueur ${playerNum} mis à jour : ${tag}${seeding != null ? ' (seed #' + seeding + ')' : ''}`);
   }
 
+  // ── Constructeur de carte de set ─────────────────────────────────────────────
+
+  function buildSetCard(s, roundFull, extraPrefix) {
+    const [slot1, slot2] = s.slots || [];
+    const p1 = slot1?.entrant?.participants?.[0];
+    const p2 = slot2?.entrant?.participants?.[0];
+    const p1Name    = p1?.gamerTag || slot1?.entrant?.name || '?';
+    const p2Name    = p2?.gamerTag || slot2?.entrant?.name || '?';
+    const p1Tag     = p1?.prefix || '';
+    const p2Tag     = p2?.prefix || '';
+    const p1ScoreCur = slot1?.standing?.stats?.score?.value ?? 0;
+    const p2ScoreCur = slot2?.standing?.stats?.score?.value ?? 0;
+    const p1Seed    = slot1?.entrant?.initialSeedNum ?? '';
+    const p2Seed    = slot2?.entrant?.initialSeedNum ?? '';
+    const p1Pronouns = p1?.user?.genderPronoun || '';
+    const p2Pronouns = p2?.user?.genderPronoun || '';
+    const e1Id      = slot1?.entrant?.id || '';
+    const e2Id      = slot2?.entrant?.id || '';
+    const p1PlayerId = p1?.player?.id || '';
+    const p2PlayerId = p2?.player?.id || '';
+    const state     = s.state || 1;
+    const isActive  = state === 2;
+
+    const seedLabel1  = p1Seed !== '' ? `<span class="sgg-mini-info">#${p1Seed}</span>` : '';
+    const seedLabel2  = p2Seed !== '' ? `<span class="sgg-mini-info">#${p2Seed}</span>` : '';
+    const pronLabel1  = p1Pronouns ? `<span class="sgg-mini-info">(${p1Pronouns})</span>` : '';
+    const pronLabel2  = p2Pronouns ? `<span class="sgg-mini-info">(${p2Pronouns})</span>` : '';
+    const stateBadge  = `<span class="sgg-state-badge" style="background:${SET_STATE_COLOR[state]||'#888'}">${SET_STATE_LABEL[state]||''}</span>`;
+    const startBtn    = !isActive ? `<button class="btn btn-outline btn-sm sgg-start-set" data-setid="${s.id}">▶ Démarrer</button>` : '';
+    const reportToggleBtn = isActive && e1Id && e2Id ? `<button class="btn btn-outline btn-sm sgg-report-toggle">✎ Score</button>` : '';
+    const applyBtn    = `<button class="btn btn-primary btn-sm sgg-apply-set"
+        data-setid="${s.id}"
+        data-p1tag="${p1Tag}" data-p1name="${p1Name}"
+        data-p2tag="${p2Tag}" data-p2name="${p2Name}"
+        data-p1score="${Math.max(0,p1ScoreCur)}" data-p2score="${Math.max(0,p2ScoreCur)}"
+        data-p1seed="${p1Seed}" data-p2seed="${p2Seed}"
+        data-p1pronouns="${p1Pronouns}" data-p2pronouns="${p2Pronouns}"
+        data-p1entrantid="${e1Id}" data-p2entrantid="${e2Id}"
+        data-p1playerid="${p1PlayerId}" data-p2playerid="${p2PlayerId}"
+        data-round="${roundFull}">→ Scoreboard</button>`;
+
+    const card = document.createElement('div');
+    card.className = 'sgg-set-card';
+    card.innerHTML = `
+      <div class="sgg-set-players">
+        <span>${p1Tag ? '['+p1Tag+'] ':'' }${p1Name} ${seedLabel1} ${pronLabel1}</span>
+        <span class="sgg-set-score">${isActive ? p1ScoreCur+' – '+p2ScoreCur : 'vs'}</span>
+        <span>${p2Tag ? '['+p2Tag+'] ':'' }${p2Name} ${seedLabel2} ${pronLabel2}</span>
+      </div>
+      <div class="sgg-set-actions">${stateBadge}${startBtn}${reportToggleBtn}${applyBtn}</div>
+    `;
+
+    // Panneau de report inline pour les sets actifs (caché par défaut)
+    if (isActive && e1Id && e2Id) {
+      const toggleBtn = card.querySelector('.sgg-report-toggle');
+      const reportPanel = document.createElement('div');
+      reportPanel.className = 'sgg-report-panel';
+      reportPanel.style.display = 'none';
+      reportPanel.innerHTML = `
+        <div class="sgg-report-row">
+          <span class="sgg-report-name">${p1Tag ? '['+p1Tag+'] ':'' }${p1Name}</span>
+          <div class="sgg-score-stepper">
+            <button class="sgg-score-btn" data-delta="-1" data-player="1">−</button>
+            <span class="sgg-score-val" data-player="1">0</span>
+            <button class="sgg-score-btn" data-delta="1" data-player="1">+</button>
+          </div>
+          <span class="sgg-report-sep">–</span>
+          <div class="sgg-score-stepper">
+            <button class="sgg-score-btn" data-delta="-1" data-player="2">−</button>
+            <span class="sgg-score-val" data-player="2">0</span>
+            <button class="sgg-score-btn" data-delta="1" data-player="2">+</button>
+          </div>
+          <span class="sgg-report-name sgg-report-name-right">${p2Tag ? '['+p2Tag+'] ':'' }${p2Name}</span>
+        </div>
+        <div class="sgg-report-actions">
+          <span class="sgg-report-status hint"></span>
+          <button class="btn btn-outline btn-sm sgg-report-btn"
+            data-setid="${s.id}"
+            data-p1entrantid="${e1Id}"
+            data-p2entrantid="${e2Id}">
+            Envoyer le résultat
+          </button>
+        </div>
+      `;
+
+      // Toggle affichage
+      if (toggleBtn) {
+        toggleBtn.addEventListener('click', () => {
+          const open = reportPanel.style.display === 'none';
+          reportPanel.style.display = open ? '' : 'none';
+          toggleBtn.classList.toggle('active', open);
+        });
+      }
+
+      // Scores locaux
+      let sc1 = 0, sc2 = 0;
+      function updateDisplay() {
+        reportPanel.querySelector('.sgg-score-val[data-player="1"]').textContent = sc1;
+        reportPanel.querySelector('.sgg-score-val[data-player="2"]').textContent = sc2;
+        const btn = reportPanel.querySelector('.sgg-report-btn');
+        btn.disabled = sc1 === sc2;
+      }
+
+      reportPanel.querySelectorAll('.sgg-score-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const player = btn.dataset.player;
+          const delta  = parseInt(btn.dataset.delta);
+          if (player === '1') sc1 = Math.max(0, sc1 + delta);
+          else                sc2 = Math.max(0, sc2 + delta);
+          updateDisplay();
+        });
+      });
+
+      reportPanel.querySelector('.sgg-report-btn').addEventListener('click', async function() {
+        const statusEl = reportPanel.querySelector('.sgg-report-status');
+        this.disabled = true;
+        statusEl.textContent = 'Envoi…';
+        statusEl.style.color = '';
+        try {
+          const res = await fetch(`/api/startgg/set/${s.id}/report`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              p1EntrantId: e1Id, p2EntrantId: e2Id,
+              p1Score: sc1, p2Score: sc2,
+            }),
+          });
+          const data = await res.json();
+          if (data.error) {
+            statusEl.textContent = '✗ ' + data.error;
+            statusEl.style.color = '#e05';
+            this.disabled = false;
+          } else {
+            statusEl.textContent = '✓ Résultat envoyé';
+            statusEl.style.color = '#4caf50';
+            showStatus('Score reporté sur start.gg');
+            setTimeout(() => doRefresh(), 800);
+          }
+        } catch (_) {
+          statusEl.textContent = '✗ Erreur réseau';
+          statusEl.style.color = '#e05';
+          this.disabled = false;
+        }
+      });
+
+      updateDisplay();
+      card.appendChild(reportPanel);
+    }
+
+    return card;
+  }
+
   // ── Sets ──────────────────────────────────────────────────────────────────────
 
   async function fetchSets(eventId) {
@@ -183,9 +376,22 @@
     renderSets(data.sets?.nodes || []);
   }
 
+  // SET_STATE : 1=créé, 2=en cours, 3=terminé, 6=appelé
+  const SET_STATE_LABEL = { 1: 'En attente', 2: 'En cours', 3: 'Terminé', 6: 'Appelé' };
+  const SET_STATE_COLOR = { 1: '#888', 2: '#4caf50', 3: '#555', 6: '#E8B830' };
+
+  // phaseKey → open state (persistent across re-renders)
+  const _phaseOpen = {};
+
   function renderSets(sets) {
-    renderSetsInContainer(sets, document.getElementById('sgg-sets-list'));
-    renderSetsInContainer(sets, document.getElementById('match-sgg-sets-list'));
+    // Tri : phaseOrder → round
+    const sorted = [...sets].sort((a, b) => {
+      const po = (a.phaseGroup?.phase?.phaseOrder ?? 99) - (b.phaseGroup?.phase?.phaseOrder ?? 99);
+      if (po !== 0) return po;
+      return (a.round ?? 0) - (b.round ?? 0);
+    });
+    renderSetsInContainer(sorted, document.getElementById('sgg-sets-list'));
+    renderSetsInContainer(sorted, document.getElementById('match-sgg-sets-list'));
     const matchSection = document.getElementById('match-sgg-sets-section');
     if (matchSection) matchSection.style.display = sets.length ? '' : 'none';
   }
@@ -194,58 +400,140 @@
     if (!container) return;
     container.innerHTML = '';
     if (!sets.length) {
-      container.innerHTML = '<p class="hint">Aucun set en cours.</p>';
+      container.innerHTML = '<p class="hint">Aucun set disponible.</p>';
       return;
     }
+
+    // Grouper par phase
+    const phases = [];
+    const phaseMap = {};
     sets.forEach(s => {
-      const [slot1, slot2] = s.slots || [];
-      const p1 = slot1?.entrant?.participants?.[0];
-      const p2 = slot2?.entrant?.participants?.[0];
-      const p1Name = p1?.gamerTag || slot1?.entrant?.name || '?';
-      const p2Name = p2?.gamerTag || slot2?.entrant?.name || '?';
-      const p1Tag = p1?.prefix || '';
-      const p2Tag = p2?.prefix || '';
-      const p1Score = slot1?.standing?.stats?.score?.value ?? 0;
-      const p2Score = slot2?.standing?.stats?.score?.value ?? 0;
-      const p1Seed = slot1?.entrant?.initialSeedNum ?? '';
-      const p2Seed = slot2?.entrant?.initialSeedNum ?? '';
-      const p1Pronouns = p1?.user?.genderPronoun || '';
-      const p2Pronouns = p2?.user?.genderPronoun || '';
+      const phaseId   = s.phaseGroup?.phase?.name || 'Phase';
+      const phaseOrder = s.phaseGroup?.phase?.phaseOrder ?? 99;
+      if (!phaseMap[phaseId]) {
+        phaseMap[phaseId] = { name: phaseId, order: phaseOrder, sets: [] };
+        phases.push(phaseMap[phaseId]);
+      }
+      phaseMap[phaseId].sets.push(s);
+    });
+    phases.sort((a, b) => a.order - b.order);
 
-      const e1Id = slot1?.entrant?.id || '';
-      const e2Id = slot2?.entrant?.id || '';
+    phases.forEach(phase => {
+      const total     = phase.sets.length;
+      const done      = phase.sets.filter(s => s.state === 3).length;
+      const pct       = total > 0 ? Math.round((done / total) * 100) : 0;
+      const active    = phase.sets.filter(s => s.state === 2).length;
+      const phaseKey  = container.id + '_' + phase.name;
+      const isOpen    = _phaseOpen[phaseKey] !== false; // open by default
 
-      const seedLabel1 = p1Seed !== '' ? `<span style="font-size:10px;color:var(--text-muted)">#${p1Seed}</span>` : '';
-      const seedLabel2 = p2Seed !== '' ? `<span style="font-size:10px;color:var(--text-muted)">#${p2Seed}</span>` : '';
-      const pronLabel1 = p1Pronouns ? `<span style="font-size:10px;color:var(--text-muted)">(${p1Pronouns})</span>` : '';
-      const pronLabel2 = p2Pronouns ? `<span style="font-size:10px;color:var(--text-muted)">(${p2Pronouns})</span>` : '';
-
-      const card = document.createElement('div');
-      card.className = 'sgg-set-card';
-      card.innerHTML = `
-        <div class="sgg-set-round">${s.fullRoundText || ''}</div>
-        <div class="sgg-set-players">
-          <span>${p1Tag ? '[' + p1Tag + '] ' : ''}${p1Name} ${seedLabel1} ${pronLabel1}</span>
-          <span class="sgg-set-score">${p1Score} – ${p2Score}</span>
-          <span>${p2Tag ? '[' + p2Tag + '] ' : ''}${p2Name} ${seedLabel2} ${pronLabel2}</span>
-        </div>
-        <div class="sgg-set-actions">
-          <button class="btn btn-primary btn-sm sgg-apply-set"
-            data-setid="${s.id}"
-            data-p1tag="${p1Tag}" data-p1name="${p1Name}"
-            data-p2tag="${p2Tag}" data-p2name="${p2Name}"
-            data-p1score="${Math.max(0, p1Score)}" data-p2score="${Math.max(0, p2Score)}"
-            data-p1seed="${p1Seed}" data-p2seed="${p2Seed}"
-            data-p1pronouns="${p1Pronouns}" data-p2pronouns="${p2Pronouns}"
-            data-p1entrantid="${e1Id}" data-p2entrantid="${e2Id}"
-            data-round="${s.fullRoundText || ''}">
-            Appliquer au scoreboard
-          </button>
+      // Bouton de phase
+      const phaseBtn = document.createElement('div');
+      phaseBtn.className = 'sgg-phase-btn' + (isOpen ? ' open' : '');
+      phaseBtn.dataset.key = phaseKey;
+      phaseBtn.innerHTML = `
+        <div class="sgg-phase-btn-fill" style="width:${pct}%"></div>
+        <div class="sgg-phase-btn-content">
+          <span class="sgg-phase-btn-name">${phase.name}</span>
+          <span class="sgg-phase-btn-stats">
+            ${active > 0 ? `<span class="sgg-phase-active-dot"></span>` : ''}
+            ${done}/${total}
+          </span>
+          <span class="sgg-phase-btn-arrow">${isOpen ? '▲' : '▼'}</span>
         </div>
       `;
-      container.appendChild(card);
+
+      // Liste de sets (uniquement non-terminés)
+      const setList = document.createElement('div');
+      setList.className = 'sgg-phase-sets' + (isOpen ? ' open' : '');
+
+      // Grouper TOUS les sets du round (y compris terminés) pour la jauge
+      const roundMap = {};
+      const roundOrder = [];
+      phase.sets.forEach(s => {
+        const key = s.fullRoundText || ('Round ' + s.round);
+        const r   = s.round ?? 0;
+        if (!roundMap[key]) {
+          roundMap[key] = { label: key, round: r, all: [], active: [] };
+          roundOrder.push(roundMap[key]);
+        }
+        roundMap[key].all.push(s);
+        if (s.state !== 3) roundMap[key].active.push(s);
+      });
+      roundOrder.sort((a, b) => {
+        const aW = a.round > 0, bW = b.round > 0;
+        if (aW && !bW) return -1;
+        if (!aW && bW) return 1;
+        return a.round - b.round;
+      });
+
+      if (!roundOrder.length) {
+        setList.innerHTML = '<p class="hint" style="padding:8px 0">Phase terminée ✓</p>';
+      } else {
+        roundOrder.forEach(rg => {
+          const rTotal  = rg.all.length;
+          const rDone   = rg.all.filter(s => s.state === 3).length;
+          const rActive = rg.all.filter(s => s.state === 2).length;
+          const rPct    = rTotal > 0 ? Math.round((rDone / rTotal) * 100) : 0;
+          const roundKey = phaseKey + '_' + rg.label;
+          // Ouvert par défaut seulement si des sets sont en cours ; sinon fermé.
+          // Si l'utilisateur a déjà cliqué, on respecte son choix.
+          const rIsOpen  = _phaseOpen[roundKey] !== undefined ? _phaseOpen[roundKey] : rActive > 0;
+
+          // Bouton de round
+          const roundBtn = document.createElement('div');
+          roundBtn.className = 'sgg-round-btn' + (rIsOpen ? ' open' : '');
+          roundBtn.dataset.key = roundKey;
+          roundBtn.innerHTML = `
+            <div class="sgg-round-btn-fill" style="width:${rPct}%"></div>
+            <div class="sgg-round-btn-content">
+              <span class="sgg-round-btn-name">${rg.label}</span>
+              <span class="sgg-round-btn-stats">
+                ${rActive > 0 ? `<span class="sgg-phase-active-dot"></span>` : ''}
+                ${rDone}/${rTotal}
+              </span>
+              <span class="sgg-round-btn-arrow">${rIsOpen ? '▲' : '▼'}</span>
+            </div>
+          `;
+
+          // Liste des sets du round
+          const roundList = document.createElement('div');
+          roundList.className = 'sgg-round-sets' + (rIsOpen ? ' open' : '');
+
+          if (!rg.active.length) {
+            roundList.innerHTML = '<p class="hint" style="padding:6px 4px">Round terminé ✓</p>';
+          } else {
+            rg.active.forEach(s => {
+              const roundFull = [phase.name, s.fullRoundText].filter(Boolean).join(' — ');
+              roundList.appendChild(buildSetCard(s, roundFull));
+            });
+          }
+
+          roundBtn.addEventListener('click', () => {
+            const open = !roundList.classList.contains('open');
+            _phaseOpen[roundKey] = open;
+            roundList.classList.toggle('open', open);
+            roundBtn.classList.toggle('open', open);
+            roundBtn.querySelector('.sgg-round-btn-arrow').textContent = open ? '▲' : '▼';
+          });
+
+          setList.appendChild(roundBtn);
+          setList.appendChild(roundList);
+        });
+      }
+
+      phaseBtn.addEventListener('click', () => {
+        const open = !setList.classList.contains('open');
+        _phaseOpen[phaseKey] = open;
+        setList.classList.toggle('open', open);
+        phaseBtn.classList.toggle('open', open);
+        phaseBtn.querySelector('.sgg-phase-btn-arrow').textContent = open ? '▲' : '▼';
+      });
+
+      container.appendChild(phaseBtn);
+      container.appendChild(setList);
     });
 
+    // Délégation des clics set
     container.querySelectorAll('.sgg-apply-set').forEach(btn => {
       btn.addEventListener('click', () => {
         applySet(
@@ -256,22 +544,47 @@
           btn.dataset.p1seed !== '' ? parseInt(btn.dataset.p1seed) : null,
           btn.dataset.p2seed !== '' ? parseInt(btn.dataset.p2seed) : null,
           btn.dataset.p1pronouns, btn.dataset.p2pronouns,
-          btn.dataset.setid, btn.dataset.p1entrantid, btn.dataset.p2entrantid
+          btn.dataset.setid, btn.dataset.p1entrantid, btn.dataset.p2entrantid,
+          btn.dataset.p1playerid, btn.dataset.p2playerid
         );
       });
     });
 
+    container.querySelectorAll('.sgg-start-set').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        btn.disabled = true;
+        btn.textContent = '…';
+        try {
+          const res = await fetch(`/api/startgg/set/${btn.dataset.setid}/start`, { method: 'POST' });
+          const data = await res.json();
+          if (data.error) { showStatus('Erreur : ' + data.error, true); btn.disabled = false; btn.textContent = '▶ Démarrer'; return; }
+          showStatus('Set démarré !');
+          await refreshSets();
+        } catch (e) {
+          showStatus('Erreur réseau', true);
+          btn.disabled = false;
+          btn.textContent = '▶ Démarrer';
+        }
+      });
+    });
   }
 
-  function applySet(p1tag, p1name, p2tag, p2name, p1score, p2score, round, p1seed, p2seed, p1pronouns, p2pronouns, setId, p1EntrantId, p2EntrantId) {
+  function applySet(p1tag, p1name, p2tag, p2name, p1score, p2score, round, p1seed, p2seed, p1pronouns, p2pronouns, setId, p1EntrantId, p2EntrantId, p1PlayerId, p2PlayerId) {
+    console.log('[applySet] setId=%s p1EntrantId=%s p2EntrantId=%s', setId, p1EntrantId, p2EntrantId);
     const setIdInput      = document.getElementById('sgg-current-set-id');
     const p1EntrantInput  = document.getElementById('sgg-p1-entrant-id');
     const p2EntrantInput  = document.getElementById('sgg-p2-entrant-id');
     const sendBtn         = document.getElementById('btn-send-startgg');
-    if (setIdInput)     setIdInput.value     = setId || '';
+    if (setIdInput)     setIdInput.value     = setId     || '';
     if (p1EntrantInput) p1EntrantInput.value = p1EntrantId || '';
     if (p2EntrantInput) p2EntrantInput.value = p2EntrantId || '';
-    if (sendBtn) sendBtn.style.display = setId ? '' : 'none';
+    // Stocker aussi directement sur le bouton envoyer pour éviter tout problème de DOM
+    if (sendBtn) {
+      sendBtn.dataset.setid       = setId       || '';
+      sendBtn.dataset.p1entrantid = p1EntrantId || '';
+      sendBtn.dataset.p2entrantid = p2EntrantId || '';
+      sendBtn.style.display = setId ? '' : 'none';
+    }
     const p1TagInput      = document.getElementById('p1-tag');
     const p1NameInput     = document.getElementById('p1-name');
     const p1SeedInput     = document.getElementById('p1-seed');
@@ -295,17 +608,140 @@
       window.setMatchScore(p1score, p2score);
     }
 
-    const stageInput = document.getElementById('stage');
+    // Phase + round → champ "Phase"
+    const stageInput = document.getElementById('stage') || document.getElementById('event-stage');
     if (stageInput && round) { stageInput.value = round; stageInput.dispatchEvent(new Event('input', { bubbles: true })); }
+
+    // Nom de l'event → champ "Événement"
+    if (currentEventName) {
+      const evInput = document.getElementById('event-name');
+      if (evInput) { evInput.value = currentEventName; evInput.dispatchEvent(new Event('input', { bubbles: true })); }
+    }
+
+    // Logo du tournoi → champ center-logo
+    if (tournamentLogo) {
+      const logoInput = document.getElementById('center-logo');
+      if (logoInput) { logoInput.value = tournamentLogo; logoInput.dispatchEvent(new Event('input', { bubbles: true })); }
+    }
 
     p1NameInput?.dispatchEvent(new Event('input', { bubbles: true }));
     showStatus(`Set appliqué : ${p1name} vs ${p2name}`);
+
+    // Récupération des réseaux sociaux depuis start.gg
+    function fillSocials(playerNum, playerId) {
+      if (!playerId) return;
+      fetch(`/api/startgg/player-socials/${playerId}`)
+        .then(r => r.json())
+        .then(socials => {
+          const order = ['twitter', 'twitch', 'discord'];
+          const values = order.map(k => socials[k] ? (k === 'twitter' ? 'Twitter @' + socials[k] : k.charAt(0).toUpperCase() + k.slice(1) + ' ' + socials[k]) : '').filter(Boolean);
+          for (let i = 1; i <= 3; i++) {
+            const inp = document.getElementById(`p${playerNum}-social-${i}`);
+            if (inp) {
+              inp.value = values[i - 1] || '';
+              inp.dispatchEvent(new Event('input', { bubbles: true }));
+            }
+          }
+        })
+        .catch(() => {});
+    }
+    fillSocials(1, p1PlayerId);
+    fillSocials(2, p2PlayerId);
+  }
+
+  // ── Stream Queue ──────────────────────────────────────────────────────────────
+
+  async function fetchStreamQueue() {
+    if (!currentTournamentSlug) return;
+    try {
+      const res  = await fetch(`/api/startgg/tournament/${encodeURIComponent(currentTournamentSlug)}/stream-queue`);
+      const data = await res.json();
+      if (data.error) return;
+      renderStreamQueue(Array.isArray(data) ? data : []);
+    } catch (_) {}
+  }
+
+  function renderStreamQueue(queue) {
+    ['sgg-stream-queue', 'match-sgg-stream-queue'].forEach(id => {
+      const container = document.getElementById(id);
+      if (!container) return;
+      container.innerHTML = '';
+      // Filtrer les streams qui ont au moins un set non-terminé
+      const active = queue.filter(sq => sq.sets && sq.sets.some(s => s.state !== 3));
+      container.style.display = active.length ? '' : 'none';
+      if (!active.length) return;
+
+      active.forEach(sq => {
+        const streamName = sq.stream?.streamName || 'Stream';
+        const streamSrc  = (sq.stream?.streamSource || '').toLowerCase();
+        const icon = streamSrc === 'twitch' ? '🟣' : streamSrc === 'youtube' ? '🔴' : '🎥';
+
+        const block = document.createElement('div');
+        block.className = 'sgg-stream-block';
+        block.innerHTML = `<div class="sgg-stream-header">${icon} ${streamName}</div>`;
+
+        const cardList = document.createElement('div');
+        cardList.className = 'sgg-stream-cards';
+
+        sq.sets.filter(s => s.state !== 3).forEach((s, idx) => {
+          const phaseName = s.phaseGroup?.phase?.name || '';
+          const roundFull = [phaseName, s.fullRoundText].filter(Boolean).join(' — ');
+          const card = buildSetCard(s, roundFull);
+          // Badge numéro de passage (propre à la stream queue)
+          const header = card.querySelector('.sgg-set-header') || card.querySelector('.sgg-set-players');
+          if (header) {
+            const badge = document.createElement('span');
+            badge.className = 'sgg-stream-order';
+            badge.textContent = idx + 1;
+            header.prepend(badge);
+          }
+          cardList.appendChild(card);
+        });
+
+        block.appendChild(cardList);
+        container.appendChild(block);
+      });
+    });
+  }
+
+  // ── Auto-refresh ──────────────────────────────────────────────────────────────
+
+  function updateCountdown(sec) {
+    ['sgg-refresh-countdown', 'match-sgg-refresh-countdown'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = sec > 0 ? `↺ ${sec}s` : '';
+    });
+  }
+
+  async function doRefresh() {
+    if (!currentEventId) return;
+    await Promise.all([
+      fetchSets(currentEventId),
+      fetchStreamQueue(),
+    ]);
+  }
+
+  function startAutoRefresh() {
+    if (_refreshTimer)   clearInterval(_refreshTimer);
+    if (_countdownTimer) clearInterval(_countdownTimer);
+    _countdownSec = REFRESH_INTERVAL;
+    updateCountdown(_countdownSec);
+    _countdownTimer = setInterval(() => {
+      _countdownSec--;
+      updateCountdown(_countdownSec);
+      if (_countdownSec <= 0) _countdownSec = REFRESH_INTERVAL;
+    }, 1000);
+    _refreshTimer = setInterval(async () => {
+      _countdownSec = REFRESH_INTERVAL;
+      await doRefresh();
+    }, REFRESH_INTERVAL * 1000);
   }
 
   async function refreshSets() {
     if (!currentEventId) return;
-    showStatus('Actualisation des sets…');
-    await fetchSets(currentEventId);
+    showStatus('Actualisation…');
+    _countdownSec = REFRESH_INTERVAL;
+    await doRefresh();
     showStatus('Sets actualisés');
   }
 
