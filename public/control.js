@@ -369,15 +369,71 @@ document.querySelectorAll('.format-btn').forEach(btn => {
 
 
 document.getElementById('btn-apply').addEventListener('click', () => {
+  cancelAutoApply();
   emitState(buildStateFromForm());
   setStatus('Appliqué !');
 });
 
+/* ── Auto-apply après 10 s d'inactivité ──────────────────────── */
+let _autoApplyTimer    = null;
+let _autoApplyInterval = null;
+const BTN_APPLY        = document.getElementById('btn-apply');
+const AUTO_APPLY_DELAY = 10; // secondes
+
+function cancelAutoApply() {
+  clearTimeout(_autoApplyTimer);
+  clearInterval(_autoApplyInterval);
+  _autoApplyTimer = _autoApplyInterval = null;
+  if (BTN_APPLY) BTN_APPLY.textContent = 'Appliquer';
+}
+
+function scheduleAutoApply() {
+  cancelAutoApply();
+  let remaining = AUTO_APPLY_DELAY;
+  if (BTN_APPLY) BTN_APPLY.textContent = `Appliquer (auto ${remaining}s)`;
+  _autoApplyInterval = setInterval(() => {
+    remaining--;
+    if (BTN_APPLY) BTN_APPLY.textContent = remaining > 0
+      ? `Appliquer (auto ${remaining}s)`
+      : 'Appliquer';
+  }, 1000);
+  _autoApplyTimer = setTimeout(() => {
+    clearInterval(_autoApplyInterval);
+    _autoApplyInterval = null;
+    if (BTN_APPLY) BTN_APPLY.textContent = 'Appliquer';
+    emitState(buildStateFromForm());
+    setStatus('Appliqué automatiquement');
+  }, AUTO_APPLY_DELAY * 1000);
+}
+
+// Écoute tous les inputs/selects de la section scoreboard
+document.querySelector('.scoreboard-section')?.addEventListener('input',  scheduleAutoApply);
+document.querySelector('.scoreboard-section')?.addEventListener('change', scheduleAutoApply);
+
+// Exposé pour startgg-ui.js : met à jour le score dans state + l'affichage
+window.setMatchScore = function(p1score, p2score) {
+  state.player1 = { ...state.player1, score: p1score };
+  state.player2 = { ...state.player2, score: p2score };
+  const d1 = document.getElementById('p1-score-display');
+  const d2 = document.getElementById('p2-score-display');
+  if (d1) d1.textContent = p1score;
+  if (d2) d2.textContent = p2score;
+};
+
 document.getElementById('btn-send-startgg').addEventListener('click', async () => {
-  const setId      = document.getElementById('sgg-current-set-id')?.value;
+  const setId       = document.getElementById('sgg-current-set-id')?.value;
   const p1EntrantId = document.getElementById('sgg-p1-entrant-id')?.value;
   const p2EntrantId = document.getElementById('sgg-p2-entrant-id')?.value;
   if (!setId) return;
+
+  // Lire les scores depuis l'affichage (toujours à jour) plutôt que state
+  const p1Score = parseInt(document.getElementById('p1-score-display')?.textContent) || 0;
+  const p2Score = parseInt(document.getElementById('p2-score-display')?.textContent) || 0;
+
+  if (p1Score === p2Score) {
+    setStatus('Scores égaux : impossible de déterminer le vainqueur', 'error');
+    return;
+  }
 
   const btn = document.getElementById('btn-send-startgg');
   btn.disabled = true;
@@ -390,8 +446,8 @@ document.getElementById('btn-send-startgg').addEventListener('click', async () =
       body: JSON.stringify({
         p1EntrantId,
         p2EntrantId,
-        p1Score: state.player1.score,
-        p2Score: state.player2.score,
+        p1Score,
+        p2Score,
         p1Character: state.player1.character || null,
         p2Character: state.player2.character || null,
       }),
@@ -402,7 +458,13 @@ document.getElementById('btn-send-startgg').addEventListener('click', async () =
     } else {
       setStatus('Score envoyé sur start.gg !');
       btn.textContent = '✓ Score envoyé';
-      setTimeout(() => { btn.textContent = '▲ Envoyer le score sur start.gg'; btn.disabled = false; }, 3000);
+      // Masquer le bouton et vider les IDs : le set est terminé
+      document.getElementById('sgg-current-set-id').value  = '';
+      document.getElementById('sgg-p1-entrant-id').value   = '';
+      document.getElementById('sgg-p2-entrant-id').value   = '';
+      btn.style.display = 'none';
+      // Actualiser la liste des sets dans les deux onglets
+      document.getElementById('match-sgg-refresh-sets')?.click();
       return;
     }
   } catch (e) {

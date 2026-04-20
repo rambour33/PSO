@@ -184,7 +184,14 @@
   }
 
   function renderSets(sets) {
-    const container = document.getElementById('sgg-sets-list');
+    renderSetsInContainer(sets, document.getElementById('sgg-sets-list'));
+    renderSetsInContainer(sets, document.getElementById('match-sgg-sets-list'));
+    const matchSection = document.getElementById('match-sgg-sets-section');
+    if (matchSection) matchSection.style.display = sets.length ? '' : 'none';
+  }
+
+  function renderSetsInContainer(sets, container) {
+    if (!container) return;
     container.innerHTML = '';
     if (!sets.length) {
       container.innerHTML = '<p class="hint">Aucun set en cours.</p>';
@@ -284,10 +291,9 @@
     if (p2SeedInput) p2SeedInput.value = p2seed != null ? p2seed : '';
     if (p2PronounsInput) p2PronounsInput.value = p2pronouns || '';
 
-    const score1Input = document.getElementById('p1-score');
-    const score2Input = document.getElementById('p2-score');
-    if (score1Input) { score1Input.value = p1score; score1Input.dispatchEvent(new Event('input', { bubbles: true })); }
-    if (score2Input) { score2Input.value = p2score; score2Input.dispatchEvent(new Event('input', { bubbles: true })); }
+    if (typeof window.setMatchScore === 'function') {
+      window.setMatchScore(p1score, p2score);
+    }
 
     const stageInput = document.getElementById('stage');
     if (stageInput && round) { stageInput.value = round; stageInput.dispatchEvent(new Event('input', { bubbles: true })); }
@@ -296,12 +302,15 @@
     showStatus(`Set appliqué : ${p1name} vs ${p2name}`);
   }
 
-  document.getElementById('sgg-refresh-sets').addEventListener('click', async () => {
+  async function refreshSets() {
     if (!currentEventId) return;
     showStatus('Actualisation des sets…');
     await fetchSets(currentEventId);
     showStatus('Sets actualisés');
-  });
+  }
+
+  document.getElementById('sgg-refresh-sets').addEventListener('click', refreshSets);
+  document.getElementById('match-sgg-refresh-sets')?.addEventListener('click', refreshSets);
 
   // ── Autocomplete ──────────────────────────────────────────────────────────────
 
