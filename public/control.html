@@ -357,6 +357,7 @@
           <svg style="width:16px;height:16px;color:#17B978;flex-shrink:0" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>
           Sets start.gg
         </h2>
+        <span style="font-size:11px;color:var(--text-muted,#666);font-weight:400">La stream queue est gérée sur start.gg</span>
         <div style="display:flex;align-items:center;gap:8px">
           <span id="match-sgg-refresh-countdown" class="hint"></span>
           <button class="btn btn-outline btn-sm" id="match-sgg-refresh-sets" title="Actualiser les sets">↺ Actualiser</button>
@@ -2859,7 +2860,10 @@
     <!-- Sets en cours -->
     <section class="section" id="sgg-sets-section" style="display:none">
       <div class="section-header">
-        <h2>Sets en cours</h2>
+        <div>
+          <h2 style="margin:0">Sets en cours</h2>
+          <span style="font-size:11px;color:var(--text-muted,#666)">La stream queue est gérée sur start.gg</span>
+        </div>
         <div style="display:flex;align-items:center;gap:8px">
           <span id="sgg-refresh-countdown" class="hint"></span>
           <button class="btn btn-outline btn-sm" id="sgg-refresh-sets">Actualiser</button>

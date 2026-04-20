@@ -1947,11 +1947,14 @@ app.get('/api/startgg/event/:id/entrants', async (req, res) => {
 
 app.get('/api/startgg/event/:id/sets', async (req, res) => {
   try {
-    const data = await startggQuery(`
-      query EventSets($eventId: ID!) {
+    const eventId = parseInt(req.params.id);
+
+    // Requête 1 : sets actifs/en attente — données complètes, limite basse pour rester sous 1000 objets
+    const dataActive = await startggQuery(`
+      query EventSetsActive($eventId: ID!) {
         event(id: $eventId) {
           id name
-          sets(filters: { state: [1, 2, 3, 6] }, perPage: 100, sortType: ROUND) {
+          sets(filters: { state: [1, 2, 6] }, perPage: 40, sortType: ROUND) {
             nodes {
               id fullRoundText round state
               phaseGroup { displayIdentifier phase { name phaseOrder } }
@@ -1963,9 +1966,28 @@ app.get('/api/startgg/event/:id/sets', async (req, res) => {
           }
         }
       }
-    `, { eventId: parseInt(req.params.id) });
-    if (!data.event) return res.status(404).json({ error: 'Évènement introuvable' });
-    res.json(data.event);
+    `, { eventId });
+    if (!dataActive.event) return res.status(404).json({ error: 'Évènement introuvable' });
+
+    // Requête 2 : sets terminés — données minimales pour la jauge de progression
+    const dataDone = await startggQuery(`
+      query EventSetsDone($eventId: ID!) {
+        event(id: $eventId) {
+          sets(filters: { state: [3] }, perPage: 100, sortType: ROUND) {
+            nodes {
+              id fullRoundText round state
+              phaseGroup { phase { name phaseOrder } }
+            }
+          }
+        }
+      }
+    `, { eventId });
+
+    const activeNodes = dataActive.event.sets?.nodes || [];
+    const doneNodes   = dataDone?.event?.sets?.nodes || [];
+    const allNodes    = [...activeNodes, ...doneNodes];
+
+    res.json({ ...dataActive.event, sets: { nodes: allNodes } });
   } catch (e) { res.status(400).json({ error: e.message }); }
 });
 

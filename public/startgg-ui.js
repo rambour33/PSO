@@ -2,9 +2,9 @@
 
 (function () {
   // State
-  let currentEventId      = null;
+  let currentEventId        = null;
   let currentTournamentSlug = null;
-  let allEntrants         = [];
+  let allEntrants           = [];
   let currentPage         = 1;
   const PER_PAGE          = 100;
   let tournamentName      = '';
