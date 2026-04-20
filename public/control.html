@@ -80,6 +80,7 @@
         </div>
       </div>
       <button id="btn-vs-trigger" class="btn btn-primary" title="Déclenche l'animation d'entrée sur la VS Screen">⚔ VS Anim</button>
+      <button id="btn-vs-hide" class="btn btn-outline" title="Masque la VS Screen">✕ VS</button>
       <button id="btn-visibility" class="btn btn-primary">Masquer</button>
       <button id="btn-server-reload" class="btn btn-outline" title="Redémarre le serveur Node.js" style="border-color:#e05;color:#e05">↺ Serveur</button>
       <button id="btn-mobile-mode" class="btn btn-outline" title="Mode mobile/tablette">📱</button>
@@ -91,7 +92,6 @@
     <button class="tab-btn active" data-tab="match">Match</button>
     <button class="tab-btn" data-tab="themes">Thèmes</button>
     <button class="tab-btn" data-tab="custom">Customisation</button>
-    <button class="tab-btn" data-tab="veto">Veto & Ruleset</button>
     <button class="tab-btn" data-tab="chars" style="display:none">Personnages</button>
     <button class="tab-btn" data-tab="connexions">Connexions</button>
     <button class="tab-btn" data-tab="startgg">start.gg</button>
@@ -110,7 +110,6 @@
       <option value="match">Match</option>
       <option value="themes">Thèmes</option>
       <option value="custom">Customisation</option>
-      <option value="veto">Veto &amp; Ruleset</option>
       <option value="connexions">Connexions</option>
       <option value="startgg">start.gg</option>
       <option value="overlays">Overlays</option>
@@ -127,6 +126,18 @@
   <!-- TAB : MATCH                                                 -->
   <!-- ═══════════════════════════════════════════════════════════ -->
   <div class="tab-content active" id="tab-match">
+
+    <!-- SUB-NAV MATCH -->
+    <div class="match-subnav">
+      <button class="match-subnav-btn active" data-panel="match-panel-scoreboard">Scoreboard</button>
+      <button class="match-subnav-btn" data-panel="match-panel-casters">Casters</button>
+      <button class="match-subnav-btn" data-panel="match-panel-veto">Veto</button>
+      <button class="match-subnav-btn" data-panel="match-panel-ruleset">Ruleset</button>
+      <button class="match-subnav-btn" data-panel="match-panel-vsscreen">VS Screen</button>
+    </div>
+
+    <!-- PANEL : SCOREBOARD -->
+    <div class="match-panel active" id="match-panel-scoreboard">
 
     <!-- SCOREBOARD SECTION -->
     <section class="section scoreboard-section">
@@ -312,7 +323,398 @@
       </div>
     </section>
 
-    <!-- CONNEXION START.GG (masquée quand les participants sont chargés) -->
+    </div><!-- /match-panel-scoreboard -->
+
+    <!-- PANEL : CASTERS -->
+    <div class="match-panel" id="match-panel-casters">
+
+    <!-- CASTERS SECTION -->
+    <section class="section casters-section">
+      <div class="section-header">
+        <h2>Casters</h2>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <a href="/casters" target="_blank" class="btn btn-outline btn-sm">OBS ↗</a>
+          <button id="btn-copy-casters" class="btn-copy" title="Copier URL casters">📋</button>
+          <button id="btn-casters-visibility" class="btn btn-primary btn-sm">Afficher</button>
+        </div>
+      </div>
+      <div class="casters-grid">
+        <div class="caster-form-card">
+          <h3>Caster 1</h3>
+          <div class="form-group"><label>Nom</label><input type="text" id="c1-name" placeholder="Pseudo du caster" /></div>
+          <div class="form-group"><label>Twitter / X</label><input type="text" id="c1-twitter" placeholder="@handle" /></div>
+          <div class="form-group"><label>Twitch</label><input type="text" id="c1-twitch" placeholder="/channel" /></div>
+          <div class="form-group"><label>YouTube</label><input type="text" id="c1-youtube" placeholder="@channel" /></div>
+        </div>
+        <div class="caster-form-card">
+          <h3>Caster 2</h3>
+          <div class="form-group"><label>Nom</label><input type="text" id="c2-name" placeholder="Pseudo du caster" /></div>
+          <div class="form-group"><label>Twitter / X</label><input type="text" id="c2-twitter" placeholder="@handle" /></div>
+          <div class="form-group"><label>Twitch</label><input type="text" id="c2-twitch" placeholder="/channel" /></div>
+          <div class="form-group"><label>YouTube</label><input type="text" id="c2-youtube" placeholder="@channel" /></div>
+        </div>
+      </div>
+      <div class="casters-footer">
+        <button id="btn-apply-casters" class="btn btn-primary" style="align-self:flex-end">Appliquer</button>
+      </div>
+    </section>
+
+    </div><!-- /match-panel-casters -->
+
+    <!-- PANEL : VETO -->
+    <div class="match-panel" id="match-panel-veto">
+    <section class="section veto-section">
+      <div class="section-header">
+        <div class="veto-title-row">
+          <h2>Stage Veto</h2>
+          <span class="badge badge-gold">Ruleset custom</span>
+        </div>
+        <div class="veto-header-actions">
+          <a href="/stageveto" target="_blank" class="btn btn-outline btn-sm">OBS ↗</a>
+          <button id="veto-btn-visibility" class="btn btn-primary btn-sm">Masquer veto</button>
+          <button id="veto-btn-next-game" class="btn btn-outline btn-sm">Jeu suivant ▶</button>
+          <button id="veto-btn-reset" class="btn btn-danger btn-sm">Reset veto</button>
+          <button class="btn-copy" id="btn-copy-veto" title="Copier URL veto">📋</button>
+        </div>
+      </div>
+      <div class="veto-step-bar">
+        <div id="veto-action-badge" class="csb-action ban">BAN</div>
+        <span class="csb-sep">·</span>
+        <span id="veto-step-text" class="csb-team">Chargement...</span>
+      </div>
+      <div class="veto-body">
+        <div class="veto-main-col">
+          <div id="veto-stages-grid" class="veto-stages-grid"></div>
+          <div id="veto-seq-track" class="veto-sequence-track"></div>
+        </div>
+        <div class="veto-side-col">
+          <div class="ban-gen-block">
+            <div class="ban-gen-header"><span>Shifumi</span></div>
+            <button id="btn-shifumi" class="btn btn-outline btn-full">🎲 Lancer le shifumi</button>
+            <span id="ban-first-result" class="ban-first-result" style="text-align:left;font-style:normal;font-size:12px;min-height:16px;display:block"></span>
+          </div>
+          <div class="ban-gen-block">
+            <div class="ban-gen-header"><span>Premier bannisseur</span></div>
+            <div class="ban-first-row">
+              <button class="ban-first-btn active" data-first="1" id="ban-first-p1">J1</button>
+              <button class="ban-first-btn" data-first="2" id="ban-first-p2">J2</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    </div><!-- /match-panel-veto -->
+
+    <!-- PANEL : RULESET -->
+    <div class="match-panel" id="match-panel-ruleset">
+    <section class="section">
+      <div class="section-header"><h2>Ruleset &amp; Banlist</h2></div>
+      <div class="ruleset-card">
+        <div id="ruleset-stages-list" class="ruleset-stages-list" style="grid-column:1/-1"></div>
+        <div class="add-stage-form" style="grid-column:1/-1">
+          <h4>Ajouter un stage</h4>
+          <div class="stage-type-row">
+            <label><input type="radio" name="stage-type" value="starter" checked /> Starter</label>
+            <label><input type="radio" name="stage-type" value="counterpick" /> Counterpick</label>
+          </div>
+          <button id="btn-open-stage-picker" class="btn btn-outline btn-full">Choisir un stage…</button>
+        </div>
+        <div class="ban-builder-block">
+          <div class="ban-builder-title">Séquence jeu 1<span class="ban-builder-count" id="ban-builder-g1-count"></span></div>
+          <div class="ban-seq-steps" id="ban-seq-g1"></div>
+          <div class="ban-seq-add-row">
+            <button class="ban-seq-btn p1" data-builder="g1" data-player="1">+ Gagnant</button>
+            <button class="ban-seq-btn p2" data-builder="g1" data-player="2">+ Perdant</button>
+            <button class="ban-seq-btn pick" data-builder="g1">+ Map sélectionnée</button>
+          </div>
+          <input type="hidden" id="ban-pattern-g1" value="2-2" />
+        </div>
+        <div class="ban-builder-block">
+          <div class="ban-builder-title">Séquence jeux suivants<span class="ban-builder-count" id="ban-builder-g2-count"></span></div>
+          <div class="ban-seq-steps" id="ban-seq-g2"></div>
+          <div class="ban-seq-add-row">
+            <button class="ban-seq-btn p1" data-builder="g2" data-player="1">+ Gagnant</button>
+            <button class="ban-seq-btn p2" data-builder="g2" data-player="2">+ Perdant</button>
+            <button class="ban-seq-btn pick" data-builder="g2">+ Map sélectionnée</button>
+          </div>
+          <input type="hidden" id="ban-pattern-g2" value="1" />
+        </div>
+        <p class="hint" id="ban-pattern-preview" style="grid-column:1/-1;margin:0"></p>
+        <label class="checkbox-row" style="grid-column:1/-1">
+          <input type="checkbox" id="stage-clause" />
+          <span>Stage clause <span style="font-size:10px;color:var(--text-muted)">(pas de répétition)</span></span>
+        </label>
+        <button id="btn-save-ruleset" class="btn btn-primary btn-full" style="grid-column:1/-1">Appliquer le ruleset</button>
+        <div style="grid-column:1/-1;border-top:1px solid var(--border);padding-top:12px">
+          <h4 style="font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px">Enregistrer</h4>
+          <div style="display:flex;gap:6px">
+            <input type="text" id="ruleset-save-name" placeholder="Nom du ruleset…" style="flex:1" />
+            <button id="btn-ruleset-save" class="btn btn-primary btn-sm">Enregistrer</button>
+          </div>
+        </div>
+        <div style="grid-column:1/-1">
+          <h4 style="font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px">Rulesets sauvegardés</h4>
+          <div id="saved-rulesets-list"></div>
+        </div>
+      </div>
+    </section>
+    </div><!-- /match-panel-ruleset -->
+
+    <!-- PANEL : VS SCREEN -->
+    <div class="match-panel" id="match-panel-vsscreen">
+      <section class="section">
+        <div class="section-header">
+          <h2>VS Screen</h2>
+          <p class="hint" style="margin:0">Utilisez ⚔ VS Anim dans la barre en haut pour déclencher</p>
+        </div>
+
+        <div class="vs-obs-guide">
+          <div class="vs-obs-guide-title">📺 Intégration OBS</div>
+          <ol class="vs-obs-guide-steps">
+            <li>Dans OBS, ajouter une source <strong>Navigateur</strong></li>
+            <li>URL : <code>http://localhost:3002/vs-screen</code> <button class="btn-copy-inline" data-url="http://localhost:3002/vs-screen">📋</button></li>
+            <li>Résolution : <strong>1920 × 1080</strong>, fond transparent activé</li>
+            <li>Utiliser le bouton <em>Déclencher</em> ci-dessus pour lancer l'animation</li>
+            <li>Le bouton <em>Masquer</em> ou la minuterie auto-masquage cachent la VS screen</li>
+          </ol>
+        </div>
+
+        <div class="vs-subtab-nav">
+          <button class="vs-subtab-btn active" data-vspanel="vs-panel-bg">Fond</button>
+          <button class="vs-subtab-btn" data-vspanel="vs-panel-effects">Effets</button>
+          <button class="vs-subtab-btn" data-vspanel="vs-panel-particles">Particules</button>
+          <button class="vs-subtab-btn" data-vspanel="vs-panel-anim">Animation</button>
+        </div>
+
+        <!-- ── Panel : Fond ── -->
+        <div class="vs-subtab-panel active" id="vs-panel-bg">
+          <div class="custom-grid">
+            <div class="custom-card">
+              <h3>Image de fond</h3>
+              <p class="hint" style="margin-bottom:10px">PNG, JPG ou WebP — 1920×1080.</p>
+              <div style="display:flex;flex-direction:column;gap:10px">
+                <label class="btn btn-outline" style="cursor:pointer;text-align:center">
+                  Choisir une image
+                  <input type="file" id="vs-bg-file" accept="image/png,image/jpeg,image/webp" style="display:none" />
+                </label>
+                <div id="vs-bg-preview-wrap" style="display:none;position:relative">
+                  <img id="vs-bg-preview" style="width:100%;border-radius:6px;border:1px solid var(--border);display:block" alt="aperçu" />
+                  <button id="btn-vs-bg-clear" class="btn btn-sm" style="margin-top:6px;width:100%;background:rgba(220,50,50,0.15);color:#e05050;border:1px solid rgba(220,50,50,0.3)">Supprimer</button>
+                </div>
+                <p id="vs-bg-status" class="hint" style="text-align:center"></p>
+              </div>
+            </div>
+            <div class="custom-card">
+              <h3>Filtres du fond de scène</h3>
+              <div class="form-group">
+                <label>Flou <span id="vs-bg-blur-val" class="hint">18px</span></label>
+                <input type="range" id="vs-bg-blur" min="0" max="60" value="18" />
+              </div>
+              <div class="form-group">
+                <label>Luminosité <span id="vs-bg-brightness-val" class="hint">30%</span></label>
+                <input type="range" id="vs-bg-brightness" min="0" max="120" value="30" />
+              </div>
+              <div class="form-group">
+                <label>Saturation <span id="vs-bg-saturation-val" class="hint">140%</span></label>
+                <input type="range" id="vs-bg-saturation" min="0" max="300" value="140" />
+              </div>
+              <div class="form-group">
+                <label>Opacité fond <span id="vs-bg-opacity-val" class="hint">100%</span></label>
+                <input type="range" id="vs-bg-opacity" min="0" max="100" value="100" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Panel : Effets ── -->
+        <div class="vs-subtab-panel" id="vs-panel-effects">
+          <div class="custom-grid">
+            <div class="custom-card">
+              <h3>Vignette</h3>
+              <div class="form-group">
+                <label>Intensité <span id="vs-vignette-val" class="hint">100%</span></label>
+                <input type="range" id="vs-vignette-intensity" min="0" max="100" value="100" />
+              </div>
+            </div>
+            <div class="custom-card">
+              <h3>Scanlines</h3>
+              <div class="form-group">
+                <label class="checkbox-row">
+                  <input type="checkbox" id="vs-scanlines-visible" checked />
+                  <span>Visibles</span>
+                </label>
+              </div>
+              <div class="form-group">
+                <label>Opacité <span id="vs-scanlines-opacity-val" class="hint">8%</span></label>
+                <input type="range" id="vs-scanlines-opacity" min="0" max="50" value="8" />
+              </div>
+            </div>
+            <div class="custom-card">
+              <h3>Teinte de couleur</h3>
+              <div class="form-group">
+                <label class="checkbox-row">
+                  <input type="checkbox" id="vs-tint-visible" />
+                  <span>Activer la teinte</span>
+                </label>
+              </div>
+              <div class="form-group">
+                <label>Couleur</label>
+                <input type="color" id="vs-tint-color" value="#000000" />
+              </div>
+              <div class="form-group">
+                <label>Opacité <span id="vs-tint-opacity-val" class="hint">0%</span></label>
+                <input type="range" id="vs-tint-opacity" min="0" max="80" value="0" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Panel : Particules ── -->
+        <div class="vs-subtab-panel" id="vs-panel-particles">
+          <div class="custom-grid">
+            <div class="custom-card">
+              <h3>Override Joueur 1</h3>
+              <div class="form-group">
+                <select id="vs-p1-particle" class="select-input" style="width:100%">
+                  <option value="auto">Auto (selon personnage)</option>
+                  <option value="none">Aucune</option>
+                  <optgroup label="Atmosphère">
+                    <option value="snow">Neige</option>
+                    <option value="rain">Pluie</option>
+                    <option value="leaf">Feuilles</option>
+                    <option value="sand">Sable</option>
+                    <option value="smoke">Fumée</option>
+                    <option value="petal">Pétales</option>
+                    <option value="bubble">Bulles</option>
+                  </optgroup>
+                  <optgroup label="Énergie">
+                    <option value="fire">Feu</option>
+                    <option value="flame">Flammes</option>
+                    <option value="bolt">Éclairs</option>
+                    <option value="sparkle">Étincelles</option>
+                    <option value="aura">Aura</option>
+                    <option value="pixel">Pixels</option>
+                    <option value="data">Data</option>
+                  </optgroup>
+                  <optgroup label="Objets">
+                    <option value="star">Étoiles</option>
+                    <option value="heart">Cœurs</option>
+                    <option value="ghost">Fantômes</option>
+                    <option value="note">Notes</option>
+                    <option value="coin">Pièces</option>
+                    <option value="ring">Anneaux</option>
+                    <option value="feather">Plumes</option>
+                    <option value="rune">Runes</option>
+                  </optgroup>
+                </select>
+              </div>
+            </div>
+            <div class="custom-card">
+              <h3>Override Joueur 2</h3>
+              <div class="form-group">
+                <select id="vs-p2-particle" class="select-input" style="width:100%">
+                  <option value="auto">Auto (selon personnage)</option>
+                  <option value="none">Aucune</option>
+                  <optgroup label="Atmosphère">
+                    <option value="snow">Neige</option>
+                    <option value="rain">Pluie</option>
+                    <option value="leaf">Feuilles</option>
+                    <option value="sand">Sable</option>
+                    <option value="smoke">Fumée</option>
+                    <option value="petal">Pétales</option>
+                    <option value="bubble">Bulles</option>
+                  </optgroup>
+                  <optgroup label="Énergie">
+                    <option value="fire">Feu</option>
+                    <option value="flame">Flammes</option>
+                    <option value="bolt">Éclairs</option>
+                    <option value="sparkle">Étincelles</option>
+                    <option value="aura">Aura</option>
+                    <option value="pixel">Pixels</option>
+                    <option value="data">Data</option>
+                  </optgroup>
+                  <optgroup label="Objets">
+                    <option value="star">Étoiles</option>
+                    <option value="heart">Cœurs</option>
+                    <option value="ghost">Fantômes</option>
+                    <option value="note">Notes</option>
+                    <option value="coin">Pièces</option>
+                    <option value="ring">Anneaux</option>
+                    <option value="feather">Plumes</option>
+                    <option value="rune">Runes</option>
+                  </optgroup>
+                </select>
+              </div>
+            </div>
+            <div class="custom-card" style="grid-column:1/-1">
+              <h3>Global</h3>
+              <div class="form-group">
+                <label>Densité <span id="vs-particle-density-val" class="hint">100%</span></label>
+                <input type="range" id="vs-particle-density" min="0" max="200" value="100" />
+              </div>
+              <div class="form-group">
+                <label>Opacité <span id="vs-particle-opacity-val" class="hint">100%</span></label>
+                <input type="range" id="vs-particle-opacity" min="0" max="100" value="100" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Panel : Animation ── -->
+        <div class="vs-subtab-panel" id="vs-panel-anim">
+          <div class="custom-grid">
+            <div class="custom-card">
+              <h3>Entrée</h3>
+              <div class="form-group">
+                <label>Type d'animation</label>
+                <div class="vs-anim-grid" id="vs-entry-grid">
+                  <button class="vs-anim-btn active" data-entry="slide">↔ Glissement</button>
+                  <button class="vs-anim-btn" data-entry="zoom">⊕ Zoom</button>
+                  <button class="vs-anim-btn" data-entry="fade">◎ Fondu</button>
+                  <button class="vs-anim-btn" data-entry="drop">↓ Chute</button>
+                  <button class="vs-anim-btn" data-entry="bounce">⇌ Rebond</button>
+                  <button class="vs-anim-btn" data-entry="split">⇔ Split</button>
+                </div>
+              </div>
+              <div class="form-group">
+                <label>Durée <span id="vs-anim-duration-val" class="hint">700ms</span></label>
+                <input type="range" id="vs-anim-duration" min="200" max="2000" step="50" value="700" />
+              </div>
+              <div class="form-group">
+                <label class="checkbox-row">
+                  <input type="checkbox" id="vs-flash-enabled" checked />
+                  <span>Flash d'entrée</span>
+                </label>
+              </div>
+            </div>
+            <div class="custom-card">
+              <h3>Sortie</h3>
+              <div class="form-group">
+                <label>Type de sortie</label>
+                <div class="vs-anim-grid" id="vs-exit-grid">
+                  <button class="vs-anim-btn active" data-exit="fade">◎ Fondu</button>
+                  <button class="vs-anim-btn" data-exit="slide">↔ Glissement</button>
+                  <button class="vs-anim-btn" data-exit="zoom-out">⊖ Zoom arrière</button>
+                </div>
+              </div>
+            </div>
+            <div class="custom-card" style="grid-column:1/-1">
+              <h3>Minuterie auto-masquage</h3>
+              <p class="hint" style="margin-bottom:10px">Masque automatiquement la VS screen après l'animation d'entrée. <strong>0 = désactivé.</strong></p>
+              <div style="display:flex;align-items:center;gap:12px">
+                <input type="range" id="vs-autohide-range" min="0" max="30" value="0" style="flex:1" />
+                <input type="number" id="vs-autohide-num" min="0" max="30" value="0" style="width:60px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:13px;padding:4px 6px;text-align:center" />
+                <span class="hint">sec</span>
+              </div>
+              <p id="vs-autohide-preview" class="hint" style="margin-top:6px;text-align:center"></p>
+            </div>
+          </div>
+        </div>
+
+      </section>
+    </div><!-- /match-panel-vsscreen -->
+
+    <!-- CONNEXION START.GG (toujours visible, masquée quand les participants sont chargés) -->
     <section class="section" id="match-sgg-connect-section">
       <div class="section-header">
         <h2 style="display:flex;align-items:center;gap:8px">
@@ -320,8 +722,6 @@
           Connexion start.gg
         </h2>
       </div>
-
-      <!-- Clé API -->
       <div class="form-group">
         <label>Clé API personnelle</label>
         <div class="name-row">
@@ -330,8 +730,6 @@
         </div>
         <p class="hint" id="match-sgg-key-status">Chargement…</p>
       </div>
-
-      <!-- Recherche tournoi -->
       <div class="form-group">
         <label>Slug ou URL start.gg</label>
         <div class="name-row">
@@ -367,37 +765,6 @@
       <div id="match-sgg-sets-list" class="sgg-sets-list"></div>
     </section>
 
-    <!-- CASTERS SECTION -->
-    <section class="section casters-section">
-      <div class="section-header">
-        <h2>Casters</h2>
-        <div style="display:flex;gap:8px;align-items:center;">
-          <a href="/casters" target="_blank" class="btn btn-outline btn-sm">OBS ↗</a>
-          <button id="btn-copy-casters" class="btn-copy" title="Copier URL casters">📋</button>
-          <button id="btn-casters-visibility" class="btn btn-primary btn-sm">Afficher</button>
-        </div>
-      </div>
-      <div class="casters-grid">
-        <div class="caster-form-card">
-          <h3>Caster 1</h3>
-          <div class="form-group"><label>Nom</label><input type="text" id="c1-name" placeholder="Pseudo du caster" /></div>
-          <div class="form-group"><label>Twitter / X</label><input type="text" id="c1-twitter" placeholder="@handle" /></div>
-          <div class="form-group"><label>Twitch</label><input type="text" id="c1-twitch" placeholder="/channel" /></div>
-          <div class="form-group"><label>YouTube</label><input type="text" id="c1-youtube" placeholder="@channel" /></div>
-        </div>
-        <div class="caster-form-card">
-          <h3>Caster 2</h3>
-          <div class="form-group"><label>Nom</label><input type="text" id="c2-name" placeholder="Pseudo du caster" /></div>
-          <div class="form-group"><label>Twitter / X</label><input type="text" id="c2-twitter" placeholder="@handle" /></div>
-          <div class="form-group"><label>Twitch</label><input type="text" id="c2-twitch" placeholder="/channel" /></div>
-          <div class="form-group"><label>YouTube</label><input type="text" id="c2-youtube" placeholder="@channel" /></div>
-        </div>
-      </div>
-      <div class="casters-footer">
-        <button id="btn-apply-casters" class="btn btn-primary" style="align-self:flex-end">Appliquer</button>
-      </div>
-    </section>
-
   </div><!-- /tab-match -->
 
   <!-- ═══════════════════════════════════════════════════════════ -->
@@ -406,121 +773,6 @@
   <!-- ═══════════════════════════════════════════════════════════ -->
   <!-- TAB : VETO & RULESET                                        -->
   <!-- ═══════════════════════════════════════════════════════════ -->
-  <div class="tab-content" id="tab-veto">
-
-    <section class="section veto-section">
-      <div class="section-header">
-        <div class="veto-title-row">
-          <h2>Stage Veto</h2>
-          <span class="badge badge-gold">Ruleset custom</span>
-        </div>
-        <div class="veto-header-actions">
-          <a href="/stageveto" target="_blank" class="btn btn-outline btn-sm">OBS ↗</a>
-          <button id="veto-btn-visibility" class="btn btn-primary btn-sm">Masquer veto</button>
-          <button id="veto-btn-next-game" class="btn btn-outline btn-sm">Jeu suivant ▶</button>
-          <button id="veto-btn-reset" class="btn btn-danger btn-sm">Reset veto</button>
-          <button class="btn-copy" id="btn-copy-veto" title="Copier URL veto">📋</button>
-        </div>
-      </div>
-      <div class="veto-step-bar">
-        <div id="veto-action-badge" class="csb-action ban">BAN</div>
-        <span class="csb-sep">·</span>
-        <span id="veto-step-text" class="csb-team">Chargement...</span>
-      </div>
-      <div class="veto-body">
-        <div class="veto-main-col">
-          <div id="veto-stages-grid" class="veto-stages-grid"></div>
-          <div id="veto-seq-track" class="veto-sequence-track"></div>
-        </div>
-        <div class="veto-side-col">
-          <!-- Shifumi -->
-          <div class="ban-gen-block">
-            <div class="ban-gen-header"><span>Shifumi</span></div>
-            <button id="btn-shifumi" class="btn btn-outline btn-full">🎲 Lancer le shifumi</button>
-            <span id="ban-first-result" class="ban-first-result" style="text-align:left;font-style:normal;font-size:12px;min-height:16px;display:block"></span>
-          </div>
-          <!-- Premier bannisseur -->
-          <div class="ban-gen-block">
-            <div class="ban-gen-header"><span>Premier bannisseur</span></div>
-            <div class="ban-first-row">
-              <button class="ban-first-btn active" data-first="1" id="ban-first-p1">J1</button>
-              <button class="ban-first-btn" data-first="2" id="ban-first-p2">J2</button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="section">
-      <div class="section-header"><h2>Ruleset &amp; Banlist</h2></div>
-      <div class="ruleset-card">
-
-        <!-- Liste des stages + ajout -->
-        <div id="ruleset-stages-list" class="ruleset-stages-list" style="grid-column:1/-1"></div>
-        <div class="add-stage-form" style="grid-column:1/-1">
-          <h4>Ajouter un stage</h4>
-          <div class="stage-type-row">
-            <label><input type="radio" name="stage-type" value="starter" checked /> Starter</label>
-            <label><input type="radio" name="stage-type" value="counterpick" /> Counterpick</label>
-          </div>
-          <button id="btn-open-stage-picker" class="btn btn-outline btn-full">Choisir un stage…</button>
-        </div>
-
-        <!-- Séquences de bans -->
-        <div class="ban-builder-block">
-          <div class="ban-builder-title">
-            Séquence jeu 1
-            <span class="ban-builder-count" id="ban-builder-g1-count"></span>
-          </div>
-          <div class="ban-seq-steps" id="ban-seq-g1"></div>
-          <div class="ban-seq-add-row">
-            <button class="ban-seq-btn p1" data-builder="g1" data-player="1">+ Gagnant</button>
-            <button class="ban-seq-btn p2" data-builder="g1" data-player="2">+ Perdant</button>
-            <button class="ban-seq-btn pick" data-builder="g1">+ Map sélectionnée</button>
-          </div>
-          <input type="hidden" id="ban-pattern-g1" value="2-2" />
-        </div>
-
-        <div class="ban-builder-block">
-          <div class="ban-builder-title">
-            Séquence jeux suivants
-            <span class="ban-builder-count" id="ban-builder-g2-count"></span>
-          </div>
-          <div class="ban-seq-steps" id="ban-seq-g2"></div>
-          <div class="ban-seq-add-row">
-            <button class="ban-seq-btn p1" data-builder="g2" data-player="1">+ Gagnant</button>
-            <button class="ban-seq-btn p2" data-builder="g2" data-player="2">+ Perdant</button>
-            <button class="ban-seq-btn pick" data-builder="g2">+ Map sélectionnée</button>
-          </div>
-          <input type="hidden" id="ban-pattern-g2" value="1" />
-        </div>
-        <p class="hint" id="ban-pattern-preview" style="grid-column:1/-1;margin:0"></p>
-
-        <!-- Stage clause -->
-        <label class="checkbox-row" style="grid-column:1/-1">
-          <input type="checkbox" id="stage-clause" />
-          <span>Stage clause <span style="font-size:10px;color:var(--text-muted)">(pas de répétition)</span></span>
-        </label>
-
-        <button id="btn-save-ruleset" class="btn btn-primary btn-full" style="grid-column:1/-1">Appliquer le ruleset</button>
-
-        <!-- Sauvegarde -->
-        <div style="grid-column:1/-1;border-top:1px solid var(--border);padding-top:12px">
-          <h4 style="font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px">Enregistrer</h4>
-          <div style="display:flex;gap:6px">
-            <input type="text" id="ruleset-save-name" placeholder="Nom du ruleset…" style="flex:1" />
-            <button id="btn-ruleset-save" class="btn btn-primary btn-sm">Enregistrer</button>
-          </div>
-        </div>
-        <div style="grid-column:1/-1">
-          <h4 style="font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px">Rulesets sauvegardés</h4>
-          <div id="saved-rulesets-list"></div>
-        </div>
-
-      </div>
-    </section>
-
-  </div><!-- /tab-veto -->
 
   <!-- ═══════════════════════════════════════════════════════════ -->
   <!-- TAB : THÈMES                                                -->
@@ -2288,27 +2540,6 @@
           </div>
         </div>
 
-      </div>
-    </section>
-
-    <section class="section">
-      <div class="section-header"><h2>VS Screen</h2></div>
-      <div class="custom-grid">
-        <div class="custom-card">
-          <h3>Background (1920×1080)</h3>
-          <p class="hint" style="margin-bottom:10px">PNG, JPG ou WebP. Affiché derrière le fond de scène floutée.</p>
-          <div style="display:flex;flex-direction:column;gap:10px">
-            <label class="btn btn-outline" style="cursor:pointer;text-align:center">
-              Choisir une image
-              <input type="file" id="vs-bg-file" accept="image/png,image/jpeg,image/webp" style="display:none" />
-            </label>
-            <div id="vs-bg-preview-wrap" style="display:none;position:relative">
-              <img id="vs-bg-preview" style="width:100%;border-radius:6px;border:1px solid var(--border);display:block" alt="aperçu" />
-              <button id="btn-vs-bg-clear" class="btn btn-sm" style="margin-top:6px;width:100%;background:rgba(220,50,50,0.15);color:#e05050;border:1px solid rgba(220,50,50,0.3)">Supprimer</button>
-            </div>
-            <p id="vs-bg-status" class="hint" style="text-align:center"></p>
-          </div>
-        </div>
       </div>
     </section>
 

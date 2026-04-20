@@ -43,6 +43,22 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // ─── State ────────────────────────────────────────────────────────────────────
 
+let vsConfig = (() => {
+  const saved = (() => { try { return JSON.parse(fs.readFileSync('./data/vs-config.json','utf8')); } catch { return {}; } })();
+  return Object.assign({
+    bg:         { blur: 18, brightness: 30, saturation: 140, opacity: 100 },
+    vignette:   { intensity: 100 },
+    scanlines:  { visible: true, opacity: 8 },
+    particles:  { p1Override: 'auto', p2Override: 'auto', density: 100, opacity: 100 },
+    animation:  { entryType: 'slide', exitType: 'fade', flashEnabled: true, autoHide: 0, duration: 700 },
+    tint:       { visible: false, color: '#000000', opacity: 0 },
+  }, saved);
+})();
+
+function saveVsConfig() {
+  try { fs.writeFileSync('./data/vs-config.json', JSON.stringify(vsConfig, null, 2)); } catch {}
+}
+
 let matchState = {
   player1: { name: 'PLAYER 1', score: 0, character: null, color: '#E83030', tag: '', pronouns: '', stockColor: 0, flag: '', flagOffsetX: 0, flagOffsetY: 0, seeding: null, socials: ['', '', ''] },
   player2: { name: 'PLAYER 2', score: 0, character: null, color: '#3070E8', tag: '', pronouns: '', stockColor: 0, flag: '', flagOffsetX: 0, flagOffsetY: 0, seeding: null, socials: ['', '', ''] },
@@ -1797,6 +1813,10 @@ io.on('connection', (socket) => {
     io.emit('vsScreenTrigger');
   });
 
+  socket.on('hideVsScreen', () => {
+    io.emit('vsScreenHide');
+  });
+
   socket.on('updateState', (data) => {
     matchState = { ...matchState, ...data };
     io.emit('stateUpdate', matchState);
@@ -2798,6 +2818,23 @@ app.delete('/api/vs-background', (req, res) => {
   });
   io.emit('vsBgUpdate', { url: null });
   res.json({ ok: true });
+});
+
+// ─── VS Config API ───────────────────────────────────────────────────────────
+
+app.get('/api/vs-config', (req, res) => res.json(vsConfig));
+
+app.post('/api/vs-config', (req, res) => {
+  const body = req.body;
+  if (body.bg)        vsConfig.bg        = { ...vsConfig.bg,        ...body.bg };
+  if (body.vignette)  vsConfig.vignette  = { ...vsConfig.vignette,  ...body.vignette };
+  if (body.scanlines) vsConfig.scanlines = { ...vsConfig.scanlines, ...body.scanlines };
+  if (body.particles) vsConfig.particles = { ...vsConfig.particles, ...body.particles };
+  if (body.animation) vsConfig.animation = { ...vsConfig.animation, ...body.animation };
+  if (body.tint)      vsConfig.tint      = { ...vsConfig.tint,      ...body.tint };
+  saveVsConfig();
+  io.emit('vsConfigUpdate', vsConfig);
+  res.json(vsConfig);
 });
 
 // ─── Flags API ───────────────────────────────────────────────────────────────

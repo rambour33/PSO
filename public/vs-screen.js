@@ -1716,6 +1716,45 @@ const CHAR_TO_THEME = {
 const socket = io();
 let PS1 = null, PS2 = null;
 let prevState = null;
+let vsConfig = {
+  bg:        { blur: 18, brightness: 30, saturation: 140, opacity: 100 },
+  vignette:  { intensity: 100 },
+  scanlines: { visible: true, opacity: 8 },
+  particles: { p1Override: 'auto', p2Override: 'auto', density: 100, opacity: 100 },
+  animation: { entryType: 'slide', exitType: 'fade', flashEnabled: true, autoHide: 0, duration: 700 },
+  tint:      { visible: false, color: '#000000', opacity: 0 },
+};
+let autoHideTimer = null;
+
+// ── Config application ───────────────────────────────────────
+function applyVsConfig(cfg) {
+  vsConfig = cfg;
+  // Background filters
+  vsBg.style.filter  = `blur(${cfg.bg.blur}px) brightness(${cfg.bg.brightness/100}) saturate(${cfg.bg.saturation/100})`;
+  vsBg.style.opacity = cfg.bg.opacity / 100;
+  // Vignette
+  vsVignette.style.opacity = cfg.vignette.intensity / 100;
+  // Scanlines
+  vsScanlines.style.display = cfg.scanlines.visible ? '' : 'none';
+  vsScanlines.style.opacity = cfg.scanlines.opacity / 100;
+  // Tint
+  const tintEl = document.getElementById('vs-tint');
+  if (cfg.tint.visible && cfg.tint.opacity > 0) {
+    tintEl.style.display    = '';
+    tintEl.style.background = cfg.tint.color;
+    tintEl.style.opacity    = cfg.tint.opacity / 100;
+  } else {
+    tintEl.style.display = 'none';
+  }
+  // Particles opacity
+  const c1 = document.getElementById('vs-canvas-p1');
+  const c2 = document.getElementById('vs-canvas-p2');
+  if (c1) c1.style.opacity = cfg.particles.opacity / 100;
+  if (c2) c2.style.opacity = cfg.particles.opacity / 100;
+  // Animation types on root
+  vsRoot.dataset.entry = cfg.animation.entryType;
+  vsRoot.dataset.exit  = cfg.animation.exitType;
+}
 
 // ── DOM refs ─────────────────────────────────────────────────
 const $  = id => document.getElementById(id);
@@ -1733,9 +1772,12 @@ const vsRound  = $('vs-round');
 const vsStageName = $('vs-stage-name');
 const vsEvent  = $('vs-event-name');
 const vsS1     = $('vs-s1-score'), vsS2 = $('vs-s2-score');
-const vsBg     = $('vs-bg');
-const vsFlash  = $('vs-flash');
-const vsRoot   = $('vs-root');
+const vsBg       = $('vs-bg');
+const vsBgLayer  = $('vs-bg-layer');
+const vsFlash    = $('vs-flash');
+const vsRoot     = $('vs-root');
+const vsVignette = $('vs-vignette');
+const vsScanlines = $('vs-scanlines');
 
 // ── Particle systems init ────────────────────────────────────
 function initParticles() {
@@ -1748,13 +1790,19 @@ function initParticles() {
 }
 
 function startParticles(charId1, charId2) {
+  const p1Ov = vsConfig?.particles?.p1Override;
+  const p2Ov = vsConfig?.particles?.p2Override;
+  const density = (vsConfig?.particles?.density ?? 100) / 100;
+
   const key1 = CHAR_TO_THEME[charId1];
   const key2 = CHAR_TO_THEME[charId2];
-  const cfg1 = key1 ? THEME_PARTICLES[key1] : null;
-  const cfg2 = key2 ? THEME_PARTICLES[key2] : null;
-  if (cfg1) PS1.start(cfg1.type, cfg1.count);
+
+  const cfg1 = (p1Ov && p1Ov !== 'auto') ? { type: p1Ov, count: 80 } : (key1 ? THEME_PARTICLES[key1] : null);
+  const cfg2 = (p2Ov && p2Ov !== 'auto') ? { type: p2Ov, count: 80 } : (key2 ? THEME_PARTICLES[key2] : null);
+
+  if (cfg1) PS1.start(cfg1.type, Math.max(1, Math.round(cfg1.count * density)));
   else       PS1.stop();
-  if (cfg2) PS2.start(cfg2.type, cfg2.count);
+  if (cfg2) PS2.start(cfg2.type, Math.max(1, Math.round(cfg2.count * density)));
   else       PS2.stop();
 }
 
@@ -1791,26 +1839,63 @@ function setStageBackground(stageName) {
   img.src = `/maps/${stageName}`;
 }
 
-// ── Trigger entrance animation ───────────────────────────────
+// ── Animations entrée / sortie ───────────────────────────────
 let animTimeout = null;
+
 function triggerAnimation() {
-  // Reset
-  [p1Wrap, p2Wrap, p1Info, p2Info, vsCenter].forEach(el => {
-    el.classList.remove('vs-in');
+  if (autoHideTimer) { clearTimeout(autoHideTimer); autoHideTimer = null; }
+
+  const dur = vsConfig?.animation?.duration ?? 700;
+  vsRoot.dataset.entry = vsConfig?.animation?.entryType || 'slide';
+  vsRoot.dataset.exit  = vsConfig?.animation?.exitType  || 'fade';
+
+  // Reset all states
+  [vsBgLayer, p1Wrap, p2Wrap, p1Info, p2Info, vsCenter].forEach(el => {
+    el.classList.remove('vs-in', 'vs-out');
+    el.style.transition = '';
   });
+
+  if (vsConfig?.animation?.flashEnabled !== false) doFlash();
 
   clearTimeout(animTimeout);
   requestAnimationFrame(() => {
-    // Slight stagger: characters first, then info + center
     requestAnimationFrame(() => {
+      // Appliquer la durée custom via style
+      const ease = 'cubic-bezier(0.22,1,0.36,1)';
+      const easeB = vsConfig?.animation?.entryType === 'bounce'
+        ? 'cubic-bezier(0.34,1.56,0.64,1)' : ease;
+      const bgDur = Math.round(dur * 1.2);
+      vsBgLayer.style.transition = `opacity ${bgDur}ms ease, transform ${bgDur}ms ${easeB}`;
+      vsBgLayer.classList.add('vs-in');
+      [p1Wrap, p2Wrap].forEach(el => {
+        el.style.transition = `transform ${dur}ms ${easeB}, opacity ${Math.round(dur*0.65)}ms ease`;
+      });
       p1Wrap.classList.add('vs-in');
       p2Wrap.classList.add('vs-in');
       setTimeout(() => {
+        [p1Info, p2Info, vsCenter].forEach(el => {
+          el.style.transition = `transform ${Math.round(dur*0.7)}ms ease, opacity ${Math.round(dur*0.6)}ms ease`;
+        });
         p1Info.classList.add('vs-in');
         p2Info.classList.add('vs-in');
         vsCenter.classList.add('vs-in');
-      }, 150);
+      }, Math.round(dur * 0.2));
     });
+  });
+
+  // Auto-hide
+  const autoHide = vsConfig?.animation?.autoHide ?? 0;
+  if (autoHide > 0) {
+    autoHideTimer = setTimeout(() => exitAnimation(), autoHide * 1000 + dur + 300);
+  }
+}
+
+function exitAnimation() {
+  if (autoHideTimer) { clearTimeout(autoHideTimer); autoHideTimer = null; }
+  [vsBgLayer, p1Wrap, p2Wrap, p1Info, p2Info, vsCenter].forEach(el => {
+    el.classList.add('vs-out');
+    el.classList.remove('vs-in');
+    el.style.transition = '';
   });
 }
 
@@ -1877,10 +1962,19 @@ function setCustomBg(url) {
 
 socket.on('vsBgUpdate', ({ url }) => setCustomBg(url));
 
-// ── vsScreen trigger (animation + flash) ─────────────────────
+socket.on('vsConfigUpdate', cfg => {
+  applyVsConfig(cfg);
+  // Relancer les particules si override changé
+  if (prevState) startParticles(prevState.player1?.character?.id, prevState.player2?.character?.id);
+});
+
+// ── vsScreen trigger ──────────────────────────────────────────
 socket.on('vsScreenTrigger', () => {
-  doFlash();
-  setTimeout(triggerAnimation, 80);
+  triggerAnimation();
+});
+
+socket.on('vsScreenHide', () => {
+  exitAnimation();
 });
 
 // ── State updates ─────────────────────────────────────────────
@@ -1892,12 +1986,15 @@ socket.on('stateUpdate', s => {
 async function init() {
   initParticles();
   try {
-    const [stateRes, bgRes] = await Promise.all([
+    const [stateRes, bgRes, cfgRes] = await Promise.all([
       fetch('/api/state'),
       fetch('/api/vs-background'),
+      fetch('/api/vs-config'),
     ]);
-    const s = await stateRes.json();
+    const s   = await stateRes.json();
     const { url } = await bgRes.json();
+    const cfg = await cfgRes.json();
+    applyVsConfig(cfg);
     setCustomBg(url);
     update(s);
     triggerAnimation();

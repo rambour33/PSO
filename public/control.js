@@ -1615,6 +1615,17 @@ document.getElementById('tab-select-mobile')?.addEventListener('change', functio
   switchTab(this.value);
 });
 
+// ── Sous-navigation Match ──────────────────────────────────────
+
+document.querySelectorAll('.match-subnav-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.match-subnav-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.match-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(btn.dataset.panel)?.classList.add('active');
+  });
+});
+
 // ── Mode mobile ────────────────────────────────────────────────
 
 (function () {
@@ -1886,6 +1897,195 @@ document.getElementById('btn-apply-logo').addEventListener('click', () => {
     statusEl.textContent = 'Background supprimé';
     setTimeout(() => { statusEl.textContent = ''; }, 2000);
   });
+})();
+
+// ── VS Screen hide button ──────────────────────────────────────
+document.getElementById('btn-vs-hide')?.addEventListener('click', () => {
+  socket.emit('hideVsScreen');
+});
+
+// ── VS Screen config ───────────────────────────────────────────
+(function () {
+  let _vsDebounce = null;
+  function sendVsConfig(patch) {
+    clearTimeout(_vsDebounce);
+    _vsDebounce = setTimeout(async () => {
+      await fetch('/api/vs-config', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(patch),
+      });
+    }, 80);
+  }
+
+  function sliderLabel(rangeId, labelId, suffix) {
+    const range = document.getElementById(rangeId);
+    const label = document.getElementById(labelId);
+    if (!range || !label) return;
+    const update = () => { label.textContent = range.value + suffix; };
+    range.addEventListener('input', update);
+    update();
+  }
+
+  // Fond
+  sliderLabel('vs-bg-blur',       'vs-bg-blur-val',       'px');
+  sliderLabel('vs-bg-brightness', 'vs-bg-brightness-val', '%');
+  sliderLabel('vs-bg-saturation', 'vs-bg-saturation-val', '%');
+  sliderLabel('vs-bg-opacity',    'vs-bg-opacity-val',    '%');
+
+  document.getElementById('vs-bg-blur')?.addEventListener('input', e =>
+    sendVsConfig({ bg: { blur: +e.target.value } }));
+  document.getElementById('vs-bg-brightness')?.addEventListener('input', e =>
+    sendVsConfig({ bg: { brightness: +e.target.value } }));
+  document.getElementById('vs-bg-saturation')?.addEventListener('input', e =>
+    sendVsConfig({ bg: { saturation: +e.target.value } }));
+  document.getElementById('vs-bg-opacity')?.addEventListener('input', e =>
+    sendVsConfig({ bg: { opacity: +e.target.value } }));
+
+  // Effets
+  sliderLabel('vs-vignette-intensity', 'vs-vignette-val',         '%');
+  sliderLabel('vs-scanlines-opacity',  'vs-scanlines-opacity-val','%');
+  sliderLabel('vs-tint-opacity',       'vs-tint-opacity-val',     '%');
+
+  document.getElementById('vs-vignette-intensity')?.addEventListener('input', e =>
+    sendVsConfig({ vignette: { intensity: +e.target.value } }));
+  document.getElementById('vs-scanlines-visible')?.addEventListener('change', e =>
+    sendVsConfig({ scanlines: { visible: e.target.checked } }));
+  document.getElementById('vs-scanlines-opacity')?.addEventListener('input', e =>
+    sendVsConfig({ scanlines: { opacity: +e.target.value } }));
+  document.getElementById('vs-tint-visible')?.addEventListener('change', e =>
+    sendVsConfig({ tint: { visible: e.target.checked } }));
+  document.getElementById('vs-tint-color')?.addEventListener('input', e =>
+    sendVsConfig({ tint: { color: e.target.value } }));
+  document.getElementById('vs-tint-opacity')?.addEventListener('input', e =>
+    sendVsConfig({ tint: { opacity: +e.target.value } }));
+
+  // Particules
+  sliderLabel('vs-particle-density', 'vs-particle-density-val', '%');
+  sliderLabel('vs-particle-opacity', 'vs-particle-opacity-val', '%');
+
+  document.getElementById('vs-p1-particle')?.addEventListener('change', e =>
+    sendVsConfig({ particles: { p1Override: e.target.value } }));
+  document.getElementById('vs-p2-particle')?.addEventListener('change', e =>
+    sendVsConfig({ particles: { p2Override: e.target.value } }));
+  document.getElementById('vs-particle-density')?.addEventListener('input', e =>
+    sendVsConfig({ particles: { density: +e.target.value } }));
+  document.getElementById('vs-particle-opacity')?.addEventListener('input', e =>
+    sendVsConfig({ particles: { opacity: +e.target.value } }));
+
+  // Animation — boutons d'entrée
+  document.querySelectorAll('#vs-entry-grid .vs-anim-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('#vs-entry-grid .vs-anim-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      sendVsConfig({ animation: { entryType: btn.dataset.entry } });
+    });
+  });
+
+  // Animation — boutons de sortie
+  document.querySelectorAll('#vs-exit-grid .vs-anim-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('#vs-exit-grid .vs-anim-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      sendVsConfig({ animation: { exitType: btn.dataset.exit } });
+    });
+  });
+
+  // Durée
+  sliderLabel('vs-anim-duration', 'vs-anim-duration-val', 'ms');
+  document.getElementById('vs-anim-duration')?.addEventListener('input', e =>
+    sendVsConfig({ animation: { duration: +e.target.value } }));
+
+  // Flash
+  document.getElementById('vs-flash-enabled')?.addEventListener('change', e =>
+    sendVsConfig({ animation: { flashEnabled: e.target.checked } }));
+
+  // Auto-hide timer
+  const ahRange = document.getElementById('vs-autohide-range');
+  const ahNum   = document.getElementById('vs-autohide-num');
+  const ahPreview = document.getElementById('vs-autohide-preview');
+  function updateAutoHidePreview() {
+    const v = parseInt(ahRange?.value || 0);
+    if (ahNum) ahNum.value = v;
+    if (ahPreview) ahPreview.textContent = v > 0 ? `Masquage auto dans ${v}s après l'entrée` : 'Désactivé';
+  }
+  ahRange?.addEventListener('input', () => {
+    updateAutoHidePreview();
+    sendVsConfig({ animation: { autoHide: +ahRange.value } });
+  });
+  ahNum?.addEventListener('input', () => {
+    const v = Math.min(30, Math.max(0, parseInt(ahNum.value) || 0));
+    ahNum.value = v;
+    if (ahRange) ahRange.value = v;
+    updateAutoHidePreview();
+    sendVsConfig({ animation: { autoHide: v } });
+  });
+  updateAutoHidePreview();
+
+  // Sous-onglets VS Screen
+  document.querySelectorAll('.vs-subtab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.vs-subtab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.vs-subtab-panel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById(btn.dataset.vspanel)?.classList.add('active');
+    });
+  });
+
+  // URL OBS dynamique (remplace localhost par l'IP si besoin)
+  const vsObsUrlEl = document.getElementById('vs-obs-url');
+  if (vsObsUrlEl) vsObsUrlEl.textContent = `${location.origin}/vs-screen`;
+
+  document.getElementById('btn-copy-vs-url')?.addEventListener('click', function() {
+    const url = document.getElementById('vs-obs-url')?.textContent || `${location.origin}/vs-screen`;
+    navigator.clipboard.writeText(url).then(() => {
+      this.textContent = '✓';
+      setTimeout(() => { this.textContent = '📋'; }, 1500);
+    });
+  });
+
+  // Charger la config existante au démarrage
+  fetch('/api/vs-config').then(r => r.json()).then(cfg => {
+    if (!cfg) return;
+    const s = id => document.getElementById(id);
+    if (cfg.bg) {
+      if (s('vs-bg-blur'))       { s('vs-bg-blur').value       = cfg.bg.blur;       s('vs-bg-blur-val').textContent       = cfg.bg.blur + 'px'; }
+      if (s('vs-bg-brightness')) { s('vs-bg-brightness').value = cfg.bg.brightness; s('vs-bg-brightness-val').textContent = cfg.bg.brightness + '%'; }
+      if (s('vs-bg-saturation')) { s('vs-bg-saturation').value = cfg.bg.saturation; s('vs-bg-saturation-val').textContent = cfg.bg.saturation + '%'; }
+      if (s('vs-bg-opacity'))    { s('vs-bg-opacity').value    = cfg.bg.opacity;    s('vs-bg-opacity-val').textContent    = cfg.bg.opacity + '%'; }
+    }
+    if (cfg.vignette && s('vs-vignette-intensity')) { s('vs-vignette-intensity').value = cfg.vignette.intensity; s('vs-vignette-val').textContent = cfg.vignette.intensity + '%'; }
+    if (cfg.scanlines) {
+      if (s('vs-scanlines-visible')) s('vs-scanlines-visible').checked = cfg.scanlines.visible;
+      if (s('vs-scanlines-opacity')) { s('vs-scanlines-opacity').value = cfg.scanlines.opacity; s('vs-scanlines-opacity-val').textContent = cfg.scanlines.opacity + '%'; }
+    }
+    if (cfg.tint) {
+      if (s('vs-tint-visible')) s('vs-tint-visible').checked = cfg.tint.visible;
+      if (s('vs-tint-color'))   s('vs-tint-color').value     = cfg.tint.color;
+      if (s('vs-tint-opacity')) { s('vs-tint-opacity').value = cfg.tint.opacity; s('vs-tint-opacity-val').textContent = cfg.tint.opacity + '%'; }
+    }
+    if (cfg.particles) {
+      if (s('vs-p1-particle'))       s('vs-p1-particle').value       = cfg.particles.p1Override;
+      if (s('vs-p2-particle'))       s('vs-p2-particle').value       = cfg.particles.p2Override;
+      if (s('vs-particle-density'))  { s('vs-particle-density').value  = cfg.particles.density;  s('vs-particle-density-val').textContent  = cfg.particles.density  + '%'; }
+      if (s('vs-particle-opacity'))  { s('vs-particle-opacity').value  = cfg.particles.opacity;  s('vs-particle-opacity-val').textContent  = cfg.particles.opacity  + '%'; }
+    }
+    if (cfg.animation) {
+      if (cfg.animation.entryType) {
+        document.querySelectorAll('#vs-entry-grid .vs-anim-btn').forEach(b => b.classList.toggle('active', b.dataset.entry === cfg.animation.entryType));
+      }
+      if (cfg.animation.exitType) {
+        document.querySelectorAll('#vs-exit-grid .vs-anim-btn').forEach(b => b.classList.toggle('active', b.dataset.exit === cfg.animation.exitType));
+      }
+      if (s('vs-anim-duration')) { s('vs-anim-duration').value = cfg.animation.duration; s('vs-anim-duration-val').textContent = cfg.animation.duration + 'ms'; }
+      if (s('vs-flash-enabled')) s('vs-flash-enabled').checked = cfg.animation.flashEnabled !== false;
+      if (s('vs-autohide-range') && s('vs-autohide-num')) {
+        s('vs-autohide-range').value = cfg.animation.autoHide;
+        s('vs-autohide-num').value   = cfg.animation.autoHide;
+        updateAutoHidePreview();
+      }
+    }
+  }).catch(() => {});
 })();
 
 // Boutons copie dans tab customisation

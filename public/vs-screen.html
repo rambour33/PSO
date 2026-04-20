@@ -11,17 +11,20 @@
 <body>
   <div id="vs-root" class="pso-surface">
 
-    <!-- Background custom (1920×1080 uploadé) -->
-    <div id="vs-custom-bg"></div>
-
-    <!-- Fond scène (image floutée) -->
-    <div id="vs-bg"></div>
-    <div id="vs-vignette"></div>
-    <div id="vs-scanlines"></div>
+    <!-- Couche background (animée à l'entrée/sortie) -->
+    <div id="vs-bg-layer">
+      <div id="vs-custom-bg"></div>
+      <div id="vs-bg"></div>
+      <div id="vs-vignette"></div>
+      <div id="vs-scanlines"></div>
+    </div>
 
     <!-- Canvases particules (derrière les persos) -->
     <canvas id="vs-canvas-p1"></canvas>
     <canvas id="vs-canvas-p2"></canvas>
+
+    <!-- Teinte de couleur configurable -->
+    <div id="vs-tint"></div>
 
     <!-- Flash d'entrée -->
     <div id="vs-flash"></div>

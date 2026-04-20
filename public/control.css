@@ -580,6 +580,163 @@ input[type="color"] {
   padding: 2px;
 }
 
+/* ── VS Screen encadré OBS ───────────────────────────────────── */
+
+.vs-obs-guide {
+  margin: 14px 16px 0;
+  padding: 14px 16px;
+  background: rgba(68, 136, 255, 0.07);
+  border: 1px solid rgba(68, 136, 255, 0.28);
+  border-radius: 8px;
+}
+
+.vs-obs-guide-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #7ab4ff;
+  margin-bottom: 10px;
+  letter-spacing: 0.02em;
+}
+
+.vs-obs-guide-steps {
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.vs-obs-guide-steps li {
+  font-size: 12px;
+  color: var(--text-secondary, #bbb);
+  line-height: 1.5;
+}
+
+.vs-obs-guide-steps code {
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 4px;
+  padding: 1px 6px;
+  font-size: 11px;
+  color: #e8d87a;
+}
+
+.btn-copy-inline {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 13px;
+  padding: 0 2px;
+  vertical-align: middle;
+  opacity: 0.7;
+  transition: opacity 0.15s;
+}
+.btn-copy-inline:hover { opacity: 1; }
+
+/* ── VS Screen sous-onglets ──────────────────────────────────── */
+
+.vs-subtab-nav {
+  display: flex;
+  gap: 2px;
+  padding: 10px 16px 0;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 0;
+}
+
+.vs-subtab-btn {
+  padding: 6px 16px;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text-muted, #888);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+  margin-bottom: -1px;
+}
+
+.vs-subtab-btn:hover { color: var(--text-primary); }
+
+.vs-subtab-btn.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+.vs-subtab-panel { display: none; padding: 14px 0 0; }
+.vs-subtab-panel.active { display: block; }
+
+/* Grille boutons animation */
+.vs-anim-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+
+.vs-anim-btn {
+  padding: 7px 4px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: center;
+  transition: background 0.12s, border-color 0.12s, color 0.12s;
+  white-space: nowrap;
+}
+
+.vs-anim-btn:hover {
+  border-color: var(--accent);
+  color: var(--text-primary);
+}
+
+.vs-anim-btn.active {
+  background: rgba(232,184,48,0.15);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* ── Match sub-nav ───────────────────────────────────────────── */
+
+.match-subnav {
+  display: flex;
+  gap: 4px;
+  padding: 12px 20px 0;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 0;
+}
+
+.match-subnav-btn {
+  padding: 8px 20px;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text-muted, #888);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+  margin-bottom: -1px;
+}
+
+.match-subnav-btn:hover {
+  color: var(--text-primary);
+}
+
+.match-subnav-btn.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+.match-panel {
+  display: none;
+}
+
+.match-panel.active {
+  display: block;
+}
+
 /* ── Scoreboard grid ─────────────────────────────────────────── */
 
 .scoreboard-grid {
