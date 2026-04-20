@@ -1987,38 +1987,31 @@ app.post('/api/startgg/set/:id/report', async (req, res) => {
   try {
     const setId = req.params.id;
     const { p1EntrantId, p2EntrantId, p1Score, p2Score, p1Character, p2Character } = req.body;
+
+    console.log('[startgg report] body:', JSON.stringify(req.body));
+    console.log('[startgg report] setId:', setId);
+
     if (!p1EntrantId || !p2EntrantId) return res.status(400).json({ error: 'IDs entrants manquants' });
     if (p1Score === p2Score) return res.status(400).json({ error: 'Score à égalité, impossible de déterminer le vainqueur' });
 
     const winnerId = p1Score > p2Score ? String(p1EntrantId) : String(p2EntrantId);
-    const p1CharId = p1Character ? INTERNAL_TO_STARTGG_CHAR[p1Character] || null : null;
-    const p2CharId = p2Character ? INTERNAL_TO_STARTGG_CHAR[p2Character] || null : null;
+    console.log('[startgg report] winnerId:', winnerId, '| p1Score:', p1Score, '| p2Score:', p2Score);
 
-    const gameData = [];
-    let gameNum = 1;
-    for (let i = 0; i < p1Score; i++) {
-      const selections = [];
-      if (p1CharId) selections.push({ entrantId: String(p1EntrantId), characterId: p1CharId, selectionType: 'CHARACTER' });
-      if (p2CharId) selections.push({ entrantId: String(p2EntrantId), characterId: p2CharId, selectionType: 'CHARACTER' });
-      gameData.push({ gameNum: gameNum++, winnerId: String(p1EntrantId), ...(selections.length && { selections }) });
-    }
-    for (let i = 0; i < p2Score; i++) {
-      const selections = [];
-      if (p1CharId) selections.push({ entrantId: String(p1EntrantId), characterId: p1CharId, selectionType: 'CHARACTER' });
-      if (p2CharId) selections.push({ entrantId: String(p2EntrantId), characterId: p2CharId, selectionType: 'CHARACTER' });
-      gameData.push({ gameNum: gameNum++, winnerId: String(p2EntrantId), ...(selections.length && { selections }) });
-    }
-
+    // Envoi minimal d'abord : juste setId + winnerId, sans gameData
     const data = await startggQuery(`
-      mutation ReportSet($setId: ID!, $winnerId: ID, $gameData: [BracketSetGameDataInput]) {
-        reportBracketSet(setId: $setId, winnerId: $winnerId, gameData: $gameData) {
+      mutation ReportSet($setId: ID!, $winnerId: ID!) {
+        reportBracketSet(setId: $setId, winnerId: $winnerId) {
           id state
         }
       }
-    `, { setId, winnerId, gameData: gameData.length ? gameData : undefined });
+    `, { setId: String(setId), winnerId });
 
+    console.log('[startgg report] success:', JSON.stringify(data));
     res.json({ success: true, set: data.reportBracketSet });
-  } catch (e) { res.status(400).json({ error: e.message }); }
+  } catch (e) {
+    console.error('[startgg report] error:', e.message);
+    res.status(400).json({ error: e.message });
+  }
 });
 
 app.get('/api/startgg/event/:id/player-stats/:entrantId', async (req, res) => {

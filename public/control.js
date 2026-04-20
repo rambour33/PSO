@@ -453,8 +453,10 @@ document.getElementById('btn-send-startgg').addEventListener('click', async () =
       }),
     });
     const data = await res.json();
+    console.log('[startgg report] réponse serveur:', data);
     if (data.error) {
-      setStatus('Erreur start.gg : ' + data.error);
+      setStatus('Erreur start.gg : ' + data.error, 'error');
+      alert('Erreur start.gg :\n' + data.error);
     } else {
       setStatus('Score envoyé sur start.gg !');
       btn.textContent = '✓ Score envoyé';
