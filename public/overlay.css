@@ -64,6 +64,8 @@ body {
   display: flex;
   gap: 10px;
   align-items: center;
+  justify-content: center;
+  text-align: center;
   clip-path: polygon(12px 0%, calc(100% - 12px) 0%, 100% 100%, 0% 100%);
   white-space: nowrap;
 }
