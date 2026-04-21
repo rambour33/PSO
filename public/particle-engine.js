@@ -187,6 +187,10 @@ window.createParticleSystem = function(canvasId, containerId) {
       spin:Math.random()*Math.PI*2,spinSpd:0.10+Math.random()*.08,
       shimmer:Math.random()*Math.PI*2,shimSpd:0.055+Math.random()*.06,
       op:0.72+Math.random()*.28,life:1,decay};}
+  function mkCrown(W,H){return{t:'crown',x:Math.random()*W,y:Math.random()*H,
+    r:5+Math.random()*8,rot:(Math.random()-.5)*.25,spin:(Math.random()-.5)*.006,
+    vy:-(0.08+Math.random()*.22),vx:(Math.random()-.5)*.18,
+    op:0.5+Math.random()*.5,hue:42+Math.random()*10,life:1,decay:0.0018+Math.random()*.003};}
   function mkDkItem(W,H){
     // kind: 0=tuile lettre KONG, 1=tonneau DK
     const kind=Math.floor(Math.random()*2);
@@ -218,7 +222,8 @@ window.createParticleSystem = function(canvasId, containerId) {
                 pixel:mkPixel, star:mkStar, aura:mkAura, rune:mkRune, smoke:mkSmoke,
                 ink:mkInk, heart:mkHeart, kunai:mkKunai, shuriken:mkShuriken,
                 cross:mkCross, spring:mkSpring, block:mkBlock, triforce:mkTriforce,
-                keyblade:mkKeyblade, pikmin:mkPikmin, ordnance:mkOrdnance, marioitem:mkMarioItem, dkitem:mkDkItem };
+                keyblade:mkKeyblade, pikmin:mkPikmin, ordnance:mkOrdnance, marioitem:mkMarioItem, dkitem:mkDkItem,
+                crown:mkCrown };
 
   // ── Update ─────────────────────────────────────────────────
   function upd(p, W, H) {
@@ -373,6 +378,10 @@ window.createParticleSystem = function(canvasId, containerId) {
         if(p.x<-28) p.x=W+28; if(p.x>W+28) p.x=-28;
         if(p.y<-28) p.y=H+28; if(p.y>H+28) p.y=-28;
       }
+    } else if (t==='crown') {
+      p.rot+=p.spin; p.x+=p.vx; p.y+=p.vy; p.life-=p.decay;
+      if(p.life<=0) Object.assign(p,mkCrown(W,H));
+      if(p.y<-30) Object.assign(p,mkCrown(W,H));
     } else if (t==='dkitem') {
       p.rot+=p.spin; p.bob+=p.bobSpd; p.shimmer+=p.shimSpd;
       if(p.kind===1){
@@ -1428,6 +1437,47 @@ window.createParticleSystem = function(canvasId, containerId) {
         ctx.restore();
       }
       ctx.restore(); ctx.globalAlpha=1;
+    } else if (t==='crown') {
+      ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.rot);
+      const al=p.op*p.life; ctx.globalAlpha=al;
+      const R=p.r, hy=p.hue;
+      // Halo doré
+      const hrd=ctx.createRadialGradient(0,0,0,0,0,R*2.2);
+      hrd.addColorStop(0,`rgba(255,215,0,${al*.22})`); hrd.addColorStop(1,'rgba(255,180,0,0)');
+      ctx.beginPath(); ctx.arc(0,0,R*2.2,0,Math.PI*2); ctx.fillStyle=hrd; ctx.fill();
+      const gld=`hsl(${hy},100%,55%)`, gldDk=`hsl(${hy-15},80%,28%)`;
+      const bY=-R*.1, bH=R*.7;
+      // Fonction prong : pilier + boule
+      const drawP=(px,topY,pR)=>{
+        ctx.fillStyle=gld;
+        ctx.fillRect(px-pR*.45,topY,pR*.9,bY-topY);
+        ctx.strokeStyle=gldDk; ctx.lineWidth=R*.06;
+        ctx.strokeRect(px-pR*.45,topY,pR*.9,bY-topY);
+        const cy=topY+pR*.65;
+        const bg2=ctx.createRadialGradient(px-pR*.2,cy-pR*.22,0,px,cy,pR*.62);
+        bg2.addColorStop(0,`hsl(${hy+14},100%,74%)`); bg2.addColorStop(1,`hsl(${hy-10},88%,38%)`);
+        ctx.beginPath(); ctx.arc(px,cy,pR*.62,0,Math.PI*2);
+        ctx.fillStyle=bg2; ctx.fill();
+        ctx.strokeStyle=gldDk; ctx.lineWidth=R*.06; ctx.stroke();
+      };
+      // Bande base
+      const bandG=ctx.createLinearGradient(0,bY,0,bY+bH);
+      bandG.addColorStop(0,`hsl(${hy+8},100%,65%)`); bandG.addColorStop(1,`hsl(${hy-10},88%,38%)`);
+      ctx.fillStyle=bandG; ctx.fillRect(-R,bY,R*2,bH);
+      ctx.strokeStyle=gldDk; ctx.lineWidth=R*.08; ctx.strokeRect(-R,bY,R*2,bH);
+      // Gems losanges rouges sur la bande
+      [-R*.55,0,R*.55].forEach(gx=>{
+        ctx.save(); ctx.translate(gx,bY+bH*.45); ctx.rotate(Math.PI/4);
+        const gs=R*.13;
+        ctx.fillStyle=`rgba(220,40,40,${al})`; ctx.fillRect(-gs,-gs,gs*2,gs*2);
+        ctx.strokeStyle=gldDk; ctx.lineWidth=R*.05; ctx.strokeRect(-gs,-gs,gs*2,gs*2);
+        ctx.restore();
+      });
+      // 3 prongs : gauche, centre (plus haut), droite
+      drawP(-R*.62,-R*.52,R*.28);
+      drawP(0,     -R*.90,R*.35);
+      drawP(R*.62, -R*.52,R*.28);
+      ctx.restore(); ctx.globalAlpha=1;
     } else if (t==='dkitem') {
       ctx.save(); ctx.globalAlpha=p.op;
       const s=p.s;
@@ -1732,6 +1782,7 @@ window.THEME_PARTICLES = {
   smii_brawl:  { type:'ring',      count:50 },
   smii_sword:  { type:'sparkle',   count:50 },
   smii_gun:    { type:'ring',      count:50 },
+  alsace:   { type:'crown',   count:35 },
   flag_fr:  { type:'sparkle', count:60 },
   flag_ch:  { type:'sparkle', count:55 },
   flag_be:  { type:'sparkle', count:60 },

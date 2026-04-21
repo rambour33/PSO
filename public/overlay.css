@@ -2092,6 +2092,52 @@ body {
 .scoreboard.theme-plage .slim-score         { text-shadow:0 0 10px rgba(72,202,228,0.85); }
 .scoreboard.theme-plage .theme-logo-bg img  { filter:drop-shadow(0 0 5px #48CAE4) drop-shadow(0 0 12px rgba(173,232,244,0.70)); }
 
+/* ── Alsace · Rouge · Blanc · Or ──────────────────────────────── */
+/* Drapeau d'Alsace : fond rouge, deux bandes blanches diagonales, couronnes dorées */
+
+@keyframes alsace-crown-glow {
+  0%,100% { box-shadow:0 0 10px rgba(255,215,0,0.55),0 0 24px rgba(200,0,30,0.20) }
+  50%     { box-shadow:0 0 20px rgba(255,215,0,0.80),0 0 40px rgba(255,215,0,0.18) }
+}
+@keyframes alsace-gold-text {
+  0%,100% { text-shadow:0 0 8px rgba(255,215,0,0.80),0 0 20px rgba(255,150,0,0.35) }
+  50%     { text-shadow:0 0 16px rgba(255,235,80,0.95),0 0 34px rgba(255,215,0,0.50) }
+}
+@keyframes alsace-stripe-move {
+  from { background-position:0 0 }
+  to   { background-position:80px 0 }
+}
+
+.scoreboard.theme-alsace .players-container { border-color:#FFD700; animation:alsace-crown-glow 3s ease-in-out infinite; }
+
+/* Fond : bandes diagonales blanches inspirées du drapeau */
+.scoreboard.theme-alsace .players-container::before {
+  content:''; position:absolute; inset:0; pointer-events:none; z-index:0;
+  background:
+    repeating-linear-gradient(
+      135deg,
+      transparent 0,            transparent 28px,
+      rgba(255,255,255,0.065) 28px, rgba(255,255,255,0.065) 44px,
+      transparent 44px,         transparent 72px,
+      rgba(255,255,255,0.045) 72px, rgba(255,255,255,0.045) 84px,
+      transparent 84px
+    ),
+    radial-gradient(ellipse 120% 40% at 50% 110%, rgba(140,0,20,0.25) 0%, transparent 60%);
+  animation:alsace-stripe-move 6s linear infinite;
+}
+
+.scoreboard.theme-alsace .event-bar          { border-bottom-color:#FFD700; box-shadow:0 2px 16px rgba(255,215,0,0.50); text-shadow:0 0 10px rgba(255,215,0,0.70); }
+.scoreboard.theme-alsace .player-tag         { animation:alsace-gold-text 2.8s ease-in-out infinite; }
+.scoreboard.theme-alsace .score              { color:#FFD700; text-shadow:0 0 14px rgba(255,215,0,0.90),0 0 30px rgba(255,150,0,0.45); }
+.scoreboard.theme-alsace .score-center       { border-left-color:#FFD700; border-right-color:#CC0022; }
+.scoreboard.theme-alsace .player-character   { border-color:#FFD700; box-shadow:0 0 14px rgba(255,215,0,0.55); }
+.scoreboard.theme-alsace .player-left        { border-bottom-color:#FFD700; }
+.scoreboard.theme-alsace .player-right       { border-bottom-color:#CC0022; }
+.scoreboard.theme-alsace .slim-bar           { border-color:#FFD700; box-shadow:0 0 12px rgba(255,215,0,0.50),0 0 28px rgba(200,0,30,0.15); }
+.scoreboard.theme-alsace .slim-name          { animation:alsace-gold-text 2.8s ease-in-out infinite; }
+.scoreboard.theme-alsace .slim-score         { color:#FFD700; text-shadow:0 0 10px rgba(255,215,0,0.85); }
+.scoreboard.theme-alsace .theme-logo-bg img  { filter:drop-shadow(0 0 6px #FFD700) drop-shadow(0 0 14px rgba(255,215,0,0.60)); }
+
 /* ══════════════════════════════ */
 /* SMASH BROS ULTIMATE CHARACTERS */
 /* ══════════════════════════════ */
