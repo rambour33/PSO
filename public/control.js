@@ -2533,6 +2533,17 @@ const THEMES = {
     castersBgColor:  '#03121A',
     castersBgOpacity: 94,
   },
+  alsace: {
+    sbBgColor:       '#3A0008',
+    sbBgOpacity:     96,
+    eventTextColor:  '#FFD700',
+    eventTextSize:   13,
+    tagColor:        '#FFD700',
+    nameColor:       '#FFF5E0',
+    pronounsColor:   '#CC8800',
+    castersBgColor:  '#3A0008',
+    castersBgOpacity: 96,
+  },
   lesbian: {
     sbBgColor:       '#0A0200',
     sbBgOpacity:     95,

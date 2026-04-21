@@ -53,7 +53,7 @@ body {
 /* ── Event bar ───────────────────────────────────────────────── */
 
 .event-bar {
-  background: var(--smash-bg);
+  background: var(--sb-bg, var(--smash-bg));
   border-bottom: 2px solid var(--smash-gold);
   color: var(--event-text-color, var(--smash-muted));
   font-size: var(--event-text-size, 12px);
