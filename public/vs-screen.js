@@ -1712,6 +1712,51 @@ const CHAR_TO_THEME = {
   pyra_mythra:'spyra', kazuya:'skazuya', sora:'ssora',
 };
 
+// ── Couleur d'accent par thème ───────────────────────────────
+const VS_THEME_ACCENT = {
+  // Thèmes nommés
+  default:    '#FFFFFF', cyberpunk:  '#00FFCC', synthwave:  '#C77DFF',
+  midnight:   '#4FC3F7', egypt:      '#D4AF37', city:       '#4488FF',
+  eco:        '#44BB44', water:      '#0099DD', fire:       '#FF4500',
+  rainbow:    '#FF6688', trans:      '#55CCFF', pan:        '#FF8C00',
+  bi:         '#9955CC', lesbian:    '#FF5555', plage:      '#FFD700',
+  // Types Pokémon
+  pkpsy:'#FF4DA6', pktenebres:'#705898', pkelectrik:'#F8D030',
+  pkfee:'#EE99AC', pkspectre:'#705898', pkdragon:'#6F35FC',
+  pkglace:'#96D9D6', pkcombat:'#C22E28', pkpoison:'#A33EA1',
+  pksol:'#C6B849', pkvol:'#A98FF3', pkinsecte:'#A6B91A',
+  pkroche:'#B6A136', pkacier:'#B7B7CE', pknormal:'#A8A77A',
+  pkplante:'#7AC74C', pkfeu:'#EE8130', pkeau:'#6390F0',
+  // Persos (CHAR_THEME_COLORS condensé)
+  smario:'#E52222', sdk:'#8B4513', slink:'#5BAD20', ssamus:'#FF6A00',
+  sdsamus:'#9D00FF', syoshi:'#5DCB14', skirby:'#FF8CB4', sfox:'#CC5500',
+  spikachu:'#FFD700', sluigi:'#2AA000', sness:'#CC1100', sfalcon:'#FF4400',
+  sjigglypuff:'#FF8CB4', speach:'#F9A8D4', sdaisy:'#FFD700', sbowser:'#009A00',
+  siceclimbers:'#7AB8FF', ssheik:'#00A0C0', szelda:'#C080FF', sdrmario:'#E52222',
+  spichu:'#FFD700', sfalco:'#0088CC', smarth:'#8855FF', slucina:'#CC6688',
+  sylink:'#2A7040', sganondorf:'#6600AA', smewtwo:'#C070FF', sroy:'#FF3300',
+  schrom:'#4488FF', sgamewatch:'#AAAAAA', smetaknight:'#4466BB', spit:'#AACC55',
+  sdarkpit:'#6688AA', szss:'#CC66FF', swario:'#DDAA00', ssnake:'#448822',
+  sike:'#0066CC', spktrainer:'#CC3300', sdiddy:'#BB5500', slucas:'#CC8833',
+  ssonic:'#1A6BFF', sdedede:'#CC0055', solimar:'#DDAA00', slucario:'#4488CC',
+  srob:'#AAAAAA', stoonlink:'#55AA22', swolf:'#6688AA', svilager:'#88CC44',
+  smegaman:'#0099DD', swiifit:'#AADDAA', srosalina:'#88AAFF', slittlemac:'#FF8822',
+  sgreninja:'#2266AA', spalutena:'#CCAAFF', spacman:'#FFDD00', srobin:'#CC5500',
+  sshulk:'#CCAA55', sbowserjr:'#DD9900', sduckhunt:'#886644', sryu:'#FFFFFF',
+  sken:'#FF6600', scloud:'#6699CC', scorrin:'#CC7755', sbayonetta:'#8888CC',
+  sinkling:'#FF4499', sridley:'#8844AA', ssimon:'#CC8844', srichter:'#997744',
+  skrool:'#AA6600', sisabelle:'#FFCC44', sincineroar:'#CC3366', spiranha:'#33BB33',
+  sjoker:'#DD0000', shero:'#4455CC', sbanjo:'#CC9933', sterry:'#FF3300',
+  sbyleth:'#996633', sminmin:'#FF6688', ssteve:'#887766', ssephiroth:'#AAAAFF',
+  spyra:'#FF9900', smythra:'#FF5500', skazuya:'#5500CC', ssora:'#4477FF',
+  smii_brawl:'#AA4400', smii_sword:'#7799BB', smii_gun:'#448866',
+};
+
+function hexToRgba(hex, a) {
+  const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
+  return `rgba(${r},${g},${b},${a})`;
+}
+
 // ── State ────────────────────────────────────────────────────
 const socket = io();
 let PS1 = null, PS2 = null;
@@ -1763,6 +1808,7 @@ const p1Ph   = $('vs-p1-ph'),   p2Ph   = $('vs-p2-ph');
 const p1Name = $('vs-p1-name'), p2Name = $('vs-p2-name');
 const p1Tag  = $('vs-p1-tag'),  p2Tag  = $('vs-p2-tag');
 const p1Char = $('vs-p1-charname'), p2Char = $('vs-p2-charname');
+const p1Socials = $('vs-p1-socials'), p2Socials = $('vs-p2-socials');
 const p1Bar  = $('vs-p1-bar'),  p2Bar  = $('vs-p2-bar');
 const p1Side = $('vs-p1-side'), p2Side = $('vs-p2-side');
 const p1Wrap = $('vs-p1-char-wrap'), p2Wrap = $('vs-p2-char-wrap');
@@ -1778,6 +1824,36 @@ const vsFlash    = $('vs-flash');
 const vsRoot     = $('vs-root');
 const vsVignette = $('vs-vignette');
 const vsScanlines = $('vs-scanlines');
+
+// ── Réseaux sociaux ──────────────────────────────────────────
+const SOCIAL_META = {
+  twitter: { cls: 'social-twitter', icon: '𝕏',  label: handle => handle.replace(/^@/, '') },
+  twitch:  { cls: 'social-twitch',  icon: '◈', label: handle => handle },
+  discord: { cls: 'social-discord', icon: '●', label: handle => handle },
+  youtube: { cls: 'social-youtube', icon: '▶', label: handle => handle },
+};
+
+function renderSocials(el, socials) {
+  el.innerHTML = '';
+  (socials || []).forEach(raw => {
+    const s = (raw || '').trim();
+    if (!s) return;
+    const lower = s.toLowerCase();
+    let meta = null, handle = s;
+    for (const [key, m] of Object.entries(SOCIAL_META)) {
+      if (lower.startsWith(key)) {
+        meta = m;
+        handle = s.slice(key.length).replace(/^[\s@:]+/, '');
+        break;
+      }
+    }
+    if (!handle) return;
+    const item = document.createElement('span');
+    item.className = 'vs-social-item' + (meta ? ' ' + meta.cls : '');
+    item.innerHTML = `<span class="vs-social-icon">${meta ? meta.icon : '•'}</span>${meta ? meta.label(handle) : handle}`;
+    el.appendChild(item);
+  });
+}
 
 // ── Particle systems init ────────────────────────────────────
 function initParticles() {
@@ -1892,6 +1968,8 @@ function triggerAnimation() {
 
 function exitAnimation() {
   if (autoHideTimer) { clearTimeout(autoHideTimer); autoHideTimer = null; }
+  PS1.stop();
+  PS2.stop();
   [vsBgLayer, p1Wrap, p2Wrap, p1Info, p2Info, vsCenter].forEach(el => {
     el.classList.add('vs-out');
     el.classList.remove('vs-in');
@@ -1916,6 +1994,8 @@ function update(s) {
   // Character names
   p1Char.textContent = s.player1.character?.name || '';
   p2Char.textContent = s.player2.character?.name || '';
+  renderSocials(p1Socials, s.player1.socials);
+  renderSocials(p2Socials, s.player2.socials);
 
   // Player colors on bars
   p1Bar.style.setProperty('--pcolor', s.player1.color || '#E83030');
@@ -1941,6 +2021,20 @@ function update(s) {
   if (!prevState || prevState.currentStage !== s.currentStage) {
     setStageBackground(s.currentStage);
   }
+
+  // Thème overlay → accent color
+  const theme = s.overlayTheme || 'default';
+  let accent = VS_THEME_ACCENT[theme];
+  if (!accent && theme === 'dual') {
+    accent = s.player1.color || '#FFFFFF';
+  }
+  if (!accent) accent = '#FFFFFF';
+  vsRoot.style.setProperty('--vs-accent',      accent);
+  vsRoot.style.setProperty('--vs-accent-glow',  hexToRgba(accent, 0.45));
+  vsRoot.style.setProperty('--vs-accent-glow2', hexToRgba(accent, 0.18));
+  // Classe thème (pour éventuels overrides CSS spéciaux)
+  vsRoot.className = vsRoot.className.replace(/\btheme-\S+/g, '').trim();
+  if (theme !== 'default') vsRoot.classList.add('theme-' + theme);
 
   // Particles — restart if character changed
   const charChanged = !prevState

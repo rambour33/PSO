@@ -17,6 +17,10 @@ html, body {
   overflow: hidden;
   background: transparent;
   font-family: 'Russo One', sans-serif;
+  /* Valeurs par défaut — surchargées par JS selon le thème */
+  --vs-accent:      #FFFFFF;
+  --vs-accent-glow:  rgba(255,255,255,0.45);
+  --vs-accent-glow2: rgba(255,255,255,0.18);
 }
 
 /* ── Background custom uploadé ───────────────────── */
@@ -71,34 +75,8 @@ html, body {
   z-index: 0;
 }
 
-/* Lignes diagonales décoratives (dans la couche animée) */
-#vs-bg-layer::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background:
-    linear-gradient(135deg, transparent 49.5%, rgba(255,255,255,0.04) 49.5%, rgba(255,255,255,0.04) 50.5%, transparent 50.5%),
-    linear-gradient(45deg,  transparent 49.5%, rgba(255,255,255,0.03) 49.5%, rgba(255,255,255,0.03) 50.5%, transparent 50.5%);
-  pointer-events: none;
-  z-index: 5;
-}
 
-/* Ligne centrale verticale (dans la couche animée) */
-#vs-bg-layer::after {
-  content: '';
-  position: absolute;
-  top: 0; bottom: 0;
-  left: 50%;
-  width: 1px;
-  background: linear-gradient(to bottom,
-    transparent 0%,
-    rgba(255,255,255,0.12) 20%,
-    rgba(255,255,255,0.12) 80%,
-    transparent 100%
-  );
-  pointer-events: none;
-  z-index: 6;
-}
+#vs-bg-layer::after { display: none; }
 #vs-bg-layer.vs-in {
   opacity: 1;
   transition: opacity 0.9s ease, transform 0.9s cubic-bezier(0.22,1,0.36,1) !important;
@@ -403,18 +381,52 @@ html, body {
   letter-spacing: 0.02em;
   text-shadow:
     0 2px 8px rgba(0,0,0,0.9),
-    0 0 40px rgba(0,0,0,0.6);
+    0 0 30px var(--vs-accent-glow2);
 }
 
 .vs-char-name {
   font-size: 18px;
   font-family: 'Inter', sans-serif;
   font-weight: 400;
-  color: rgba(255,255,255,0.45);
+  color: var(--vs-accent);
+  opacity: 0.55;
   letter-spacing: 0.15em;
   text-transform: uppercase;
 }
 .vs-char-name:empty { display: none; }
+
+/* ── Réseaux sociaux ──────────────────────────────── */
+.vs-socials {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+.vs-socials:empty { display: none; }
+
+.vs-social-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 13px;
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  padding: 3px 9px 3px 7px;
+  border-radius: 20px;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: rgba(255,255,255,0.75);
+  white-space: nowrap;
+}
+.vs-social-item .vs-social-icon {
+  font-size: 11px;
+  line-height: 1;
+}
+.vs-social-item.social-twitter  { border-color: rgba(29,161,242,0.35); color: rgba(140,210,255,0.9); }
+.vs-social-item.social-twitch   { border-color: rgba(145,71,255,0.4);  color: rgba(200,160,255,0.9); }
+.vs-social-item.social-discord  { border-color: rgba(88,101,242,0.4);  color: rgba(150,165,255,0.9); }
+.vs-social-item.social-youtube  { border-color: rgba(255,0,0,0.35);    color: rgba(255,130,130,0.9); }
 
 /* ── Centre VS ────────────────────────────────────── */
 #vs-center {
@@ -427,6 +439,8 @@ html, body {
   align-items: center;
   gap: 10px;
   pointer-events: none;
+  /* Halo thème derrière le centre */
+  filter: drop-shadow(0 0 40px var(--vs-accent-glow2));
 
   opacity: 0;
   scale: 0.6;
@@ -441,12 +455,12 @@ html, body {
 #vs-vs-text {
   font-size: 148px;
   font-family: 'Russo One', sans-serif;
-  color: #FFFFFF;
+  color: var(--vs-accent);
   letter-spacing: -0.02em;
   line-height: 1;
   text-shadow:
-    0 0 30px rgba(255,255,255,0.5),
-    0 0 80px rgba(255,255,255,0.2),
+    0 0 40px var(--vs-accent-glow),
+    0 0 100px var(--vs-accent-glow2),
     0 4px 20px rgba(0,0,0,0.8);
   position: relative;
 }
@@ -456,20 +470,25 @@ html, body {
   position: absolute;
   bottom: -8px; left: 10%; right: 10%;
   height: 3px;
-  background: linear-gradient(to right, transparent, rgba(255,255,255,0.6), transparent);
+  background: linear-gradient(to right, transparent, var(--vs-accent-glow), transparent);
 }
 
 #vs-meta {
   display: flex;
   align-items: center;
   gap: 10px;
-  font-size: 16px;
+  font-size: 22px;
   font-family: 'Inter', sans-serif;
   font-weight: 400;
-  color: rgba(255,255,255,0.65);
+  color: var(--vs-accent);
+  opacity: 0.7;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   white-space: nowrap;
+  background: rgba(0,0,0,0.38);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 6px;
+  padding: 5px 18px;
 }
 #vs-meta:empty { display: none; }
 .vs-meta-sep { opacity: 0.4; }
@@ -477,35 +496,41 @@ html, body {
 .vs-meta-sep:first-child { display: none; }
 
 #vs-event-name {
-  font-size: 13px;
+  font-size: 24px;
   font-family: 'Inter', sans-serif;
-  font-weight: 400;
-  color: rgba(255,255,255,0.35);
+  font-weight: 700;
+  color: var(--vs-accent);
+  opacity: 0.4;
   letter-spacing: 0.2em;
   text-transform: uppercase;
+  background: rgba(0,0,0,0.32);
+  border-radius: 4px;
+  padding: 3px 14px;
 }
+#vs-event-name:empty { display: none; }
 
 #vs-series {
   display: flex;
   align-items: center;
   gap: 14px;
   margin-top: 8px;
+  background: rgba(0,0,0,0.38);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 8px;
+  padding: 6px 22px;
 }
 .vs-series-score {
-  font-size: 36px;
+  font-size: 52px;
   font-family: 'Russo One', sans-serif;
-  color: rgba(255,255,255,0.9);
+  color: var(--vs-accent);
   min-width: 30px;
   text-align: center;
+  text-shadow: 0 0 20px var(--vs-accent-glow);
 }
 .vs-series-dash {
-  font-size: 22px;
-  color: rgba(255,255,255,0.3);
+  font-size: 30px;
+  color: var(--vs-accent);
+  opacity: 0.3;
 }
 
 
-/* ── Thème overlay ────────────────────────────────── */
-/* Le thème colore le VS text selon les couleurs du scoreboard */
-#vs-root.theme-fire   #vs-vs-text { text-shadow: 0 0 40px #ff6600, 0 0 80px #ff330044, 0 4px 20px #0004; }
-#vs-root.theme-cyber  #vs-vs-text { text-shadow: 0 0 40px #00ffcc, 0 0 80px #00ffcc44, 0 4px 20px #0004; }
-#vs-root.theme-bolt   #vs-vs-text { text-shadow: 0 0 40px #ffdd00, 0 0 80px #ffdd0044, 0 4px 20px #0004; }

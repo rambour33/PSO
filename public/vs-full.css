@@ -1,0 +1,158 @@
+/* ═══════════════════════════════════════════════════
+   VS FULL  ·  Version plein écran du VS Screen
+   Surcharge vs-screen.css — personnages remplissent
+   l'intégralité de leur moitié d'écran
+   ═══════════════════════════════════════════════════ */
+
+/* ── Côtés : pleine moitié (960px) ───────────────── */
+.vs-side {
+  width: 960px;
+}
+
+/* ── Wrap du personnage ───────────────────────────── */
+.vs-char-wrap {
+  width:    960px;
+  height:   1080px;
+  left:     0;
+  bottom:   0;
+  overflow: visible;  /* l'image peut déborder vers le haut */
+}
+.vs-char-wrap.vs-flip {
+  left:  auto;
+  right: 0;
+}
+
+/* ── Image personnage : hauteur × 2 ancrée en bas ──
+   Les PNGs SSBU ont jusqu'à 50% de transparent en haut.
+   En réglant height à ~200% du wrap (1080px × 2 = 2160px)
+   l'image s'étend bien au-delà du haut de l'écran,
+   assurant que le personnage visible remonte jusqu'en haut.
+   L'overflow est clippé par #vs-root { overflow: hidden }.  */
+.vs-char-img {
+  align-self: flex-end;
+  width:      960px;
+  height:     1080px;
+  max-width:  none;
+  max-height: none;
+  object-fit: contain;
+  object-position: bottom center;
+  filter: drop-shadow(0 0 60px rgba(0,0,0,0.55));
+}
+
+/* ── Masque : fondu uniquement sur les 18% centraux ─ */
+.vs-side:not(.vs-right) .vs-char-wrap {
+  mask-image: linear-gradient(to right,
+    rgba(0,0,0,1) 65%,
+    rgba(0,0,0,0.25) 88%,
+    rgba(0,0,0,0) 100%);
+  -webkit-mask-image: linear-gradient(to right,
+    rgba(0,0,0,1) 65%,
+    rgba(0,0,0,0.25) 88%,
+    rgba(0,0,0,0) 100%);
+}
+.vs-side.vs-right .vs-char-wrap {
+  mask-image: linear-gradient(to left,
+    rgba(0,0,0,1) 65%,
+    rgba(0,0,0,0.25) 88%,
+    rgba(0,0,0,0) 100%);
+  -webkit-mask-image: linear-gradient(to left,
+    rgba(0,0,0,1) 65%,
+    rgba(0,0,0,0.25) 88%,
+    rgba(0,0,0,0) 100%);
+}
+
+/* ── Infos joueur ─────────────────────────────────── */
+.vs-player-info {
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 48px 44px 44px;
+  background: linear-gradient(to top,
+    rgba(0,0,0,0.82) 0%,
+    rgba(0,0,0,0.45) 55%,
+    transparent 100%);
+  /* annule les transitions héritées : la div entière est visible */
+  transform: none;
+  opacity: 0;
+  transition: opacity 0.5s 0.45s ease !important;
+}
+.vs-player-info.vs-in {
+  transform: none !important;
+  opacity: 1;
+}
+.vs-player-info.vs-out {
+  transform: none !important;
+  opacity: 0 !important;
+}
+
+.vs-right-info {
+  left: 0;
+  right: 0;
+  text-align: right;
+  align-items: flex-end;
+  padding: 48px 44px 44px;
+}
+
+/* ── Textes agrandis ──────────────────────────────── */
+.vs-name {
+  font-size: 76px;
+  letter-spacing: 0.01em;
+}
+.vs-tag {
+  font-size: 26px;
+  letter-spacing: 0.14em;
+}
+.vs-char-name {
+  font-size: 20px;
+  letter-spacing: 0.18em;
+}
+
+/* ── Barre couleur plus épaisse ───────────────────── */
+.vs-color-bar {
+  width: 6px;
+}
+
+/* ── Réseaux sociaux légèrement agrandis ──────────── */
+.vs-social-item {
+  font-size: 14px;
+  padding: 4px 10px 4px 8px;
+}
+
+/* ── VS center : texte plus grand ─────────────────── */
+#vs-vs-text {
+  font-size: 172px;
+}
+#vs-series {
+  margin-top: 12px;
+}
+.vs-series-score {
+  font-size: 44px;
+}
+
+/* ── Corrections animations d'entrée pour full ────── */
+
+/* Slide : P1 part de la gauche, P2 de la droite */
+#vs-root:not([data-entry]) .vs-char-wrap:not(.vs-flip),
+#vs-root[data-entry="slide"] .vs-char-wrap:not(.vs-flip) {
+  transform: translateX(-140px);
+}
+#vs-root:not([data-entry]) .vs-char-wrap.vs-flip,
+#vs-root[data-entry="slide"] .vs-char-wrap.vs-flip {
+  transform: translateX(140px);
+}
+
+/* Bounce : décalage plus large pour plus d'impact */
+#vs-root[data-entry="bounce"] .vs-char-wrap:not(.vs-flip):not(.vs-in) {
+  transform: translateX(-420px) !important;
+}
+#vs-root[data-entry="bounce"] .vs-char-wrap.vs-flip:not(.vs-in) {
+  transform: translateX(420px) !important;
+}
+
+/* Split : jaillit du centre */
+#vs-root[data-entry="split"] .vs-char-wrap:not(.vs-flip):not(.vs-in) {
+  transform: translateX(360px) !important;
+}
+#vs-root[data-entry="split"] .vs-char-wrap.vs-flip:not(.vs-in) {
+  transform: translateX(-360px) !important;
+}
