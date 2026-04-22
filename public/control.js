@@ -2022,13 +2022,46 @@ document.getElementById('btn-vs-hide')?.addEventListener('click', () => {
   });
   updateAutoHidePreview();
 
+  // Scale des iframes preview
+  function scalePreviewWrap(wrap) {
+    const frame = wrap.querySelector('.overlay-preview-frame');
+    if (!frame) return;
+    const scale = wrap.offsetWidth / 1920;
+    frame.style.transform = `scale(${scale})`;
+    wrap.style.height = Math.round(1080 * scale) + 'px';
+  }
+  function scaleAllPreviews() {
+    document.querySelectorAll('.overlay-preview-wrap').forEach(scalePreviewWrap);
+  }
+  scaleAllPreviews();
+  window.addEventListener('resize', scaleAllPreviews);
+
+  // Sous-panneaux match (Scoreboard/Casters/Veto/Ruleset)
+  document.querySelectorAll('.match-subpanel-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const panel = btn.closest('.match-panel, .tab-content');
+      panel.querySelectorAll('.match-subpanel-btn').forEach(b => b.classList.remove('active'));
+      panel.querySelectorAll('.match-subpanel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      const target = panel.querySelector('#' + btn.dataset.subpanel);
+      if (target) {
+        target.classList.add('active');
+        target.querySelectorAll('.overlay-preview-wrap').forEach(scalePreviewWrap);
+      }
+    });
+  });
+
   // Sous-onglets VS Screen
   document.querySelectorAll('.vs-subtab-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.vs-subtab-btn').forEach(b => b.classList.remove('active'));
       document.querySelectorAll('.vs-subtab-panel').forEach(p => p.classList.remove('active'));
       btn.classList.add('active');
-      document.getElementById(btn.dataset.vspanel)?.classList.add('active');
+      const target = document.getElementById(btn.dataset.vspanel);
+      if (target) {
+        target.classList.add('active');
+        target.querySelectorAll('.overlay-preview-wrap').forEach(scalePreviewWrap);
+      }
     });
   });
 
@@ -5095,20 +5128,39 @@ document.getElementById('btn-copy-frames-url')?.addEventListener('click', () => 
 
 /* Couleur associée à chaque calque */
 const LAYER_COLORS = {
-  'overlay':            '#E8B830',
-  'stageveto':          '#00F5FF',
-  'casters':            '#FF6EC7',
-  'vs-screen':          '#4488FF',
-  'player-stats':       '#6BC96C',
-  'twitch-layout':      '#FF8C00',
-  'twitch-viewer':      '#9B59D0',
-  'twitch-chat':        '#B065E8',
-  'ticker':             '#FF4500',
-  'frames':             '#29B6F6',
-  'cam':                '#20C9A0',
-  'stream-title':       '#A8FF78',
-  'h2h':                '#FFD700',
-  'tournament-history': '#FF218C',
+  // Scoreboard
+  'overlay':             '#E8B830',
+  'overlay-slim':        '#F0C840',
+  'scoreboard-elements': '#C8A020',
+  // Casters
+  'casters':             '#FF6EC7',
+  // Veto
+  'stageveto':           '#00F5FF',
+  // VS Screen
+  'vs-screen':           '#4488FF',
+  // Overlays génériques
+  'ticker':              '#FF4500',
+  'frames':              '#29B6F6',
+  'cam':                 '#20C9A0',
+  'stream-title':        '#A8FF78',
+  'h2h':                 '#FFD700',
+  'player-stats':        '#6BC96C',
+  'tournament-history':  '#FF218C',
+  'bracket':             '#7B68EE',
+  'top8':                '#8A2BE2',
+  'timer':               '#00CED1',
+  // Twitch
+  'twitch-layout':       '#FF8C00',
+  'twitch-viewer':       '#9B59D0',
+  'twitch-chat':         '#B065E8',
+  'twitch-alerts':       '#FF6347',
+  // YouTube
+  'youtube-chat':        '#FF4040',
+  'youtube-viewer':      '#CC2020',
+  'youtube-alerts':      '#E53935',
+  // Outils streaming
+  'combined-chat':       '#4CAF50',
+  'avsync':              '#78909C',
 };
 
 // État complet multi-scènes (synchronisé depuis le serveur)
@@ -5230,35 +5282,50 @@ function renderLayerList() {
   const sorted = superLocal.layers.slice().sort((a, b) => a.order - b.order);
   list.innerHTML = '';
 
+  const groups = {};
+  const groupOrder = [];
   sorted.forEach(layer => {
-    const color = LAYER_COLORS[layer.id] || '#888';
-    const hasSnap = !!layer.snapshot;
-    const canSnap = SNAPSHOT_SUPPORTED.has(layer.id);
-    const li = document.createElement('li');
-    li.className   = 'studio-layer-item' + (layer.visible ? '' : ' sli-disabled');
-    li.draggable   = true;
-    li.dataset.id  = layer.id;
+    const cat = layer.category || 'Autres';
+    if (!groups[cat]) { groups[cat] = []; groupOrder.push(cat); }
+    groups[cat].push(layer);
+  });
 
-    const snapBtns = canSnap ? `
-      <button class="btn btn-sm sli-snap-btn ${hasSnap ? 'sli-snap-saved' : 'sli-snap-empty'}"
-        data-id="${layer.id}"
-        title="Shift+clic pour supprimer le snapshot">
-        ${hasSnap ? '💾 Sauvegardé' : '💾 Sauvegarder'}
-      </button>
-    ` : '';
+  groupOrder.forEach(cat => {
+    const header = document.createElement('li');
+    header.className = 'studio-layer-category';
+    header.textContent = cat;
+    list.appendChild(header);
 
-    li.innerHTML = `
-      <span class="sli-drag" title="Glisser pour réordonner">⠿</span>
-      <span class="sli-dot" style="background:${color}"></span>
-      <label class="sli-vis-wrap" title="Visible dans le Super Overlay">
-        <input type="checkbox" class="sli-vis" data-id="${layer.id}" ${layer.visible ? 'checked' : ''} />
-        <span style="font-size:11px;">${layer.visible ? 'ON' : 'OFF'}</span>
-      </label>
-      <span class="sli-name">${layer.label}</span>
-      <span class="sli-snap-wrap">${snapBtns}</span>
-    `;
+    groups[cat].forEach(layer => {
+      const color = LAYER_COLORS[layer.id] || '#888';
+      const hasSnap = !!layer.snapshot;
+      const canSnap = SNAPSHOT_SUPPORTED.has(layer.id);
+      const li = document.createElement('li');
+      li.className  = 'studio-layer-item' + (layer.visible ? '' : ' sli-disabled');
+      li.draggable  = true;
+      li.dataset.id = layer.id;
 
-    list.appendChild(li);
+      const snapBtns = canSnap ? `
+        <button class="btn btn-sm sli-snap-btn ${hasSnap ? 'sli-snap-saved' : 'sli-snap-empty'}"
+          data-id="${layer.id}"
+          title="Shift+clic pour supprimer le snapshot">
+          ${hasSnap ? '💾 Sauvegardé' : '💾 Sauvegarder'}
+        </button>
+      ` : '';
+
+      li.innerHTML = `
+        <span class="sli-drag" title="Glisser pour réordonner">⠿</span>
+        <span class="sli-dot" style="background:${color}"></span>
+        <label class="sli-vis-wrap" title="Visible dans le Super Overlay">
+          <input type="checkbox" class="sli-vis" data-id="${layer.id}" ${layer.visible ? 'checked' : ''} />
+          <span style="font-size:11px;">${layer.visible ? 'ON' : 'OFF'}</span>
+        </label>
+        <span class="sli-name">${layer.label}</span>
+        <span class="sli-snap-wrap">${snapBtns}</span>
+      `;
+
+      list.appendChild(li);
+    });
   });
 
   bindListDrag();

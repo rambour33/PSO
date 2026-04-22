@@ -303,7 +303,10 @@ let vetoState = makeVetoState();
 
 app.get('/', (req, res) => res.redirect('/control'));
 app.get('/overlay', (req, res) => res.sendFile(path.join(__dirname, 'public', 'overlay.html')));
-app.get('/overlay-slim', (req, res) => res.redirect('/overlay'));
+app.get('/overlay-slim', (req, res) => res.sendFile(path.join(__dirname, 'public', 'overlay-slim.html')));
+app.get('/h2h',          (req, res) => res.sendFile(path.join(__dirname, 'public', 'h2h.html')));
+app.get('/youtube-chat', (req, res) => res.sendFile(path.join(__dirname, 'public', 'youtube-chat.html')));
+app.get('/twitch-alerts',(req, res) => res.sendFile(path.join(__dirname, 'public', 'twitch-alerts.html')));
 app.get('/stageveto', (req, res) => res.sendFile(path.join(__dirname, 'public', 'stageveto.html')));
 app.get('/casters', (req, res) => res.sendFile(path.join(__dirname, 'public', 'casters.html')));
 app.get('/control', (req, res) => res.sendFile(path.join(__dirname, 'public', 'control.html')));
@@ -412,20 +415,39 @@ app.post('/api/title', (req, res) => {
 // ─── Super Overlay / Créateur de scènes ────────────────────────────────────────
 
 const SUPER_LAYER_DEFS = [
-  { id: 'overlay',            label: 'Overlay principal',  url: '/overlay'            },
-  { id: 'stageveto',          label: 'Stage Veto',         url: '/stageveto'          },
-  { id: 'casters',            label: 'Casters',            url: '/casters'            },
-  { id: 'vs-screen',          label: 'VS Screen',          url: '/vs-screen'          },
-  { id: 'player-stats',       label: 'Stats joueurs',      url: '/player-stats'       },
-  { id: 'twitch-layout',      label: 'Twitch Layout',      url: '/twitch-layout'      },
-  { id: 'twitch-viewer',      label: 'Viewers Twitch',     url: '/twitch-viewer'      },
-  { id: 'twitch-chat',        label: 'Chat Twitch',        url: '/twitch-chat'        },
-  { id: 'ticker',             label: 'Bandeau',            url: '/ticker'             },
-  { id: 'frames',             label: 'Cadres',             url: '/frames'             },
-  { id: 'cam',                label: 'Cam Overlay',        url: '/cam'                },
-  { id: 'stream-title',       label: 'Titre du stream',   url: '/stream-title'       },
-  { id: 'h2h',                label: 'H2H',                url: '/h2h'                },
-  { id: 'tournament-history', label: 'Historique tournoi', url: '/tournament-history' },
+  // Scoreboard
+  { id: 'overlay',            label: 'Overlay principal',   url: '/overlay',            category: 'Scoreboard'          },
+  { id: 'overlay-slim',       label: 'Overlay Slim',        url: '/overlay-slim',       category: 'Scoreboard'          },
+  { id: 'scoreboard-elements',label: 'Éléments scoreboard', url: '/scoreboard-elements',category: 'Scoreboard'          },
+  // Casters
+  { id: 'casters',            label: 'Casters',             url: '/casters',            category: 'Casters'             },
+  // Veto
+  { id: 'stageveto',          label: 'Stage Veto',          url: '/stageveto',          category: 'Veto'                },
+  // VS Screen
+  { id: 'vs-screen',          label: 'VS Screen',           url: '/vs-screen',          category: 'VS Screen'           },
+  // Overlays génériques
+  { id: 'ticker',             label: 'Bandeau',             url: '/ticker',             category: 'Overlays génériques' },
+  { id: 'frames',             label: 'Cadres',              url: '/frames',             category: 'Overlays génériques' },
+  { id: 'cam',                label: 'Cam Overlay',         url: '/cam',                category: 'Overlays génériques' },
+  { id: 'stream-title',       label: 'Titre du stream',     url: '/stream-title',       category: 'Overlays génériques' },
+  { id: 'h2h',                label: 'H2H',                 url: '/h2h',                category: 'Overlays génériques' },
+  { id: 'player-stats',       label: 'Stats joueurs',       url: '/player-stats',       category: 'Overlays génériques' },
+  { id: 'tournament-history', label: 'Historique tournoi',  url: '/tournament-history', category: 'Overlays génériques' },
+  { id: 'bracket',            label: 'Bracket',             url: '/bracket',            category: 'Overlays génériques' },
+  { id: 'top8',               label: 'Top 8',               url: '/top8',               category: 'Overlays génériques' },
+  { id: 'timer',              label: 'Minuteur',            url: '/timer',              category: 'Overlays génériques' },
+  // Twitch
+  { id: 'twitch-layout',      label: 'Twitch Layout',       url: '/twitch-layout',      category: 'Twitch'              },
+  { id: 'twitch-viewer',      label: 'Viewers Twitch',      url: '/twitch-viewer',      category: 'Twitch'              },
+  { id: 'twitch-chat',        label: 'Chat Twitch',         url: '/twitch-chat',        category: 'Twitch'              },
+  { id: 'twitch-alerts',      label: 'Alertes Twitch',      url: '/twitch-alerts',      category: 'Twitch'              },
+  // YouTube
+  { id: 'youtube-chat',       label: 'Chat YouTube',        url: '/youtube-chat',       category: 'YouTube'             },
+  { id: 'youtube-viewer',     label: 'Viewers YouTube',     url: '/youtube-viewer',     category: 'YouTube'             },
+  { id: 'youtube-alerts',     label: 'Alertes YouTube',     url: '/youtube-alerts',     category: 'YouTube'             },
+  // Outils streaming
+  { id: 'combined-chat',      label: 'Chat combiné',        url: '/combined-chat',      category: 'Outils streaming'    },
+  { id: 'avsync',             label: 'AV Sync',             url: '/avsync',             category: 'Outils streaming'    },
 ];
 
 function makeSceneLayers() {
@@ -1913,7 +1935,7 @@ async function startggQuery(query, variables = {}) {
     data.errors.forEach((e, i) => console.error(`  [${i}]`, JSON.stringify(e)));
     throw new Error(data.errors[0].message);
   }
-  return data.data;
+  return data.data ?? {};
 }
 
 app.get('/api/startgg/config', (req, res) => {

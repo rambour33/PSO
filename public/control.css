@@ -737,6 +737,62 @@ input[type="color"] {
   display: block;
 }
 
+.match-subpanel-nav {
+  display: flex;
+  gap: 2px;
+  padding: 8px 20px 0;
+  border-bottom: 1px solid var(--border);
+  background: rgba(0,0,0,0.12);
+}
+
+.match-subpanel-btn {
+  padding: 6px 14px;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text-muted, #888);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+  margin-bottom: -1px;
+}
+
+.match-subpanel-btn:hover { color: var(--text-primary); }
+
+.match-subpanel-btn.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+.match-subpanel { display: none; }
+.match-subpanel.active { display: block; }
+
+/* ── Overlay preview ────────────────────────────────────────── */
+
+.overlay-preview-container {
+  padding: 16px 20px 20px;
+}
+
+.overlay-preview-wrap {
+  width: 100%;
+  overflow: hidden;
+  background: #000;
+  border-radius: 10px;
+  box-shadow: 0 4px 32px rgba(0,0,0,0.6);
+}
+
+.overlay-preview-frame {
+  display: block;
+  width: 1920px;
+  height: 1080px;
+  transform-origin: top left;
+  border: none;
+  pointer-events: none;
+}
+
 /* ── Scoreboard grid ─────────────────────────────────────────── */
 
 .scoreboard-grid {
@@ -3088,6 +3144,23 @@ kbd {
   display: flex;
   flex-direction: column;
   gap: 4px;
+}
+
+.studio-layer-category {
+  list-style: none;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: #888;
+  padding: 6px 8px 2px 4px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  margin-top: 6px;
+  pointer-events: none;
+  user-select: none;
+}
+.studio-layer-category:first-child {
+  margin-top: 0;
 }
 
 .studio-layer-item {

@@ -9,7 +9,8 @@
       "Bash(taskkill /PID 3512 /F)",
       "Bash(cmd /c \"taskkill /PID 3512 /F\")",
       "Bash(cmd /c \"taskkill /PID 3512 /F 2>&1\")",
-      "Bash(powershell -Command \"Stop-Process -Id 3512 -Force; Write-Host 'Done'\")"
+      "Bash(powershell -Command \"Stop-Process -Id 3512 -Force; Write-Host 'Done'\")",
+      "Bash(awk -F: '$2>=2418 && $2<=2800')"
     ]
   }
 }
