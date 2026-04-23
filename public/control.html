@@ -33,6 +33,7 @@
           <a href="/vs-screen" target="_blank">VS Screen</a>
           <a href="/cam" target="_blank">Cam</a>
           <a href="/casters" target="_blank">Casters</a>
+          <a href="/casters-custom" target="_blank">Casters Custom</a>
         </div>
       </div>
       <div class="overlay-group">
@@ -322,6 +323,138 @@
       </div>
     </section>
 
+        <section class="section">
+          <div class="section-header"><h2>Logo central</h2></div>
+          <div class="custom-grid">
+            <div class="custom-card">
+              <h3>Logo central — Scoreboard</h3>
+              <p class="hint" style="margin-bottom:10px">Remplace le texte « VS » au centre.</p>
+              <div class="form-group">
+                <label>URL ou fichier local</label>
+                <div style="display:flex;gap:6px">
+                  <input type="text" id="center-logo" placeholder="https://... ou choisir un fichier →" style="flex:1" />
+                  <button id="btn-logo-file-pick" class="btn btn-outline btn-sm" title="Choisir un fichier local">📁</button>
+                  <input type="file" id="center-logo-file-input" accept="image/*" style="display:none" />
+                </div>
+              </div>
+              <div class="logo-preview-row">
+                <div class="logo-preview-box" id="center-logo-preview">
+                  <span>Aperçu</span>
+                </div>
+                <button id="btn-apply-logo" class="btn btn-primary btn-sm">Appliquer</button>
+              </div>
+              <div class="form-group" style="margin-top:12px">
+                <label>Particules logo (thèmes custom) <span class="hint">0 – 100</span></label>
+                <div class="logo-particles-row">
+                  <input type="range" id="logo-particles-range" min="0" max="100" value="0" />
+                  <input type="number" id="logo-particles-num" min="0" max="100" value="0" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="section-header"><h2>Drapeaux</h2></div>
+          <div class="custom-grid">
+            <div class="custom-card" style="grid-column:1/-1">
+              <h3>Taille</h3>
+              <div class="form-group" style="margin:0">
+                <div class="logo-particles-row">
+                  <input type="range" id="flag-size-range" min="20" max="150" value="52" />
+                  <input type="number" id="flag-size-num" min="20" max="150" value="52" style="width:60px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:13px;padding:4px 6px;text-align:center" />
+                  <span style="font-size:12px;color:var(--text-muted)">px</span>
+                </div>
+              </div>
+            </div>
+            <div class="custom-card">
+              <h3>Position — Joueur 1</h3>
+              <div class="form-group" style="margin-bottom:10px">
+                <label>Décalage X</label>
+                <div class="logo-particles-row">
+                  <input type="range" id="p1-flag-x-range" min="-200" max="200" value="0" />
+                  <input type="number" id="p1-flag-x-num" min="-200" max="200" value="0" style="width:60px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:13px;padding:4px 6px;text-align:center" />
+                </div>
+              </div>
+              <div class="form-group" style="margin:0">
+                <label>Décalage Y</label>
+                <div class="logo-particles-row">
+                  <input type="range" id="p1-flag-y-range" min="-200" max="200" value="0" />
+                  <input type="number" id="p1-flag-y-num" min="-200" max="200" value="0" style="width:60px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:13px;padding:4px 6px;text-align:center" />
+                </div>
+              </div>
+            </div>
+            <div class="custom-card">
+              <h3>Position — Joueur 2</h3>
+              <div class="form-group" style="margin-bottom:10px">
+                <label>Décalage X</label>
+                <div class="logo-particles-row">
+                  <input type="range" id="p2-flag-x-range" min="-200" max="200" value="0" />
+                  <input type="number" id="p2-flag-x-num" min="-200" max="200" value="0" style="width:60px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:13px;padding:4px 6px;text-align:center" />
+                </div>
+              </div>
+              <div class="form-group" style="margin:0">
+                <label>Décalage Y</label>
+                <div class="logo-particles-row">
+                  <input type="range" id="p2-flag-y-range" min="-200" max="200" value="0" />
+                  <input type="number" id="p2-flag-y-num" min="-200" max="200" value="0" style="width:60px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:13px;padding:4px 6px;text-align:center" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="section-header"><h2>Texture de fond</h2></div>
+          <div class="custom-grid">
+            <div class="custom-card" style="grid-column:1/-1">
+              <h3>Image</h3>
+              <p class="hint" style="margin-bottom:12px">Appliquée en arrière-plan sur tous les overlays. Fichiers stockés localement (<code>public/textures/</code>), non synchronisés sur Git.</p>
+              <div style="display:flex;gap:12px;align-items:flex-start">
+                <div id="texture-preview" style="width:80px;height:60px;border:1px solid var(--border);border-radius:6px;background-size:auto;background-repeat:repeat;background-position:0 0;flex-shrink:0;position:relative;overflow:hidden;background-color:var(--surface2)">
+                  <span id="texture-preview-empty" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--text-muted)">Aucune</span>
+                </div>
+                <div style="flex:1;display:flex;flex-direction:column;gap:8px">
+                  <div style="display:flex;gap:6px">
+                    <label class="btn btn-outline btn-sm" style="cursor:pointer">
+                      📁 Choisir fichier
+                      <input type="file" id="texture-file-input" accept="image/*" style="display:none" />
+                    </label>
+                    <button id="btn-texture-clear" class="btn btn-outline btn-sm" style="color:var(--danger);border-color:var(--danger)">✕ Retirer</button>
+                  </div>
+                  <div class="form-group" style="margin:0">
+                    <label>Opacité <span class="hint">0 – 100</span></label>
+                    <div class="logo-particles-row">
+                      <input type="range" id="texture-opacity-range" min="0" max="100" value="50" />
+                      <input type="number" id="texture-opacity-num" min="0" max="100" value="50" style="width:54px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:13px;padding:4px 6px;text-align:center" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div style="display:flex;gap:12px;margin-top:12px">
+                <div class="form-group" style="margin:0;flex:1">
+                  <label>Mode de fusion</label>
+                  <select id="texture-blend" style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:13px;padding:4px 6px">
+                    <option value="normal">Normal</option>
+                    <option value="multiply">Multiply</option>
+                    <option value="overlay">Overlay</option>
+                    <option value="screen">Screen</option>
+                    <option value="soft-light">Soft Light</option>
+                  </select>
+                </div>
+                <div class="form-group" style="margin:0;flex:1">
+                  <label>Répétition</label>
+                  <select id="texture-size" style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:13px;padding:4px 6px">
+                    <option value="repeat">Répéter (tuile)</option>
+                    <option value="cover">Couvrir</option>
+                    <option value="contain">Contenir</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
       </div><!-- /sb-sub-match -->
 
       <div class="match-subpanel" id="sb-sub-custom">
@@ -462,139 +595,6 @@
                     <input type="range" id="particle-count-range" min="0" max="500" value="100" />
                     <input type="number" id="particle-count-num" min="0" max="500" value="100" style="width:56px" />
                   </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-        <section class="section">
-          <div class="section-header"><h2>Logos</h2></div>
-          <div class="custom-grid">
-
-            <div class="custom-card">
-              <h3>Logo central — Scoreboard</h3>
-              <p class="hint" style="margin-bottom:10px">Remplace le texte « VS » au centre.</p>
-              <div class="form-group">
-                <label>URL ou fichier local</label>
-                <div style="display:flex;gap:6px">
-                  <input type="text" id="center-logo" placeholder="https://... ou choisir un fichier →" style="flex:1" />
-                  <button id="btn-logo-file-pick" class="btn btn-outline btn-sm" title="Choisir un fichier local">📁</button>
-                  <input type="file" id="center-logo-file-input" accept="image/*" style="display:none" />
-                </div>
-              </div>
-              <div class="logo-preview-row">
-                <div class="logo-preview-box" id="center-logo-preview">
-                  <span>Aperçu</span>
-                </div>
-                <button id="btn-apply-logo" class="btn btn-primary btn-sm">Appliquer</button>
-              </div>
-              <div class="form-group" style="margin-top:12px">
-                <label>Particules logo (thèmes custom) <span class="hint">0 – 100</span></label>
-                <div class="logo-particles-row">
-                  <input type="range" id="logo-particles-range" min="0" max="100" value="0" />
-                  <input type="number" id="logo-particles-num" min="0" max="100" value="0" />
-                </div>
-              </div>
-            </div>
-
-          </div>
-        </section>
-
-        <section class="section">
-          <div class="section-header"><h2>Drapeaux</h2></div>
-          <div class="custom-grid">
-            <div class="custom-card" style="grid-column:1/-1">
-              <h3>Taille</h3>
-              <div class="form-group" style="margin:0">
-                <div class="logo-particles-row">
-                  <input type="range" id="flag-size-range" min="20" max="150" value="52" />
-                  <input type="number" id="flag-size-num" min="20" max="150" value="52" style="width:60px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:13px;padding:4px 6px;text-align:center" />
-                  <span style="font-size:12px;color:var(--text-muted)">px</span>
-                </div>
-              </div>
-            </div>
-            <div class="custom-card">
-              <h3>Position — Joueur 1</h3>
-              <div class="form-group" style="margin-bottom:10px">
-                <label>Décalage X</label>
-                <div class="logo-particles-row">
-                  <input type="range" id="p1-flag-x-range" min="-200" max="200" value="0" />
-                  <input type="number" id="p1-flag-x-num" min="-200" max="200" value="0" style="width:60px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:13px;padding:4px 6px;text-align:center" />
-                </div>
-              </div>
-              <div class="form-group" style="margin:0">
-                <label>Décalage Y</label>
-                <div class="logo-particles-row">
-                  <input type="range" id="p1-flag-y-range" min="-200" max="200" value="0" />
-                  <input type="number" id="p1-flag-y-num" min="-200" max="200" value="0" style="width:60px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:13px;padding:4px 6px;text-align:center" />
-                </div>
-              </div>
-            </div>
-            <div class="custom-card">
-              <h3>Position — Joueur 2</h3>
-              <div class="form-group" style="margin-bottom:10px">
-                <label>Décalage X</label>
-                <div class="logo-particles-row">
-                  <input type="range" id="p2-flag-x-range" min="-200" max="200" value="0" />
-                  <input type="number" id="p2-flag-x-num" min="-200" max="200" value="0" style="width:60px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:13px;padding:4px 6px;text-align:center" />
-                </div>
-              </div>
-              <div class="form-group" style="margin:0">
-                <label>Décalage Y</label>
-                <div class="logo-particles-row">
-                  <input type="range" id="p2-flag-y-range" min="-200" max="200" value="0" />
-                  <input type="number" id="p2-flag-y-num" min="-200" max="200" value="0" style="width:60px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:13px;padding:4px 6px;text-align:center" />
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section class="section">
-          <div class="section-header"><h2>Texture de fond</h2></div>
-          <div class="custom-grid">
-            <div class="custom-card" style="grid-column:1/-1">
-              <h3>Image</h3>
-              <p class="hint" style="margin-bottom:12px">Appliquée en arrière-plan sur tous les overlays. Fichiers stockés localement (<code>public/textures/</code>), non synchronisés sur Git.</p>
-              <div style="display:flex;gap:12px;align-items:flex-start">
-                <div id="texture-preview" style="width:80px;height:60px;border:1px solid var(--border);border-radius:6px;background-size:auto;background-repeat:repeat;background-position:0 0;flex-shrink:0;position:relative;overflow:hidden;background-color:var(--surface2)">
-                  <span id="texture-preview-empty" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--text-muted)">Aucune</span>
-                </div>
-                <div style="flex:1;display:flex;flex-direction:column;gap:8px">
-                  <div style="display:flex;gap:6px">
-                    <label class="btn btn-outline btn-sm" style="cursor:pointer">
-                      📁 Choisir fichier
-                      <input type="file" id="texture-file-input" accept="image/*" style="display:none" />
-                    </label>
-                    <button id="btn-texture-clear" class="btn btn-outline btn-sm" style="color:var(--danger);border-color:var(--danger)">✕ Retirer</button>
-                  </div>
-                  <div class="form-group" style="margin:0">
-                    <label>Opacité <span class="hint">0 – 100</span></label>
-                    <div class="logo-particles-row">
-                      <input type="range" id="texture-opacity-range" min="0" max="100" value="50" />
-                      <input type="number" id="texture-opacity-num" min="0" max="100" value="50" style="width:54px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:13px;padding:4px 6px;text-align:center" />
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div style="display:flex;gap:12px;margin-top:12px">
-                <div class="form-group" style="margin:0;flex:1">
-                  <label>Mode de fusion</label>
-                  <select id="texture-blend" style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:13px;padding:4px 6px">
-                    <option value="normal">Normal</option>
-                    <option value="multiply">Multiply</option>
-                    <option value="overlay">Overlay</option>
-                    <option value="screen">Screen</option>
-                    <option value="soft-light">Soft Light</option>
-                  </select>
-                </div>
-                <div class="form-group" style="margin:0;flex:1">
-                  <label>Répétition</label>
-                  <select id="texture-size" style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:13px;padding:4px 6px">
-                    <option value="repeat">Répéter (tuile)</option>
-                    <option value="cover">Couvrir</option>
-                    <option value="contain">Contenir</option>
-                  </select>
                 </div>
               </div>
             </div>
@@ -871,6 +871,7 @@
     <div class="match-panel" id="match-panel-casters">
       <div class="match-subpanel-nav">
         <button class="match-subpanel-btn active" data-subpanel="casters-sub-match">Casters</button>
+        <button class="match-subpanel-btn" data-subpanel="casters-sub-builder">Builder</button>
         <button class="match-subpanel-btn" data-subpanel="casters-sub-custom">Customisation</button>
         <button class="match-subpanel-btn" data-subpanel="casters-sub-preview">Preview</button>
       </div>
@@ -909,6 +910,101 @@
 
       </div><!-- /casters-sub-match -->
 
+      <!-- BUILDER CASTERS -->
+      <div class="match-subpanel" id="casters-sub-builder">
+        <!-- Barre top : gestion des layouts -->
+        <div style="display:flex;gap:6px;align-items:center;padding:8px 12px;border-bottom:1px solid var(--border);flex-wrap:wrap;">
+          <select id="cbb-layout-select" style="flex:1;max-width:200px;padding:5px 8px;background:var(--surface2);border:1px solid var(--border);border-radius:5px;color:var(--text);font-size:12px;"></select>
+          <button class="btn btn-outline btn-sm" id="cbb-btn-new">+ Nouveau</button>
+          <button class="btn btn-outline btn-sm" id="cbb-btn-rename">Renommer</button>
+          <button class="btn btn-outline btn-sm" id="cbb-btn-duplicate">Dupliquer</button>
+          <button class="btn btn-outline btn-sm" id="cbb-btn-delete" style="color:#f87171;">Suppr.</button>
+          <input id="cbb-url-display" readonly style="flex:1;max-width:300px;font-size:11px;padding:4px 8px;background:var(--surface2);border:1px solid var(--border);border-radius:5px;color:var(--text-muted);font-family:monospace;" placeholder="— aucun layout —" />
+          <button class="btn btn-outline btn-sm" id="cbb-btn-copy-url">Copier URL</button>
+          <a id="cbb-overlay-link" href="#" target="_blank" class="btn btn-primary btn-sm">OBS ↗</a>
+        </div>
+
+        <!-- Colonnes : Formes/Calques | Canvas | Props -->
+        <div style="display:flex;gap:8px;padding:8px;height:calc(100vh - 265px);overflow:hidden;">
+
+          <!-- Col 1 : Formes + Éléments + Calques -->
+          <div style="width:185px;flex-shrink:0;display:flex;flex-direction:column;gap:6px;overflow-y:auto;">
+            <div class="custom-card" style="padding:10px;">
+              <h3 style="font-size:12px;margin-bottom:6px;color:var(--text-muted);">Formes</h3>
+              <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:3px;">
+                <button class="btn btn-sm btn-outline cbb-add-shape" data-type="rect" title="Rectangle">▭</button>
+                <button class="btn btn-sm btn-outline cbb-add-shape" data-type="text" title="Texte">T</button>
+                <button class="btn btn-sm btn-outline cbb-add-shape" data-type="image" title="Image">🖼</button>
+                <button class="btn btn-sm btn-outline cbb-add-shape" data-type="circle" title="Cercle">○</button>
+                <button class="btn btn-sm btn-outline cbb-add-shape" data-type="oval" title="Ovale">◯</button>
+                <button class="btn btn-sm btn-outline cbb-add-shape" data-type="semi-circle" title="Demi-cercle">◗</button>
+                <button class="btn btn-sm btn-outline cbb-add-shape" data-type="triangle" title="Triangle">△</button>
+                <button class="btn btn-sm btn-outline cbb-add-shape" data-type="star" title="Étoile">★</button>
+                <button class="btn btn-sm btn-outline cbb-add-shape" data-type="diamond" title="Diamant">◇</button>
+                <button class="btn btn-sm btn-outline cbb-add-shape" data-type="hexagon" title="Hexagone">⬡</button>
+              </div>
+            </div>
+
+            <div class="custom-card" style="padding:10px;">
+              <h3 style="font-size:12px;margin-bottom:6px;color:var(--text-muted);">Éléments</h3>
+              <div style="display:flex;flex-direction:column;gap:3px;">
+                <button class="btn btn-sm btn-outline cbb-add-element" data-key="c1name">C1 Nom</button>
+                <button class="btn btn-sm btn-outline cbb-add-element" data-key="c1twitter">C1 Twitter</button>
+                <button class="btn btn-sm btn-outline cbb-add-element" data-key="c1twitch">C1 Twitch</button>
+                <button class="btn btn-sm btn-outline cbb-add-element" data-key="c1youtube">C1 YouTube</button>
+                <button class="btn btn-sm btn-outline cbb-add-element" data-key="c2name">C2 Nom</button>
+                <button class="btn btn-sm btn-outline cbb-add-element" data-key="c2twitter">C2 Twitter</button>
+                <button class="btn btn-sm btn-outline cbb-add-element" data-key="c2twitch">C2 Twitch</button>
+                <button class="btn btn-sm btn-outline cbb-add-element" data-key="c2youtube">C2 YouTube</button>
+              </div>
+            </div>
+
+            <div class="custom-card" style="padding:10px;flex:1;min-height:80px;">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+                <h3 style="font-size:12px;color:var(--text-muted);">Calques</h3>
+                <div style="display:flex;gap:3px;">
+                  <button class="btn btn-sm btn-outline" id="cbb-btn-duplicate-shape" title="Dupliquer">⎘</button>
+                  <button class="btn btn-sm btn-outline" id="cbb-btn-delete-shape" title="Supprimer">🗑</button>
+                </div>
+              </div>
+              <div id="cbb-layers" style="display:flex;flex-direction:column;gap:2px;"></div>
+            </div>
+          </div>
+
+          <!-- Col 2 : Canvas -->
+          <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:6px;">
+            <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;flex-shrink:0;">
+              <button class="btn btn-sm btn-outline" id="cbb-btn-deselect">✕ Désélect.</button>
+              <button class="btn btn-sm btn-outline" id="cbb-btn-center">Centrer</button>
+              <label style="display:flex;align-items:center;gap:4px;font-size:12px;color:var(--text-muted);cursor:pointer;">
+                <input type="checkbox" id="cbb-snap-enabled" checked /> Snap
+              </label>
+              <span style="flex:1;"></span>
+              <button class="btn btn-sm btn-outline" id="cbb-bg-pick">Fond réf.</button>
+              <input type="file" id="cbb-bg-file" accept="image/*" style="display:none;" />
+              <input type="range" id="cbb-bg-opacity" min="0" max="100" value="30" style="width:60px;" />
+              <span id="cbb-bg-opacity-val" style="font-size:11px;color:var(--text-muted);min-width:28px;">30%</span>
+              <button class="btn btn-sm btn-outline" id="cbb-bg-clear">✕ Fond</button>
+            </div>
+            <div id="cbb-canvas-wrap" style="position:relative;background:#0a0a0f;cursor:default;user-select:none;overflow:hidden;border-radius:6px;flex:1;">
+              <div id="cbb-bg-layer" style="position:absolute;inset:0;background-size:cover;background-position:center;background-repeat:no-repeat;opacity:0.3;pointer-events:none;z-index:0;"></div>
+              <div id="cbb-canvas-inner" style="position:relative;width:1920px;height:1080px;transform-origin:top left;z-index:1;"></div>
+              <div id="cbb-snap-guides" style="position:absolute;inset:0;pointer-events:none;z-index:190;overflow:hidden;"></div>
+              <div id="cbb-interact-layer" style="position:absolute;inset:0;pointer-events:none;z-index:200;"></div>
+            </div>
+          </div>
+
+          <!-- Col 3 : Propriétés -->
+          <div style="width:240px;flex-shrink:0;overflow-y:auto;">
+            <div id="cbb-props-card" style="display:none;padding:10px;background:var(--surface1);border-radius:6px;border:1px solid var(--border);">
+              <span id="cbb-props-title" style="font-size:13px;font-weight:600;color:var(--text);display:block;margin-bottom:10px;"></span>
+              <div id="cbb-props-body" style="display:flex;flex-direction:column;gap:8px;"></div>
+            </div>
+          </div>
+
+        </div>
+      </div><!-- /casters-sub-builder -->
+
       <div class="match-subpanel" id="casters-sub-custom">
         <section class="section">
           <div class="section-header"><h2>Overlay Casters</h2></div>
@@ -928,6 +1024,58 @@
                   <input type="color" id="casters-bg-color" value="#0E0E12" />
                   <input type="number" id="casters-bg-opacity" value="100" min="0" max="100" style="width:60px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:13px;padding:4px 6px;text-align:center" />
                   <span style="font-size:12px;color:var(--text-muted)">%</span>
+                </div>
+              </div>
+            </div>
+            <div class="custom-card">
+              <h3>Éléments visibles</h3>
+              <div class="sel-group-label" style="margin-top:8px;">Overlay</div>
+              <div class="sel-rows" style="margin-bottom:8px;">
+                <div class="sel-row">
+                  <span class="sel-row-name">Étiquette</span>
+                  <label class="sel-vis-label"><input type="checkbox" id="cb-showLabel" checked />Vis</label>
+                </div>
+              </div>
+              <div class="sel-group-label">Caster 1</div>
+              <div class="sel-rows" style="margin-bottom:8px;">
+                <div class="sel-row">
+                  <span class="sel-row-name">Nom</span>
+                  <label class="sel-vis-label"><input type="checkbox" id="cb-c1ShowName" checked />Vis</label>
+                  <label class="sel-coord">Taille<input type="number" id="cb-c1NameSize" value="22" min="8" max="80" /></label>
+                  <input type="color" id="cb-c1NameColor" value="#F0EEF8" title="Couleur" style="width:28px;height:24px;padding:2px;border:1px solid var(--border);border-radius:4px;cursor:pointer;background:none;flex-shrink:0;" />
+                </div>
+                <div class="sel-row">
+                  <span class="sel-row-name">Twitter</span>
+                  <label class="sel-vis-label"><input type="checkbox" id="cb-c1ShowTwitter" checked />Vis</label>
+                </div>
+                <div class="sel-row">
+                  <span class="sel-row-name">Twitch</span>
+                  <label class="sel-vis-label"><input type="checkbox" id="cb-c1ShowTwitch" checked />Vis</label>
+                </div>
+                <div class="sel-row">
+                  <span class="sel-row-name">YouTube</span>
+                  <label class="sel-vis-label"><input type="checkbox" id="cb-c1ShowYoutube" checked />Vis</label>
+                </div>
+              </div>
+              <div class="sel-group-label">Caster 2</div>
+              <div class="sel-rows">
+                <div class="sel-row">
+                  <span class="sel-row-name">Nom</span>
+                  <label class="sel-vis-label"><input type="checkbox" id="cb-c2ShowName" checked />Vis</label>
+                  <label class="sel-coord">Taille<input type="number" id="cb-c2NameSize" value="22" min="8" max="80" /></label>
+                  <input type="color" id="cb-c2NameColor" value="#F0EEF8" title="Couleur" style="width:28px;height:24px;padding:2px;border:1px solid var(--border);border-radius:4px;cursor:pointer;background:none;flex-shrink:0;" />
+                </div>
+                <div class="sel-row">
+                  <span class="sel-row-name">Twitter</span>
+                  <label class="sel-vis-label"><input type="checkbox" id="cb-c2ShowTwitter" checked />Vis</label>
+                </div>
+                <div class="sel-row">
+                  <span class="sel-row-name">Twitch</span>
+                  <label class="sel-vis-label"><input type="checkbox" id="cb-c2ShowTwitch" checked />Vis</label>
+                </div>
+                <div class="sel-row">
+                  <span class="sel-row-name">YouTube</span>
+                  <label class="sel-vis-label"><input type="checkbox" id="cb-c2ShowYoutube" checked />Vis</label>
                 </div>
               </div>
             </div>

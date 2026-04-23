@@ -216,6 +216,11 @@ let castersState = {
     { name: '', twitter: '', twitch: '', youtube: '' },
     { name: '', twitter: '', twitch: '', youtube: '' },
   ],
+  showLabel:    true,
+  c1ShowName:   true, c1NameSize: 22, c1NameColor: '#F0EEF8',
+  c1ShowTwitter: true, c1ShowTwitch: true, c1ShowYoutube: true,
+  c2ShowName:   true, c2NameSize: 22, c2NameColor: '#F0EEF8',
+  c2ShowTwitter: true, c2ShowTwitch: true, c2ShowYoutube: true,
 };
 
 let twitchChatState = {
@@ -2931,6 +2936,51 @@ app.delete('/api/sb-layouts/:id', (req, res) => {
 
 app.get('/scoreboard-custom', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'scoreboard-custom.html'));
+});
+
+// ─── Caster builder layouts ────────────────────────────────────────────────────
+
+let casterLayouts = (function () {
+  try { return getConfig().casterLayouts || []; } catch { return []; }
+})();
+
+function saveCasterLayouts() {
+  const cfg = getConfig();
+  cfg.casterLayouts = casterLayouts;
+  saveConfig(cfg);
+}
+
+app.get('/api/caster-layouts', (req, res) => res.json({ layouts: casterLayouts }));
+
+app.post('/api/caster-layouts', (req, res) => {
+  const layout = {
+    id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+    name: req.body.name || 'Nouveau layout casters',
+    shapes: [],
+  };
+  casterLayouts.push(layout);
+  saveCasterLayouts();
+  res.json({ layout });
+});
+
+app.patch('/api/caster-layouts/:id', (req, res) => {
+  const idx = casterLayouts.findIndex(l => l.id === req.params.id);
+  if (idx === -1) return res.status(404).json({ error: 'not found' });
+  casterLayouts[idx] = { ...casterLayouts[idx], ...req.body };
+  saveCasterLayouts();
+  res.json({ layout: casterLayouts[idx] });
+});
+
+app.delete('/api/caster-layouts/:id', (req, res) => {
+  const idx = casterLayouts.findIndex(l => l.id === req.params.id);
+  if (idx === -1) return res.status(404).json({ error: 'not found' });
+  casterLayouts.splice(idx, 1);
+  saveCasterLayouts();
+  res.json({ ok: true });
+});
+
+app.get('/casters-custom', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'casters-custom.html'));
 });
 
 // ─── Transitions / Animations overlays ───────────────────────────────────────

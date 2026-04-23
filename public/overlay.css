@@ -3351,31 +3351,11 @@ body {
 /* Event bar + scores en haut, noms dans les panneaux du bas      */
 /* ═══════════════════════════════════════════════════════════════ */
 
-/* Masquer les blocs joueurs (portraits, noms) — garder score-center */
+/* Masquer les blocs joueurs et le score-center en lower-third */
 .scoreboard.style-lower-third .player-left,
-.scoreboard.style-lower-third .player-right {
-  display: none;
-}
-
-/* Score-center seul dans le players-container */
-.scoreboard.style-lower-third .players-container {
-  justify-content: center;
-  border-bottom: 2px solid var(--smash-gold);
-}
-
+.scoreboard.style-lower-third .player-right,
 .scoreboard.style-lower-third .score-center {
-  border-left: none;
-  border-right: none;
-  padding: 0 24px;
-}
-
-.scoreboard.style-lower-third .score-box {
-  padding: 8px 20px;
-  gap: 16px;
-}
-
-.scoreboard.style-lower-third .score {
-  font-size: 42px;
+  display: none !important;
 }
 
 /* Masquer les dots en lower-third (les scores suffisent) */
