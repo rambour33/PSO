@@ -94,25 +94,6 @@ body {
   background: radial-gradient(ellipse at 100% 100%, var(--tw-glow) 0%, transparent 70%);
 }
 
-/* ── Ligne de scan animée ─────────────────────────────────────── */
-@keyframes scan {
-  0%   { top: -2px; opacity: 0.6; }
-  50%  { opacity: 0.3; }
-  100% { top: calc(100% + 2px); opacity: 0; }
-}
-
-.scan-line {
-  position: absolute;
-  left: 0; right: 0;
-  height: 2px;
-  background: linear-gradient(90deg, transparent 0%, var(--tw-primary) 50%, transparent 100%);
-  opacity: 0;
-  pointer-events: none;
-  z-index: 5;
-  animation: scan 8s ease-in-out infinite;
-  transition: background 0.5s;
-}
-
 /* ── Lignes latérales ─────────────────────────────────────────── */
 .side-line {
   position: absolute;
@@ -357,9 +338,6 @@ body {
 }
 .twitch-layout.theme-cyberpunk .corner {
   animation: neon-flicker 6s steps(1) infinite;
-}
-.twitch-layout.theme-cyberpunk .scan-line {
-  animation: scan 3s linear infinite;
 }
 
 /* Synthwave */

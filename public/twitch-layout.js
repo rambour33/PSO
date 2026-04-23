@@ -129,11 +129,8 @@
     prevScores.p2 = p2.score;
 
     // Infos centre
-    const parts = [];
-    if (s.eventName)  parts.push(s.eventName);
-    if (s.tournament) parts.push(s.tournament);
-    setText('event-label', parts.join(' · ') || 'PSO');
-    setText('round-label',  s.phase || s.roundName || '');
+    setText('event-label', s.event || 'PSO');
+    setText('round-label',  s.stage || '');
 
     // Le swap est géré par échange des données player1/player2, pas de flip CSS nécessaire
   }
@@ -184,6 +181,10 @@
 
   // ── Socket.IO ─────────────────────────────────────────────────
   const socket = io();
+
+  fetch('/api/state').then(r => r.json()).then(s => {
+    try { update(s); } catch(e) {}
+  }).catch(() => {});
 
   socket.on('stateUpdate', (s) => {
     try { update(s); } catch(e) { console.error('[twitch-layout]', e); }
