@@ -7,6 +7,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Russo+One&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="overlay.css" />
+  <link rel="stylesheet" href="/pso-transition.css" />
 </head>
 <body>
   <div id="scoreboard" class="scoreboard pso-surface">
@@ -143,5 +144,7 @@
   <script src="/texture.js"></script>
   <script src="particle-engine.js"></script>
   <script src="overlay.js"></script>
+  <script>window.PSO_T = { id: 'scoreboard', root: '#scoreboard' };</script>
+  <script src="/pso-transition.js"></script>
 </body>
 </html>

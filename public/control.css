@@ -3899,3 +3899,101 @@ body.mobile-mode .custom-card {
   body:not(.mobile-mode-off) .tab-nav-mobile { display: flex; }
   body:not(.mobile-mode-off) #tab-nav-desktop { display: none; }
 }
+
+/* ── Animation control grid ──────────────────────────── */
+.anim-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 10px;
+}
+
+.anim-card {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.anim-card-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.anim-card-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+  flex: 1;
+}
+
+.anim-card-status {
+  display: inline-block;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--green, #4caf50);
+  flex-shrink: 0;
+}
+
+.anim-card-status.hidden {
+  background: var(--text-muted);
+}
+
+.anim-card-btns {
+  display: flex;
+  gap: 6px;
+}
+
+.anim-card-btns .btn {
+  flex: 1;
+  font-size: 11px;
+  padding: 4px 8px;
+}
+
+.anim-card-selects {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.anim-card-selects label {
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-bottom: 2px;
+  display: block;
+}
+
+.anim-card-selects select,
+.anim-card-dur {
+  width: 100%;
+  font-size: 11px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 4px;
+  padding: 3px 6px;
+}
+
+.anim-dur-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.anim-dur-row input[type="range"] {
+  flex: 1;
+  height: 4px;
+}
+
+.anim-dur-row span {
+  min-width: 38px;
+  text-align: right;
+  font-family: monospace;
+  font-size: 11px;
+  color: var(--text);
+}

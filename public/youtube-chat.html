@@ -6,6 +6,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="youtube-chat.css" />
+  <link rel="stylesheet" href="/pso-transition.css" />
 </head>
 <body>
   <div class="yt-overlay hidden" id="yt-overlay">
@@ -21,5 +22,7 @@
 
   <script src="/socket.io/socket.io.js"></script>
   <script src="youtube-chat.js"></script>
+  <script>window.PSO_T = { id: 'youtube-chat', root: '#yt-overlay' };</script>
+  <script src="/pso-transition.js"></script>
 </body>
 </html>

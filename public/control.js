@@ -5192,6 +5192,41 @@ function renderSceneButtons() {
     btn.addEventListener('dblclick', () => startRename(i));
     container.appendChild(btn);
   });
+  renderSceneUrls();
+}
+
+/* ── URLs par scène pour OBS ────────────────────────────────── */
+function renderSceneUrls() {
+  const container = document.getElementById('studio-scene-urls');
+  if (!container) return;
+  container.innerHTML = '';
+  const base = getServerBase();
+  superFullState.scenes.forEach((scene, i) => {
+    const url      = base + '/super-overlay/' + (i + 1);
+    const isActive = i === superFullState.activeScene;
+    const row = document.createElement('div');
+    row.style.cssText = 'display:flex;align-items:center;gap:6px;' +
+      (isActive ? 'background:rgba(232,184,48,0.07);border:1px solid rgba(232,184,48,0.3);border-radius:6px;padding:4px 6px;' : '');
+    row.innerHTML = `
+      <span style="min-width:76px;font-size:11px;font-weight:600;color:${isActive ? 'var(--gold)' : 'var(--text-muted)'};white-space:nowrap;flex-shrink:0">
+        ${isActive ? '▶ ' : ''}Scène ${i + 1}
+      </span>
+      <input type="text" readonly value="${url}"
+        style="flex:1;font-size:11px;padding:4px 8px;background:var(--surface2);border:1px solid var(--border);color:var(--text-muted);border-radius:4px;min-width:0" />
+      <button class="btn btn-outline btn-sm scene-url-copy-btn" data-url="${url}" style="font-size:11px;padding:3px 8px;flex-shrink:0">Copier</button>
+      <a href="${url}" target="_blank" class="btn btn-outline btn-sm" style="font-size:11px;padding:3px 8px;flex-shrink:0">↗</a>
+    `;
+    container.appendChild(row);
+  });
+  container.querySelectorAll('.scene-url-copy-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      navigator.clipboard.writeText(btn.dataset.url).then(() => {
+        const orig = btn.textContent;
+        btn.textContent = '✓';
+        setTimeout(() => { btn.textContent = orig; }, 1200);
+      });
+    });
+  });
 }
 
 function switchScene(idx) {
@@ -9024,4 +9059,151 @@ socket.on('stateUpdate', (s) => {
   // Exposer pour les boutons col.1
   window.sbbAddFromElement = addShapeFromElement;
 
+})();
+
+// ═══════════════════════════════════════════════════════════════
+// ANIMATIONS OVERLAYS
+// ═══════════════════════════════════════════════════════════════
+(function () {
+  const ANIM_OVERLAYS = [
+    { id: 'scoreboard',          label: 'Scoreboard'         },
+    { id: 'scoreboard-slim',     label: 'Scoreboard Slim'    },
+    { id: 'scoreboard-elements', label: 'Éléments Scoreboard'},
+    { id: 'casters',             label: 'Commentateurs'      },
+    { id: 'stageveto',           label: 'Stage Veto'         },
+    { id: 'ticker',              label: 'Bandeau défilant'   },
+    { id: 'cam',                 label: 'Cam'                },
+    { id: 'frames',              label: 'Cadres'             },
+    { id: 'stream-title',        label: 'Titre du stream'    },
+    { id: 'h2h',                 label: 'Head-to-Head'       },
+    { id: 'player-stats',        label: 'Stats Joueur'       },
+    { id: 'tournament-history',  label: 'Historique'         },
+    { id: 'bracket',             label: 'Bracket'            },
+    { id: 'top8',                label: 'Top 8'              },
+    { id: 'timer',               label: 'Minuteur'           },
+    { id: 'twitch-layout',       label: 'Next Match'         },
+    { id: 'twitch-chat',         label: 'Chat Twitch'        },
+    { id: 'twitch-viewer',       label: 'Viewers Twitch'     },
+    { id: 'youtube-chat',        label: 'Chat YouTube'       },
+    { id: 'combined-chat',       label: 'Chat Combiné'       },
+  ];
+
+  const ANIM_TYPES = [
+    { value: 'fade',        label: 'Fondu'        },
+    { value: 'slide-up',    label: 'Glisse haut'  },
+    { value: 'slide-down',  label: 'Glisse bas'   },
+    { value: 'slide-left',  label: 'Glisse gauche'},
+    { value: 'slide-right', label: 'Glisse droite'},
+    { value: 'scale',       label: 'Rétrécit'     },
+    { value: 'zoom',        label: 'Zoom'         },
+    { value: 'blur',        label: 'Flou'         },
+  ];
+
+  let animState = {}; // { id: { animIn, animOut, dur, visible } }
+
+  function animSelectHtml(name, val) {
+    return '<select class="anim-sel" data-key="' + name + '">' +
+      ANIM_TYPES.map(t =>
+        '<option value="' + t.value + '"' + (t.value === val ? ' selected' : '') + '>' + t.label + '</option>'
+      ).join('') +
+    '</select>';
+  }
+
+  function buildCard(ov) {
+    const s = animState[ov.id] || { animIn: 'fade', animOut: 'fade', dur: 500, visible: true };
+    const card = document.createElement('div');
+    card.className = 'anim-card';
+    card.dataset.id = ov.id;
+
+    card.innerHTML =
+      '<div class="anim-card-header">' +
+        '<span class="anim-card-status' + (s.visible ? '' : ' hidden') + '"></span>' +
+        '<span class="anim-card-name">' + ov.label + '</span>' +
+      '</div>' +
+      '<div class="anim-card-btns">' +
+        '<button class="btn btn-sm anim-btn-show">Afficher</button>' +
+        '<button class="btn btn-sm anim-btn-hide">Masquer</button>' +
+      '</div>' +
+      '<div class="anim-card-selects">' +
+        '<div><label>Entrée</label>' + animSelectHtml('animIn', s.animIn) + '</div>' +
+        '<div><label>Sortie</label>' + animSelectHtml('animOut', s.animOut) + '</div>' +
+      '</div>' +
+      '<div class="anim-dur-row">' +
+        '<span>Durée</span>' +
+        '<input type="range" min="100" max="2000" step="50" value="' + s.dur + '" class="anim-dur-range" />' +
+        '<span class="anim-dur-val">' + s.dur + 'ms</span>' +
+      '</div>';
+
+    /* Show / Hide */
+    card.querySelector('.anim-btn-show').addEventListener('click', () => {
+      fetch('/api/transitions/' + ov.id + '/show', { method: 'POST' }).catch(() => {});
+    });
+    card.querySelector('.anim-btn-hide').addEventListener('click', () => {
+      fetch('/api/transitions/' + ov.id + '/hide', { method: 'POST' }).catch(() => {});
+    });
+
+    /* Anim selects */
+    card.querySelectorAll('.anim-sel').forEach(sel => {
+      sel.addEventListener('change', () => patchTransition(ov.id, { [sel.dataset.key]: sel.value }));
+    });
+
+    /* Duration slider */
+    const durRange = card.querySelector('.anim-dur-range');
+    const durVal   = card.querySelector('.anim-dur-val');
+    durRange.addEventListener('input', () => { durVal.textContent = durRange.value + 'ms'; });
+    durRange.addEventListener('change', () => patchTransition(ov.id, { dur: +durRange.value }));
+
+    return card;
+  }
+
+  function patchTransition(id, body) {
+    fetch('/api/transitions/' + id, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    }).catch(() => {});
+  }
+
+  function renderGrid() {
+    const grid = document.getElementById('anim-grid');
+    if (!grid) return;
+    grid.innerHTML = '';
+    for (const ov of ANIM_OVERLAYS) grid.appendChild(buildCard(ov));
+  }
+
+  function updateCard(id, s) {
+    const card = document.querySelector('.anim-card[data-id="' + id + '"]');
+    if (!card) return;
+    const status = card.querySelector('.anim-card-status');
+    status.classList.toggle('hidden', !s.visible);
+    const inSel = card.querySelector('.anim-sel[data-key="animIn"]');
+    if (inSel) inSel.value = s.animIn;
+    const outSel = card.querySelector('.anim-sel[data-key="animOut"]');
+    if (outSel) outSel.value = s.animOut;
+    const durRange = card.querySelector('.anim-dur-range');
+    const durVal   = card.querySelector('.anim-dur-val');
+    if (durRange) { durRange.value = s.dur; durVal.textContent = s.dur + 'ms'; }
+  }
+
+  /* Charge l'état initial */
+  fetch('/api/transitions')
+    .then(r => r.json())
+    .then(data => {
+      animState = data;
+      renderGrid();
+    })
+    .catch(() => { renderGrid(); });
+
+  /* Live updates via socket */
+  socket.on('transitionsUpdate', data => {
+    animState = data;
+    for (const id of Object.keys(data)) updateCard(id, data[id]);
+  });
+
+  /* Re-render quand on ouvre l'onglet Liens overlays */
+  document.querySelectorAll('.tab-btn[data-tab="custom"]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (!document.querySelector('.anim-card')) renderGrid();
+    });
+  });
 })();

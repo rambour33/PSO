@@ -7,6 +7,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Russo+One&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="player-stats.css" />
+  <link rel="stylesheet" href="/pso-transition.css" />
 </head>
 <body>
   <div id="stats-overlay" class="stats-overlay hidden pso-surface">
@@ -66,5 +67,7 @@
   <script src="/socket.io/socket.io.js"></script>
   <script src="/texture.js"></script>
   <script src="player-stats.js"></script>
+  <script>window.PSO_T = { id: 'player-stats', root: '#stats-overlay' };</script>
+  <script src="/pso-transition.js"></script>
 </body>
 </html>

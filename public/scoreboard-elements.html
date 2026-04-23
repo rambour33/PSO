@@ -6,6 +6,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Russo+One&family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="scoreboard-elements.css" />
+  <link rel="stylesheet" href="/pso-transition.css" />
 </head>
 <body>
 
@@ -50,5 +51,7 @@
 
 <script src="/socket.io/socket.io.js"></script>
 <script src="scoreboard-elements.js"></script>
+  <script>window.PSO_T = { id: 'scoreboard-elements', root: '#sel-root' };</script>
+  <script src="/pso-transition.js"></script>
 </body>
 </html>

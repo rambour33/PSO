@@ -7,6 +7,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Russo+One&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="tournament-history.css" />
+  <link rel="stylesheet" href="/pso-transition.css" />
 </head>
 <body>
   <div id="history-overlay" class="history-overlay hidden pso-surface">
@@ -31,5 +32,7 @@
   <script src="/socket.io/socket.io.js"></script>
   <script src="/texture.js"></script>
   <script src="tournament-history.js"></script>
+  <script>window.PSO_T = { id: 'tournament-history', root: '#history-overlay' };</script>
+  <script src="/pso-transition.js"></script>
 </body>
 </html>

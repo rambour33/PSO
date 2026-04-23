@@ -6,6 +6,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Russo+One&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="twitch-chat.css" />
+  <link rel="stylesheet" href="/pso-transition.css" />
 </head>
 <body>
   <div class="chat-overlay hidden pso-surface" id="chat-overlay">
@@ -24,5 +25,7 @@
   <script src="/texture.js"></script>
   <script src="particle-engine.js"></script>
   <script src="twitch-chat.js"></script>
+  <script>window.PSO_T = { id: 'twitch-chat', root: '#chat-overlay' };</script>
+  <script src="/pso-transition.js"></script>
 </body>
 </html>

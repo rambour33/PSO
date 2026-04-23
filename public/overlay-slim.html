@@ -7,6 +7,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Russo+One&family=Inter:wght@400;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="overlay-slim.css" />
+  <link rel="stylesheet" href="/pso-transition.css" />
 </head>
 <body>
   <div id="scoreboard" class="scoreboard hidden pso-surface">
@@ -51,5 +52,7 @@
   <script src="/socket.io/socket.io.js"></script>
   <script src="/texture.js"></script>
   <script src="overlay-slim.js"></script>
+  <script>window.PSO_T = { id: 'scoreboard-slim', root: '#scoreboard' };</script>
+  <script src="/pso-transition.js"></script>
 </body>
 </html>

@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Russo+One&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="twitch-viewer.css" />
+  <link rel="stylesheet" href="/pso-transition.css" />
 </head>
 <body>
 
@@ -50,5 +51,7 @@
 
 <script src="/socket.io/socket.io.js"></script>
 <script src="twitch-viewer.js"></script>
+  <script>window.PSO_T = { id: 'twitch-viewer', root: '#viewer-overlay' };</script>
+  <script src="/pso-transition.js"></script>
 </body>
 </html>

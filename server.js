@@ -321,6 +321,11 @@ app.get('/ticker', (req, res) => res.sendFile(path.join(__dirname, 'public', 'ti
 app.get('/frames', (req, res) => res.sendFile(path.join(__dirname, 'public', 'frames.html')));
 app.get('/stream-title',  (req, res) => res.sendFile(path.join(__dirname, 'public', 'stream-title.html')));
 app.get('/super-overlay', (req, res) => res.sendFile(path.join(__dirname, 'public', 'super-overlay.html')));
+app.get('/super-overlay/:n', (req, res) => {
+  const n = parseInt(req.params.n);
+  if (isNaN(n) || n < 1 || n > 9) return res.status(404).send('Scène introuvable');
+  res.sendFile(path.join(__dirname, 'public', 'super-overlay.html'));
+});
 app.get('/avsync',              (req, res) => res.sendFile(path.join(__dirname, 'public', 'avsync.html')));
 app.get('/scoreboard-elements', (req, res) => res.sendFile(path.join(__dirname, 'public', 'scoreboard-elements.html')));
 
@@ -2926,6 +2931,91 @@ app.delete('/api/sb-layouts/:id', (req, res) => {
 
 app.get('/scoreboard-custom', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'scoreboard-custom.html'));
+});
+
+// ─── Transitions / Animations overlays ───────────────────────────────────────
+
+const TRANSITION_IDS = [
+  'scoreboard', 'scoreboard-slim', 'scoreboard-elements', 'casters', 'stageveto',
+  'ticker', 'cam', 'frames', 'stream-title', 'h2h', 'player-stats',
+  'tournament-history', 'bracket', 'top8', 'timer', 'twitch-layout',
+  'twitch-chat', 'twitch-viewer', 'youtube-chat', 'combined-chat',
+];
+
+function defaultTransition() {
+  return { animIn: 'fade', animOut: 'fade', dur: 500, visible: true };
+}
+
+function getTransitionState() {
+  const cfg = getConfig();
+  if (!cfg.transitions) return {};
+  return cfg.transitions;
+}
+
+function saveTransitionState(state) {
+  const cfg = getConfig();
+  cfg.transitions = state;
+  saveConfig(cfg);
+}
+
+/* Initialise les entrées manquantes */
+let transitionState = (() => {
+  const saved = getTransitionState();
+  const out = {};
+  for (const id of TRANSITION_IDS) {
+    out[id] = Object.assign(defaultTransition(), saved[id] || {});
+  }
+  return out;
+})();
+
+app.get('/api/transitions', (req, res) => res.json(transitionState));
+
+app.get('/api/transitions/:id', (req, res) => {
+  const id = req.params.id;
+  if (!transitionState[id]) return res.status(404).json({ error: 'unknown overlay' });
+  res.json(transitionState[id]);
+});
+
+app.patch('/api/transitions/:id', (req, res) => {
+  const id = req.params.id;
+  if (!transitionState[id]) return res.status(404).json({ error: 'unknown overlay' });
+  const allowed = ['animIn', 'animOut', 'dur', 'visible'];
+  for (const k of allowed) {
+    if (req.body[k] !== undefined) transitionState[id][k] = req.body[k];
+  }
+  saveTransitionState(transitionState);
+  io.emit('transitionsUpdate', transitionState);
+  res.json(transitionState[id]);
+});
+
+app.post('/api/transitions/:id/show', (req, res) => {
+  const id = req.params.id;
+  if (!transitionState[id]) return res.status(404).json({ error: 'unknown overlay' });
+  transitionState[id].visible = true;
+  saveTransitionState(transitionState);
+  io.emit('overlayShow', {
+    id,
+    animIn:  transitionState[id].animIn,
+    animOut: transitionState[id].animOut,
+    dur:     transitionState[id].dur,
+  });
+  io.emit('transitionsUpdate', transitionState);
+  res.json({ ok: true });
+});
+
+app.post('/api/transitions/:id/hide', (req, res) => {
+  const id = req.params.id;
+  if (!transitionState[id]) return res.status(404).json({ error: 'unknown overlay' });
+  transitionState[id].visible = false;
+  saveTransitionState(transitionState);
+  io.emit('overlayHide', {
+    id,
+    animIn:  transitionState[id].animIn,
+    animOut: transitionState[id].animOut,
+    dur:     transitionState[id].dur,
+  });
+  io.emit('transitionsUpdate', transitionState);
+  res.json({ ok: true });
 });
 
 // ─── Start ────────────────────────────────────────────────────────────────────

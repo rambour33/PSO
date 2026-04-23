@@ -2968,6 +2968,15 @@
         </div>
       </div>
     </section>
+
+    <!-- ── Animations entrée / sortie ─────────────────────── -->
+    <section class="section">
+      <div class="section-header"><h2>Animations entrée / sortie</h2></div>
+      <div class="custom-card" style="padding:14px 16px">
+        <p class="hint" style="margin-bottom:14px">Contrôle les transitions visuelles de chaque overlay dans OBS. Cliquez Afficher / Masquer pour déclencher l'animation.</p>
+        <div id="anim-grid" class="anim-grid"></div>
+      </div>
+    </section>
   </div><!-- /tab-custom -->
 
   <!-- ═══════════════════════════════════════════════════════════ -->
@@ -4411,12 +4420,12 @@
         </div>
       </div>
       <div class="custom-card">
-        <h3>Source OBS – Super Overlay</h3>
-        <p style="font-size:13px;color:var(--text-muted);margin-bottom:10px;line-height:1.6;">Une seule <strong>Source Navigateur 1920 × 1080</strong> qui regroupe tous vos calques actifs.</p>
-        <div class="name-row" style="gap:8px;">
-          <input type="text" id="super-url" readonly style="flex:1;font-size:12px;background:var(--surface2);border:1px solid var(--border);color:var(--text-muted);" value="http://localhost:3002/super-overlay" />
-          <button class="btn btn-primary btn-sm" id="btn-copy-super-url">Copier</button>
-        </div>
+        <h3>Sources OBS – Super Overlay par scène</h3>
+        <p style="font-size:13px;color:var(--text-muted);margin-bottom:14px;line-height:1.6;">
+          Chaque scène a sa propre URL. Ajoute-les comme <strong>Sources Navigateur 1920×1080</strong> indépendantes dans OBS.<br>
+          <span style="color:var(--gold)">▶ Scène active</span> est celle actuellement sélectionnée dans le Studio.
+        </p>
+        <div id="studio-scene-urls" style="display:flex;flex-direction:column;gap:7px;"></div>
       </div>
     </section>
   </div><!-- /tab-studio -->
