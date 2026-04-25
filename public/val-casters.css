@@ -1,0 +1,69 @@
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body {
+  width: 1920px; height: 1080px;
+  overflow: hidden; background: transparent;
+  font-family: 'Rajdhani', 'Inter', 'Segoe UI', sans-serif;
+}
+
+:root {
+  --val-primary: #FF4655;
+  --val-bg: rgba(10, 10, 18, 0.96);
+  --val-text: #ECE8E1;
+}
+
+/* ── Racine ──────────────────────────────────────────────────── */
+.val-casters-root {
+  position: absolute;
+  bottom: 80px; left: 50%;
+  transform: translateX(-50%);
+  display: inline-flex; flex-direction: column;
+  align-items: center; gap: 12px;
+  padding: 18px 28px;
+  background: var(--val-bg);
+  border-top: 3px solid var(--val-primary);
+  min-width: 380px;
+}
+
+.val-casters-root.hidden { display: none; }
+
+/* ── Label ───────────────────────────────────────────────────── */
+.val-casters-label {
+  font-size: 10px; letter-spacing: 4px; font-weight: 700;
+  color: var(--val-primary); text-transform: uppercase;
+}
+
+/* ── Cards ───────────────────────────────────────────────────── */
+.val-casters-cards {
+  display: flex; gap: 28px;
+}
+.val-casters-cards[data-layout='col'] {
+  flex-direction: column; align-items: center; gap: 14px;
+}
+
+.val-caster-card {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 6px; min-width: 160px;
+  padding: 10px 16px;
+  border-left: 2px solid rgba(255, 70, 85, 0.25);
+}
+
+.val-caster-name {
+  font-size: 22px; font-weight: 700; color: var(--val-text);
+  text-transform: uppercase; letter-spacing: 1.5px; line-height: 1;
+}
+
+.val-caster-socials {
+  display: flex; flex-direction: column; gap: 3px;
+  align-items: center;
+}
+
+.val-caster-social {
+  font-size: 13px; color: rgba(236, 232, 225, 0.55);
+  display: flex; align-items: center; gap: 6px;
+}
+.val-caster-social .social-icon { font-size: 12px; }
+
+.val-caster-social.twitter { color: #1DA1F2; }
+.val-caster-social.twitch  { color: #9147FF; }
+.val-caster-social.youtube { color: #FF4444; }

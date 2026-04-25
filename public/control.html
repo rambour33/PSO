@@ -16,7 +16,15 @@
   <header class="header">
     <div class="header-left">
       <h1>PSO</h1>
-      <span class="badge">Smash Bros Ultimate</span>
+      <span class="badge" id="game-badge">Smash Bros Ultimate</span>
+      <!-- Sélecteur de jeu -->
+      <div class="game-selector" id="game-selector">
+        <button class="game-btn active" data-game="ssbu"    title="Super Smash Bros. Ultimate">SSBU</button>
+        <button class="game-btn" data-game="valorant" title="VALORANT">VAL</button>
+        <button class="game-btn" data-game="sf6"      title="Street Fighter 6">SF6</button>
+        <button class="game-btn" data-game="tek8"     title="Tekken 8">TK8</button>
+        <button class="game-btn" data-game="cs2"      title="Counter-Strike 2">CS2</button>
+      </div>
     </div>
     <div class="header-right">
       <div class="connection-status" id="conn-status">
@@ -90,7 +98,11 @@
 
   <!-- TAB NAV (desktop) -->
   <nav class="tab-nav" id="tab-nav-desktop">
-    <button class="tab-btn active" data-tab="match">SSBU Overlays</button>
+    <button class="tab-btn active" data-tab="match" id="tab-btn-match">SSBU Overlays</button>
+    <button class="tab-btn game-tab-val" data-tab="valorant" id="tab-btn-valorant" style="display:none">Valorant</button>
+    <button class="tab-btn game-tab-sf6" data-tab="sf6"      id="tab-btn-sf6"      style="display:none">Street Fighter 6</button>
+    <button class="tab-btn game-tab-tek8" data-tab="tek8"    id="tab-btn-tek8"     style="display:none">Tekken 8</button>
+    <button class="tab-btn game-tab-cs2" data-tab="cs2"      id="tab-btn-cs2"      style="display:none">Counter-Strike 2</button>
     <button class="tab-btn" data-tab="themes">Thèmes</button>
     <button class="tab-btn" data-tab="custom">Liens overlays</button>
     <button class="tab-btn" data-tab="chars" style="display:none">Personnages</button>
@@ -105,6 +117,10 @@
   <div class="tab-nav-mobile" id="tab-nav-mobile">
     <select id="tab-select-mobile" class="tab-mobile-select">
       <option value="match">SSBU Overlays</option>
+      <option value="valorant">Valorant</option>
+      <option value="sf6">Street Fighter 6</option>
+      <option value="tek8">Tekken 8</option>
+      <option value="cs2">Counter-Strike 2</option>
       <option value="themes">Thèmes</option>
       <option value="custom">Liens overlays</option>
       <option value="connexions">Connexions</option>
@@ -810,6 +826,15 @@
             </div>
             <div id="sbb-layers" style="display:flex;flex-direction:column;gap:4px;"></div>
           </div>
+
+          <!-- Séquences -->
+          <div class="custom-card" id="sbb-seq-card">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+              <h3>Séquences</h3>
+              <button class="btn btn-sm" id="sbb-seq-add">+ Nouvelle</button>
+            </div>
+            <div id="sbb-seq-list" style="display:flex;flex-direction:column;gap:8px;"></div>
+          </div>
         </div>
 
         <!-- ── Canvas + propriétés ────────────────────────────── -->
@@ -968,6 +993,15 @@
                 </div>
               </div>
               <div id="cbb-layers" style="display:flex;flex-direction:column;gap:2px;"></div>
+            </div>
+
+            <!-- Séquences cbb -->
+            <div style="margin-top:8px;padding:10px;background:var(--surface1);border:1px solid var(--border);border-radius:6px;">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+                <span style="font-size:12px;font-weight:600;color:var(--text);">Séquences</span>
+                <button class="btn btn-sm" id="cbb-seq-add">+ Nouvelle</button>
+              </div>
+              <div id="cbb-seq-list" style="display:flex;flex-direction:column;gap:6px;"></div>
             </div>
           </div>
 
@@ -5373,6 +5407,724 @@
     </section>
   </div><!-- /tab-overlayip -->
 
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- TAB : VALORANT                                              -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <div class="tab-content" id="tab-valorant">
+
+    <!-- SUB-NAV -->
+    <div class="match-subnav">
+      <button class="match-subnav-btn active" data-panel="val-panel-scoreboard">Scoreboard</button>
+      <button class="match-subnav-btn" data-panel="val-panel-casters">Casters</button>
+      <button class="match-subnav-btn" data-panel="val-panel-pickban">Pick &amp; Ban</button>
+      <button class="match-subnav-btn" data-panel="val-panel-lineup">Lineup</button>
+      <button class="match-subnav-btn" data-panel="val-panel-themes">Thèmes</button>
+    </div>
+
+    <!-- ═══════ PANEL : SCOREBOARD ═══════════════════════════════ -->
+    <div class="match-panel active" id="val-panel-scoreboard">
+      <section class="section">
+        <div class="section-header">
+          <h2>Scoreboard Valorant</h2>
+          <div style="display:flex;gap:8px;align-items:center">
+            <button class="btn btn-outline btn-sm" onclick="window.open('/val-scoreboard','_blank')">↗ Overlay</button>
+            <label class="toggle-label">
+              <input type="checkbox" id="val-sb-visible" checked />
+              <span class="toggle-track"><span class="toggle-thumb"></span></span>
+              Visible
+            </label>
+          </div>
+        </div>
+
+        <!-- Équipes côte-à-côte -->
+        <div class="scoreboard-grid" style="grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+
+          <!-- Équipe 1 -->
+          <div class="player-card" style="border-top:3px solid var(--val-t1-color,#FF4655)">
+            <div class="player-card-header">
+              <h3>Équipe 1</h3>
+              <div class="color-row">
+                <label>Couleur</label>
+                <input type="color" id="val-t1-color" value="#FF4655" />
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Nom</label>
+              <input type="text" id="val-t1-name" value="TEAM ALPHA" />
+            </div>
+            <div class="form-group">
+              <label>Score (maps gagnées)</label>
+              <div style="display:flex;align-items:center;gap:8px">
+                <button class="btn btn-outline btn-sm" id="val-t1-score-minus">−</button>
+                <span id="val-t1-score-display" style="font-size:22px;font-weight:700;min-width:30px;text-align:center">0</span>
+                <button class="btn btn-outline btn-sm" id="val-t1-score-plus">+</button>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>URL Logo (optionnel)</label>
+              <input type="text" id="val-t1-logo" placeholder="https://... ou vide" />
+            </div>
+          </div>
+
+          <!-- Équipe 2 -->
+          <div class="player-card" style="border-top:3px solid var(--val-t2-color,#3B71E4)">
+            <div class="player-card-header">
+              <h3>Équipe 2</h3>
+              <div class="color-row">
+                <label>Couleur</label>
+                <input type="color" id="val-t2-color" value="#3B71E4" />
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Nom</label>
+              <input type="text" id="val-t2-name" value="TEAM BRAVO" />
+            </div>
+            <div class="form-group">
+              <label>Score (maps gagnées)</label>
+              <div style="display:flex;align-items:center;gap:8px">
+                <button class="btn btn-outline btn-sm" id="val-t2-score-minus">−</button>
+                <span id="val-t2-score-display" style="font-size:22px;font-weight:700;min-width:30px;text-align:center">0</span>
+                <button class="btn btn-outline btn-sm" id="val-t2-score-plus">+</button>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>URL Logo (optionnel)</label>
+              <input type="text" id="val-t2-logo" placeholder="https://... ou vide" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Infos match -->
+        <div class="scoreboard-grid" style="grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px">
+          <div class="form-group">
+            <label>Événement</label>
+            <input type="text" id="val-event" value="VCT 2025" />
+          </div>
+          <div class="form-group">
+            <label>Map</label>
+            <select id="val-map-name">
+              <option value="">— Choisir —</option>
+              <option>Ascent</option><option>Bind</option><option>Haven</option>
+              <option>Split</option><option>Icebox</option><option>Breeze</option>
+              <option>Fracture</option><option>Pearl</option><option>Lotus</option>
+              <option>Sunset</option><option>Abyss</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Format</label>
+            <select id="val-match-format">
+              <option value="Bo1">Bo1</option>
+              <option value="Bo3" selected>Bo3</option>
+              <option value="Bo5">Bo5</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group" style="max-width:180px;margin-bottom:12px">
+          <label>Numéro de map</label>
+          <input type="number" id="val-current-map" value="1" min="1" max="5" />
+        </div>
+
+        <!-- Fond -->
+        <div style="display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap">
+          <div class="form-group" style="margin-bottom:0">
+            <label>Couleur fond</label>
+            <input type="color" id="val-sb-bg-color" value="#0A0A12" />
+          </div>
+          <div class="form-group" style="flex:1;min-width:120px;margin-bottom:0">
+            <label>Opacité fond <span id="val-sb-bg-opacity-val">95</span>%</label>
+            <input type="range" id="val-sb-bg-opacity" min="0" max="100" value="95" />
+          </div>
+        </div>
+      </section>
+    </div><!-- /val-panel-scoreboard -->
+
+    <!-- ═══════ PANEL : CASTERS ═══════════════════════════════════ -->
+    <div class="match-panel" id="val-panel-casters">
+      <section class="section">
+        <div class="section-header">
+          <h2>Casters Valorant</h2>
+          <button class="btn btn-outline btn-sm" onclick="window.open('/val-casters','_blank')">↗ Overlay</button>
+        </div>
+
+        <!-- Caster 1 -->
+        <div class="caster-inline-block">
+          <div class="caster-inline-title">Caster 1</div>
+          <div class="form-row">
+            <div class="form-group" style="flex:1"><label>Nom</label><input type="text" id="val-c1-name" placeholder="Pseudo du caster" /></div>
+            <div class="form-group" style="flex:1"><label>Twitter / X</label><input type="text" id="val-c1-twitter" placeholder="@handle" /></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group" style="flex:1"><label>Twitch</label><input type="text" id="val-c1-twitch" placeholder="channel" /></div>
+            <div class="form-group" style="flex:1"><label>YouTube</label><input type="text" id="val-c1-youtube" placeholder="@channel" /></div>
+          </div>
+        </div>
+
+        <!-- Caster 2 -->
+        <div class="caster-inline-block">
+          <div class="caster-inline-title">Caster 2</div>
+          <div class="form-row">
+            <div class="form-group" style="flex:1"><label>Nom</label><input type="text" id="val-c2-name" placeholder="Pseudo du caster" /></div>
+            <div class="form-group" style="flex:1"><label>Twitter / X</label><input type="text" id="val-c2-twitter" placeholder="@handle" /></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group" style="flex:1"><label>Twitch</label><input type="text" id="val-c2-twitch" placeholder="channel" /></div>
+            <div class="form-group" style="flex:1"><label>YouTube</label><input type="text" id="val-c2-youtube" placeholder="@channel" /></div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Disposition</label>
+          <div class="btn-group">
+            <button class="btn btn-outline btn-sm val-casters-layout-btn active" data-layout="row">Rangée</button>
+            <button class="btn btn-outline btn-sm val-casters-layout-btn" data-layout="col">Colonne</button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>
+            <input type="checkbox" id="val-casters-visible" />
+            Afficher les casters Valorant
+          </label>
+        </div>
+      </section>
+    </div><!-- /val-panel-casters -->
+
+    <!-- ═══════ PANEL : PICK & BAN ════════════════════════════════ -->
+    <div class="match-panel" id="val-panel-pickban">
+      <section class="section">
+        <div class="section-header">
+          <h2>Pick &amp; Ban</h2>
+          <div style="display:flex;gap:8px;align-items:center">
+            <button class="btn btn-outline btn-sm" onclick="window.open('/val-pickban','_blank')">↗ Overlay</button>
+            <button class="btn btn-outline btn-sm" id="val-pb-reset" style="border-color:#e05;color:#e05">↺ Reset</button>
+            <label class="toggle-label">
+              <input type="checkbox" id="val-pb-visible" />
+              <span class="toggle-track"><span class="toggle-thumb"></span></span>
+              Visible
+            </label>
+          </div>
+        </div>
+
+        <!-- Phase -->
+        <div class="form-group" style="margin-bottom:16px">
+          <label>Phase</label>
+          <div class="btn-group">
+            <button class="btn btn-outline btn-sm val-pb-phase-btn active" data-phase="agent">Agent Select</button>
+            <button class="btn btn-outline btn-sm val-pb-phase-btn" data-phase="map">Map Veto</button>
+          </div>
+        </div>
+
+        <!-- Joueurs Équipe 1 & 2 -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+          <!-- Équipe 1 -->
+          <div>
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+              <div style="width:12px;height:12px;border-radius:50%;background:var(--val-pb-t1-clr,#FF4655)"></div>
+              <strong id="val-pb-t1-label">TEAM ALPHA</strong>
+            </div>
+            <div id="val-pb-t1-players" class="val-pb-players-list"></div>
+          </div>
+          <!-- Équipe 2 -->
+          <div>
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+              <div style="width:12px;height:12px;border-radius:50%;background:var(--val-pb-t2-clr,#3B71E4)"></div>
+              <strong id="val-pb-t2-label">TEAM BRAVO</strong>
+            </div>
+            <div id="val-pb-t2-players" class="val-pb-players-list"></div>
+          </div>
+        </div>
+
+        <!-- Map Veto (visible en mode map) -->
+        <div id="val-map-veto-section" style="display:none">
+          <h3 style="margin-bottom:10px;font-size:13px;letter-spacing:1px;opacity:.6">VETO DES MAPS</h3>
+          <div id="val-map-veto-list" class="val-map-veto-list"></div>
+        </div>
+      </section>
+    </div><!-- /val-panel-pickban -->
+
+    <!-- ═══════ PANEL : LINEUP ════════════════════════════════════ -->
+    <div class="match-panel" id="val-panel-lineup">
+      <section class="section">
+        <div class="section-header">
+          <h2>Lineup Joueurs</h2>
+          <div style="display:flex;gap:8px;align-items:center">
+            <button class="btn btn-outline btn-sm" onclick="window.open('/val-lineup','_blank')">↗ Overlay</button>
+            <label class="toggle-label">
+              <input type="checkbox" id="val-lu-visible" />
+              <span class="toggle-track"><span class="toggle-thumb"></span></span>
+              Visible
+            </label>
+          </div>
+        </div>
+
+        <div class="form-group" style="max-width:320px;margin-bottom:16px">
+          <label>Map / Info centre</label>
+          <input type="text" id="val-lu-map" placeholder="ex : ASCENT" />
+        </div>
+
+        <!-- Joueurs côte-à-côte -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+          <!-- Équipe 1 -->
+          <div>
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+              <div style="width:12px;height:12px;border-radius:50%;background:var(--val-pb-t1-clr,#FF4655)"></div>
+              <strong id="val-lu-t1-label">TEAM ALPHA</strong>
+            </div>
+            <div id="val-lu-t1-players" class="val-lu-players-list"></div>
+          </div>
+          <!-- Équipe 2 -->
+          <div>
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+              <div style="width:12px;height:12px;border-radius:50%;background:var(--val-pb-t2-clr,#3B71E4)"></div>
+              <strong id="val-lu-t2-label">TEAM BRAVO</strong>
+            </div>
+            <div id="val-lu-t2-players" class="val-lu-players-list"></div>
+          </div>
+        </div>
+      </section>
+    </div><!-- /val-panel-lineup -->
+
+    <!-- ═══════ PANEL : THÈMES ════════════════════════════════════ -->
+    <div class="match-panel" id="val-panel-themes">
+      <section class="section">
+        <div class="section-header"><h2>Thèmes Valorant</h2></div>
+
+        <div class="val-theme-grid" id="val-theme-grid">
+          <!-- Généré par JS -->
+        </div>
+
+        <div style="margin-top:20px;padding-top:16px;border-top:1px solid rgba(255,255,255,.07)">
+          <h3 style="font-size:13px;letter-spacing:1px;opacity:.6;margin-bottom:12px">PERSONNALISATION</h3>
+          <div style="display:flex;gap:16px;flex-wrap:wrap">
+            <div class="form-group" style="margin-bottom:0">
+              <label>Couleur équipe 1</label>
+              <input type="color" id="val-theme-t1-color" value="#FF4655" />
+            </div>
+            <div class="form-group" style="margin-bottom:0">
+              <label>Couleur équipe 2</label>
+              <input type="color" id="val-theme-t2-color" value="#3B71E4" />
+            </div>
+            <div class="form-group" style="margin-bottom:0">
+              <label>Fond</label>
+              <input type="color" id="val-theme-bg-color" value="#0A0A12" />
+            </div>
+            <div class="form-group" style="flex:1;min-width:140px;margin-bottom:0">
+              <label>Opacité fond <span id="val-theme-bg-opacity-val">95</span>%</label>
+              <input type="range" id="val-theme-bg-opacity" min="0" max="100" value="95" />
+            </div>
+          </div>
+        </div>
+      </section>
+    </div><!-- /val-panel-themes -->
+
+  </div><!-- /tab-valorant -->
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- TAB : STREET FIGHTER 6                                    -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <div class="tab-content" id="tab-sf6">
+
+    <div class="match-subnav">
+      <button class="match-subnav-btn active" data-panel="sf6-panel-match">Match</button>
+      <button class="match-subnav-btn" data-panel="sf6-panel-casters">Casters</button>
+      <button class="match-subnav-btn" data-panel="sf6-panel-themes">Thèmes</button>
+    </div>
+
+    <!-- ═══ MATCH ═════════════════════════════════════════════════ -->
+    <div class="match-panel" id="sf6-panel-match">
+      <section class="section">
+        <div class="section-header">
+          <h2>Scoreboard SF6</h2>
+          <button class="btn btn-outline btn-sm" onclick="window.open('/sf-scoreboard','_blank')">↗ Overlay</button>
+        </div>
+
+        <!-- Info centrale -->
+        <div class="form-row">
+          <div class="form-group" style="flex:1"><label>Événement</label><input type="text" id="sf6-event" value="Capcom Cup" /></div>
+          <div class="form-group" style="flex:1"><label>Format</label>
+            <select id="sf6-format">
+              <option value="Bo1">Bo1</option><option value="Bo3" selected>Bo3</option>
+              <option value="Bo5">Bo5</option><option value="Grand Final">Grand Final</option>
+            </select>
+          </div>
+          <div class="form-group" style="width:100px"><label>Round</label><input type="number" id="sf6-round" min="1" max="99" value="1" /></div>
+        </div>
+
+        <!-- Joueur 1 -->
+        <div class="caster-inline-block" style="--accent:#3A8FFF">
+          <div class="caster-inline-title" style="color:#3A8FFF">Joueur 1</div>
+          <div class="form-row">
+            <div class="form-group" style="flex:2"><label>Pseudo</label><input type="text" id="sf6-p1-name" placeholder="Joueur 1" /></div>
+            <div class="form-group" style="flex:2">
+              <label>Personnage</label>
+              <select id="sf6-p1-char"><option value="">— Choisir —</option></select>
+            </div>
+            <div class="form-group" style="flex:1"><label>Score</label>
+              <div style="display:flex;align-items:center;gap:6px">
+                <button class="btn btn-outline btn-sm sf6-score-btn" data-player="p1" data-dir="-1">−</button>
+                <span id="sf6-p1-score-display" style="min-width:24px;text-align:center;font-weight:700">0</span>
+                <button class="btn btn-outline btn-sm sf6-score-btn" data-player="p1" data-dir="1">+</button>
+              </div>
+            </div>
+            <div class="form-group" style="width:80px"><label>Couleur</label><input type="color" id="sf6-p1-color" value="#3A8FFF" /></div>
+          </div>
+        </div>
+
+        <!-- Joueur 2 -->
+        <div class="caster-inline-block" style="--accent:#FF5A3A">
+          <div class="caster-inline-title" style="color:#FF5A3A">Joueur 2</div>
+          <div class="form-row">
+            <div class="form-group" style="flex:2"><label>Pseudo</label><input type="text" id="sf6-p2-name" placeholder="Joueur 2" /></div>
+            <div class="form-group" style="flex:2">
+              <label>Personnage</label>
+              <select id="sf6-p2-char"><option value="">— Choisir —</option></select>
+            </div>
+            <div class="form-group" style="flex:1"><label>Score</label>
+              <div style="display:flex;align-items:center;gap:6px">
+                <button class="btn btn-outline btn-sm sf6-score-btn" data-player="p2" data-dir="-1">−</button>
+                <span id="sf6-p2-score-display" style="min-width:24px;text-align:center;font-weight:700">0</span>
+                <button class="btn btn-outline btn-sm sf6-score-btn" data-player="p2" data-dir="1">+</button>
+              </div>
+            </div>
+            <div class="form-group" style="width:80px"><label>Couleur</label><input type="color" id="sf6-p2-color" value="#FF5A3A" /></div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label><input type="checkbox" id="sf6-sb-visible" checked /> Afficher le scoreboard</label>
+        </div>
+        <button class="btn btn-outline btn-sm" id="sf6-reset-scores">Réinitialiser les scores</button>
+      </section>
+    </div><!-- /sf6-panel-match -->
+
+    <!-- ═══ CASTERS ═══════════════════════════════════════════════ -->
+    <div class="match-panel" id="sf6-panel-casters">
+      <section class="section">
+        <div class="section-header">
+          <h2>Casters SF6</h2>
+          <button class="btn btn-outline btn-sm" onclick="window.open('/val-casters','_blank')">↗ Overlay</button>
+        </div>
+        <div class="caster-inline-block">
+          <div class="caster-inline-title">Caster 1</div>
+          <div class="form-row">
+            <div class="form-group" style="flex:1"><label>Nom</label><input type="text" id="sf6-c1-name" /></div>
+            <div class="form-group" style="flex:1"><label>Twitter / X</label><input type="text" id="sf6-c1-twitter" /></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group" style="flex:1"><label>Twitch</label><input type="text" id="sf6-c1-twitch" /></div>
+            <div class="form-group" style="flex:1"><label>YouTube</label><input type="text" id="sf6-c1-youtube" /></div>
+          </div>
+        </div>
+        <div class="caster-inline-block">
+          <div class="caster-inline-title">Caster 2</div>
+          <div class="form-row">
+            <div class="form-group" style="flex:1"><label>Nom</label><input type="text" id="sf6-c2-name" /></div>
+            <div class="form-group" style="flex:1"><label>Twitter / X</label><input type="text" id="sf6-c2-twitter" /></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group" style="flex:1"><label>Twitch</label><input type="text" id="sf6-c2-twitch" /></div>
+            <div class="form-group" style="flex:1"><label>YouTube</label><input type="text" id="sf6-c2-youtube" /></div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Disposition</label>
+          <div class="btn-group">
+            <button class="btn btn-outline btn-sm sf6-casters-layout-btn active" data-layout="row">Rangée</button>
+            <button class="btn btn-outline btn-sm sf6-casters-layout-btn" data-layout="col">Colonne</button>
+          </div>
+        </div>
+        <div class="form-group"><label><input type="checkbox" id="sf6-casters-visible" /> Afficher les casters</label></div>
+      </section>
+    </div><!-- /sf6-panel-casters -->
+
+    <!-- ═══ THÈMES ════════════════════════════════════════════════ -->
+    <div class="match-panel" id="sf6-panel-themes">
+      <section class="section">
+        <div class="section-header"><h2>Thèmes SF6</h2></div>
+        <div class="val-theme-grid" id="sf6-theme-grid"></div>
+      </section>
+    </div><!-- /sf6-panel-themes -->
+
+  </div><!-- /tab-sf6 -->
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- TAB : TEKKEN 8                                            -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <div class="tab-content" id="tab-tek8">
+
+    <div class="match-subnav">
+      <button class="match-subnav-btn active" data-panel="tek8-panel-match">Match</button>
+      <button class="match-subnav-btn" data-panel="tek8-panel-casters">Casters</button>
+      <button class="match-subnav-btn" data-panel="tek8-panel-themes">Thèmes</button>
+    </div>
+
+    <!-- ═══ MATCH ═════════════════════════════════════════════════ -->
+    <div class="match-panel" id="tek8-panel-match">
+      <section class="section">
+        <div class="section-header">
+          <h2>Scoreboard Tekken 8</h2>
+          <button class="btn btn-outline btn-sm" onclick="window.open('/tek-scoreboard','_blank')">↗ Overlay</button>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group" style="flex:1"><label>Événement</label><input type="text" id="tek8-event" value="Tekken World Tour" /></div>
+          <div class="form-group" style="flex:1"><label>Format</label>
+            <select id="tek8-format">
+              <option value="Bo1">Bo1</option><option value="Bo3" selected>Bo3</option>
+              <option value="Bo5">Bo5</option><option value="Grand Final">Grand Final</option>
+            </select>
+          </div>
+          <div class="form-group" style="width:100px"><label>Round</label><input type="number" id="tek8-round" min="1" max="99" value="1" /></div>
+        </div>
+
+        <div class="caster-inline-block" style="--accent:#DC3232">
+          <div class="caster-inline-title" style="color:#DC3232">Joueur 1</div>
+          <div class="form-row">
+            <div class="form-group" style="flex:2"><label>Pseudo</label><input type="text" id="tek8-p1-name" placeholder="Joueur 1" /></div>
+            <div class="form-group" style="flex:2">
+              <label>Personnage</label>
+              <select id="tek8-p1-char"><option value="">— Choisir —</option></select>
+            </div>
+            <div class="form-group" style="flex:1"><label>Score</label>
+              <div style="display:flex;align-items:center;gap:6px">
+                <button class="btn btn-outline btn-sm tek8-score-btn" data-player="p1" data-dir="-1">−</button>
+                <span id="tek8-p1-score-display" style="min-width:24px;text-align:center;font-weight:700">0</span>
+                <button class="btn btn-outline btn-sm tek8-score-btn" data-player="p1" data-dir="1">+</button>
+              </div>
+            </div>
+            <div class="form-group" style="width:80px"><label>Couleur</label><input type="color" id="tek8-p1-color" value="#DC3232" /></div>
+          </div>
+        </div>
+
+        <div class="caster-inline-block" style="--accent:#3A8FFF">
+          <div class="caster-inline-title" style="color:#3A8FFF">Joueur 2</div>
+          <div class="form-row">
+            <div class="form-group" style="flex:2"><label>Pseudo</label><input type="text" id="tek8-p2-name" placeholder="Joueur 2" /></div>
+            <div class="form-group" style="flex:2">
+              <label>Personnage</label>
+              <select id="tek8-p2-char"><option value="">— Choisir —</option></select>
+            </div>
+            <div class="form-group" style="flex:1"><label>Score</label>
+              <div style="display:flex;align-items:center;gap:6px">
+                <button class="btn btn-outline btn-sm tek8-score-btn" data-player="p2" data-dir="-1">−</button>
+                <span id="tek8-p2-score-display" style="min-width:24px;text-align:center;font-weight:700">0</span>
+                <button class="btn btn-outline btn-sm tek8-score-btn" data-player="p2" data-dir="1">+</button>
+              </div>
+            </div>
+            <div class="form-group" style="width:80px"><label>Couleur</label><input type="color" id="tek8-p2-color" value="#3A8FFF" /></div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label><input type="checkbox" id="tek8-sb-visible" checked /> Afficher le scoreboard</label>
+        </div>
+        <button class="btn btn-outline btn-sm" id="tek8-reset-scores">Réinitialiser les scores</button>
+      </section>
+    </div><!-- /tek8-panel-match -->
+
+    <!-- ═══ CASTERS ═══════════════════════════════════════════════ -->
+    <div class="match-panel" id="tek8-panel-casters">
+      <section class="section">
+        <div class="section-header">
+          <h2>Casters Tekken 8</h2>
+          <button class="btn btn-outline btn-sm" onclick="window.open('/val-casters','_blank')">↗ Overlay</button>
+        </div>
+        <div class="caster-inline-block">
+          <div class="caster-inline-title">Caster 1</div>
+          <div class="form-row">
+            <div class="form-group" style="flex:1"><label>Nom</label><input type="text" id="tek8-c1-name" /></div>
+            <div class="form-group" style="flex:1"><label>Twitter / X</label><input type="text" id="tek8-c1-twitter" /></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group" style="flex:1"><label>Twitch</label><input type="text" id="tek8-c1-twitch" /></div>
+            <div class="form-group" style="flex:1"><label>YouTube</label><input type="text" id="tek8-c1-youtube" /></div>
+          </div>
+        </div>
+        <div class="caster-inline-block">
+          <div class="caster-inline-title">Caster 2</div>
+          <div class="form-row">
+            <div class="form-group" style="flex:1"><label>Nom</label><input type="text" id="tek8-c2-name" /></div>
+            <div class="form-group" style="flex:1"><label>Twitter / X</label><input type="text" id="tek8-c2-twitter" /></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group" style="flex:1"><label>Twitch</label><input type="text" id="tek8-c2-twitch" /></div>
+            <div class="form-group" style="flex:1"><label>YouTube</label><input type="text" id="tek8-c2-youtube" /></div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Disposition</label>
+          <div class="btn-group">
+            <button class="btn btn-outline btn-sm tek8-casters-layout-btn active" data-layout="row">Rangée</button>
+            <button class="btn btn-outline btn-sm tek8-casters-layout-btn" data-layout="col">Colonne</button>
+          </div>
+        </div>
+        <div class="form-group"><label><input type="checkbox" id="tek8-casters-visible" /> Afficher les casters</label></div>
+      </section>
+    </div><!-- /tek8-panel-casters -->
+
+    <!-- ═══ THÈMES ════════════════════════════════════════════════ -->
+    <div class="match-panel" id="tek8-panel-themes">
+      <section class="section">
+        <div class="section-header"><h2>Thèmes Tekken 8</h2></div>
+        <div class="val-theme-grid" id="tek8-theme-grid"></div>
+      </section>
+    </div><!-- /tek8-panel-themes -->
+
+  </div><!-- /tab-tek8 -->
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- TAB : COUNTER-STRIKE 2                                    -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <div class="tab-content" id="tab-cs2">
+
+    <div class="match-subnav">
+      <button class="match-subnav-btn active" data-panel="cs2-panel-match">Match</button>
+      <button class="match-subnav-btn" data-panel="cs2-panel-casters">Casters</button>
+      <button class="match-subnav-btn" data-panel="cs2-panel-veto">Map Veto</button>
+      <button class="match-subnav-btn" data-panel="cs2-panel-themes">Thèmes</button>
+    </div>
+
+    <!-- ═══ MATCH ═════════════════════════════════════════════════ -->
+    <div class="match-panel" id="cs2-panel-match">
+      <section class="section">
+        <div class="section-header">
+          <h2>Scoreboard CS2</h2>
+          <button class="btn btn-outline btn-sm" onclick="window.open('/cs-scoreboard','_blank')">↗ Overlay</button>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group" style="flex:2"><label>Événement</label><input type="text" id="cs2-event" value="IEM Katowice" /></div>
+          <div class="form-group" style="flex:2"><label>Map actuelle</label>
+            <select id="cs2-map">
+              <option>Mirage</option><option>Inferno</option><option>Overpass</option>
+              <option>Nuke</option><option>Ancient</option><option>Anubis</option>
+              <option>Dust2</option><option>Vertigo</option><option>Train</option>
+            </select>
+          </div>
+          <div class="form-group" style="flex:1"><label>Format</label>
+            <select id="cs2-format"><option value="Bo1">Bo1</option><option value="Bo3" selected>Bo3</option><option value="Bo5">Bo5</option></select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group" style="flex:1"><label>Round actuel</label><input type="number" id="cs2-round" min="1" max="30" value="1" /></div>
+          <div class="form-group" style="flex:1"><label>Rounds totaux</label><input type="number" id="cs2-total-rounds" min="12" max="30" value="24" /></div>
+        </div>
+
+        <!-- Équipe 1 (côté T) -->
+        <div class="caster-inline-block" style="--accent:#E8B400">
+          <div class="caster-inline-title" style="color:#E8B400">Équipe 1 (T)</div>
+          <div class="form-row">
+            <div class="form-group" style="flex:2"><label>Nom</label><input type="text" id="cs2-t1-name" placeholder="Team Alpha" /></div>
+            <div class="form-group" style="flex:1"><label>Côté</label>
+              <select id="cs2-t1-side"><option value="T">T (Terroristes)</option><option value="CT">CT (Counter-Terroristes)</option></select>
+            </div>
+            <div class="form-group" style="flex:1"><label>Score</label>
+              <div style="display:flex;align-items:center;gap:6px">
+                <button class="btn btn-outline btn-sm cs2-score-btn" data-team="team1" data-dir="-1">−</button>
+                <span id="cs2-t1-score-display" style="min-width:24px;text-align:center;font-weight:700">0</span>
+                <button class="btn btn-outline btn-sm cs2-score-btn" data-team="team1" data-dir="1">+</button>
+              </div>
+            </div>
+            <div class="form-group" style="width:80px"><label>Couleur</label><input type="color" id="cs2-t1-color" value="#E8B400" /></div>
+          </div>
+          <div class="form-group"><label>Logo URL</label><input type="text" id="cs2-t1-logo" placeholder="https://..." /></div>
+        </div>
+
+        <!-- Équipe 2 (côté CT) -->
+        <div class="caster-inline-block" style="--accent:#5B94EB">
+          <div class="caster-inline-title" style="color:#5B94EB">Équipe 2 (CT)</div>
+          <div class="form-row">
+            <div class="form-group" style="flex:2"><label>Nom</label><input type="text" id="cs2-t2-name" placeholder="Team Bravo" /></div>
+            <div class="form-group" style="flex:1"><label>Côté</label>
+              <select id="cs2-t2-side"><option value="T">T (Terroristes)</option><option value="CT" selected>CT (Counter-Terroristes)</option></select>
+            </div>
+            <div class="form-group" style="flex:1"><label>Score</label>
+              <div style="display:flex;align-items:center;gap:6px">
+                <button class="btn btn-outline btn-sm cs2-score-btn" data-team="team2" data-dir="-1">−</button>
+                <span id="cs2-t2-score-display" style="min-width:24px;text-align:center;font-weight:700">0</span>
+                <button class="btn btn-outline btn-sm cs2-score-btn" data-team="team2" data-dir="1">+</button>
+              </div>
+            </div>
+            <div class="form-group" style="width:80px"><label>Couleur</label><input type="color" id="cs2-t2-color" value="#5B94EB" /></div>
+          </div>
+          <div class="form-group"><label>Logo URL</label><input type="text" id="cs2-t2-logo" placeholder="https://..." /></div>
+        </div>
+
+        <div class="form-row" style="gap:12px;align-items:center">
+          <label><input type="checkbox" id="cs2-sb-visible" checked /> Afficher le scoreboard</label>
+          <button class="btn btn-outline btn-sm" id="cs2-reset-scores">Réinitialiser les scores</button>
+          <button class="btn btn-outline btn-sm" id="cs2-swap-sides">⇆ Inverser les côtés</button>
+        </div>
+      </section>
+    </div><!-- /cs2-panel-match -->
+
+    <!-- ═══ CASTERS ═══════════════════════════════════════════════ -->
+    <div class="match-panel" id="cs2-panel-casters">
+      <section class="section">
+        <div class="section-header">
+          <h2>Casters CS2</h2>
+          <button class="btn btn-outline btn-sm" onclick="window.open('/val-casters','_blank')">↗ Overlay</button>
+        </div>
+        <div class="caster-inline-block">
+          <div class="caster-inline-title">Caster 1</div>
+          <div class="form-row">
+            <div class="form-group" style="flex:1"><label>Nom</label><input type="text" id="cs2-c1-name" /></div>
+            <div class="form-group" style="flex:1"><label>Twitter / X</label><input type="text" id="cs2-c1-twitter" /></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group" style="flex:1"><label>Twitch</label><input type="text" id="cs2-c1-twitch" /></div>
+            <div class="form-group" style="flex:1"><label>YouTube</label><input type="text" id="cs2-c1-youtube" /></div>
+          </div>
+        </div>
+        <div class="caster-inline-block">
+          <div class="caster-inline-title">Caster 2</div>
+          <div class="form-row">
+            <div class="form-group" style="flex:1"><label>Nom</label><input type="text" id="cs2-c2-name" /></div>
+            <div class="form-group" style="flex:1"><label>Twitter / X</label><input type="text" id="cs2-c2-twitter" /></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group" style="flex:1"><label>Twitch</label><input type="text" id="cs2-c2-twitch" /></div>
+            <div class="form-group" style="flex:1"><label>YouTube</label><input type="text" id="cs2-c2-youtube" /></div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Disposition</label>
+          <div class="btn-group">
+            <button class="btn btn-outline btn-sm cs2-casters-layout-btn active" data-layout="row">Rangée</button>
+            <button class="btn btn-outline btn-sm cs2-casters-layout-btn" data-layout="col">Colonne</button>
+          </div>
+        </div>
+        <div class="form-group"><label><input type="checkbox" id="cs2-casters-visible" /> Afficher les casters</label></div>
+      </section>
+    </div><!-- /cs2-panel-casters -->
+
+    <!-- ═══ MAP VETO ═══════════════════════════════════════════════ -->
+    <div class="match-panel" id="cs2-panel-veto">
+      <section class="section">
+        <div class="section-header">
+          <h2>Map Veto</h2>
+          <div style="display:flex;gap:8px;align-items:center">
+            <button class="btn btn-outline btn-sm" onclick="window.open('/cs-mapveto','_blank')">↗ Overlay</button>
+            <button class="btn btn-outline btn-sm" id="cs2-mv-visible-btn">Afficher</button>
+            <button class="btn btn-outline btn-sm" style="color:#e05" id="cs2-mv-reset">Réinitialiser</button>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group" style="flex:1"><label>Phase</label><input type="text" id="cs2-mv-phase" value="MAP VETO" /></div>
+        </div>
+        <p class="hint" style="margin-bottom:10px">Clic : disponible → pick T1 → pick T2 → ban T1 → ban T2 → decider → disponible</p>
+        <div class="cs2-map-veto-list" id="cs2-map-veto-list"></div>
+      </section>
+    </div><!-- /cs2-panel-veto -->
+
+    <!-- ═══ THÈMES ════════════════════════════════════════════════ -->
+    <div class="match-panel" id="cs2-panel-themes">
+      <section class="section">
+        <div class="section-header"><h2>Thèmes CS2</h2></div>
+        <div class="val-theme-grid" id="cs2-theme-grid"></div>
+      </section>
+    </div><!-- /cs2-panel-themes -->
+
+  </div><!-- /tab-cs2 -->
 
   <footer class="footer">
     <div id="status-msg" class="status-msg">Prêt</div>
@@ -5386,6 +6138,7 @@
 </div>
 
 <script src="/socket.io/socket.io.js"></script>
+<script src="/pso-sequence.js"></script>
 <script src="control.js"></script>
 <script src="startgg-ui.js"></script>
 <script src="player-stats-control.js"></script>

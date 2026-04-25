@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <title>PSO – Tekken 8 Scoreboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Russo+One&family=Inter:wght@400;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="tek-scoreboard.css"/>
+  <link rel="stylesheet" href="/pso-transition.css"/>
+</head>
+<body>
+  <canvas id="tek-particles" style="position:fixed;top:0;left:0;width:100%;height:90px;pointer-events:none;z-index:0;"></canvas>
+  <div id="tek-sb" class="tek-sb pso-surface">
+
+    <!-- Joueur 1 -->
+    <div class="tek-player tek-player-1">
+      <div class="tek-score" id="tek-p1-score">0</div>
+      <div class="tek-vsep"></div>
+      <div class="tek-info">
+        <div class="tek-name" id="tek-p1-name">PLAYER 1</div>
+        <div class="tek-char" id="tek-p1-char">—</div>
+      </div>
+    </div>
+
+    <!-- Centre -->
+    <div class="tek-center">
+      <div class="tek-event" id="tek-event">TEKKEN WORLD TOUR</div>
+      <div class="tek-round-row">
+        <span class="tek-round-label">ROUND</span>
+        <span class="tek-round-val" id="tek-round">1</span>
+      </div>
+      <div class="tek-format" id="tek-format">Bo3</div>
+    </div>
+
+    <!-- Joueur 2 -->
+    <div class="tek-player tek-player-2">
+      <div class="tek-info" style="text-align:right">
+        <div class="tek-name" id="tek-p2-name">PLAYER 2</div>
+        <div class="tek-char" id="tek-p2-char">—</div>
+      </div>
+      <div class="tek-vsep"></div>
+      <div class="tek-score" id="tek-p2-score">0</div>
+    </div>
+
+  </div>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="tek-scoreboard.js"></script>
+  <script src="/pso-transition.js"></script>
+  <script>window.PSO_T = { id: 'tek-scoreboard', root: '#tek-sb' };</script>
+</body>
+</html>

@@ -5,6 +5,7 @@ const path = require('path');
 const fs = require('fs');
 const net = require('net');
 const os = require('os');
+const crypto = require('crypto');
 
 const RULESETS_FILE      = path.join(__dirname, 'data', 'rulesets.json');
 const THEME_PRESETS_FILE = path.join(__dirname, 'data', 'theme-presets.json');
@@ -34,12 +35,98 @@ function saveRulesets(list) {
   fs.writeFileSync(RULESETS_FILE, JSON.stringify(list, null, 2));
 }
 
+const PORT     = process.env.PORT || 3002;
+const BASE_URL = process.env.BASE_URL || `http://localhost:${PORT}`;
+const SESSION_SECRET   = process.env.SESSION_SECRET || 'pso-dev-secret-change-me';
+const CONTROL_PASSWORD = process.env.CONTROL_PASSWORD || '';
+
+// ─── Auth helpers ─────────────────────────────────────────────────────────────
+
+function signToken(payload) {
+  const data = JSON.stringify(payload);
+  const sig  = crypto.createHmac('sha256', SESSION_SECRET).update(data).digest('base64url');
+  return Buffer.from(data).toString('base64url') + '.' + sig;
+}
+
+function verifyToken(token) {
+  if (!token) return null;
+  const [dataPart, sig] = token.split('.');
+  if (!dataPart || !sig) return null;
+  const expected = crypto.createHmac('sha256', SESSION_SECRET).update(Buffer.from(dataPart, 'base64url').toString()).digest('base64url');
+  if (!crypto.timingSafeEqual(Buffer.from(sig), Buffer.from(expected))) return null;
+  try { return JSON.parse(Buffer.from(dataPart, 'base64url').toString()); } catch { return null; }
+}
+
+function parseCookies(req) {
+  const raw = req.headers.cookie || '';
+  return Object.fromEntries(raw.split(';').map(c => {
+    const i = c.indexOf('=');
+    return i < 0
+      ? [decodeURIComponent(c.trim()), '']
+      : [decodeURIComponent(c.slice(0, i).trim()), decodeURIComponent(c.slice(i + 1).trim())];
+  }));
+}
+
+function requireAuth(req, res, next) {
+  if (!CONTROL_PASSWORD) return next();
+  const cookies = parseCookies(req);
+  const payload = verifyToken(cookies['pso-session']);
+  if (payload && payload.auth === true) return next();
+  if (req.path === '/login' || req.path === '/api/login') return next();
+  if (req.headers.accept && req.headers.accept.includes('application/json')) {
+    return res.status(401).json({ error: 'Non authentifié' });
+  }
+  res.redirect('/login');
+}
+
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server);
+const io = new Server(server, {
+  cors: { origin: '*', methods: ['GET', 'POST'] },
+});
 
 app.use(express.json({ limit: '25mb' }));
+
+// Auth check on /control and write-API routes — overlays stay public
+app.use((req, res, next) => {
+  const isControl  = req.path === '/control' || req.path === '/control.html' || req.path.startsWith('/control?');
+  const isWriteApi = req.method !== 'GET' && req.path.startsWith('/api/') && req.path !== '/api/login';
+  if (isControl || isWriteApi) return requireAuth(req, res, next);
+  next();
+});
+
 app.use(express.static(path.join(__dirname, 'public')));
+
+// ─── Auth routes ──────────────────────────────────────────────────────────────
+
+app.get('/login', (req, res) => {
+  if (!CONTROL_PASSWORD) return res.redirect('/control');
+  const cookies = parseCookies(req);
+  if (verifyToken(cookies['pso-session'])?.auth) return res.redirect('/control');
+  res.sendFile(path.join(__dirname, 'public', 'login.html'));
+});
+
+app.post('/api/login', express.json(), (req, res) => {
+  const { password } = req.body || {};
+  if (!CONTROL_PASSWORD || password === CONTROL_PASSWORD) {
+    const token = signToken({ auth: true, ts: Date.now() });
+    const maxAge = 7 * 24 * 3600;
+    res.setHeader('Set-Cookie', `pso-session=${encodeURIComponent(token)}; HttpOnly; Path=/; Max-Age=${maxAge}; SameSite=Lax`);
+    return res.json({ ok: true });
+  }
+  res.status(401).json({ error: 'Mot de passe incorrect' });
+});
+
+app.get('/logout', (req, res) => {
+  res.setHeader('Set-Cookie', 'pso-session=; HttpOnly; Path=/; Max-Age=0');
+  res.redirect('/login');
+});
+
+// ─── Server info ──────────────────────────────────────────────────────────────
+
+app.get('/api/server-info', (req, res) => {
+  res.json({ baseUrl: BASE_URL });
+});
 
 // ─── State ────────────────────────────────────────────────────────────────────
 
@@ -333,6 +420,18 @@ app.get('/super-overlay/:n', (req, res) => {
 });
 app.get('/avsync',              (req, res) => res.sendFile(path.join(__dirname, 'public', 'avsync.html')));
 app.get('/scoreboard-elements', (req, res) => res.sendFile(path.join(__dirname, 'public', 'scoreboard-elements.html')));
+
+// ─── Valorant HTML routes ─────────────────────────────────────────────────────
+app.get('/val-scoreboard', (req, res) => res.sendFile(path.join(__dirname, 'public', 'val-scoreboard.html')));
+app.get('/val-casters',    (req, res) => res.sendFile(path.join(__dirname, 'public', 'val-casters.html')));
+app.get('/val-pickban',    (req, res) => res.sendFile(path.join(__dirname, 'public', 'val-pickban.html')));
+app.get('/val-lineup',     (req, res) => res.sendFile(path.join(__dirname, 'public', 'val-lineup.html')));
+
+// ─── SF6 / Tekken 8 / CS2 HTML routes ────────────────────────────────────────
+app.get('/sf-scoreboard',  (req, res) => res.sendFile(path.join(__dirname, 'public', 'sf-scoreboard.html')));
+app.get('/tek-scoreboard', (req, res) => res.sendFile(path.join(__dirname, 'public', 'tek-scoreboard.html')));
+app.get('/cs-scoreboard',  (req, res) => res.sendFile(path.join(__dirname, 'public', 'cs-scoreboard.html')));
+app.get('/cs-mapveto',     (req, res) => res.sendFile(path.join(__dirname, 'public', 'cs-mapveto.html')));
 
 // ─── Éléments libres (overlay transparent indépendant) ───────────────────────
 
@@ -813,7 +912,7 @@ const TWITCH_SCOPES = [
 app.get('/auth/twitch', (req, res) => {
   const { clientId } = twitchState;
   if (!clientId) return res.status(400).send('Client ID Twitch non configuré. Configure-le dans l\'onglet Twitch d\'abord.');
-  const redirectUri = encodeURIComponent('http://localhost:3002/auth/twitch/callback');
+  const redirectUri = encodeURIComponent(`${BASE_URL}/auth/twitch/callback`);
   const scopes = encodeURIComponent(TWITCH_SCOPES);
   res.redirect(`https://id.twitch.tv/oauth2/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code&scope=${scopes}&force_verify=true`);
 });
@@ -832,7 +931,7 @@ app.get('/auth/twitch/callback', async (req, res) => {
         client_secret: clientSecret,
         code,
         grant_type:   'authorization_code',
-        redirect_uri: 'http://localhost:3002/auth/twitch/callback',
+        redirect_uri: `${BASE_URL}/auth/twitch/callback`,
       }),
     });
     const td = await tokenRes.json();
@@ -1231,7 +1330,7 @@ app.get('/auth/youtube', (req, res) => {
   const cfg = getConfig();
   const { googleClientId } = cfg;
   if (!googleClientId) return res.status(400).send('Client ID Google non configuré.');
-  const redirectUri = encodeURIComponent('http://localhost:3002/auth/youtube/callback');
+  const redirectUri = encodeURIComponent(`${BASE_URL}/auth/youtube/callback`);
   const scope = encodeURIComponent('https://www.googleapis.com/auth/youtube.readonly');
   res.redirect(
     `https://accounts.google.com/o/oauth2/v2/auth?client_id=${googleClientId}&redirect_uri=${redirectUri}&response_type=code&scope=${scope}&access_type=offline&prompt=consent`
@@ -1253,7 +1352,7 @@ app.get('/auth/youtube/callback', async (req, res) => {
         code,
         client_id:     googleClientId,
         client_secret: googleClientSecret,
-        redirect_uri:  'http://localhost:3002/auth/youtube/callback',
+        redirect_uri:  `${BASE_URL}/auth/youtube/callback`,
         grant_type:    'authorization_code',
       }),
     });
@@ -1819,6 +1918,254 @@ app.delete('/api/theme-presets/:name', (req, res) => {
   res.json(list);
 });
 
+// ─── Valorant ─────────────────────────────────────────────────────────────────
+
+let selectedGame = { game: 'ssbu' };
+
+const VAL_AGENTS = [
+  // Duelists
+  { id: 'jett',    name: 'Jett',    role: 'Duelist'    },
+  { id: 'reyna',   name: 'Reyna',   role: 'Duelist'    },
+  { id: 'phoenix', name: 'Phoenix', role: 'Duelist'    },
+  { id: 'neon',    name: 'Neon',    role: 'Duelist'    },
+  { id: 'iso',     name: 'Iso',     role: 'Duelist'    },
+  { id: 'yoru',    name: 'Yoru',    role: 'Duelist'    },
+  // Initiators
+  { id: 'sova',    name: 'Sova',    role: 'Initiator'  },
+  { id: 'breach',  name: 'Breach',  role: 'Initiator'  },
+  { id: 'kayo',    name: 'KAY/O',   role: 'Initiator'  },
+  { id: 'fade',    name: 'Fade',    role: 'Initiator'  },
+  { id: 'gekko',   name: 'Gekko',   role: 'Initiator'  },
+  { id: 'skye',    name: 'Skye',    role: 'Initiator'  },
+  // Controllers
+  { id: 'brimstone', name: 'Brimstone', role: 'Controller' },
+  { id: 'viper',     name: 'Viper',     role: 'Controller' },
+  { id: 'omen',      name: 'Omen',      role: 'Controller' },
+  { id: 'astra',     name: 'Astra',     role: 'Controller' },
+  { id: 'harbor',    name: 'Harbor',    role: 'Controller' },
+  { id: 'clove',     name: 'Clove',     role: 'Controller' },
+  // Sentinels
+  { id: 'killjoy',  name: 'Killjoy',  role: 'Sentinel' },
+  { id: 'cypher',   name: 'Cypher',   role: 'Sentinel' },
+  { id: 'sage',     name: 'Sage',     role: 'Sentinel' },
+  { id: 'chamber',  name: 'Chamber',  role: 'Sentinel' },
+  { id: 'deadlock', name: 'Deadlock', role: 'Sentinel' },
+  { id: 'vyse',     name: 'Vyse',     role: 'Sentinel' },
+];
+
+const VAL_MAPS = ['Ascent','Bind','Haven','Split','Icebox','Breeze','Fracture','Pearl','Lotus','Sunset','Abyss'];
+
+function makeValPlayers() {
+  return Array.from({ length: 5 }, () => ({ name: '', agent: '', role: '', locked: false, active: false }));
+}
+
+function makeValLineupPlayers() {
+  return Array.from({ length: 5 }, () => ({ name: '', agent: '', role: '', flag: '', igl: false }));
+}
+
+let valMatchState = {
+  visible:     true,
+  team1:       { name: 'TEAM ALPHA', color: '#FF4655', score: 0, logo: '' },
+  team2:       { name: 'TEAM BRAVO', color: '#3B71E4', score: 0, logo: '' },
+  event:       'VCT 2025',
+  mapName:     '',
+  currentMap:  1,
+  matchFormat: 'Bo3',
+  theme:       'valorant-default',
+  bgColor:     '#0A0A12',
+  bgOpacity:   95,
+};
+
+let valPickBanState = {
+  visible: false,
+  phase:   'agent',
+  event:   'VCT 2025',
+  team1: { name: 'TEAM ALPHA', color: '#FF4655', logo: '', players: makeValPlayers() },
+  team2: { name: 'TEAM BRAVO', color: '#3B71E4', logo: '', players: makeValPlayers() },
+  maps: VAL_MAPS.map(m => ({ name: m, status: 'available', team: null })),
+};
+
+let valLineupState = {
+  visible: false,
+  event:   'VCT 2025',
+  mapName: '',
+  team1: { name: 'TEAM ALPHA', color: '#FF4655', logo: '', players: makeValLineupPlayers() },
+  team2: { name: 'TEAM BRAVO', color: '#3B71E4', logo: '', players: makeValLineupPlayers() },
+};
+
+// ─── Valorant API routes ───────────────────────────────────────────────────────
+
+app.get('/api/game', (req, res) => res.json(selectedGame));
+app.post('/api/game', (req, res) => {
+  selectedGame = { ...selectedGame, ...req.body };
+  io.emit('gameUpdate', selectedGame);
+  res.json(selectedGame);
+});
+
+app.get('/api/val/agents',    (req, res) => res.json(VAL_AGENTS));
+app.get('/api/val/maps-list', (req, res) => res.json(VAL_MAPS));
+
+app.get('/api/val/match',  (req, res) => res.json(valMatchState));
+app.post('/api/val/match', (req, res) => {
+  const d = req.body;
+  valMatchState = { ...valMatchState, ...d };
+  if (d.team1) valMatchState.team1 = { ...valMatchState.team1, ...d.team1 };
+  if (d.team2) valMatchState.team2 = { ...valMatchState.team2, ...d.team2 };
+  io.emit('valMatchUpdate', valMatchState);
+  res.json(valMatchState);
+});
+
+app.get('/api/val/pickban',  (req, res) => res.json(valPickBanState));
+app.post('/api/val/pickban', (req, res) => {
+  const d = req.body;
+  valPickBanState = { ...valPickBanState, ...d };
+  if (d.team1)   valPickBanState.team1   = { ...valPickBanState.team1,   ...d.team1 };
+  if (d.team2)   valPickBanState.team2   = { ...valPickBanState.team2,   ...d.team2 };
+  if (d.maps)    valPickBanState.maps    = d.maps;
+  if (d.team1?.players) valPickBanState.team1.players = d.team1.players;
+  if (d.team2?.players) valPickBanState.team2.players = d.team2.players;
+  io.emit('valPickBanUpdate', valPickBanState);
+  res.json(valPickBanState);
+});
+
+app.post('/api/val/pickban/reset', (req, res) => {
+  valPickBanState.team1.players = makeValPlayers();
+  valPickBanState.team2.players = makeValPlayers();
+  valPickBanState.maps = VAL_MAPS.map(m => ({ name: m, status: 'available', team: null }));
+  io.emit('valPickBanUpdate', valPickBanState);
+  res.json(valPickBanState);
+});
+
+app.get('/api/val/lineup',  (req, res) => res.json(valLineupState));
+app.post('/api/val/lineup', (req, res) => {
+  const d = req.body;
+  valLineupState = { ...valLineupState, ...d };
+  if (d.team1)         valLineupState.team1         = { ...valLineupState.team1, ...d.team1 };
+  if (d.team2)         valLineupState.team2         = { ...valLineupState.team2, ...d.team2 };
+  if (d.team1?.players) valLineupState.team1.players = d.team1.players;
+  if (d.team2?.players) valLineupState.team2.players = d.team2.players;
+  io.emit('valLineupUpdate', valLineupState);
+  res.json(valLineupState);
+});
+
+// ─── Street Fighter 6 ─────────────────────────────────────────────────────────
+
+const SF_CHARS = [
+  'Ryu','Luke','Kimberly','Chun-Li','Manon','Zangief','JP','Dhalsim','Cammy','Dee Jay',
+  'Lily','Ken','Blanka','Guile','E.Honda','Rashid','Marisa','Juri','A.K.I.','Ed',
+  'Akuma','M.Bison','Terry','Mai','Elena','Bison',
+];
+
+let sfMatchState = {
+  visible:     true,
+  p1: { name: 'PLAYER 1', character: '', color: '#3A8FFF', score: 0 },
+  p2: { name: 'PLAYER 2', character: '', color: '#FF5A3A', score: 0 },
+  roundNum:    1,
+  matchFormat: 'Bo3',
+  event:       'Capcom Cup',
+  theme:       'sf6-default',
+  bgColor:     '#0A0602',
+  bgOpacity:   95,
+};
+
+app.get('/api/sf/chars', (req, res) => res.json(SF_CHARS));
+app.get('/api/sf/match',  (req, res) => res.json(sfMatchState));
+app.post('/api/sf/match', (req, res) => {
+  const d = req.body;
+  sfMatchState = { ...sfMatchState, ...d };
+  if (d.p1) sfMatchState.p1 = { ...sfMatchState.p1, ...d.p1 };
+  if (d.p2) sfMatchState.p2 = { ...sfMatchState.p2, ...d.p2 };
+  io.emit('sfMatchUpdate', sfMatchState);
+  res.json(sfMatchState);
+});
+
+// ─── Tekken 8 ─────────────────────────────────────────────────────────────────
+
+const TEK_CHARS = [
+  'Jin','Kazuya','Paul','Law','King','Lars','Devil Jin','Hwoarang','Ling Xiaoyu','Nina',
+  'Dragunov','Jack-8','Bryan','Yoshimitsu','Reina','Lili','Steve','Leo','Leroy','Alisa',
+  'Zafina','Kuma','Jun','Asuka','Lee','Claudio','Shaheen','Feng','Victor','Azucena',
+  'Raven','Eddy','Lidia','Anna',
+];
+
+let tekMatchState = {
+  visible:     true,
+  p1: { name: 'PLAYER 1', character: '', color: '#DC3232', score: 0 },
+  p2: { name: 'PLAYER 2', character: '', color: '#3A8FFF', score: 0 },
+  roundNum:    1,
+  matchFormat: 'Bo3',
+  event:       'Tekken World Tour',
+  theme:       'tek8-default',
+  bgColor:     '#080404',
+  bgOpacity:   96,
+};
+
+app.get('/api/tek/chars', (req, res) => res.json(TEK_CHARS));
+app.get('/api/tek/match',  (req, res) => res.json(tekMatchState));
+app.post('/api/tek/match', (req, res) => {
+  const d = req.body;
+  tekMatchState = { ...tekMatchState, ...d };
+  if (d.p1) tekMatchState.p1 = { ...tekMatchState.p1, ...d.p1 };
+  if (d.p2) tekMatchState.p2 = { ...tekMatchState.p2, ...d.p2 };
+  io.emit('tekMatchUpdate', tekMatchState);
+  res.json(tekMatchState);
+});
+
+// ─── Counter-Strike 2 ─────────────────────────────────────────────────────────
+
+const CS2_MAPS = ['Mirage','Inferno','Overpass','Nuke','Ancient','Anubis','Dust2','Vertigo','Train'];
+
+let cs2MatchState = {
+  visible:     true,
+  team1: { name: 'TEAM ALPHA', side: 'T',  color: '#E8B400', logo: '', score: 0 },
+  team2: { name: 'TEAM BRAVO', side: 'CT', color: '#5B94EB', logo: '', score: 0 },
+  mapName:     'Mirage',
+  roundNum:    1,
+  totalRounds: 24,
+  matchFormat: 'Bo3',
+  event:       'IEM Katowice',
+  theme:       'cs2-default',
+  bgColor:     '#060810',
+  bgOpacity:   96,
+};
+
+let cs2MapVetoState = {
+  visible: false,
+  phase:   'MAP VETO',
+  event:   'IEM Katowice',
+  team1: { name: 'TEAM ALPHA', color: '#E8B400', logo: '' },
+  team2: { name: 'TEAM BRAVO', color: '#5B94EB', logo: '' },
+  maps: CS2_MAPS.map(m => ({ name: m, status: 'available', team: null })),
+};
+
+app.get('/api/cs2/maps-list', (req, res) => res.json(CS2_MAPS));
+app.get('/api/cs2/match',  (req, res) => res.json(cs2MatchState));
+app.post('/api/cs2/match', (req, res) => {
+  const d = req.body;
+  cs2MatchState = { ...cs2MatchState, ...d };
+  if (d.team1) cs2MatchState.team1 = { ...cs2MatchState.team1, ...d.team1 };
+  if (d.team2) cs2MatchState.team2 = { ...cs2MatchState.team2, ...d.team2 };
+  io.emit('cs2MatchUpdate', cs2MatchState);
+  res.json(cs2MatchState);
+});
+
+app.get('/api/cs2/mapveto',  (req, res) => res.json(cs2MapVetoState));
+app.post('/api/cs2/mapveto', (req, res) => {
+  const d = req.body;
+  cs2MapVetoState = { ...cs2MapVetoState, ...d };
+  if (d.team1) cs2MapVetoState.team1 = { ...cs2MapVetoState.team1, ...d.team1 };
+  if (d.team2) cs2MapVetoState.team2 = { ...cs2MapVetoState.team2, ...d.team2 };
+  if (d.maps)  cs2MapVetoState.maps  = d.maps;
+  io.emit('cs2MapVetoUpdate', cs2MapVetoState);
+  res.json(cs2MapVetoState);
+});
+
+app.post('/api/cs2/mapveto/reset', (req, res) => {
+  cs2MapVetoState.maps = CS2_MAPS.map(m => ({ name: m, status: 'available', team: null }));
+  io.emit('cs2MapVetoUpdate', cs2MapVetoState);
+  res.json(cs2MapVetoState);
+});
+
 // ─── Socket.io ────────────────────────────────────────────────────────────────
 
 io.on('connection', (socket) => {
@@ -1839,6 +2186,76 @@ io.on('connection', (socket) => {
   socket.emit('titleUpdate', titleState);
   socket.emit('top8Update', top8State);
   socket.emit('elementsOverlayUpdate', elementsOverlayState);
+  // Valorant
+  socket.emit('gameUpdate',       selectedGame);
+  socket.emit('valMatchUpdate',   valMatchState);
+  socket.emit('valPickBanUpdate', valPickBanState);
+  socket.emit('valLineupUpdate',  valLineupState);
+  // SF6 / Tekken 8 / CS2
+  socket.emit('sfMatchUpdate',    sfMatchState);
+  socket.emit('tekMatchUpdate',   tekMatchState);
+  socket.emit('cs2MatchUpdate',   cs2MatchState);
+  socket.emit('cs2MapVetoUpdate', cs2MapVetoState);
+
+  socket.on('updateGame', (data) => {
+    selectedGame = { ...selectedGame, ...data };
+    io.emit('gameUpdate', selectedGame);
+  });
+
+  socket.on('updateValMatch', (data) => {
+    valMatchState = { ...valMatchState, ...data };
+    if (data.team1) valMatchState.team1 = { ...valMatchState.team1, ...data.team1 };
+    if (data.team2) valMatchState.team2 = { ...valMatchState.team2, ...data.team2 };
+    io.emit('valMatchUpdate', valMatchState);
+  });
+
+  socket.on('updateValPickBan', (data) => {
+    valPickBanState = { ...valPickBanState, ...data };
+    if (data.team1)         valPickBanState.team1         = { ...valPickBanState.team1, ...data.team1 };
+    if (data.team2)         valPickBanState.team2         = { ...valPickBanState.team2, ...data.team2 };
+    if (data.maps)          valPickBanState.maps          = data.maps;
+    if (data.team1?.players) valPickBanState.team1.players = data.team1.players;
+    if (data.team2?.players) valPickBanState.team2.players = data.team2.players;
+    io.emit('valPickBanUpdate', valPickBanState);
+  });
+
+  socket.on('updateValLineup', (data) => {
+    valLineupState = { ...valLineupState, ...data };
+    if (data.team1)         valLineupState.team1         = { ...valLineupState.team1, ...data.team1 };
+    if (data.team2)         valLineupState.team2         = { ...valLineupState.team2, ...data.team2 };
+    if (data.team1?.players) valLineupState.team1.players = data.team1.players;
+    if (data.team2?.players) valLineupState.team2.players = data.team2.players;
+    io.emit('valLineupUpdate', valLineupState);
+  });
+
+  socket.on('updateSfMatch', (data) => {
+    sfMatchState = { ...sfMatchState, ...data };
+    if (data.p1) sfMatchState.p1 = { ...sfMatchState.p1, ...data.p1 };
+    if (data.p2) sfMatchState.p2 = { ...sfMatchState.p2, ...data.p2 };
+    io.emit('sfMatchUpdate', sfMatchState);
+  });
+
+  socket.on('updateTekMatch', (data) => {
+    tekMatchState = { ...tekMatchState, ...data };
+    if (data.p1) tekMatchState.p1 = { ...tekMatchState.p1, ...data.p1 };
+    if (data.p2) tekMatchState.p2 = { ...tekMatchState.p2, ...data.p2 };
+    io.emit('tekMatchUpdate', tekMatchState);
+  });
+
+  socket.on('updateCs2Match', (data) => {
+    cs2MatchState = { ...cs2MatchState, ...data };
+    if (data.team1) cs2MatchState.team1 = { ...cs2MatchState.team1, ...data.team1 };
+    if (data.team2) cs2MatchState.team2 = { ...cs2MatchState.team2, ...data.team2 };
+    io.emit('cs2MatchUpdate', cs2MatchState);
+  });
+
+  socket.on('updateCs2MapVeto', (data) => {
+    cs2MapVetoState = { ...cs2MapVetoState, ...data };
+    if (data.team1) cs2MapVetoState.team1 = { ...cs2MapVetoState.team1, ...data.team1 };
+    if (data.team2) cs2MapVetoState.team2 = { ...cs2MapVetoState.team2, ...data.team2 };
+    if (data.maps)  cs2MapVetoState.maps  = data.maps;
+    io.emit('cs2MapVetoUpdate', cs2MapVetoState);
+  });
 
   // Déclenche l'animation d'entrée sur la VS screen
   socket.on('triggerVsScreen', () => {
@@ -2922,8 +3339,26 @@ app.patch('/api/sb-layouts/:id', (req, res) => {
   if (idx === -1) return res.status(404).json({ error: 'not found' });
   sbLayouts[idx] = { ...sbLayouts[idx], ...req.body };
   saveSbLayouts();
-  io.emit('sbLayoutUpdate', { id: sbLayouts[idx].id, shapes: sbLayouts[idx].shapes });
+  io.emit('sbLayoutUpdate', { id: sbLayouts[idx].id, shapes: sbLayouts[idx].shapes, sequences: sbLayouts[idx].sequences || [] });
   res.json({ layout: sbLayouts[idx] });
+});
+
+app.post('/api/sb-layouts/:id/sequences/:seqId/play', (req, res) => {
+  const l = sbLayouts.find(l => l.id === req.params.id);
+  if (!l) return res.status(404).json({ error: 'not found' });
+  (l.sequences || []).forEach(s => { s.playing = s.id === req.params.seqId; });
+  saveSbLayouts();
+  io.emit('sbLayoutUpdate', { id: l.id, shapes: l.shapes, sequences: l.sequences || [] });
+  res.json({ ok: true });
+});
+
+app.post('/api/sb-layouts/:id/sequences/:seqId/stop', (req, res) => {
+  const l = sbLayouts.find(l => l.id === req.params.id);
+  if (!l) return res.status(404).json({ error: 'not found' });
+  (l.sequences || []).forEach(s => { s.playing = false; });
+  saveSbLayouts();
+  io.emit('sbLayoutUpdate', { id: l.id, shapes: l.shapes, sequences: l.sequences || [] });
+  res.json({ ok: true });
 });
 
 app.delete('/api/sb-layouts/:id', (req, res) => {
@@ -2968,7 +3403,26 @@ app.patch('/api/caster-layouts/:id', (req, res) => {
   if (idx === -1) return res.status(404).json({ error: 'not found' });
   casterLayouts[idx] = { ...casterLayouts[idx], ...req.body };
   saveCasterLayouts();
+  io.emit('casterLayoutUpdate', { id: casterLayouts[idx].id, shapes: casterLayouts[idx].shapes, sequences: casterLayouts[idx].sequences || [] });
   res.json({ layout: casterLayouts[idx] });
+});
+
+app.post('/api/caster-layouts/:id/sequences/:seqId/play', (req, res) => {
+  const l = casterLayouts.find(l => l.id === req.params.id);
+  if (!l) return res.status(404).json({ error: 'not found' });
+  (l.sequences || []).forEach(s => { s.playing = s.id === req.params.seqId; });
+  saveCasterLayouts();
+  io.emit('casterLayoutUpdate', { id: l.id, shapes: l.shapes, sequences: l.sequences || [] });
+  res.json({ ok: true });
+});
+
+app.post('/api/caster-layouts/:id/sequences/:seqId/stop', (req, res) => {
+  const l = casterLayouts.find(l => l.id === req.params.id);
+  if (!l) return res.status(404).json({ error: 'not found' });
+  (l.sequences || []).forEach(s => { s.playing = false; });
+  saveCasterLayouts();
+  io.emit('casterLayoutUpdate', { id: l.id, shapes: l.shapes, sequences: l.sequences || [] });
+  res.json({ ok: true });
 });
 
 app.delete('/api/caster-layouts/:id', (req, res) => {
@@ -3070,8 +3524,7 @@ app.post('/api/transitions/:id/hide', (req, res) => {
 
 // ─── Start ────────────────────────────────────────────────────────────────────
 
-const PORT = 3002;
-server.listen(PORT, () => {
+server.listen(PORT, '0.0.0.0', () => {
   const ips = getLocalIPs();
   console.log('');
   console.log('🎮 PSO démarré !');

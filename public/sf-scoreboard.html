@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <title>PSO – SF6 Scoreboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Russo+One&family=Inter:wght@400;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="sf-scoreboard.css"/>
+  <link rel="stylesheet" href="/pso-transition.css"/>
+</head>
+<body>
+  <canvas id="sf-particles" style="position:fixed;top:0;left:0;width:100%;height:90px;pointer-events:none;z-index:0;"></canvas>
+  <div id="sf-sb" class="sf-sb pso-surface">
+
+    <!-- Joueur 1 -->
+    <div class="sf-player sf-player-1">
+      <div class="sf-score" id="sf-p1-score">0</div>
+      <div class="sf-vsep"></div>
+      <div class="sf-info">
+        <div class="sf-name" id="sf-p1-name">PLAYER 1</div>
+        <div class="sf-char" id="sf-p1-char">—</div>
+      </div>
+    </div>
+
+    <!-- Centre -->
+    <div class="sf-center">
+      <div class="sf-event" id="sf-event">CAPCOM CUP</div>
+      <div class="sf-round-row">
+        <span class="sf-round-label">ROUND</span>
+        <span class="sf-round-val" id="sf-round">1</span>
+      </div>
+      <div class="sf-format" id="sf-format">Bo3</div>
+    </div>
+
+    <!-- Joueur 2 -->
+    <div class="sf-player sf-player-2">
+      <div class="sf-info" style="text-align:right">
+        <div class="sf-name" id="sf-p2-name">PLAYER 2</div>
+        <div class="sf-char" id="sf-p2-char">—</div>
+      </div>
+      <div class="sf-vsep"></div>
+      <div class="sf-score" id="sf-p2-score">0</div>
+    </div>
+
+  </div>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="sf-scoreboard.js"></script>
+  <script src="/pso-transition.js"></script>
+  <script>window.PSO_T = { id: 'sf-scoreboard', root: '#sf-sb' };</script>
+</body>
+</html>

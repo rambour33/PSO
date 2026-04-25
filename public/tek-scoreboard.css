@@ -1,0 +1,70 @@
+:root {
+  --tek-primary: #DC3232;
+  --tek-bg:      rgba(8,4,4,0.96);
+  --tek-p1:      #DC3232;
+  --tek-p2:      #3A8FFF;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: transparent; overflow: hidden; }
+
+.tek-sb {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 90px;
+  display: flex;
+  align-items: stretch;
+  font-family: 'Russo One', sans-serif;
+  background: var(--tek-bg);
+  border-bottom: 3px solid var(--tek-primary);
+  overflow: hidden;
+  transition: opacity .4s, transform .4s;
+}
+.tek-sb.hidden { opacity: 0; transform: translateY(-100%); }
+
+.tek-player {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 0 24px;
+}
+.tek-player-1 {
+  background: linear-gradient(to right, color-mix(in srgb, var(--tek-p1) 35%, transparent), transparent 70%);
+}
+.tek-player-2 {
+  background: linear-gradient(to left, color-mix(in srgb, var(--tek-p2) 35%, transparent), transparent 70%);
+  flex-direction: row-reverse;
+}
+
+.tek-score {
+  font-size: 48px;
+  line-height: 1;
+  min-width: 52px;
+  text-align: center;
+  text-shadow: 0 0 24px color-mix(in srgb, currentColor 70%, transparent);
+}
+
+.tek-vsep {
+  width: 2px; height: 50px;
+  background: rgba(255,255,255,.1);
+  border-radius: 1px;
+}
+
+.tek-info { display: flex; flex-direction: column; gap: 4px; }
+.tek-name { font-size: 18px; letter-spacing: 3px; color: #fff; text-transform: uppercase; }
+.tek-char { font-size: 13px; letter-spacing: 2px; color: rgba(255,255,255,.45); text-transform: uppercase; }
+
+.tek-center {
+  width: 200px; flex-shrink: 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+  border-left: 1px solid rgba(255,255,255,.07);
+  border-right: 1px solid rgba(255,255,255,.07);
+  background: rgba(0,0,0,.4);
+}
+
+.tek-event  { font-size: 8px; letter-spacing: 3px; color: var(--tek-primary); text-transform: uppercase; opacity: .85; }
+.tek-round-row { display: flex; align-items: center; gap: 8px; }
+.tek-round-label { font-size: 9px; letter-spacing: 2px; color: rgba(255,255,255,.4); text-transform: uppercase; }
+.tek-round-val   { font-size: 22px; color: var(--tek-primary); letter-spacing: 1px; text-shadow: 0 0 14px color-mix(in srgb, var(--tek-primary) 70%, transparent); }
+.tek-format { font-size: 10px; letter-spacing: 2px; color: rgba(255,255,255,.3); text-transform: uppercase; }

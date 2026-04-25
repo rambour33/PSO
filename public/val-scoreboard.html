@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <title>PSO – Valorant Scoreboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700;900&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="val-scoreboard.css"/>
+  <link rel="stylesheet" href="/pso-transition.css"/>
+</head>
+<body>
+  <canvas id="val-particles" style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;"></canvas>
+  <div id="val-sb" class="val-sb pso-surface">
+
+    <!-- Équipe 1 -->
+    <div class="vsb-team vsb-team-1">
+      <img class="vsb-logo" id="vsb-t1-logo" src="" alt=""/>
+      <div class="vsb-info">
+        <div class="vsb-name" id="vsb-t1-name">TEAM ALPHA</div>
+        <div class="vsb-sub" id="vsb-t1-sub"></div>
+      </div>
+      <div class="vsb-sep"></div>
+      <div class="vsb-score" id="vsb-t1-score">0</div>
+    </div>
+
+    <!-- Centre -->
+    <div class="vsb-center">
+      <div class="vsb-event" id="vsb-event">VCT 2025</div>
+      <div class="vsb-map"   id="vsb-map">—</div>
+      <div class="vsb-format" id="vsb-format">BO3 • MAP 1</div>
+    </div>
+
+    <!-- Équipe 2 -->
+    <div class="vsb-team vsb-team-2">
+      <div class="vsb-score" id="vsb-t2-score">0</div>
+      <div class="vsb-sep"></div>
+      <div class="vsb-info">
+        <div class="vsb-name" id="vsb-t2-name">TEAM BRAVO</div>
+        <div class="vsb-sub" id="vsb-t2-sub"></div>
+      </div>
+      <img class="vsb-logo" id="vsb-t2-logo" src="" alt=""/>
+    </div>
+
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="val-scoreboard.js"></script>
+  <script>window.PSO_T = { id: 'val-scoreboard', root: '#val-sb' };</script>
+  <script src="/pso-transition.js"></script>
+</body>
+</html>

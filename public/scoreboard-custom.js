@@ -287,13 +287,25 @@ function applyState(s) {
   if (currentShapes.length) applyAutoLayout(currentShapes);
 }
 
+/* ── Séquences ───────────────────────────────────────────────── */
+const _seqPlayer = new PSOSequencePlayer(id => root.querySelector(`[data-id="${id}"]`));
+
+function applySequences(sequences) {
+  const playing = (sequences || []).find(s => s.playing);
+  if (playing) {
+    if (_seqPlayer.currentSeqId !== playing.id) _seqPlayer.play(playing);
+  } else {
+    if (_seqPlayer.running) _seqPlayer.stop();
+  }
+}
+
 // Init
 if (layoutId) {
   fetch('/api/sb-layouts')
     .then(r => r.json())
     .then(data => {
       const layout = (data.layouts || []).find(l => l.id === layoutId);
-      if (layout) render(layout.shapes);
+      if (layout) { render(layout.shapes); applySequences(layout.sequences); }
     })
     .catch(() => {});
 }
@@ -302,5 +314,7 @@ fetch('/api/state').then(r => r.json()).then(applyState).catch(() => {});
 
 socket.on('stateUpdate', applyState);
 socket.on('sbLayoutUpdate', data => {
-  if (data.id === layoutId) render(data.shapes);
+  if (data.id !== layoutId) return;
+  render(data.shapes);
+  applySequences(data.sequences);
 });

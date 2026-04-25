@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <title>PSO – Valorant Pick &amp; Ban</title>
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700;900&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="val-pickban.css"/>
+  <link rel="stylesheet" href="/pso-transition.css"/>
+</head>
+<body>
+  <div id="val-pb" class="val-pb-root pso-surface hidden">
+
+    <!-- Équipe 1 -->
+    <div class="val-pb-team val-pb-team-1">
+      <div class="val-pb-team-header">
+        <img class="val-pb-team-logo" id="vpb-t1-logo" src="" alt=""/>
+        <div class="val-pb-team-name" id="vpb-t1-name">TEAM ALPHA</div>
+      </div>
+      <div class="val-pb-slots" id="vpb-t1-slots"></div>
+    </div>
+
+    <!-- Centre -->
+    <div class="val-pb-center">
+      <div class="val-pb-center-event" id="vpb-event">VCT 2025</div>
+      <div class="val-pb-divider"></div>
+      <div class="val-pb-phase" id="vpb-phase">AGENT SELECT</div>
+      <div class="val-pb-divider"></div>
+      <div class="val-pb-maps" id="vpb-maps"></div>
+    </div>
+
+    <!-- Équipe 2 -->
+    <div class="val-pb-team val-pb-team-2">
+      <div class="val-pb-team-header">
+        <div class="val-pb-team-name" id="vpb-t2-name">TEAM BRAVO</div>
+        <img class="val-pb-team-logo" id="vpb-t2-logo" src="" alt=""/>
+      </div>
+      <div class="val-pb-slots" id="vpb-t2-slots"></div>
+    </div>
+
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="val-pickban.js"></script>
+  <script>window.PSO_T = { id: 'val-pickban', root: '#val-pb' };</script>
+  <script src="/pso-transition.js"></script>
+</body>
+</html>

@@ -1,0 +1,126 @@
+:root {
+  --sf-primary:  #F7B731;
+  --sf-bg:       rgba(10,6,2,0.95);
+  --sf-p1:       #3A8FFF;
+  --sf-p2:       #FF5A3A;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: transparent; overflow: hidden; }
+
+.sf-sb {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 90px;
+  display: flex;
+  align-items: stretch;
+  font-family: 'Russo One', sans-serif;
+  background: var(--sf-bg);
+  border-bottom: 3px solid var(--sf-primary);
+  overflow: hidden;
+  transition: opacity .4s, transform .4s;
+}
+.sf-sb.hidden { opacity: 0; transform: translateY(-100%); }
+
+/* Joueurs */
+.sf-player {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 0 24px;
+  position: relative;
+}
+.sf-player-1 {
+  background: linear-gradient(to right, color-mix(in srgb, var(--sf-p1) 35%, transparent), transparent 70%);
+}
+.sf-player-2 {
+  background: linear-gradient(to left, color-mix(in srgb, var(--sf-p2) 35%, transparent), transparent 70%);
+  flex-direction: row-reverse;
+}
+
+.sf-score {
+  font-size: 48px;
+  color: var(--sf-primary);
+  min-width: 52px;
+  text-align: center;
+  text-shadow: 0 0 24px color-mix(in srgb, var(--sf-primary) 80%, transparent);
+  line-height: 1;
+}
+
+.sf-vsep {
+  width: 2px;
+  height: 50px;
+  background: rgba(255,255,255,.12);
+  border-radius: 1px;
+}
+
+.sf-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sf-name {
+  font-size: 18px;
+  letter-spacing: 3px;
+  color: #fff;
+  text-transform: uppercase;
+  text-shadow: 0 2px 8px rgba(0,0,0,.5);
+}
+
+.sf-char {
+  font-size: 13px;
+  letter-spacing: 2px;
+  color: rgba(255,255,255,.5);
+  text-transform: uppercase;
+}
+
+/* Centre */
+.sf-center {
+  width: 200px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  border-left:  1px solid rgba(255,255,255,.08);
+  border-right: 1px solid rgba(255,255,255,.08);
+  background: rgba(0,0,0,.35);
+}
+
+.sf-event {
+  font-size: 9px;
+  letter-spacing: 3px;
+  color: var(--sf-primary);
+  text-transform: uppercase;
+  opacity: .8;
+}
+
+.sf-round-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sf-round-label {
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: rgba(255,255,255,.4);
+  text-transform: uppercase;
+}
+
+.sf-round-val {
+  font-size: 22px;
+  color: var(--sf-primary);
+  letter-spacing: 1px;
+  text-shadow: 0 0 14px color-mix(in srgb, var(--sf-primary) 70%, transparent);
+}
+
+.sf-format {
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: rgba(255,255,255,.35);
+  text-transform: uppercase;
+}

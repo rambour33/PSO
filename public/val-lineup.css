@@ -1,0 +1,134 @@
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body {
+  width: 1920px; height: 1080px;
+  overflow: hidden; background: transparent;
+  font-family: 'Rajdhani', 'Inter', 'Segoe UI', sans-serif;
+}
+
+:root {
+  --val-primary: #FF4655;
+  --val-team1: #FF4655;
+  --val-team2: #3B71E4;
+}
+
+/* ── Racine ──────────────────────────────────────────────────── */
+.val-lineup-root {
+  position: absolute; inset: 0;
+  display: grid;
+  grid-template-columns: 1fr 180px 1fr;
+  background: rgba(7, 7, 14, 0.94);
+}
+.val-lineup-root.hidden { display: none; }
+
+/* ── Colonnes équipes ────────────────────────────────────────── */
+.val-lineup-team {
+  display: flex; flex-direction: column;
+  padding: 48px 40px;
+}
+.val-lineup-team-1 {
+  background: linear-gradient(135deg, color-mix(in srgb, var(--val-team1) 14%, transparent) 0%, transparent 45%);
+  border-right: 1px solid rgba(255, 255, 255, 0.06);
+}
+.val-lineup-team-2 {
+  background: linear-gradient(225deg, color-mix(in srgb, var(--val-team2) 14%, transparent) 0%, transparent 45%);
+  border-left: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* ── Header équipe ───────────────────────────────────────────── */
+.val-lineup-header {
+  display: flex; align-items: center; gap: 18px;
+  padding-bottom: 24px; margin-bottom: 24px;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.07);
+}
+.val-lineup-team-2 .val-lineup-header { flex-direction: row-reverse; }
+
+.val-lineup-team-logo {
+  width: 68px; height: 68px; object-fit: contain; flex-shrink: 0;
+}
+.val-lineup-team-logo[src=''] { display: none; }
+
+.val-lineup-team-name {
+  font-size: 34px; font-weight: 900;
+  text-transform: uppercase; letter-spacing: 3px;
+  line-height: 1;
+}
+.val-lineup-team-1 .val-lineup-team-name { color: var(--val-team1); }
+.val-lineup-team-2 .val-lineup-team-name { color: var(--val-team2); }
+
+/* ── Liste joueurs ───────────────────────────────────────────── */
+.val-lineup-players {
+  display: flex; flex-direction: column; gap: 12px;
+  flex: 1; justify-content: center;
+}
+
+.val-lineup-player {
+  display: flex; align-items: center; gap: 18px;
+  padding: 16px 20px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-left: 3px solid var(--val-team1);
+  position: relative;
+  transition: background 0.2s;
+}
+.val-lineup-team-2 .val-lineup-player {
+  flex-direction: row-reverse;
+  border-left: none; border-right: 3px solid var(--val-team2);
+}
+.val-lineup-team-2 .val-lineup-player-info { text-align: right; }
+
+.val-lineup-player-flag {
+  font-size: 30px; line-height: 1; flex-shrink: 0;
+}
+
+.val-lineup-player-info { flex: 1; overflow: hidden; }
+
+.val-lineup-player-name {
+  font-size: 26px; font-weight: 700; color: #ECE8E1;
+  text-transform: uppercase; letter-spacing: 2px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+.val-lineup-player-agent {
+  font-size: 14px; color: rgba(236, 232, 225, 0.5);
+  text-transform: uppercase; letter-spacing: 2px; margin-top: 2px;
+}
+
+.val-lineup-player-role {
+  font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
+  margin-top: 3px;
+}
+
+.val-lineup-player-igl {
+  flex-shrink: 0;
+  font-size: 10px; font-weight: 700; letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 3px 10px;
+  border: 1px solid currentColor;
+  color: var(--val-team1);
+}
+.val-lineup-team-2 .val-lineup-player-igl { color: var(--val-team2); }
+
+/* ── Centre ──────────────────────────────────────────────────── */
+.val-lineup-center {
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; gap: 12px;
+  padding: 40px 10px;
+}
+
+.val-lineup-center-event {
+  font-size: 9px; letter-spacing: 4px; font-weight: 700;
+  color: var(--val-primary); text-transform: uppercase;
+  writing-mode: vertical-rl; text-orientation: mixed;
+}
+
+.val-lineup-vs {
+  font-size: 40px; font-weight: 900;
+  color: rgba(255, 255, 255, 0.1);
+  letter-spacing: 4px;
+}
+
+.val-lineup-center-divider {
+  width: 1px; height: 60px;
+  background: linear-gradient(180deg, transparent, rgba(255,255,255,0.15), transparent);
+}

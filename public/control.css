@@ -3997,3 +3997,172 @@ body.mobile-mode .custom-card {
   font-size: 11px;
   color: var(--text);
 }
+
+
+/* ══════════════════════════════════════════════════════════
+   VALORANT — Sélecteur de jeu + styles onglet
+   ══════════════════════════════════════════════════════════ */
+
+/* ── Sélecteur de jeu ──────────────────────────────────── */
+.game-selector {
+  display: flex; gap: 4px; margin-left: 10px;
+  background: rgba(255,255,255,.06);
+  border-radius: 6px; padding: 3px;
+}
+
+.game-btn {
+  padding: 4px 12px; border-radius: 4px; border: none;
+  background: transparent; color: var(--text-muted);
+  font-size: 11px; font-weight: 700; letter-spacing: 1.5px;
+  cursor: pointer; transition: background .15s, color .15s;
+}
+.game-btn:hover   { background: rgba(255,255,255,.08); color: var(--text); }
+.game-btn.active  { background: var(--accent); color: #fff; }
+.game-btn[data-game="valorant"].active { background: #FF4655; }
+
+/* ── Grille thèmes Valorant ────────────────────────────── */
+.val-theme-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 10px; margin-bottom: 4px;
+}
+
+.val-theme-card {
+  padding: 14px 16px; border-radius: 6px; cursor: pointer;
+  border: 2px solid rgba(255,255,255,.07);
+  background: rgba(255,255,255,.03);
+  transition: border-color .15s, background .15s;
+}
+.val-theme-card:hover  { border-color: rgba(255,255,255,.18); }
+.val-theme-card.active { border-color: var(--val-card-color, #FF4655); background: rgba(255,255,255,.06); }
+
+.val-theme-swatch {
+  display: flex; gap: 6px; margin-bottom: 8px;
+}
+.val-theme-swatch-dot {
+  width: 14px; height: 14px; border-radius: 50%;
+}
+.val-theme-name {
+  font-size: 12px; font-weight: 600; letter-spacing: .5px;
+  color: var(--text);
+}
+.val-theme-sub {
+  font-size: 10px; color: var(--text-muted); margin-top: 2px;
+}
+
+/* ── Listes joueurs Pick&Ban / Lineup ──────────────────── */
+.val-pb-players-list,
+.val-lu-players-list {
+  display: flex; flex-direction: column; gap: 6px;
+}
+
+.val-pb-player-row,
+.val-lu-player-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 6px; align-items: center;
+  padding: 6px 8px;
+  background: rgba(255,255,255,.03);
+  border: 1px solid rgba(255,255,255,.05);
+  border-radius: 4px;
+}
+
+.val-lu-player-row {
+  grid-template-columns: 1fr 1fr 90px auto;
+}
+
+.val-pb-player-row input,
+.val-lu-player-row input,
+.val-pb-player-row select,
+.val-lu-player-row select {
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 4px; color: var(--text);
+  font-size: 12px; padding: 4px 8px;
+  width: 100%;
+}
+
+.val-pb-player-lock {
+  font-size: 14px; cursor: pointer; color: var(--text-muted);
+  transition: color .15s; padding: 4px;
+  user-select: none;
+}
+.val-pb-player-lock.locked { color: #73E02A; }
+
+.val-lu-player-igl {
+  font-size: 10px; cursor: pointer; padding: 3px 7px;
+  border-radius: 3px; letter-spacing: 1px; font-weight: 700;
+  border: 1px solid rgba(255,255,255,.15); color: var(--text-muted);
+  user-select: none; transition: background .15s, color .15s;
+  white-space: nowrap;
+}
+.val-lu-player-igl.active { background: var(--accent); color: #fff; border-color: transparent; }
+
+/* ── Map veto ──────────────────────────────────────────── */
+.val-map-veto-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 6px;
+}
+
+.val-map-veto-item {
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  padding: 10px 8px; border-radius: 4px; cursor: pointer;
+  border: 2px solid rgba(255,255,255,.07);
+  background: rgba(255,255,255,.03);
+  font-size: 12px; font-weight: 700; letter-spacing: 1px;
+  text-transform: uppercase; color: var(--text);
+  transition: background .15s, border-color .15s;
+}
+.val-map-veto-item:hover { background: rgba(255,255,255,.07); }
+.val-map-veto-item.picked  { border-color: #73E02A55; background: rgba(115,224,42,.08); color: #73E02A; }
+.val-map-veto-item.banned-1 { border-color: rgba(255,70,85,.4); background: rgba(255,70,85,.06); opacity: .7; }
+.val-map-veto-item.banned-2 { border-color: rgba(59,113,228,.4); background: rgba(59,113,228,.06); opacity: .7; }
+.val-map-veto-status { font-size: 9px; letter-spacing: 2px; opacity: .7; }
+
+/* ── Caster inline block (Valorant + autres jeux) ──────── */
+.caster-inline-block {
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 6px;
+  padding: 12px;
+  margin-bottom: 12px;
+  background: rgba(255,255,255,.02);
+}
+.caster-inline-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 10px;
+}
+
+/* ── Boutons de jeux supplémentaires ──────────────────────── */
+.game-btn[data-game="sf6"]  { border-color: rgba(247,183,49,.4);  color: #F7B731; }
+.game-btn[data-game="sf6"].active  { background: #F7B731; color: #000; }
+.game-btn[data-game="tek8"] { border-color: rgba(220,50,50,.4);   color: #DC3232; }
+.game-btn[data-game="tek8"].active { background: #DC3232; color: #fff; }
+.game-btn[data-game="cs2"]  { border-color: rgba(255,162,0,.4);   color: #FFA200; }
+.game-btn[data-game="cs2"].active  { background: #FFA200; color: #000; }
+
+/* ── CS2 map veto ──────────────────────────────────────── */
+.cs2-map-veto-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 6px;
+}
+.cs2-map-veto-item {
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  padding: 10px 8px; border-radius: 4px; cursor: pointer;
+  border: 2px solid rgba(255,255,255,.07);
+  background: rgba(255,255,255,.03);
+  font-size: 12px; font-weight: 700; letter-spacing: 1px;
+  text-transform: uppercase; color: var(--text);
+  transition: background .15s, border-color .15s;
+}
+.cs2-map-veto-item:hover { background: rgba(255,255,255,.07); }
+.cs2-map-veto-item.picked-1 { border-color: rgba(255,162,0,.5); background: rgba(255,162,0,.08); color: #FFA200; }
+.cs2-map-veto-item.picked-2 { border-color: rgba(91,148,235,.5); background: rgba(91,148,235,.08); color: #5B94EB; }
+.cs2-map-veto-item.banned   { border-color: rgba(255,70,70,.35); background: rgba(255,70,70,.05); opacity: .6; }
+.cs2-map-veto-item.decider  { border-color: rgba(115,224,42,.5); background: rgba(115,224,42,.08); color: #73E02A; }
+.cs2-map-veto-status { font-size: 9px; letter-spacing: 2px; opacity: .7; }

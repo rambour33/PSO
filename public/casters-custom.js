@@ -236,13 +236,25 @@ function applyCastersData(s) {
   if (currentShapes.length) applyAutoLayout(currentShapes);
 }
 
+/* ── Séquences ───────────────────────────────────────────────── */
+const _seqPlayer = new PSOSequencePlayer(id => root.querySelector(`[data-id="${id}"]`));
+
+function applySequences(sequences) {
+  const playing = (sequences || []).find(s => s.playing);
+  if (playing) {
+    if (_seqPlayer.currentSeqId !== playing.id) _seqPlayer.play(playing);
+  } else {
+    if (_seqPlayer.running) _seqPlayer.stop();
+  }
+}
+
 /* ── Init ────────────────────────────────────────────────────── */
 if (layoutId) {
   fetch('/api/caster-layouts')
     .then(r => r.json())
     .then(data => {
       const layout = (data.layouts || []).find(l => l.id === layoutId);
-      if (layout) render(layout.shapes);
+      if (layout) { render(layout.shapes); applySequences(layout.sequences); }
     })
     .catch(() => {});
 }
@@ -250,3 +262,8 @@ if (layoutId) {
 fetch('/api/casters').then(r => r.json()).then(applyCastersData).catch(() => {});
 
 socket.on('castersUpdate', applyCastersData);
+socket.on('casterLayoutUpdate', data => {
+  if (data.id !== layoutId) return;
+  render(data.shapes);
+  applySequences(data.sequences);
+});

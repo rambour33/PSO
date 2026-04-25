@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <title>PSO – Valorant Lineup</title>
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700;900&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="val-lineup.css"/>
+  <link rel="stylesheet" href="/pso-transition.css"/>
+</head>
+<body>
+  <div id="val-lineup" class="val-lineup-root pso-surface hidden">
+
+    <!-- Équipe 1 -->
+    <div class="val-lineup-team val-lineup-team-1">
+      <div class="val-lineup-header">
+        <img class="val-lineup-team-logo" id="vlu-t1-logo" src="" alt=""/>
+        <div class="val-lineup-team-name" id="vlu-t1-name">TEAM ALPHA</div>
+      </div>
+      <div class="val-lineup-players" id="vlu-t1-players"></div>
+    </div>
+
+    <!-- Centre -->
+    <div class="val-lineup-center">
+      <div class="val-lineup-center-divider"></div>
+      <div class="val-lineup-center-event" id="vlu-event">VCT 2025</div>
+      <div class="val-lineup-vs">VS</div>
+      <div class="val-lineup-center-event" id="vlu-map"></div>
+      <div class="val-lineup-center-divider"></div>
+    </div>
+
+    <!-- Équipe 2 -->
+    <div class="val-lineup-team val-lineup-team-2">
+      <div class="val-lineup-header">
+        <div class="val-lineup-team-name" id="vlu-t2-name">TEAM BRAVO</div>
+        <img class="val-lineup-team-logo" id="vlu-t2-logo" src="" alt=""/>
+      </div>
+      <div class="val-lineup-players" id="vlu-t2-players"></div>
+    </div>
+
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="val-lineup.js"></script>
+  <script>window.PSO_T = { id: 'val-lineup', root: '#val-lineup' };</script>
+  <script src="/pso-transition.js"></script>
+</body>
+</html>

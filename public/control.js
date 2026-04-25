@@ -1,5 +1,28 @@
 const socket = io();
 
+// ─── Server base URL (updated from /api/server-info) ──────────────────────────
+let _serverBase = window.location.origin;
+
+fetch('/api/server-info').then(r => r.json()).then(info => {
+  _serverBase = info.baseUrl || window.location.origin;
+  // Replace all static localhost:3002 occurrences in the DOM
+  const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+  const nodes = [];
+  while (walker.nextNode()) nodes.push(walker.currentNode);
+  nodes.forEach(n => {
+    if (n.nodeValue && n.nodeValue.includes('localhost:3002')) {
+      n.nodeValue = n.nodeValue.replace(/http:\/\/localhost:3002/g, _serverBase).replace(/localhost:3002/g, _serverBase.replace(/^https?:\/\//, ''));
+    }
+  });
+  // Replace data-url / data-copy attributes
+  document.querySelectorAll('[data-url],[data-copy],[value]').forEach(el => {
+    ['data-url', 'data-copy', 'value'].forEach(attr => {
+      const v = el.getAttribute(attr);
+      if (v && v.includes('localhost:3002')) el.setAttribute(attr, v.replace(/http:\/\/localhost:3002/g, _serverBase));
+    });
+  });
+}).catch(() => {});
+
 let state = {
   player1: { name: 'PLAYER 1', score: 0, character: null, color: '#E83030' },
   player2: { name: 'PLAYER 2', score: 0, character: null, color: '#3070E8' },
@@ -7842,7 +7865,7 @@ socket.on('stateUpdate', (s) => {
 
   async function apiSave() {
     const l = getLayout(); if (!l) return;
-    await fetch(`/api/sb-layouts/${l.id}`,{ method:'PATCH', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ name:l.name, shapes:l.shapes }) });
+    await fetch(`/api/sb-layouts/${l.id}`,{ method:'PATCH', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ name:l.name, shapes:l.shapes, sequences:l.sequences||[] }) });
   }
 
   let _saveTimer = null;
@@ -7897,6 +7920,7 @@ socket.on('stateUpdate', (s) => {
         overflow:hidden;
         pointer-events:auto;
         z-index:${idx+1};
+        ${sh.linkedTo ? 'outline:2px dashed rgba(80,160,255,0.55);outline-offset:1px;' : ''}
       `;
 
       if (sh.type === 'rect') {
@@ -8042,37 +8066,63 @@ socket.on('stateUpdate', (s) => {
       return;
     }
     container.innerHTML = '';
-    // Render in reverse order (top layers first)
-    [...l.shapes].reverse().forEach((sh, _i) => {
-      const realIdx = l.shapes.indexOf(sh);
+
+    // Build display order: shapes reversed (top first), linked children
+    // injectés directement sous leur parent texte pour montrer le lien.
+    const reversed = [...l.shapes].reverse();
+    const linkedChildIds = new Set(l.shapes.filter(s => s.linkedTo).map(s => s.id));
+    const displayed = [];
+    const seen = new Set();
+
+    reversed.forEach(sh => {
+      if (seen.has(sh.id)) return;
+      displayed.push({ sh, child: false });
+      seen.add(sh.id);
+      // Insérer les enfants liés à ce texte juste après
+      l.shapes.forEach(child => {
+        if (child.linkedTo === sh.id && !seen.has(child.id)) {
+          displayed.push({ sh: child, child: true, parentId: sh.id });
+          seen.add(child.id);
+        }
+      });
+    });
+
+    displayed.forEach(({ sh, child }) => {
+      const isLinkedChild = !!child;
       const row = document.createElement('div');
       row.className = 'sbb-layer-row';
       row.dataset.id = sh.id;
       row.style.cssText = `
         display:flex;align-items:center;gap:6px;
         padding:5px 8px;border-radius:5px;cursor:pointer;
+        margin-left:${isLinkedChild ? '14px' : '0'};
         background:${sh.id===selectedId?'rgba(68,170,255,0.12)':'transparent'};
         border:1px solid ${sh.id===selectedId?'rgba(68,170,255,0.3)':'transparent'};
         font-size:12px;color:var(--text);
       `;
 
-      // Drag handle
+      // Drag handle (masqué pour les formes liées car leur position est controlée)
       const grip = document.createElement('span');
       grip.textContent = '⠿';
-      grip.style.cssText='color:var(--text-muted);cursor:ns-resize;flex-shrink:0;font-size:14px;';
-      grip.dataset.gripFor = sh.id;
+      grip.style.cssText = isLinkedChild
+        ? 'color:var(--text-muted);opacity:0.3;flex-shrink:0;font-size:14px;cursor:default;'
+        : 'color:var(--text-muted);cursor:ns-resize;flex-shrink:0;font-size:14px;';
+      if (!isLinkedChild) grip.dataset.gripFor = sh.id;
 
-      // Type icon
+      // Icône type + indicateur de lien
       const icon = document.createElement('span');
-      icon.textContent = sh.type==='rect'?'▬':sh.type==='text'?'T':'🖼';
-      icon.style.cssText='flex-shrink:0;font-size:10px;width:16px;text-align:center;';
+      icon.textContent = isLinkedChild ? '⛓' : (sh.type==='rect'?'▬':sh.type==='text'?'T':'🖼');
+      icon.style.cssText = 'flex-shrink:0;font-size:10px;width:16px;text-align:center;' +
+        (isLinkedChild ? 'color:rgba(100,180,255,0.7);' : '');
+      icon.title = isLinkedChild ? 'Lié à un texte — se déplace avec lui' : '';
 
-      // Name
+      // Nom
       const name = document.createElement('span');
       name.textContent = sh.name || sh.type;
-      name.style.cssText='flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;';
+      name.style.cssText = 'flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;' +
+        (isLinkedChild ? 'color:rgba(200,220,255,0.7);font-style:italic;' : '');
 
-      // Visibility
+      // Visibilité
       const vis = document.createElement('button');
       vis.textContent = sh.visible===false ? '👁‍🗨' : '👁';
       vis.title = sh.visible===false ? 'Afficher' : 'Masquer';
@@ -8238,7 +8288,14 @@ socket.on('stateUpdate', (s) => {
   /* ── Drag to move ────────────────────────────────────────── */
   function sbbStartDrag(e, shapeId) {
     e.preventDefault();
-    const sh = getShape(shapeId); if (!sh) return;
+    let sh = getShape(shapeId); if (!sh) return;
+
+    // Si la forme est liée à un texte, déplacer le texte parent à la place
+    if (sh.linkedTo) {
+      const parent = getShape(sh.linkedTo);
+      if (parent) { shapeId = parent.id; sh = parent; }
+    }
+
     const start = clientToCanvas(e.clientX, e.clientY);
     dragState = { type:'move', shapeId, startX:start.x, startY:start.y, origX:sh.x, origY:sh.y };
 
@@ -8927,7 +8984,7 @@ socket.on('stateUpdate', (s) => {
 
   function refreshOverlayLink() {
     const a   = document.getElementById('sbb-overlay-link'); if (!a) return;
-    const url = activeId ? `http://localhost:3002/scoreboard-custom?layout=${activeId}` : '#';
+    const url = activeId ? `${_serverBase}/scoreboard-custom?layout=${activeId}` : '#';
     a.href = url;
     const urlInput = document.getElementById('sbb-url-display');
     if (urlInput) urlInput.value = url;
@@ -9003,7 +9060,7 @@ socket.on('stateUpdate', (s) => {
   // Copier URL
   document.getElementById('sbb-btn-copy-url')?.addEventListener('click', () => {
     if (!activeId) return;
-    const url = `http://localhost:3002/scoreboard-custom?layout=${activeId}`;
+    const url = `${_serverBase}/scoreboard-custom?layout=${activeId}`;
     navigator.clipboard.writeText(url).then(() => setStatus('URL copiée !'));
   });
 
@@ -9335,7 +9392,7 @@ socket.on('stateUpdate', (s) => {
   }
   async function apiSave() {
     const l = getLayout(); if (!l) return;
-    await fetch(`/api/caster-layouts/${l.id}`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:l.name,shapes:l.shapes})});
+    await fetch(`/api/caster-layouts/${l.id}`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:l.name,shapes:l.shapes,sequences:l.sequences||[]})});
   }
   let _cbbSaveTimer = null;
   function scheduleSave() { clearTimeout(_cbbSaveTimer); _cbbSaveTimer = setTimeout(apiSave,300); }
@@ -9368,7 +9425,7 @@ socket.on('stateUpdate', (s) => {
       const el=document.createElement('div');
       el.className='sbb-shape-preview';
       el.dataset.id=sh.id;
-      el.style.cssText=`position:absolute;left:${sh.x}px;top:${sh.y}px;width:${sh.w}px;height:${sh.h}px;opacity:${sh.visible===false?0.25:sh.opacity??1};cursor:move;box-sizing:border-box;overflow:hidden;pointer-events:auto;z-index:${idx+1};`;
+      el.style.cssText=`position:absolute;left:${sh.x}px;top:${sh.y}px;width:${sh.w}px;height:${sh.h}px;opacity:${sh.visible===false?0.25:sh.opacity??1};cursor:move;box-sizing:border-box;overflow:hidden;pointer-events:auto;z-index:${idx+1};${sh.linkedTo?'outline:2px dashed rgba(80,160,255,0.55);outline-offset:1px;':''}`;
 
       if (sh.type==='rect') {
         if (sh.customPoints) { applyGeomStyles(el,sh); }
@@ -9461,14 +9518,34 @@ socket.on('stateUpdate', (s) => {
     }
     container.innerHTML='';
     const ICONS={rect:'▬',text:'T',image:'🖼',circle:'○',oval:'◯','semi-circle':'◗',triangle:'△',star:'★',diamond:'◇',hexagon:'⬡'};
-    [...l.shapes].reverse().forEach(sh=>{
+
+    // Ordre d'affichage : formes inversées avec les enfants liés groupés sous leur parent
+    const reversed=[...l.shapes].reverse();
+    const displayed=[], seen=new Set();
+    reversed.forEach(sh=>{
+      if (seen.has(sh.id)) return;
+      displayed.push({sh,child:false}); seen.add(sh.id);
+      l.shapes.forEach(c=>{ if(c.linkedTo===sh.id&&!seen.has(c.id)){displayed.push({sh:c,child:true});seen.add(c.id);} });
+    });
+
+    displayed.forEach(({sh,child})=>{
+      const isLinkedChild=!!child;
       const row=document.createElement('div');
       row.className='sbb-layer-row'; row.dataset.id=sh.id;
-      row.style.cssText=`display:flex;align-items:center;gap:4px;padding:4px 6px;border-radius:4px;cursor:pointer;background:${sh.id===selectedId?'rgba(68,170,255,0.12)':'transparent'};border:1px solid ${sh.id===selectedId?'rgba(68,170,255,0.3)':'transparent'};font-size:11px;color:var(--text);`;
+      row.style.cssText=`display:flex;align-items:center;gap:4px;padding:4px 6px;border-radius:4px;cursor:pointer;margin-left:${isLinkedChild?'12px':'0'};background:${sh.id===selectedId?'rgba(68,170,255,0.12)':'transparent'};border:1px solid ${sh.id===selectedId?'rgba(68,170,255,0.3)':'transparent'};font-size:11px;color:var(--text);`;
 
-      const grip=document.createElement('span'); grip.textContent='⠿'; grip.style.cssText='color:var(--text-muted);cursor:ns-resize;flex-shrink:0;'; grip.dataset.gripFor=sh.id;
-      const icon=document.createElement('span'); icon.textContent=ICONS[sh.type]||'?'; icon.style.cssText='flex-shrink:0;width:14px;text-align:center;';
-      const name=document.createElement('span'); name.textContent=sh.name||sh.type; name.style.cssText='flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;';
+      const grip=document.createElement('span'); grip.textContent='⠿';
+      grip.style.cssText=isLinkedChild?'color:var(--text-muted);opacity:0.3;flex-shrink:0;':'color:var(--text-muted);cursor:ns-resize;flex-shrink:0;';
+      if (!isLinkedChild) grip.dataset.gripFor=sh.id;
+
+      const icon=document.createElement('span');
+      icon.textContent=isLinkedChild?'⛓':(ICONS[sh.type]||'?');
+      icon.style.cssText='flex-shrink:0;width:14px;text-align:center;'+(isLinkedChild?'color:rgba(100,180,255,0.7);':'');
+      icon.title=isLinkedChild?'Lié à un texte — se déplace avec lui':'';
+
+      const name=document.createElement('span'); name.textContent=sh.name||sh.type;
+      name.style.cssText='flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;'+(isLinkedChild?'color:rgba(200,220,255,0.7);font-style:italic;':'');
+
       const vis=document.createElement('button'); vis.textContent=sh.visible===false?'👁‍🗨':'👁'; vis.style.cssText='background:none;border:none;cursor:pointer;color:var(--text-muted);font-size:11px;padding:1px;';
       vis.addEventListener('click',e=>{e.stopPropagation();sh.visible=sh.visible===false?true:false;renderCanvas();renderLayers();scheduleSave();});
 
@@ -9535,7 +9612,9 @@ socket.on('stateUpdate', (s) => {
   /* ── Drag ────────────────────────────────────────────────── */
   function cbbStartDrag(e,shapeId) {
     e.preventDefault();
-    const sh=getShape(shapeId); if (!sh) return;
+    let sh=getShape(shapeId); if (!sh) return;
+    // Forme liée → déplacer le texte parent à la place
+    if (sh.linkedTo) { const parent=getShape(sh.linkedTo); if (parent) { shapeId=parent.id; sh=parent; } }
     const start=clientToCanvas(e.clientX,e.clientY);
     dragState={type:'move',shapeId,startX:start.x,startY:start.y,origX:sh.x,origY:sh.y};
     function onMove(ev) {
@@ -9802,7 +9881,7 @@ socket.on('stateUpdate', (s) => {
   }
   function refreshOverlayLink() {
     const a=document.getElementById('cbb-overlay-link'); if(!a) return;
-    const url=activeId?`http://localhost:3002/casters-custom?layout=${activeId}`:'#';
+    const url=activeId?`${_serverBase}/casters-custom?layout=${activeId}`:'#';
     a.href=url;
     const urlInput=document.getElementById('cbb-url-display');
     if(urlInput) urlInput.value=url==='#'?'':url;
@@ -9847,7 +9926,7 @@ socket.on('stateUpdate', (s) => {
   });
   document.getElementById('cbb-btn-copy-url')?.addEventListener('click',()=>{
     if(!activeId) return;
-    const url=`http://localhost:3002/casters-custom?layout=${activeId}`;
+    const url=`${_serverBase}/casters-custom?layout=${activeId}`;
     navigator.clipboard.writeText(url).then(()=>{
       const btn=document.getElementById('cbb-btn-copy-url'); const orig=btn.textContent;
       btn.textContent='✓'; setTimeout(()=>btn.textContent=orig,1400);
@@ -10045,4 +10124,1512 @@ socket.on('stateUpdate', (s) => {
       if (!document.querySelector('.anim-card')) renderGrid();
     });
   });
+})();
+
+// ═══════════════════════════════════════════════════════════════
+// SÉQUENCES BUILDER — UI partagée sbb + cbb
+// ═══════════════════════════════════════════════════════════════
+(function () {
+  'use strict';
+
+  const ANIM_OPTS = [
+    { v: 'fade',        l: 'Fondu'         },
+    { v: 'slide-up',    l: 'Glisse haut'   },
+    { v: 'slide-down',  l: 'Glisse bas'    },
+    { v: 'slide-left',  l: 'Glisse gauche' },
+    { v: 'slide-right', l: 'Glisse droite' },
+    { v: 'scale',       l: 'Rétrécit'      },
+    { v: 'zoom',        l: 'Zoom'          },
+    { v: 'blur',        l: 'Flou'          },
+  ];
+
+  function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 5); }
+
+  function mkSelect(opts, val, onChange) {
+    const s = document.createElement('select');
+    s.style.cssText = 'font-size:11px;padding:2px 4px;background:var(--surface);border:1px solid var(--border);color:var(--text);border-radius:4px;max-width:100px;';
+    opts.forEach(o => {
+      const op = document.createElement('option');
+      op.value = o.v; op.textContent = o.l;
+      if (o.v === val) op.selected = true;
+      s.appendChild(op);
+    });
+    s.addEventListener('change', () => onChange(s.value));
+    return s;
+  }
+
+  function mkNumInput(val, min, max, step, suffix, onChange) {
+    const wrap = document.createElement('div');
+    wrap.style.cssText = 'display:flex;align-items:center;gap:3px;';
+    const r = document.createElement('input');
+    r.type = 'range'; r.min = min; r.max = max; r.step = step; r.value = val;
+    r.style.cssText = 'width:60px;';
+    const sp = document.createElement('span');
+    sp.style.cssText = 'font-size:10px;color:var(--text-muted);min-width:34px;';
+    sp.textContent = val + suffix;
+    r.addEventListener('input', () => { sp.textContent = r.value + suffix; onChange(+r.value); });
+    wrap.appendChild(r); wrap.appendChild(sp);
+    return wrap;
+  }
+
+  /* ─── Construit l'UI de séquences pour un builder ──────── */
+  function buildSeqUI({ listId, addBtnId, getLayout, getShapes, saveLayout, apiBase, canvasSelector }) {
+
+    const list   = document.getElementById(listId);
+    const addBtn = document.getElementById(addBtnId);
+    if (!list || !addBtn) return;
+
+    /* Canvas preview player */
+    const _canvasPlayer = new PSOSequencePlayer(id => {
+      const inner = document.querySelector(canvasSelector);
+      return inner ? inner.querySelector(`[data-id="${id}"]`) : null;
+    });
+
+    /* ── Render ─────────────────────────────────────────── */
+    function render() {
+      const l = getLayout();
+      if (!list) return;
+      list.innerHTML = '';
+      if (!l) return;
+      if (!l.sequences) l.sequences = [];
+
+      l.sequences.forEach((seq, si) => {
+        const card = document.createElement('div');
+        card.style.cssText = 'background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:10px 12px;';
+
+        /* ── Header ─────────────────────────────── */
+        const hdr = document.createElement('div');
+        hdr.style.cssText = 'display:flex;align-items:center;gap:6px;margin-bottom:8px;flex-wrap:wrap;';
+
+        /* Nom */
+        const nameIn = document.createElement('input');
+        nameIn.type = 'text'; nameIn.value = seq.name || ('Séquence ' + (si + 1));
+        nameIn.style.cssText = 'flex:1;min-width:80px;font-size:12px;font-weight:600;background:transparent;border:none;border-bottom:1px solid var(--border);color:var(--text);padding:2px 4px;';
+        nameIn.addEventListener('change', () => { seq.name = nameIn.value; saveLayout(); });
+
+        /* Boucle */
+        const loopLbl = document.createElement('label');
+        loopLbl.style.cssText = 'display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text-muted);cursor:pointer;';
+        const loopChk = document.createElement('input'); loopChk.type = 'checkbox';
+        loopChk.checked = seq.loop !== false;
+        loopChk.addEventListener('change', () => { seq.loop = loopChk.checked; saveLayout(); });
+        loopLbl.appendChild(loopChk); loopLbl.appendChild(document.createTextNode('Boucle'));
+
+        /* Supprimer */
+        const delBtn = document.createElement('button');
+        delBtn.textContent = '🗑'; delBtn.title = 'Supprimer cette séquence';
+        delBtn.style.cssText = 'background:none;border:none;cursor:pointer;color:var(--red,#e05);font-size:13px;padding:0 2px;';
+        delBtn.addEventListener('click', () => {
+          l.sequences.splice(si, 1);
+          saveLayout(); render();
+        });
+
+        hdr.appendChild(nameIn); hdr.appendChild(loopLbl); hdr.appendChild(delBtn);
+        card.appendChild(hdr);
+
+        /* ── Paramètres globaux ─────────────────── */
+        const cfg = document.createElement('div');
+        cfg.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px;';
+
+        function cfgRow(label, el) {
+          const row = document.createElement('div');
+          row.style.cssText = 'display:flex;flex-direction:column;gap:2px;';
+          const lbl = document.createElement('label');
+          lbl.textContent = label;
+          lbl.style.cssText = 'font-size:10px;color:var(--text-muted);';
+          row.appendChild(lbl); row.appendChild(el);
+          return row;
+        }
+
+        cfg.appendChild(cfgRow('Entrée défaut', mkSelect(ANIM_OPTS, seq.animIn || 'fade', v => { seq.animIn = v; saveLayout(); })));
+        cfg.appendChild(cfgRow('Sortie défaut', mkSelect(ANIM_OPTS, seq.animOut || 'fade', v => { seq.animOut = v; saveLayout(); })));
+        cfg.appendChild(cfgRow('Durée transition', mkNumInput(seq.transitionDur ?? 500, 100, 2000, 50, 'ms', v => { seq.transitionDur = v; saveLayout(); })));
+        cfg.appendChild(cfgRow('Durée affichage', mkNumInput(seq.hold ?? 3000, 200, 15000, 200, 'ms', v => { seq.hold = v; saveLayout(); })));
+        card.appendChild(cfg);
+
+        /* ── Items ──────────────────────────────── */
+        const itemsWrap = document.createElement('div');
+        itemsWrap.style.cssText = 'display:flex;flex-direction:column;gap:4px;margin-bottom:8px;';
+
+        (seq.items || []).forEach((item, ii) => {
+          const sh = getShapes().find(s => s.id === item.shapeId);
+          const row = document.createElement('div');
+          row.style.cssText = 'display:flex;align-items:center;gap:4px;flex-wrap:wrap;background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:4px 6px;';
+
+          const grip = document.createElement('span');
+          grip.textContent = '⠿'; grip.style.cssText = 'color:var(--text-muted);cursor:ns-resize;font-size:13px;';
+
+          const nameSpan = document.createElement('span');
+          nameSpan.textContent = sh ? (sh.name || sh.type) : '(supprimé)';
+          nameSpan.style.cssText = 'font-size:11px;flex:1;min-width:60px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:' + (sh ? 'var(--text)' : 'var(--red,#e05)') + ';';
+
+          /* Per-item overrides (facultatifs) */
+          const animInSel  = mkSelect([{ v: '', l: '(défaut)' }, ...ANIM_OPTS], item.animIn  || '', v => { item.animIn  = v || undefined; saveLayout(); });
+          const animOutSel = mkSelect([{ v: '', l: '(défaut)' }, ...ANIM_OPTS], item.animOut || '', v => { item.animOut = v || undefined; saveLayout(); });
+          animInSel.title  = 'Entrée';
+          animOutSel.title = 'Sortie';
+
+          const holdWrap = mkNumInput(item.hold ?? seq.hold ?? 3000, 200, 15000, 200, 'ms', v => { item.hold = v; saveLayout(); });
+
+          /* ↑↓ */
+          const upBtn = document.createElement('button'); upBtn.textContent = '↑'; upBtn.title = 'Monter';
+          const dnBtn = document.createElement('button'); dnBtn.textContent = '↓'; dnBtn.title = 'Descendre';
+          [upBtn, dnBtn].forEach(b => { b.style.cssText = 'background:none;border:none;cursor:pointer;color:var(--text-muted);font-size:12px;padding:0 1px;'; });
+          upBtn.addEventListener('click', () => { if (ii > 0) { seq.items.splice(ii, 1); seq.items.splice(ii - 1, 0, item); saveLayout(); render(); } });
+          dnBtn.addEventListener('click', () => { if (ii < seq.items.length - 1) { seq.items.splice(ii, 1); seq.items.splice(ii + 1, 0, item); saveLayout(); render(); } });
+
+          const rmBtn = document.createElement('button'); rmBtn.textContent = '✕';
+          rmBtn.style.cssText = 'background:none;border:none;cursor:pointer;color:var(--red,#e05);font-size:12px;padding:0 2px;';
+          rmBtn.addEventListener('click', () => { seq.items.splice(ii, 1); saveLayout(); render(); });
+
+          row.appendChild(grip); row.appendChild(nameSpan);
+          row.appendChild(animInSel); row.appendChild(animOutSel); row.appendChild(holdWrap);
+          row.appendChild(upBtn); row.appendChild(dnBtn); row.appendChild(rmBtn);
+          itemsWrap.appendChild(row);
+        });
+
+        card.appendChild(itemsWrap);
+
+        /* ── Ajouter élément ────────────────────── */
+        const addItemRow = document.createElement('div');
+        addItemRow.style.cssText = 'display:flex;gap:6px;align-items:center;margin-bottom:8px;';
+        const addSel = document.createElement('select');
+        addSel.style.cssText = 'flex:1;font-size:11px;padding:3px 6px;background:var(--surface);border:1px solid var(--border);color:var(--text);border-radius:4px;';
+        const defOpt = document.createElement('option');
+        defOpt.value = ''; defOpt.textContent = '— Choisir un élément —';
+        addSel.appendChild(defOpt);
+        getShapes().forEach(sh => {
+          const op = document.createElement('option');
+          op.value = sh.id; op.textContent = sh.name || sh.type;
+          addSel.appendChild(op);
+        });
+        const addItemBtn = document.createElement('button');
+        addItemBtn.textContent = '+ Ajouter';
+        addItemBtn.className = 'btn btn-sm';
+        addItemBtn.addEventListener('click', () => {
+          if (!addSel.value) return;
+          if (!seq.items) seq.items = [];
+          if (seq.items.some(it => it.shapeId === addSel.value)) return;
+          seq.items.push({ shapeId: addSel.value });
+          saveLayout(); render();
+        });
+        addItemRow.appendChild(addSel); addItemRow.appendChild(addItemBtn);
+        card.appendChild(addItemRow);
+
+        /* ── Boutons lecture ────────────────────── */
+        const btnsRow = document.createElement('div');
+        btnsRow.style.cssText = 'display:flex;gap:6px;flex-wrap:wrap;';
+
+        /* Aperçu canvas */
+        const previewBtn = document.createElement('button');
+        previewBtn.className = 'btn btn-sm';
+        previewBtn.textContent = '▶ Aperçu';
+        previewBtn.addEventListener('click', () => { _canvasPlayer.play(seq); });
+
+        const stopPreviewBtn = document.createElement('button');
+        stopPreviewBtn.className = 'btn btn-sm btn-outline';
+        stopPreviewBtn.textContent = '⏹ Stop';
+        stopPreviewBtn.addEventListener('click', () => { _canvasPlayer.stop(); });
+
+        /* Déclenchement OBS */
+        const obsPlayBtn = document.createElement('button');
+        obsPlayBtn.className = 'btn btn-sm';
+        obsPlayBtn.style.background = seq.playing ? 'var(--green,#4c4)' : '';
+        obsPlayBtn.textContent = '▶ OBS';
+        obsPlayBtn.title = 'Lancer la séquence dans l\'overlay OBS';
+        obsPlayBtn.addEventListener('click', () => {
+          fetch(`${apiBase}/${l.id}/sequences/${seq.id}/play`, { method: 'POST' }).catch(() => {});
+          obsPlayBtn.style.background = 'var(--green,#4c4)';
+          obsStopBtn.style.background = '';
+        });
+
+        const obsStopBtn = document.createElement('button');
+        obsStopBtn.className = 'btn btn-sm btn-outline';
+        obsStopBtn.textContent = '⏹ OBS';
+        obsStopBtn.title = 'Arrêter la séquence dans l\'overlay OBS';
+        obsStopBtn.addEventListener('click', () => {
+          fetch(`${apiBase}/${l.id}/sequences/${seq.id}/stop`, { method: 'POST' }).catch(() => {});
+          obsPlayBtn.style.background = '';
+        });
+
+        btnsRow.appendChild(previewBtn);
+        btnsRow.appendChild(stopPreviewBtn);
+        btnsRow.appendChild(obsPlayBtn);
+        btnsRow.appendChild(obsStopBtn);
+        card.appendChild(btnsRow);
+
+        list.appendChild(card);
+      });
+    }
+
+    /* ── Bouton nouvelle séquence ─────────────── */
+    addBtn.addEventListener('click', () => {
+      const l = getLayout(); if (!l) return;
+      if (!l.sequences) l.sequences = [];
+      l.sequences.push({
+        id:            uid(),
+        name:          'Séquence ' + (l.sequences.length + 1),
+        animIn:        'fade',
+        animOut:       'fade',
+        transitionDur: 500,
+        hold:          3000,
+        loop:          true,
+        playing:       false,
+        items:         [],
+      });
+      saveLayout(); render();
+    });
+
+    return { render };
+  }
+
+  /* ═══ SBB (Scoreboard Builder) ══════════════════════════════ */
+  (function () {
+    let _sbbLayouts = [], _sbbActiveId = null;
+
+    function getSbbLayout() { return _sbbLayouts.find(l => l.id === _sbbActiveId) || null; }
+    function getSbbShapes() { return getSbbLayout()?.shapes || []; }
+    function saveSbb() {
+      const l = getSbbLayout(); if (!l) return;
+      fetch(`/api/sb-layouts/${l.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: l.name, shapes: l.shapes, sequences: l.sequences || [] }),
+      }).catch(() => {});
+    }
+
+    const { render: renderSbbSeq } = buildSeqUI({
+      listId:         'sbb-seq-list',
+      addBtnId:       'sbb-seq-add',
+      getLayout:      getSbbLayout,
+      getShapes:      getSbbShapes,
+      saveLayout:     saveSbb,
+      apiBase:        '/api/sb-layouts',
+      canvasSelector: '#sbb-canvas-inner',
+    });
+
+    /* Sync avec l'état du builder sbb (layouts + activeId) */
+    socket.on('sbLayoutUpdate', data => {
+      const idx = _sbbLayouts.findIndex(l => l.id === data.id);
+      if (idx > -1) {
+        _sbbLayouts[idx].shapes    = data.shapes;
+        _sbbLayouts[idx].sequences = data.sequences || [];
+      }
+      renderSbbSeq();
+    });
+
+    /* Init : charger layouts + écouter les changements de l'onglet */
+    fetch('/api/sb-layouts').then(r => r.json()).then(d => {
+      _sbbLayouts = d.layouts || [];
+      if (_sbbLayouts.length) _sbbActiveId = _sbbLayouts[0].id;
+      renderSbbSeq();
+    }).catch(() => {});
+
+    /* Suivre le layout actif du builder via mutation sur le select */
+    const layoutSel = document.getElementById('sbb-layout-select');
+    if (layoutSel) {
+      layoutSel.addEventListener('change', () => {
+        _sbbActiveId = layoutSel.value;
+        renderSbbSeq();
+      });
+      new MutationObserver(() => {
+        if (layoutSel.value !== _sbbActiveId) { _sbbActiveId = layoutSel.value; renderSbbSeq(); }
+      }).observe(layoutSel, { attributes: true, childList: true, subtree: true });
+    }
+  })();
+
+  /* ═══ CBB (Casters Builder) ═════════════════════════════════ */
+  (function () {
+    let _cbbLayouts = [], _cbbActiveId = null;
+
+    function getCbbLayout() { return _cbbLayouts.find(l => l.id === _cbbActiveId) || null; }
+    function getCbbShapes() { return getCbbLayout()?.shapes || []; }
+    function saveCbb() {
+      const l = getCbbLayout(); if (!l) return;
+      fetch(`/api/caster-layouts/${l.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: l.name, shapes: l.shapes, sequences: l.sequences || [] }),
+      }).catch(() => {});
+    }
+
+    const { render: renderCbbSeq } = buildSeqUI({
+      listId:         'cbb-seq-list',
+      addBtnId:       'cbb-seq-add',
+      getLayout:      getCbbLayout,
+      getShapes:      getCbbShapes,
+      saveLayout:     saveCbb,
+      apiBase:        '/api/caster-layouts',
+      canvasSelector: '#cbb-canvas-inner',
+    });
+
+    socket.on('casterLayoutUpdate', data => {
+      const idx = _cbbLayouts.findIndex(l => l.id === data.id);
+      if (idx > -1) {
+        _cbbLayouts[idx].shapes    = data.shapes;
+        _cbbLayouts[idx].sequences = data.sequences || [];
+      }
+      renderCbbSeq();
+    });
+
+    fetch('/api/caster-layouts').then(r => r.json()).then(d => {
+      _cbbLayouts = d.layouts || [];
+      if (_cbbLayouts.length) _cbbActiveId = _cbbLayouts[0].id;
+      renderCbbSeq();
+    }).catch(() => {});
+
+    const layoutSel = document.getElementById('cbb-layout-select');
+    if (layoutSel) {
+      layoutSel.addEventListener('change', () => {
+        _cbbActiveId = layoutSel.value;
+        renderCbbSeq();
+      });
+    }
+  })();
+
+  // ══════════════════════════════════════════════════════════════
+  //  VALORANT — Sélecteur de jeu + panneau de contrôle
+  // ══════════════════════════════════════════════════════════════
+  (() => {
+
+    // ── Données locales ───────────────────────────────────────────
+    const VAL_AGENTS = [
+      { id:'jett',     name:'Jett',      role:'Duelist'    },
+      { id:'reyna',    name:'Reyna',     role:'Duelist'    },
+      { id:'phoenix',  name:'Phoenix',   role:'Duelist'    },
+      { id:'neon',     name:'Neon',      role:'Duelist'    },
+      { id:'iso',      name:'Iso',       role:'Duelist'    },
+      { id:'yoru',     name:'Yoru',      role:'Duelist'    },
+      { id:'sova',     name:'Sova',      role:'Initiator'  },
+      { id:'breach',   name:'Breach',    role:'Initiator'  },
+      { id:'kayo',     name:'KAY/O',     role:'Initiator'  },
+      { id:'fade',     name:'Fade',      role:'Initiator'  },
+      { id:'gekko',    name:'Gekko',     role:'Initiator'  },
+      { id:'skye',     name:'Skye',      role:'Initiator'  },
+      { id:'brimstone',name:'Brimstone', role:'Controller' },
+      { id:'viper',    name:'Viper',     role:'Controller' },
+      { id:'omen',     name:'Omen',      role:'Controller' },
+      { id:'astra',    name:'Astra',     role:'Controller' },
+      { id:'harbor',   name:'Harbor',    role:'Controller' },
+      { id:'clove',    name:'Clove',     role:'Controller' },
+      { id:'killjoy',  name:'Killjoy',   role:'Sentinel'   },
+      { id:'cypher',   name:'Cypher',    role:'Sentinel'   },
+      { id:'sage',     name:'Sage',      role:'Sentinel'   },
+      { id:'chamber',  name:'Chamber',   role:'Sentinel'   },
+      { id:'deadlock', name:'Deadlock',  role:'Sentinel'   },
+      { id:'vyse',     name:'Vyse',      role:'Sentinel'   },
+    ];
+
+    const VAL_MAPS = ['Ascent','Bind','Haven','Split','Icebox','Breeze','Fracture','Pearl','Lotus','Sunset','Abyss'];
+
+    const VAL_THEMES = [
+      { id:'valorant-default', name:'VALORANT',      sub:'Officiel',    primary:'#FF4655', secondary:'#3B71E4' },
+      { id:'valorant-dark',    name:'Dark Protocol', sub:'Sombre',      primary:'#FF4655', secondary:'#888888' },
+      { id:'valorant-night',   name:'Night Market',  sub:'Nuit',        primary:'#BD3944', secondary:'#4C1B7B' },
+      { id:'sentinels',        name:'Sentinels',     sub:'Équipe',      primary:'#E31937', secondary:'#1B478A' },
+      { id:'fnatic',           name:'Fnatic',        sub:'Équipe',      primary:'#F5821F', secondary:'#1B1B1B' },
+      { id:'navi',             name:'Natus Vincere', sub:'Équipe',      primary:'#F7CF00', secondary:'#1A1A1A' },
+      { id:'team-liquid',      name:'Team Liquid',   sub:'Équipe',      primary:'#009AC7', secondary:'#FFFFFF' },
+      { id:'loud',             name:'LOUD',          sub:'Équipe',      primary:'#73E02A', secondary:'#FFFFFF' },
+      { id:'cloud9',           name:'Cloud9',        sub:'Équipe',      primary:'#00C8FF', secondary:'#1B3A70' },
+      { id:'vitality',         name:'Team Vitality', sub:'Équipe',      primary:'#F5D000', secondary:'#222222' },
+      { id:'drx',              name:'DRX',           sub:'Équipe',      primary:'#00A3FF', secondary:'#003A8C' },
+      { id:'paper-rex',        name:'Paper Rex',     sub:'Équipe',      primary:'#FF6B00', secondary:'#1A1A1A' },
+    ];
+
+    let valMatchLocal = {
+      visible: true,
+      team1: { name:'TEAM ALPHA', color:'#FF4655', score:0, logo:'' },
+      team2: { name:'TEAM BRAVO', color:'#3B71E4', score:0, logo:'' },
+      event:'VCT 2025', mapName:'', currentMap:1, matchFormat:'Bo3',
+      theme:'valorant-default', bgColor:'#0A0A12', bgOpacity:95,
+    };
+
+    let valPbLocal = {
+      visible: false, phase:'agent', event:'VCT 2025',
+      team1: { name:'TEAM ALPHA', color:'#FF4655', logo:'',
+               players: Array.from({length:5}, () => ({name:'',agent:'',role:'',locked:false,active:false})) },
+      team2: { name:'TEAM BRAVO', color:'#3B71E4', logo:'',
+               players: Array.from({length:5}, () => ({name:'',agent:'',role:'',locked:false,active:false})) },
+      maps: VAL_MAPS.map(m => ({name:m, status:'available', team:null})),
+    };
+
+    let valLuLocal = {
+      visible: false,
+      team1: { name:'TEAM ALPHA', color:'#FF4655', logo:'',
+               players: Array.from({length:5}, () => ({name:'',agent:'',role:'',flag:'',igl:false})) },
+      team2: { name:'TEAM BRAVO', color:'#3B71E4', logo:'',
+               players: Array.from({length:5}, () => ({name:'',agent:'',role:'',flag:'',igl:false})) },
+      event:'VCT 2025', mapName:'',
+    };
+
+    // ── Debounces ─────────────────────────────────────────────────
+    let _dbMatch = null, _dbPb = null, _dbLu = null;
+    const sendValMatch = () => { clearTimeout(_dbMatch); _dbMatch = setTimeout(() => socket.emit('updateValMatch',   valMatchLocal), 120); };
+    const sendValPb    = () => { clearTimeout(_dbPb);    _dbPb    = setTimeout(() => socket.emit('updateValPickBan', valPbLocal),    120); };
+    const sendValLu    = () => { clearTimeout(_dbLu);    _dbLu    = setTimeout(() => socket.emit('updateValLineup',  valLuLocal),    120); };
+
+    const $ = id => document.getElementById(id);
+
+    function agentOptionsHtml(selectedId) {
+      let html = '<option value="">— Agent —</option>';
+      ['Duelist','Initiator','Controller','Sentinel'].forEach(role => {
+        const agents = VAL_AGENTS.filter(a => a.role === role);
+        html += `<optgroup label="${role}">`;
+        agents.forEach(a => {
+          html += `<option value="${a.id}" data-role="${a.role}" ${a.id === selectedId ? 'selected' : ''}>${a.name}</option>`;
+        });
+        html += '</optgroup>';
+      });
+      return html;
+    }
+
+    // ── Sélecteur de jeu ──────────────────────────────────────────
+    const GAME_META = {
+      ssbu:     { badge: 'Smash Bros Ultimate', tabId: 'tab-match',    btnId: 'tab-btn-match' },
+      valorant: { badge: 'VALORANT',            tabId: 'tab-valorant', btnId: 'tab-btn-valorant' },
+      sf6:      { badge: 'Street Fighter 6',    tabId: 'tab-sf6',      btnId: 'tab-btn-sf6' },
+      tek8:     { badge: 'Tekken 8',            tabId: 'tab-tek8',     btnId: 'tab-btn-tek8' },
+      cs2:      { badge: 'Counter-Strike 2',    tabId: 'tab-cs2',      btnId: 'tab-btn-cs2' },
+    };
+
+    function applyGameSwitch(game) {
+      const meta  = GAME_META[game] || GAME_META.ssbu;
+      const badge = $('game-badge');
+      if (badge) badge.textContent = meta.badge;
+
+      // Affiche le bon bouton d'onglet, cache les autres jeux
+      Object.entries(GAME_META).forEach(([g, m]) => {
+        const btn = $(m.btnId);
+        if (!btn) return;
+        if (g === 'ssbu') {
+          btn.style.display = (game === 'ssbu') ? '' : 'none';
+        } else {
+          btn.style.display = (g === game) ? '' : 'none';
+        }
+      });
+
+      // Active l'onglet du jeu sélectionné
+      const targetBtn = $(meta.btnId);
+      const targetTab = $(meta.tabId);
+      if (targetBtn && !targetBtn.classList.contains('active')) {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        targetBtn.classList.add('active');
+        document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+        if (targetTab) targetTab.classList.add('active');
+      }
+    }
+
+    document.querySelectorAll('.game-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.game-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        applyGameSwitch(btn.dataset.game);
+        socket.emit('updateGame', { game: btn.dataset.game });
+      });
+    });
+
+    socket.on('gameUpdate', s => {
+      if (!s) return;
+      document.querySelectorAll('.game-btn').forEach(b => b.classList.toggle('active', b.dataset.game === s.game));
+      applyGameSwitch(s.game);
+    });
+
+    // ── Sous-navigation Valorant ──────────────────────────────────
+    document.querySelectorAll('#tab-valorant .match-subnav-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('#tab-valorant .match-subnav-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('#tab-valorant .match-panel').forEach(p => p.classList.remove('active'));
+        btn.classList.add('active');
+        const panel = $(btn.dataset.panel);
+        if (panel) panel.classList.add('active');
+        const vetoSection = $('val-map-veto-section');
+        if (vetoSection) vetoSection.style.display =
+          (btn.dataset.panel === 'val-panel-pickban' && valPbLocal.phase === 'map') ? 'block' : 'none';
+      });
+    });
+
+    // ═══ SCOREBOARD ═════════════════════════════════════════════
+
+    function syncValScoreboardUI(s) {
+      if (!s) return;
+      const t1 = s.team1 || {}, t2 = s.team2 || {};
+      if ($('val-t1-name'))    $('val-t1-name').value    = t1.name  || '';
+      if ($('val-t2-name'))    $('val-t2-name').value    = t2.name  || '';
+      if ($('val-t1-color'))   $('val-t1-color').value   = t1.color || '#FF4655';
+      if ($('val-t2-color'))   $('val-t2-color').value   = t2.color || '#3B71E4';
+      if ($('val-t1-logo'))    $('val-t1-logo').value    = t1.logo  || '';
+      if ($('val-t2-logo'))    $('val-t2-logo').value    = t2.logo  || '';
+      if ($('val-t1-score-display')) $('val-t1-score-display').textContent = t1.score ?? 0;
+      if ($('val-t2-score-display')) $('val-t2-score-display').textContent = t2.score ?? 0;
+      if ($('val-event'))         $('val-event').value          = s.event       || 'VCT 2025';
+      if ($('val-map-name'))      $('val-map-name').value       = s.mapName     || '';
+      if ($('val-match-format'))  $('val-match-format').value   = s.matchFormat || 'Bo3';
+      if ($('val-current-map'))   $('val-current-map').value    = s.currentMap  || 1;
+      if ($('val-sb-bg-color'))   $('val-sb-bg-color').value    = s.bgColor     || '#0A0A12';
+      if ($('val-sb-bg-opacity')) $('val-sb-bg-opacity').value  = s.bgOpacity   ?? 95;
+      if ($('val-sb-bg-opacity-val')) $('val-sb-bg-opacity-val').textContent = s.bgOpacity ?? 95;
+      if ($('val-sb-visible'))    $('val-sb-visible').checked   = s.visible !== false;
+      if ($('val-theme-t1-color')) $('val-theme-t1-color').value = t1.color || '#FF4655';
+      if ($('val-theme-t2-color')) $('val-theme-t2-color').value = t2.color || '#3B71E4';
+      if ($('val-theme-bg-color')) $('val-theme-bg-color').value = s.bgColor || '#0A0A12';
+      if ($('val-theme-bg-opacity'))     $('val-theme-bg-opacity').value   = s.bgOpacity ?? 95;
+      if ($('val-theme-bg-opacity-val')) $('val-theme-bg-opacity-val').textContent = s.bgOpacity ?? 95;
+      document.querySelectorAll('.val-theme-card').forEach(c => c.classList.toggle('active', c.dataset.theme === s.theme));
+    }
+
+    // Score +/-
+    ['t1','t2'].forEach(t => {
+      const team = t === 't1' ? 'team1' : 'team2';
+      const disp = $(`val-${t}-score-display`);
+      [$(`val-${t}-score-plus`), $(`val-${t}-score-minus`)].forEach((btn, isMin) => {
+        if (!btn) return;
+        btn.addEventListener('click', () => {
+          const cur = valMatchLocal[team].score || 0;
+          valMatchLocal[team].score = isMin ? Math.max(0, cur - 1) : Math.min(9, cur + 1);
+          if (disp) disp.textContent = valMatchLocal[team].score;
+          sendValMatch();
+        });
+      });
+    });
+
+    // Champs scoreboard
+    [
+      { id:'val-t1-name',      upd: v => { valMatchLocal.team1.name     = v; syncTeamNamesToSub(); sendValPb(); sendValLu(); } },
+      { id:'val-t2-name',      upd: v => { valMatchLocal.team2.name     = v; syncTeamNamesToSub(); sendValPb(); sendValLu(); } },
+      { id:'val-t1-color',     upd: v => { valMatchLocal.team1.color    = v; valPbLocal.team1.color = v; valLuLocal.team1.color = v; sendValPb(); sendValLu(); } },
+      { id:'val-t2-color',     upd: v => { valMatchLocal.team2.color    = v; valPbLocal.team2.color = v; valLuLocal.team2.color = v; sendValPb(); sendValLu(); } },
+      { id:'val-t1-logo',      upd: v => { valMatchLocal.team1.logo     = v; } },
+      { id:'val-t2-logo',      upd: v => { valMatchLocal.team2.logo     = v; } },
+      { id:'val-event',        upd: v => { valMatchLocal.event          = v; valPbLocal.event = v; valLuLocal.event = v; sendValPb(); sendValLu(); } },
+      { id:'val-map-name',     upd: v => { valMatchLocal.mapName        = v; valLuLocal.mapName = v; sendValLu(); } },
+      { id:'val-match-format', upd: v => { valMatchLocal.matchFormat    = v; } },
+      { id:'val-current-map',  upd: v => { valMatchLocal.currentMap     = parseInt(v)||1; } },
+      { id:'val-sb-bg-color',  upd: v => { valMatchLocal.bgColor        = v; } },
+    ].forEach(({ id, upd }) => {
+      const el = $(id);
+      if (el) el.addEventListener('input', () => { upd(el.value); sendValMatch(); });
+    });
+
+    const sbOpacityEl = $('val-sb-bg-opacity');
+    if (sbOpacityEl) sbOpacityEl.addEventListener('input', () => {
+      valMatchLocal.bgOpacity = parseInt(sbOpacityEl.value);
+      if ($('val-sb-bg-opacity-val')) $('val-sb-bg-opacity-val').textContent = sbOpacityEl.value;
+      sendValMatch();
+    });
+
+    const sbVisibleEl = $('val-sb-visible');
+    if (sbVisibleEl) sbVisibleEl.addEventListener('change', () => { valMatchLocal.visible = sbVisibleEl.checked; sendValMatch(); });
+
+    // ═══ THÈMES ══════════════════════════════════════════════════
+
+    function buildThemeGrid() {
+      const grid = $('val-theme-grid');
+      if (!grid) return;
+      grid.innerHTML = '';
+      VAL_THEMES.forEach(th => {
+        const card = document.createElement('div');
+        card.className = 'val-theme-card'; card.dataset.theme = th.id;
+        card.style.setProperty('--val-card-color', th.primary);
+        card.innerHTML = `
+          <div class="val-theme-swatch">
+            <div class="val-theme-swatch-dot" style="background:${th.primary}"></div>
+            <div class="val-theme-swatch-dot" style="background:${th.secondary}"></div>
+          </div>
+          <div class="val-theme-name">${th.name}</div>
+          <div class="val-theme-sub">${th.sub}</div>`;
+        card.addEventListener('click', () => {
+          valMatchLocal.theme       = th.id;
+          valMatchLocal.team1.color = th.primary;
+          valMatchLocal.team2.color = th.secondary;
+          valPbLocal.team1.color    = th.primary;
+          valPbLocal.team2.color    = th.secondary;
+          valLuLocal.team1.color    = th.primary;
+          valLuLocal.team2.color    = th.secondary;
+          document.querySelectorAll('.val-theme-card').forEach(c => c.classList.toggle('active', c.dataset.theme === th.id));
+          ['val-t1-color','val-theme-t1-color'].forEach(id => { if ($(id)) $(id).value = th.primary; });
+          ['val-t2-color','val-theme-t2-color'].forEach(id => { if ($(id)) $(id).value = th.secondary; });
+          sendValMatch(); sendValPb(); sendValLu();
+        });
+        grid.appendChild(card);
+      });
+    }
+    buildThemeGrid();
+
+    [
+      { id:'val-theme-t1-color', upd: v => { valMatchLocal.team1.color = v; valPbLocal.team1.color = v; valLuLocal.team1.color = v; if ($('val-t1-color')) $('val-t1-color').value = v; } },
+      { id:'val-theme-t2-color', upd: v => { valMatchLocal.team2.color = v; valPbLocal.team2.color = v; valLuLocal.team2.color = v; if ($('val-t2-color')) $('val-t2-color').value = v; } },
+      { id:'val-theme-bg-color', upd: v => { valMatchLocal.bgColor = v; if ($('val-sb-bg-color')) $('val-sb-bg-color').value = v; } },
+    ].forEach(({ id, upd }) => {
+      const el = $(id);
+      if (el) el.addEventListener('input', () => { upd(el.value); sendValMatch(); sendValPb(); sendValLu(); });
+    });
+
+    const themeOpacityEl = $('val-theme-bg-opacity');
+    if (themeOpacityEl) themeOpacityEl.addEventListener('input', () => {
+      valMatchLocal.bgOpacity = parseInt(themeOpacityEl.value);
+      if ($('val-theme-bg-opacity-val')) $('val-theme-bg-opacity-val').textContent = themeOpacityEl.value;
+      if ($('val-sb-bg-opacity'))        $('val-sb-bg-opacity').value               = themeOpacityEl.value;
+      if ($('val-sb-bg-opacity-val'))    $('val-sb-bg-opacity-val').textContent      = themeOpacityEl.value;
+      sendValMatch();
+    });
+
+    // ═══ CASTERS ═════════════════════════════════════════════════
+
+    document.querySelectorAll('.val-casters-layout-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.val-casters-layout-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        socket.emit('updateCasters', { layout: btn.dataset.layout });
+      });
+    });
+
+    const valCastersVisibleEl = $('val-casters-visible');
+    if (valCastersVisibleEl) valCastersVisibleEl.addEventListener('change', () =>
+      socket.emit('updateCasters', { visible: valCastersVisibleEl.checked }));
+
+    // Saisie directe des casters dans le panneau Valorant
+    let _valCastersLocal = [
+      { name: '', twitter: '', twitch: '', youtube: '' },
+      { name: '', twitter: '', twitch: '', youtube: '' },
+    ];
+    function syncValCastersFromState(s) {
+      if (!s || !s.casters) return;
+      _valCastersLocal = s.casters.map(c => ({ ...c }));
+      [0, 1].forEach(i => {
+        const c = _valCastersLocal[i] || {};
+        ['name','twitter','twitch','youtube'].forEach(f => {
+          const el = $(`val-c${i+1}-${f}`);
+          if (el) el.value = c[f] || '';
+        });
+      });
+    }
+    ['name','twitter','twitch','youtube'].forEach(field => {
+      [0, 1].forEach(idx => {
+        const el = $(`val-c${idx+1}-${field}`);
+        if (!el) return;
+        el.addEventListener('input', () => {
+          _valCastersLocal[idx][field] = el.value;
+          socket.emit('updateCasters', { casters: _valCastersLocal });
+        });
+      });
+    });
+
+    socket.on('castersUpdate', s => {
+      if (!s) return;
+      if (valCastersVisibleEl) valCastersVisibleEl.checked = s.visible;
+      document.querySelectorAll('.val-casters-layout-btn').forEach(b =>
+        b.classList.toggle('active', b.dataset.layout === (s.layout||'row')));
+      syncValCastersFromState(s);
+    });
+
+    fetch('/api/casters').then(r => r.json()).then(syncValCastersFromState).catch(() => {});
+
+    // ═══ PICK & BAN ══════════════════════════════════════════════
+
+    function renderPbPlayerRows(team, containerId, teamKey) {
+      const container = $(containerId);
+      if (!container) return;
+      container.innerHTML = '';
+      team.players.forEach((p, i) => {
+        const row = document.createElement('div');
+        row.className = 'val-pb-player-row';
+
+        const nameInput = document.createElement('input');
+        nameInput.type = 'text'; nameInput.value = p.name || ''; nameInput.placeholder = `Joueur ${i+1}`;
+        nameInput.addEventListener('input', () => { valPbLocal[teamKey].players[i].name = nameInput.value; sendValPb(); });
+
+        const agentSel = document.createElement('select');
+        agentSel.innerHTML = agentOptionsHtml(p.agent || '');
+        agentSel.addEventListener('change', () => {
+          const opt = agentSel.selectedOptions[0];
+          valPbLocal[teamKey].players[i].agent = agentSel.value;
+          valPbLocal[teamKey].players[i].role  = opt?.dataset.role || '';
+          sendValPb();
+        });
+
+        const lockBtn = document.createElement('div');
+        lockBtn.className = 'val-pb-player-lock' + (p.locked ? ' locked' : '');
+        lockBtn.textContent = p.locked ? '🔒' : '○';
+        lockBtn.addEventListener('click', () => {
+          valPbLocal[teamKey].players[i].locked = !valPbLocal[teamKey].players[i].locked;
+          lockBtn.classList.toggle('locked', valPbLocal[teamKey].players[i].locked);
+          lockBtn.textContent = valPbLocal[teamKey].players[i].locked ? '🔒' : '○';
+          sendValPb();
+        });
+
+        row.appendChild(nameInput);
+        row.appendChild(agentSel);
+        row.appendChild(lockBtn);
+        container.appendChild(row);
+      });
+    }
+
+    function renderMapVeto() {
+      const list = $('val-map-veto-list');
+      if (!list) return;
+      list.innerHTML = '';
+      valPbLocal.maps.forEach(m => {
+        const item = document.createElement('div');
+        const cls = m.status === 'picked' ? 'picked' :
+                    m.status === 'banned' && m.team === 1 ? 'banned-1' :
+                    m.status === 'banned' && m.team === 2 ? 'banned-2' : '';
+        item.className = 'val-map-veto-item' + (cls ? ' ' + cls : '');
+        const label = m.status === 'picked' ? 'PICK' : m.status === 'banned' ? `BAN T${m.team}` : '';
+        item.innerHTML = `<span>${m.name}</span>${label ? `<span class="val-map-veto-status">${label}</span>` : ''}`;
+        item.addEventListener('click', () => {
+          if (m.status === 'available')                { m.status = 'picked';  m.team = null; }
+          else if (m.status === 'picked')              { m.status = 'banned';  m.team = 1; }
+          else if (m.status === 'banned' && m.team===1){ m.status = 'banned';  m.team = 2; }
+          else                                         { m.status = 'available'; m.team = null; }
+          renderMapVeto(); sendValPb();
+        });
+        list.appendChild(item);
+      });
+    }
+
+    function initPickBan() {
+      document.querySelectorAll('.val-pb-phase-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.val-pb-phase-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          valPbLocal.phase = btn.dataset.phase;
+          if ($('val-map-veto-section')) $('val-map-veto-section').style.display = valPbLocal.phase === 'map' ? 'block' : 'none';
+          sendValPb();
+        });
+      });
+      const pbVisibleEl = $('val-pb-visible');
+      if (pbVisibleEl) pbVisibleEl.addEventListener('change', () => { valPbLocal.visible = pbVisibleEl.checked; sendValPb(); });
+      const resetBtn = $('val-pb-reset');
+      if (resetBtn) resetBtn.addEventListener('click', () => fetch('/api/val/pickban/reset', { method:'POST' }));
+      renderPbPlayerRows(valPbLocal.team1, 'val-pb-t1-players', 'team1');
+      renderPbPlayerRows(valPbLocal.team2, 'val-pb-t2-players', 'team2');
+      renderMapVeto();
+    }
+
+    function syncPbUI(s) {
+      if (!s) return;
+      const el = $('val-pb-visible');
+      if (el) el.checked = s.visible;
+      if ($('val-pb-t1-label')) $('val-pb-t1-label').textContent = (s.team1?.name||'TEAM ALPHA').toUpperCase();
+      if ($('val-pb-t2-label')) $('val-pb-t2-label').textContent = (s.team2?.name||'TEAM BRAVO').toUpperCase();
+      document.querySelectorAll('.val-pb-phase-btn').forEach(b => b.classList.toggle('active', b.dataset.phase === (s.phase||'agent')));
+      if ($('val-map-veto-section')) $('val-map-veto-section').style.display = s.phase === 'map' ? 'block' : 'none';
+    }
+
+    // ═══ LINEUP ══════════════════════════════════════════════════
+
+    function renderLuPlayerRows(team, containerId, teamKey) {
+      const container = $(containerId);
+      if (!container) return;
+      container.innerHTML = '';
+      team.players.forEach((p, i) => {
+        const row = document.createElement('div');
+        row.className = 'val-lu-player-row';
+
+        const nameInput = document.createElement('input');
+        nameInput.type = 'text'; nameInput.value = p.name || ''; nameInput.placeholder = `Joueur ${i+1}`;
+        nameInput.addEventListener('input', () => { valLuLocal[teamKey].players[i].name = nameInput.value; sendValLu(); });
+
+        const agentSel = document.createElement('select');
+        agentSel.innerHTML = agentOptionsHtml(p.agent || '');
+        agentSel.addEventListener('change', () => {
+          valLuLocal[teamKey].players[i].agent = agentSel.value;
+          valLuLocal[teamKey].players[i].role  = agentSel.selectedOptions[0]?.dataset.role || '';
+          sendValLu();
+        });
+
+        const flagInput = document.createElement('input');
+        flagInput.type = 'text'; flagInput.value = p.flag || ''; flagInput.placeholder = 'FR/KR/US';
+        flagInput.maxLength = 2; flagInput.style.textTransform = 'uppercase';
+        flagInput.addEventListener('input', () => { valLuLocal[teamKey].players[i].flag = flagInput.value.toUpperCase().slice(0,2); sendValLu(); });
+
+        const iglBtn = document.createElement('div');
+        iglBtn.className = 'val-lu-player-igl' + (p.igl ? ' active' : '');
+        iglBtn.textContent = 'IGL';
+        iglBtn.addEventListener('click', () => {
+          valLuLocal[teamKey].players[i].igl = !valLuLocal[teamKey].players[i].igl;
+          iglBtn.classList.toggle('active', valLuLocal[teamKey].players[i].igl);
+          sendValLu();
+        });
+
+        row.appendChild(nameInput); row.appendChild(agentSel); row.appendChild(flagInput); row.appendChild(iglBtn);
+        container.appendChild(row);
+      });
+    }
+
+    function initLineup() {
+      const el = $('val-lu-visible');
+      if (el) el.addEventListener('change', () => { valLuLocal.visible = el.checked; sendValLu(); });
+      const mapEl = $('val-lu-map');
+      if (mapEl) mapEl.addEventListener('input', () => { valLuLocal.mapName = mapEl.value; sendValLu(); });
+      renderLuPlayerRows(valLuLocal.team1, 'val-lu-t1-players', 'team1');
+      renderLuPlayerRows(valLuLocal.team2, 'val-lu-t2-players', 'team2');
+    }
+
+    function syncLuUI(s) {
+      if (!s) return;
+      const el = $('val-lu-visible');
+      if (el) el.checked = s.visible;
+      if ($('val-lu-map'))      $('val-lu-map').value = s.mapName || '';
+      if ($('val-lu-t1-label')) $('val-lu-t1-label').textContent = (s.team1?.name||'TEAM ALPHA').toUpperCase();
+      if ($('val-lu-t2-label')) $('val-lu-t2-label').textContent = (s.team2?.name||'TEAM BRAVO').toUpperCase();
+    }
+
+    function syncTeamNamesToSub() {
+      const t1n = valMatchLocal.team1.name;
+      const t2n = valMatchLocal.team2.name;
+      valPbLocal.team1.name = t1n; valPbLocal.team2.name = t2n;
+      valLuLocal.team1.name = t1n; valLuLocal.team2.name = t2n;
+      if ($('val-pb-t1-label')) $('val-pb-t1-label').textContent = t1n.toUpperCase();
+      if ($('val-pb-t2-label')) $('val-pb-t2-label').textContent = t2n.toUpperCase();
+      if ($('val-lu-t1-label')) $('val-lu-t1-label').textContent = t1n.toUpperCase();
+      if ($('val-lu-t2-label')) $('val-lu-t2-label').textContent = t2n.toUpperCase();
+    }
+
+    // ── Réceptions socket ─────────────────────────────────────────
+    socket.on('valMatchUpdate', s => {
+      if (!s) return;
+      valMatchLocal = { ...valMatchLocal, ...s };
+      if (s.team1) valMatchLocal.team1 = { ...valMatchLocal.team1, ...s.team1 };
+      if (s.team2) valMatchLocal.team2 = { ...valMatchLocal.team2, ...s.team2 };
+      syncValScoreboardUI(valMatchLocal);
+    });
+
+    socket.on('valPickBanUpdate', s => {
+      if (!s) return;
+      valPbLocal = { ...valPbLocal, ...s };
+      if (s.team1)          valPbLocal.team1         = { ...valPbLocal.team1, ...s.team1 };
+      if (s.team2)          valPbLocal.team2         = { ...valPbLocal.team2, ...s.team2 };
+      if (s.maps)           valPbLocal.maps          = s.maps;
+      if (s.team1?.players) valPbLocal.team1.players = s.team1.players;
+      if (s.team2?.players) valPbLocal.team2.players = s.team2.players;
+      syncPbUI(valPbLocal);
+      renderPbPlayerRows(valPbLocal.team1, 'val-pb-t1-players', 'team1');
+      renderPbPlayerRows(valPbLocal.team2, 'val-pb-t2-players', 'team2');
+      renderMapVeto();
+    });
+
+    socket.on('valLineupUpdate', s => {
+      if (!s) return;
+      valLuLocal = { ...valLuLocal, ...s };
+      if (s.team1)          valLuLocal.team1         = { ...valLuLocal.team1, ...s.team1 };
+      if (s.team2)          valLuLocal.team2         = { ...valLuLocal.team2, ...s.team2 };
+      if (s.team1?.players) valLuLocal.team1.players = s.team1.players;
+      if (s.team2?.players) valLuLocal.team2.players = s.team2.players;
+      syncLuUI(valLuLocal);
+      renderLuPlayerRows(valLuLocal.team1, 'val-lu-t1-players', 'team1');
+      renderLuPlayerRows(valLuLocal.team2, 'val-lu-t2-players', 'team2');
+    });
+
+    // ── Init (fetch état initial) ─────────────────────────────────
+    fetch('/api/game').then(r => r.json()).then(s => {
+      if (!s) return;
+      document.querySelectorAll('.game-btn').forEach(b => b.classList.toggle('active', b.dataset.game === s.game));
+      applyGameSwitch(s.game);
+    }).catch(() => {});
+
+    fetch('/api/val/match').then(r => r.json()).then(s => {
+      if (!s) return;
+      valMatchLocal = { ...valMatchLocal, ...s };
+      if (s.team1) valMatchLocal.team1 = { ...valMatchLocal.team1, ...s.team1 };
+      if (s.team2) valMatchLocal.team2 = { ...valMatchLocal.team2, ...s.team2 };
+      syncValScoreboardUI(valMatchLocal);
+    }).catch(() => {});
+
+    fetch('/api/val/pickban').then(r => r.json()).then(s => {
+      if (!s) return;
+      valPbLocal = { ...valPbLocal, ...s };
+      if (s.team1)          valPbLocal.team1         = { ...valPbLocal.team1, ...s.team1 };
+      if (s.team2)          valPbLocal.team2         = { ...valPbLocal.team2, ...s.team2 };
+      if (s.maps)           valPbLocal.maps          = s.maps;
+      if (s.team1?.players) valPbLocal.team1.players = s.team1.players;
+      if (s.team2?.players) valPbLocal.team2.players = s.team2.players;
+      initPickBan(); syncPbUI(valPbLocal);
+    }).catch(() => { initPickBan(); });
+
+    fetch('/api/val/lineup').then(r => r.json()).then(s => {
+      if (!s) return;
+      valLuLocal = { ...valLuLocal, ...s };
+      if (s.team1)          valLuLocal.team1         = { ...valLuLocal.team1, ...s.team1 };
+      if (s.team2)          valLuLocal.team2         = { ...valLuLocal.team2, ...s.team2 };
+      if (s.team1?.players) valLuLocal.team1.players = s.team1.players;
+      if (s.team2?.players) valLuLocal.team2.players = s.team2.players;
+      initLineup(); syncLuUI(valLuLocal);
+    }).catch(() => { initLineup(); });
+
+  })();
+
+  // ══════════════════════════════════════════════════════════════════════
+  // ■ STREET FIGHTER 6
+  // ══════════════════════════════════════════════════════════════════════
+  (() => {
+    const SF6_THEMES = [
+      { id:'sf6-default', name:'SF6 Default',  sub:'Officiel',    primary:'#F7B731', p1:'#3A8FFF', p2:'#FF5A3A' },
+      { id:'sf6-capcom',  name:'Capcom Cup',   sub:'Tournoi',     primary:'#D4A017', p1:'#2A7FFF', p2:'#FF4A2A' },
+      { id:'sf6-red',     name:'Rouge Intense', sub:'Dramatique', primary:'#FF2040', p1:'#FF2040', p2:'#2040FF' },
+      { id:'sf6-blue',    name:'Bleu Électrique',sub:'Dynamique', primary:'#1A90FF', p1:'#FF8C00', p2:'#1A90FF' },
+      { id:'sf6-classic', name:'Classique',    sub:'Rétro',       primary:'#FFFFFF', p1:'#FF0000', p2:'#0000FF' },
+    ];
+
+    let sfLocal = {
+      visible: true, theme: 'sf6-default',
+      p1: { name:'', character:'', color:'#3A8FFF', score:0 },
+      p2: { name:'', character:'', color:'#FF5A3A', score:0 },
+      roundNum: 1, matchFormat: 'Bo3', event: 'Capcom Cup',
+    };
+    let _sfCastersLocal = [
+      { name:'', twitter:'', twitch:'', youtube:'' },
+      { name:'', twitter:'', twitch:'', youtube:'' },
+    ];
+
+    let _dbSf = null;
+    const sendSf = () => { clearTimeout(_dbSf); _dbSf = setTimeout(() => socket.emit('updateSfMatch', sfLocal), 120); };
+
+    // Sous-navigation
+    document.querySelectorAll('#tab-sf6 .match-subnav-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('#tab-sf6 .match-subnav-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.querySelectorAll('#tab-sf6 .match-panel').forEach(p => p.classList.remove('active'));
+        const panel = $(`${btn.dataset.panel}`);
+        if (panel) panel.classList.add('active');
+      });
+    });
+
+    // Charger la liste des personnages
+    fetch('/api/sf/chars').then(r => r.json()).then(chars => {
+      ['sf6-p1-char','sf6-p2-char'].forEach(id => {
+        const sel = $(id);
+        if (!sel) return;
+        chars.forEach(c => { const o = document.createElement('option'); o.value=c; o.textContent=c; sel.appendChild(o); });
+      });
+    }).catch(() => {});
+
+    // Champs texte/select
+    [
+      { id:'sf6-event',    upd: v => { sfLocal.event = v; } },
+      { id:'sf6-format',   upd: v => { sfLocal.matchFormat = v; } },
+      { id:'sf6-round',    upd: v => { sfLocal.roundNum = parseInt(v)||1; } },
+      { id:'sf6-p1-name',  upd: v => { sfLocal.p1.name = v; } },
+      { id:'sf6-p1-char',  upd: v => { sfLocal.p1.character = v; } },
+      { id:'sf6-p1-color', upd: v => { sfLocal.p1.color = v; } },
+      { id:'sf6-p2-name',  upd: v => { sfLocal.p2.name = v; } },
+      { id:'sf6-p2-char',  upd: v => { sfLocal.p2.character = v; } },
+      { id:'sf6-p2-color', upd: v => { sfLocal.p2.color = v; } },
+    ].forEach(({ id, upd }) => {
+      const el = $(id);
+      if (el) el.addEventListener('input', () => { upd(el.value); sendSf(); });
+    });
+
+    // Boutons score
+    document.querySelectorAll('.sf6-score-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const p = btn.dataset.player;
+        const dir = parseInt(btn.dataset.dir);
+        sfLocal[p].score = Math.max(0, Math.min(9, (sfLocal[p].score||0)+dir));
+        const disp = $(`sf6-${p}-score-display`);
+        if (disp) disp.textContent = sfLocal[p].score;
+        sendSf();
+      });
+    });
+
+    // Visibilité
+    const sfVisEl = $('sf6-sb-visible');
+    if (sfVisEl) sfVisEl.addEventListener('change', () => { sfLocal.visible = sfVisEl.checked; sendSf(); });
+
+    // Réinitialiser scores
+    const sfResetBtn = $('sf6-reset-scores');
+    if (sfResetBtn) sfResetBtn.addEventListener('click', () => {
+      sfLocal.p1.score = 0; sfLocal.p2.score = 0;
+      if ($('sf6-p1-score-display')) $('sf6-p1-score-display').textContent = 0;
+      if ($('sf6-p2-score-display')) $('sf6-p2-score-display').textContent = 0;
+      sendSf();
+    });
+
+    // Thèmes SF6
+    function buildSf6ThemeGrid() {
+      const grid = $('sf6-theme-grid');
+      if (!grid) return;
+      grid.innerHTML = '';
+      SF6_THEMES.forEach(th => {
+        const card = document.createElement('div');
+        card.className = 'val-theme-card';
+        card.innerHTML = `<div class="val-theme-swatches"><span style="background:${th.p1}"></span><span style="background:${th.primary}"></span><span style="background:${th.p2}"></span></div><div class="val-theme-name">${th.name}</div><div class="val-theme-sub">${th.sub}</div>`;
+        card.addEventListener('click', () => {
+          sfLocal.theme    = th.id;
+          sfLocal.p1.color = th.p1;
+          sfLocal.p2.color = th.p2;
+          if ($('sf6-p1-color')) $('sf6-p1-color').value = th.p1;
+          if ($('sf6-p2-color')) $('sf6-p2-color').value = th.p2;
+          sendSf();
+        });
+        grid.appendChild(card);
+      });
+    }
+    buildSf6ThemeGrid();
+
+    // Casters SF6 (partagé avec castersState)
+    document.querySelectorAll('.sf6-casters-layout-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.sf6-casters-layout-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        socket.emit('updateCasters', { layout: btn.dataset.layout });
+      });
+    });
+    const sf6CasVis = $('sf6-casters-visible');
+    if (sf6CasVis) sf6CasVis.addEventListener('change', () => socket.emit('updateCasters', { visible: sf6CasVis.checked }));
+    ['name','twitter','twitch','youtube'].forEach(f => {
+      [0,1].forEach(idx => {
+        const el = $(`sf6-c${idx+1}-${f}`);
+        if (!el) return;
+        el.addEventListener('input', () => {
+          _sfCastersLocal[idx][f] = el.value;
+          socket.emit('updateCasters', { casters: _sfCastersLocal });
+        });
+      });
+    });
+
+    function syncSfUI(s) {
+      if (!s) return;
+      if ($('sf6-event'))   $('sf6-event').value   = s.event       || '';
+      if ($('sf6-format'))  $('sf6-format').value  = s.matchFormat || 'Bo3';
+      if ($('sf6-round'))   $('sf6-round').value   = s.roundNum    || 1;
+      if ($('sf6-p1-name')) $('sf6-p1-name').value = s.p1?.name   || '';
+      if ($('sf6-p1-char')) $('sf6-p1-char').value = s.p1?.character || '';
+      if ($('sf6-p1-color'))$('sf6-p1-color').value= s.p1?.color  || '#3A8FFF';
+      if ($('sf6-p1-score-display')) $('sf6-p1-score-display').textContent = s.p1?.score ?? 0;
+      if ($('sf6-p2-name')) $('sf6-p2-name').value = s.p2?.name   || '';
+      if ($('sf6-p2-char')) $('sf6-p2-char').value = s.p2?.character || '';
+      if ($('sf6-p2-color'))$('sf6-p2-color').value= s.p2?.color  || '#FF5A3A';
+      if ($('sf6-p2-score-display')) $('sf6-p2-score-display').textContent = s.p2?.score ?? 0;
+      if (sfVisEl) sfVisEl.checked = s.visible !== false;
+    }
+
+    socket.on('sfMatchUpdate', s => {
+      if (!s) return;
+      sfLocal = { ...sfLocal, ...s };
+      if (s.p1) sfLocal.p1 = { ...sfLocal.p1, ...s.p1 };
+      if (s.p2) sfLocal.p2 = { ...sfLocal.p2, ...s.p2 };
+      syncSfUI(sfLocal);
+    });
+
+    fetch('/api/sf/match').then(r => r.json()).then(s => {
+      if (!s) return;
+      sfLocal = { ...sfLocal, ...s };
+      if (s.p1) sfLocal.p1 = { ...sfLocal.p1, ...s.p1 };
+      if (s.p2) sfLocal.p2 = { ...sfLocal.p2, ...s.p2 };
+      syncSfUI(sfLocal);
+    }).catch(() => {});
+  })();
+
+  // ══════════════════════════════════════════════════════════════════════
+  // ■ TEKKEN 8
+  // ══════════════════════════════════════════════════════════════════════
+  (() => {
+    const TEK8_THEMES = [
+      { id:'tek8-default', name:'Tekken 8',      sub:'Officiel',   primary:'#DC3232', p1:'#DC3232', p2:'#3A8FFF' },
+      { id:'tek8-dark',    name:'Dark Imposant', sub:'Dramatique', primary:'#FF0000', p1:'#FF0000', p2:'#FFFFFF' },
+      { id:'tek8-iron',    name:'Iron Fist',     sub:'Acier',      primary:'#AAAAAA', p1:'#DDDDDD', p2:'#888888' },
+      { id:'tek8-gold',    name:'Oro d\'Or',     sub:'Prestige',   primary:'#C9A84C', p1:'#C9A84C', p2:'#8A6A2C' },
+      { id:'tek8-neon',    name:'Néon Rage',     sub:'Lumineux',   primary:'#FF3EFF', p1:'#FF3EFF', p2:'#3EFFFF' },
+    ];
+
+    let tekLocal = {
+      visible: true, theme: 'tek8-default',
+      p1: { name:'', character:'', color:'#DC3232', score:0 },
+      p2: { name:'', character:'', color:'#3A8FFF', score:0 },
+      roundNum: 1, matchFormat: 'Bo3', event: 'Tekken World Tour',
+    };
+    let _tekCastersLocal = [
+      { name:'', twitter:'', twitch:'', youtube:'' },
+      { name:'', twitter:'', twitch:'', youtube:'' },
+    ];
+
+    let _dbTek = null;
+    const sendTek = () => { clearTimeout(_dbTek); _dbTek = setTimeout(() => socket.emit('updateTekMatch', tekLocal), 120); };
+
+    document.querySelectorAll('#tab-tek8 .match-subnav-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('#tab-tek8 .match-subnav-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.querySelectorAll('#tab-tek8 .match-panel').forEach(p => p.classList.remove('active'));
+        const panel = $(`${btn.dataset.panel}`);
+        if (panel) panel.classList.add('active');
+      });
+    });
+
+    fetch('/api/tek/chars').then(r => r.json()).then(chars => {
+      ['tek8-p1-char','tek8-p2-char'].forEach(id => {
+        const sel = $(id);
+        if (!sel) return;
+        chars.forEach(c => { const o = document.createElement('option'); o.value=c; o.textContent=c; sel.appendChild(o); });
+      });
+    }).catch(() => {});
+
+    [
+      { id:'tek8-event',    upd: v => { tekLocal.event = v; } },
+      { id:'tek8-format',   upd: v => { tekLocal.matchFormat = v; } },
+      { id:'tek8-round',    upd: v => { tekLocal.roundNum = parseInt(v)||1; } },
+      { id:'tek8-p1-name',  upd: v => { tekLocal.p1.name = v; } },
+      { id:'tek8-p1-char',  upd: v => { tekLocal.p1.character = v; } },
+      { id:'tek8-p1-color', upd: v => { tekLocal.p1.color = v; } },
+      { id:'tek8-p2-name',  upd: v => { tekLocal.p2.name = v; } },
+      { id:'tek8-p2-char',  upd: v => { tekLocal.p2.character = v; } },
+      { id:'tek8-p2-color', upd: v => { tekLocal.p2.color = v; } },
+    ].forEach(({ id, upd }) => {
+      const el = $(id);
+      if (el) el.addEventListener('input', () => { upd(el.value); sendTek(); });
+    });
+
+    document.querySelectorAll('.tek8-score-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const p   = btn.dataset.player;
+        const dir = parseInt(btn.dataset.dir);
+        tekLocal[p].score = Math.max(0, Math.min(9, (tekLocal[p].score||0)+dir));
+        const disp = $(`tek8-${p}-score-display`);
+        if (disp) disp.textContent = tekLocal[p].score;
+        sendTek();
+      });
+    });
+
+    const tekVisEl = $('tek8-sb-visible');
+    if (tekVisEl) tekVisEl.addEventListener('change', () => { tekLocal.visible = tekVisEl.checked; sendTek(); });
+
+    const tekResetBtn = $('tek8-reset-scores');
+    if (tekResetBtn) tekResetBtn.addEventListener('click', () => {
+      tekLocal.p1.score = 0; tekLocal.p2.score = 0;
+      if ($('tek8-p1-score-display')) $('tek8-p1-score-display').textContent = 0;
+      if ($('tek8-p2-score-display')) $('tek8-p2-score-display').textContent = 0;
+      sendTek();
+    });
+
+    function buildTek8ThemeGrid() {
+      const grid = $('tek8-theme-grid');
+      if (!grid) return;
+      grid.innerHTML = '';
+      TEK8_THEMES.forEach(th => {
+        const card = document.createElement('div');
+        card.className = 'val-theme-card';
+        card.innerHTML = `<div class="val-theme-swatches"><span style="background:${th.p1}"></span><span style="background:${th.primary}"></span><span style="background:${th.p2}"></span></div><div class="val-theme-name">${th.name}</div><div class="val-theme-sub">${th.sub}</div>`;
+        card.addEventListener('click', () => {
+          tekLocal.theme    = th.id;
+          tekLocal.p1.color = th.p1;
+          tekLocal.p2.color = th.p2;
+          if ($('tek8-p1-color')) $('tek8-p1-color').value = th.p1;
+          if ($('tek8-p2-color')) $('tek8-p2-color').value = th.p2;
+          sendTek();
+        });
+        grid.appendChild(card);
+      });
+    }
+    buildTek8ThemeGrid();
+
+    document.querySelectorAll('.tek8-casters-layout-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tek8-casters-layout-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        socket.emit('updateCasters', { layout: btn.dataset.layout });
+      });
+    });
+    const tek8CasVis = $('tek8-casters-visible');
+    if (tek8CasVis) tek8CasVis.addEventListener('change', () => socket.emit('updateCasters', { visible: tek8CasVis.checked }));
+    ['name','twitter','twitch','youtube'].forEach(f => {
+      [0,1].forEach(idx => {
+        const el = $(`tek8-c${idx+1}-${f}`);
+        if (!el) return;
+        el.addEventListener('input', () => {
+          _tekCastersLocal[idx][f] = el.value;
+          socket.emit('updateCasters', { casters: _tekCastersLocal });
+        });
+      });
+    });
+
+    function syncTekUI(s) {
+      if (!s) return;
+      if ($('tek8-event'))   $('tek8-event').value   = s.event       || '';
+      if ($('tek8-format'))  $('tek8-format').value  = s.matchFormat || 'Bo3';
+      if ($('tek8-round'))   $('tek8-round').value   = s.roundNum    || 1;
+      if ($('tek8-p1-name')) $('tek8-p1-name').value = s.p1?.name   || '';
+      if ($('tek8-p1-char')) $('tek8-p1-char').value = s.p1?.character || '';
+      if ($('tek8-p1-color'))$('tek8-p1-color').value= s.p1?.color  || '#DC3232';
+      if ($('tek8-p1-score-display')) $('tek8-p1-score-display').textContent = s.p1?.score ?? 0;
+      if ($('tek8-p2-name')) $('tek8-p2-name').value = s.p2?.name   || '';
+      if ($('tek8-p2-char')) $('tek8-p2-char').value = s.p2?.character || '';
+      if ($('tek8-p2-color'))$('tek8-p2-color').value= s.p2?.color  || '#3A8FFF';
+      if ($('tek8-p2-score-display')) $('tek8-p2-score-display').textContent = s.p2?.score ?? 0;
+      if (tekVisEl) tekVisEl.checked = s.visible !== false;
+    }
+
+    socket.on('tekMatchUpdate', s => {
+      if (!s) return;
+      tekLocal = { ...tekLocal, ...s };
+      if (s.p1) tekLocal.p1 = { ...tekLocal.p1, ...s.p1 };
+      if (s.p2) tekLocal.p2 = { ...tekLocal.p2, ...s.p2 };
+      syncTekUI(tekLocal);
+    });
+
+    fetch('/api/tek/match').then(r => r.json()).then(s => {
+      if (!s) return;
+      tekLocal = { ...tekLocal, ...s };
+      if (s.p1) tekLocal.p1 = { ...tekLocal.p1, ...s.p1 };
+      if (s.p2) tekLocal.p2 = { ...tekLocal.p2, ...s.p2 };
+      syncTekUI(tekLocal);
+    }).catch(() => {});
+  })();
+
+  // ══════════════════════════════════════════════════════════════════════
+  // ■ COUNTER-STRIKE 2
+  // ══════════════════════════════════════════════════════════════════════
+  (() => {
+    const CS2_THEMES = [
+      { id:'cs2-default',  name:'CS2 Default',   sub:'Officiel',   primary:'#FFA200', t:'#E8B400', ct:'#5B94EB' },
+      { id:'cs2-dark',     name:'Shadow Ops',     sub:'Sombre',     primary:'#CC8800', t:'#CC8800', ct:'#3A70CC' },
+      { id:'cs2-classic',  name:'Classique',      sub:'Nostalgique',primary:'#FFFFFF', t:'#FF8C00', ct:'#0080FF' },
+      { id:'cs2-neon',     name:'Néon Tactical',  sub:'Lumineux',   primary:'#00FF88', t:'#FFAA00', ct:'#00CCFF' },
+      { id:'cs2-military', name:'Militaire',      sub:'Authentique',primary:'#6B7B45', t:'#8FA050', ct:'#4A6080' },
+    ];
+
+    const CS2_MAPS_LIST = ['Mirage','Inferno','Overpass','Nuke','Ancient','Anubis','Dust2','Vertigo','Train'];
+
+    let cs2Local = {
+      visible: true, theme: 'cs2-default',
+      team1: { name:'', side:'T',  color:'#E8B400', logo:'', score:0 },
+      team2: { name:'', side:'CT', color:'#5B94EB', logo:'', score:0 },
+      mapName:'Mirage', roundNum:1, totalRounds:24, matchFormat:'Bo3', event:'IEM Katowice',
+    };
+    let cs2MvLocal = {
+      visible: false, phase:'MAP VETO',
+      team1: { name:'', color:'#E8B400', logo:'' },
+      team2: { name:'', color:'#5B94EB', logo:'' },
+      maps: CS2_MAPS_LIST.map(m => ({ name:m, status:'available', team:null })),
+    };
+    let _cs2CastersLocal = [
+      { name:'', twitter:'', twitch:'', youtube:'' },
+      { name:'', twitter:'', twitch:'', youtube:'' },
+    ];
+
+    let _dbCs2 = null, _dbCs2Mv = null;
+    const sendCs2   = () => { clearTimeout(_dbCs2);   _dbCs2   = setTimeout(() => socket.emit('updateCs2Match',   cs2Local),   120); };
+    const sendCs2Mv = () => { clearTimeout(_dbCs2Mv); _dbCs2Mv = setTimeout(() => socket.emit('updateCs2MapVeto', cs2MvLocal), 120); };
+
+    document.querySelectorAll('#tab-cs2 .match-subnav-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('#tab-cs2 .match-subnav-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.querySelectorAll('#tab-cs2 .match-panel').forEach(p => p.classList.remove('active'));
+        const panel = $(`${btn.dataset.panel}`);
+        if (panel) panel.classList.add('active');
+      });
+    });
+
+    // Champs match
+    [
+      { id:'cs2-event',        upd: v => { cs2Local.event       = v; cs2MvLocal.team1.name = cs2Local.team1.name; cs2MvLocal.team2.name = cs2Local.team2.name; } },
+      { id:'cs2-map',          upd: v => { cs2Local.mapName     = v; } },
+      { id:'cs2-format',       upd: v => { cs2Local.matchFormat = v; } },
+      { id:'cs2-round',        upd: v => { cs2Local.roundNum    = parseInt(v)||1; } },
+      { id:'cs2-total-rounds', upd: v => { cs2Local.totalRounds = parseInt(v)||24; } },
+      { id:'cs2-t1-name',      upd: v => { cs2Local.team1.name  = v; cs2MvLocal.team1.name = v; sendCs2Mv(); } },
+      { id:'cs2-t1-side',      upd: v => { cs2Local.team1.side  = v; } },
+      { id:'cs2-t1-color',     upd: v => { cs2Local.team1.color = v; cs2MvLocal.team1.color = v; sendCs2Mv(); } },
+      { id:'cs2-t1-logo',      upd: v => { cs2Local.team1.logo  = v; cs2MvLocal.team1.logo  = v; sendCs2Mv(); } },
+      { id:'cs2-t2-name',      upd: v => { cs2Local.team2.name  = v; cs2MvLocal.team2.name = v; sendCs2Mv(); } },
+      { id:'cs2-t2-side',      upd: v => { cs2Local.team2.side  = v; } },
+      { id:'cs2-t2-color',     upd: v => { cs2Local.team2.color = v; cs2MvLocal.team2.color = v; sendCs2Mv(); } },
+      { id:'cs2-t2-logo',      upd: v => { cs2Local.team2.logo  = v; cs2MvLocal.team2.logo  = v; sendCs2Mv(); } },
+    ].forEach(({ id, upd }) => {
+      const el = $(id);
+      if (el) el.addEventListener('input', () => { upd(el.value); sendCs2(); });
+    });
+
+    // Scores
+    document.querySelectorAll('.cs2-score-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const team = btn.dataset.team;
+        const dir  = parseInt(btn.dataset.dir);
+        cs2Local[team].score = Math.max(0, Math.min(30, (cs2Local[team].score||0)+dir));
+        const disp = $(`cs2-${team === 'team1' ? 't1' : 't2'}-score-display`);
+        if (disp) disp.textContent = cs2Local[team].score;
+        sendCs2();
+      });
+    });
+
+    const cs2VisEl = $('cs2-sb-visible');
+    if (cs2VisEl) cs2VisEl.addEventListener('change', () => { cs2Local.visible = cs2VisEl.checked; sendCs2(); });
+
+    const cs2ResetBtn = $('cs2-reset-scores');
+    if (cs2ResetBtn) cs2ResetBtn.addEventListener('click', () => {
+      cs2Local.team1.score = 0; cs2Local.team2.score = 0;
+      if ($('cs2-t1-score-display')) $('cs2-t1-score-display').textContent = 0;
+      if ($('cs2-t2-score-display')) $('cs2-t2-score-display').textContent = 0;
+      sendCs2();
+    });
+
+    const swapBtn = $('cs2-swap-sides');
+    if (swapBtn) swapBtn.addEventListener('click', () => {
+      const tmp = cs2Local.team1.side;
+      cs2Local.team1.side = cs2Local.team2.side;
+      cs2Local.team2.side = tmp;
+      const s1 = $('cs2-t1-side'); const s2 = $('cs2-t2-side');
+      if (s1) s1.value = cs2Local.team1.side;
+      if (s2) s2.value = cs2Local.team2.side;
+      sendCs2();
+    });
+
+    // Thèmes CS2
+    function buildCs2ThemeGrid() {
+      const grid = $('cs2-theme-grid');
+      if (!grid) return;
+      grid.innerHTML = '';
+      CS2_THEMES.forEach(th => {
+        const card = document.createElement('div');
+        card.className = 'val-theme-card';
+        card.innerHTML = `<div class="val-theme-swatches"><span style="background:${th.t}"></span><span style="background:${th.primary}"></span><span style="background:${th.ct}"></span></div><div class="val-theme-name">${th.name}</div><div class="val-theme-sub">${th.sub}</div>`;
+        card.addEventListener('click', () => {
+          cs2Local.theme       = th.id;
+          cs2Local.team1.color = th.t;
+          cs2Local.team2.color = th.ct;
+          cs2MvLocal.team1.color = th.t;
+          cs2MvLocal.team2.color = th.ct;
+          if ($('cs2-t1-color')) $('cs2-t1-color').value = th.t;
+          if ($('cs2-t2-color')) $('cs2-t2-color').value = th.ct;
+          sendCs2(); sendCs2Mv();
+        });
+        grid.appendChild(card);
+      });
+    }
+    buildCs2ThemeGrid();
+
+    // ── Map veto ──────────────────────────────────────────────────────
+    const CYCLE = ['available','picked-1','picked-2','banned-1','banned-2','decider'];
+    // Cycle: available → picked(T1) → picked(T2) → banned(T1) → banned(T2) → decider → available
+
+    function renderCs2MapVeto() {
+      const list = $('cs2-map-veto-list');
+      if (!list) return;
+      list.innerHTML = '';
+      cs2MvLocal.maps.forEach((m, i) => {
+        const el = document.createElement('div');
+        const cls = m.status === 'available' ? '' :
+                    m.status === 'picked'  && m.team === 1 ? 'picked-1' :
+                    m.status === 'picked'  && m.team === 2 ? 'picked-2' :
+                    m.status === 'banned'  && m.team === 1 ? 'banned' :
+                    m.status === 'banned'  && m.team === 2 ? 'banned' :
+                    m.status === 'decider' ? 'decider' : '';
+        el.className = `cs2-map-veto-item ${cls}`;
+        const label = m.status === 'available' ? '—' :
+                      m.status === 'picked'  ? (m.team === 1 ? 'PICK T1' : 'PICK T2') :
+                      m.status === 'banned'  ? (m.team === 1 ? 'BAN T1'  : 'BAN T2') :
+                      m.status === 'decider' ? 'DÉCIDER' : '';
+        el.innerHTML = `<div>${m.name.toUpperCase()}</div><div class="cs2-map-veto-status">${label}</div>`;
+        el.addEventListener('click', () => {
+          // Cycle: available → picked T1 → picked T2 → banned T1 → banned T2 → decider → available
+          const cur = m.status;
+          if (cur === 'available')                        { m.status = 'picked'; m.team = 1; }
+          else if (cur === 'picked'  && m.team === 1)    { m.status = 'picked'; m.team = 2; }
+          else if (cur === 'picked'  && m.team === 2)    { m.status = 'banned'; m.team = 1; }
+          else if (cur === 'banned'  && m.team === 1)    { m.status = 'banned'; m.team = 2; }
+          else if (cur === 'banned'  && m.team === 2)    { m.status = 'decider'; m.team = null; }
+          else                                           { m.status = 'available'; m.team = null; }
+          renderCs2MapVeto();
+          sendCs2Mv();
+        });
+        list.appendChild(el);
+      });
+    }
+
+    const mvVisBtn = $('cs2-mv-visible-btn');
+    if (mvVisBtn) mvVisBtn.addEventListener('click', () => {
+      cs2MvLocal.visible = !cs2MvLocal.visible;
+      mvVisBtn.textContent = cs2MvLocal.visible ? 'Masquer' : 'Afficher';
+      sendCs2Mv();
+    });
+
+    const mvResetBtn = $('cs2-mv-reset');
+    if (mvResetBtn) mvResetBtn.addEventListener('click', () => {
+      cs2MvLocal.maps = CS2_MAPS_LIST.map(m => ({ name:m, status:'available', team:null }));
+      renderCs2MapVeto();
+      sendCs2Mv();
+    });
+
+    const mvPhaseEl = $('cs2-mv-phase');
+    if (mvPhaseEl) mvPhaseEl.addEventListener('input', () => { cs2MvLocal.phase = mvPhaseEl.value; sendCs2Mv(); });
+
+    // Casters CS2 (partagé)
+    document.querySelectorAll('.cs2-casters-layout-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.cs2-casters-layout-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        socket.emit('updateCasters', { layout: btn.dataset.layout });
+      });
+    });
+    const cs2CasVis = $('cs2-casters-visible');
+    if (cs2CasVis) cs2CasVis.addEventListener('change', () => socket.emit('updateCasters', { visible: cs2CasVis.checked }));
+    ['name','twitter','twitch','youtube'].forEach(f => {
+      [0,1].forEach(idx => {
+        const el = $(`cs2-c${idx+1}-${f}`);
+        if (!el) return;
+        el.addEventListener('input', () => {
+          _cs2CastersLocal[idx][f] = el.value;
+          socket.emit('updateCasters', { casters: _cs2CastersLocal });
+        });
+      });
+    });
+
+    function syncCs2UI(s) {
+      if (!s) return;
+      if ($('cs2-event'))       $('cs2-event').value       = s.event           || '';
+      if ($('cs2-map'))         $('cs2-map').value         = s.mapName         || 'Mirage';
+      if ($('cs2-format'))      $('cs2-format').value      = s.matchFormat     || 'Bo3';
+      if ($('cs2-round'))       $('cs2-round').value       = s.roundNum        || 1;
+      if ($('cs2-total-rounds'))$('cs2-total-rounds').value= s.totalRounds     || 24;
+      if ($('cs2-t1-name'))     $('cs2-t1-name').value     = s.team1?.name    || '';
+      if ($('cs2-t1-side'))     $('cs2-t1-side').value     = s.team1?.side    || 'T';
+      if ($('cs2-t1-color'))    $('cs2-t1-color').value    = s.team1?.color   || '#E8B400';
+      if ($('cs2-t1-logo'))     $('cs2-t1-logo').value     = s.team1?.logo    || '';
+      if ($('cs2-t1-score-display')) $('cs2-t1-score-display').textContent = s.team1?.score ?? 0;
+      if ($('cs2-t2-name'))     $('cs2-t2-name').value     = s.team2?.name    || '';
+      if ($('cs2-t2-side'))     $('cs2-t2-side').value     = s.team2?.side    || 'CT';
+      if ($('cs2-t2-color'))    $('cs2-t2-color').value    = s.team2?.color   || '#5B94EB';
+      if ($('cs2-t2-logo'))     $('cs2-t2-logo').value     = s.team2?.logo    || '';
+      if ($('cs2-t2-score-display')) $('cs2-t2-score-display').textContent = s.team2?.score ?? 0;
+      if (cs2VisEl) cs2VisEl.checked = s.visible !== false;
+    }
+
+    socket.on('cs2MatchUpdate', s => {
+      if (!s) return;
+      cs2Local = { ...cs2Local, ...s };
+      if (s.team1) cs2Local.team1 = { ...cs2Local.team1, ...s.team1 };
+      if (s.team2) cs2Local.team2 = { ...cs2Local.team2, ...s.team2 };
+      syncCs2UI(cs2Local);
+    });
+
+    socket.on('cs2MapVetoUpdate', s => {
+      if (!s) return;
+      cs2MvLocal = { ...cs2MvLocal, ...s };
+      if (s.team1) cs2MvLocal.team1 = { ...cs2MvLocal.team1, ...s.team1 };
+      if (s.team2) cs2MvLocal.team2 = { ...cs2MvLocal.team2, ...s.team2 };
+      if (s.maps)  cs2MvLocal.maps  = s.maps;
+      renderCs2MapVeto();
+    });
+
+    fetch('/api/cs2/match').then(r => r.json()).then(s => {
+      if (!s) return;
+      cs2Local = { ...cs2Local, ...s };
+      if (s.team1) cs2Local.team1 = { ...cs2Local.team1, ...s.team1 };
+      if (s.team2) cs2Local.team2 = { ...cs2Local.team2, ...s.team2 };
+      syncCs2UI(cs2Local);
+    }).catch(() => {});
+
+    fetch('/api/cs2/mapveto').then(r => r.json()).then(s => {
+      if (!s) return;
+      cs2MvLocal = { ...cs2MvLocal, ...s };
+      if (s.team1) cs2MvLocal.team1 = { ...cs2MvLocal.team1, ...s.team1 };
+      if (s.team2) cs2MvLocal.team2 = { ...cs2MvLocal.team2, ...s.team2 };
+      if (s.maps)  cs2MvLocal.maps  = s.maps;
+      renderCs2MapVeto();
+    }).catch(() => { renderCs2MapVeto(); });
+  })();
+
 })();

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <title>PSO – CS2 Scoreboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Russo+One&family=Inter:wght@400;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="cs-scoreboard.css"/>
+  <link rel="stylesheet" href="/pso-transition.css"/>
+</head>
+<body>
+  <canvas id="cs-particles" style="position:fixed;top:0;left:0;width:100%;height:90px;pointer-events:none;z-index:0;"></canvas>
+  <div id="cs-sb" class="cs-sb pso-surface">
+
+    <!-- Équipe T -->
+    <div class="cs-team cs-team-t">
+      <img class="cs-logo" id="cs-t1-logo" src="" alt=""/>
+      <div class="cs-info">
+        <div class="cs-name" id="cs-t1-name">TEAM ALPHA</div>
+        <div class="cs-side-badge cs-side-t" id="cs-t1-side">T</div>
+      </div>
+      <div class="cs-vsep"></div>
+      <div class="cs-score" id="cs-t1-score">0</div>
+    </div>
+
+    <!-- Centre -->
+    <div class="cs-center">
+      <div class="cs-event" id="cs-event">IEM KATOWICE</div>
+      <div class="cs-map" id="cs-map">MIRAGE</div>
+      <div class="cs-round-row">
+        <span class="cs-round-label">ROUND</span>
+        <span class="cs-round-val" id="cs-round">1</span>
+        <span class="cs-round-label">/ <span id="cs-total-rounds">24</span></span>
+      </div>
+      <div class="cs-format" id="cs-format">Bo3</div>
+    </div>
+
+    <!-- Équipe CT -->
+    <div class="cs-team cs-team-ct">
+      <div class="cs-score" id="cs-t2-score">0</div>
+      <div class="cs-vsep"></div>
+      <div class="cs-info" style="text-align:right">
+        <div class="cs-name" id="cs-t2-name">TEAM BRAVO</div>
+        <div class="cs-side-badge cs-side-ct" id="cs-t2-side">CT</div>
+      </div>
+      <img class="cs-logo" id="cs-t2-logo" src="" alt=""/>
+    </div>
+
+  </div>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="cs-scoreboard.js"></script>
+  <script src="/pso-transition.js"></script>
+  <script>window.PSO_T = { id: 'cs-scoreboard', root: '#cs-sb' };</script>
+</body>
+</html>
