@@ -1690,6 +1690,16 @@ document.querySelectorAll('.subtab-btn').forEach(btn => {
 document.querySelectorAll('.accordion-header').forEach(header => {
   header.addEventListener('click', () => {
     header.closest('.accordion-tile').classList.toggle('open');
+    // re-scale any preview wraps revealed by this accordion
+    requestAnimationFrame(() => {
+      header.closest('.accordion-tile').querySelectorAll('.overlay-preview-wrap').forEach(w => {
+        const frame = w.querySelector('.overlay-preview-frame');
+        if (!frame) return;
+        const scale = w.offsetWidth / 1920;
+        frame.style.transform = `scale(${scale})`;
+        w.style.height = Math.round(1080 * scale) + 'px';
+      });
+    });
   });
 });
 
@@ -4840,6 +4850,7 @@ let framesLocal = {
     infoVisible: false, infoPlayer: 'p1', infoPosition: 'below',
     infoFields: { tag: true, name: true, pronouns: false, seed: false, social: false, character: false },
     infoFontSize: 13, infoBgOpacity: 85,
+    cam2: { visible: false, width: 360, height: 270, offsetX: 0, offsetY: 40, label: 'CAM 2', showLabel: true },
   };
 
   function camSend(patch) {
@@ -4885,6 +4896,19 @@ let framesLocal = {
     }
     if (s.infoFontSize != null) { camSetInput('cam-info-fs-range', s.infoFontSize); camSetInput('cam-info-fs-num', s.infoFontSize); }
     if (s.infoBgOpacity != null) { camSetInput('cam-info-bg-range', s.infoBgOpacity); camSetInput('cam-info-bg-num', s.infoBgOpacity); }
+    // CAM 2 sync
+    if (s.cam2) {
+      const c2 = s.cam2;
+      const v2 = document.getElementById('cam2-visible');
+      if (v2) v2.checked = !!c2.visible;
+      const sl2 = document.getElementById('cam2-show-label');
+      if (sl2) sl2.checked = c2.showLabel !== false;
+      camSetInput('cam2-width-range',  c2.width);   camSetInput('cam2-width-num',  c2.width);
+      camSetInput('cam2-height-range', c2.height);  camSetInput('cam2-height-num', c2.height);
+      camSetInput('cam2-x-range',      c2.offsetX); camSetInput('cam2-x-num',      c2.offsetX);
+      camSetInput('cam2-y-range',      c2.offsetY); camSetInput('cam2-y-num',      c2.offsetY);
+      camSetInput('cam2-label-text',   c2.label);
+    }
   });
 
   // Visibilité
@@ -4996,6 +5020,73 @@ let framesLocal = {
     range.addEventListener('input', () => sync(range.value));
     num.addEventListener('input',   () => sync(num.value));
   })();
+
+  // ── CAM 2 ─────────────────────────────────────────────────────
+  function cam2Send(patch) {
+    if (patch) Object.assign(camLocal.cam2, patch);
+    camSend({ cam2: camLocal.cam2 });
+  }
+
+  function cam2SetInput(id, val) {
+    if (val == null) return;
+    const el = document.getElementById(id);
+    if (el) el.value = val;
+  }
+
+  document.getElementById('cam2-visible')?.addEventListener('change', (e) => {
+    cam2Send({ visible: e.target.checked });
+  });
+
+  document.getElementById('cam2-show-label')?.addEventListener('change', (e) => {
+    cam2Send({ showLabel: e.target.checked });
+  });
+
+  document.getElementById('cam2-label-text')?.addEventListener('input', (e) => {
+    cam2Send({ label: e.target.value });
+  });
+
+  [
+    ['cam2-width-range',  'cam2-width-num',  'width'],
+    ['cam2-height-range', 'cam2-height-num', 'height'],
+    ['cam2-x-range',      'cam2-x-num',      'offsetX'],
+    ['cam2-y-range',      'cam2-y-num',      'offsetY'],
+  ].forEach(([rangeId, numId, key]) => {
+    const range = document.getElementById(rangeId);
+    const num   = document.getElementById(numId);
+    if (!range || !num) return;
+    function sync(val) { range.value = val; num.value = val; cam2Send({ [key]: Number(val) }); }
+    range.addEventListener('input', () => sync(range.value));
+    num.addEventListener('input',   () => sync(num.value));
+  });
+
+  document.querySelectorAll('.cam2-preset-size').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const w = parseInt(btn.dataset.w), h = parseInt(btn.dataset.h);
+      cam2SetInput('cam2-width-range', w);  cam2SetInput('cam2-width-num', w);
+      cam2SetInput('cam2-height-range', h); cam2SetInput('cam2-height-num', h);
+      cam2Send({ width: w, height: h });
+    });
+  });
+
+  document.getElementById('cam2-pos-center')?.addEventListener('click', () => {
+    cam2SetInput('cam2-x-range', 0); cam2SetInput('cam2-x-num', 0);
+    cam2SetInput('cam2-y-range', 40); cam2SetInput('cam2-y-num', 40);
+    cam2Send({ offsetX: 0, offsetY: 40 });
+  });
+  document.getElementById('cam2-pos-left')?.addEventListener('click', () => {
+    const w = camLocal.cam2.width || 360;
+    const x = -(960 - w / 2 - 20);
+    cam2SetInput('cam2-x-range', x); cam2SetInput('cam2-x-num', x);
+    cam2SetInput('cam2-y-range', 40); cam2SetInput('cam2-y-num', 40);
+    cam2Send({ offsetX: x, offsetY: 40 });
+  });
+  document.getElementById('cam2-pos-right')?.addEventListener('click', () => {
+    const w = camLocal.cam2.width || 360;
+    const x = 960 - w / 2 - 20;
+    cam2SetInput('cam2-x-range', x); cam2SetInput('cam2-x-num', x);
+    cam2SetInput('cam2-y-range', 40); cam2SetInput('cam2-y-num', 40);
+    cam2Send({ offsetX: x, offsetY: 40 });
+  });
 })();
 
 function framesSend(patch) {

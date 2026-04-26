@@ -142,6 +142,25 @@
     }
 
     applyInfo();
+    if (s.cam2) applyCam2State(s.cam2);
+  }
+
+  // ── CAM 2 ─────────────────────────────────────────────────────
+  function applyCam2State(s2) {
+    const root2  = el('cam2-root');
+    const label2 = el('cam2-label');
+    if (!root2) return;
+
+    root2.classList.toggle('hidden', !s2.visible);
+    root2.style.setProperty('--cam2-w', (s2.width   || 360) + 'px');
+    root2.style.setProperty('--cam2-h', (s2.height  || 270) + 'px');
+    root2.style.setProperty('--cam2-x', (s2.offsetX || 0)   + 'px');
+    root2.style.setProperty('--cam2-y', (s2.offsetY || 40)  + 'px');
+
+    if (label2) {
+      label2.textContent = s2.label || 'CAM 2';
+      label2.classList.toggle('hidden', !s2.showLabel);
+    }
   }
 
   // ── Socket.IO ─────────────────────────────────────────────────

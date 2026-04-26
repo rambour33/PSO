@@ -247,3 +247,34 @@ body {
   flex-shrink: 0;
 }
 .cam-info-sep.hidden { display: none; }
+
+/* ── CAM 2 (indépendante, même design) ───────────────────────── */
+
+.cam2-root {
+  position: absolute;
+  width:  var(--cam2-w, 360px);
+  left:   calc(50% - var(--cam2-w, 360px) / 2 + var(--cam2-x, 0px));
+  bottom: var(--cam2-y, 40px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  filter: drop-shadow(0 4px 32px rgba(0,0,0,0.8));
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+.cam2-root.hidden {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(16px);
+}
+
+.cam2-frame {
+  position: relative;
+  width:  var(--cam2-w, 360px);
+  height: var(--cam2-h, 270px);
+}
+
+.cam2-label {
+  align-self: center;
+}

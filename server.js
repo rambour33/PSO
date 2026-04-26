@@ -689,6 +689,15 @@ let camState = {
   offsetY:   40,
   label:     'CAM',
   showLabel: true,
+  cam2: {
+    visible:   false,
+    width:     360,
+    height:    270,
+    offsetX:   0,
+    offsetY:   40,
+    label:     'CAM 2',
+    showLabel: true,
+  },
 };
 
 app.get('/cam',      (req, res) => res.sendFile(path.join(__dirname, 'public', 'cam.html')));
@@ -702,6 +711,16 @@ app.post('/api/cam', (req, res) => {
   if (s.offsetY   !== undefined) camState.offsetY   = Number(s.offsetY);
   if (s.label     !== undefined) camState.label     = String(s.label).slice(0, 30);
   if (s.showLabel !== undefined) camState.showLabel = !!s.showLabel;
+  if (s.cam2 !== undefined) {
+    const c2 = s.cam2;
+    if (c2.visible   !== undefined) camState.cam2.visible   = !!c2.visible;
+    if (c2.width     !== undefined) camState.cam2.width     = Math.max(80, Number(c2.width));
+    if (c2.height    !== undefined) camState.cam2.height    = Math.max(60, Number(c2.height));
+    if (c2.offsetX   !== undefined) camState.cam2.offsetX   = Number(c2.offsetX);
+    if (c2.offsetY   !== undefined) camState.cam2.offsetY   = Number(c2.offsetY);
+    if (c2.label     !== undefined) camState.cam2.label     = String(c2.label).slice(0, 30);
+    if (c2.showLabel !== undefined) camState.cam2.showLabel = !!c2.showLabel;
+  }
   io.emit('camUpdate', camState);
   res.json({ ok: true });
 });
