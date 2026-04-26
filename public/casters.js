@@ -66,7 +66,7 @@ function renderCasters(s) {
       socialsEl.appendChild(row);
     });
 
-    inner.appendChild(socialsEl);
+    if (socialsEl.children.length > 0) inner.appendChild(socialsEl);
     card.appendChild(inner);
     container.appendChild(card);
   });

@@ -61,6 +61,7 @@ body {
 .casters-cards {
   display: flex;
   gap: 2px;
+  align-items: flex-start;
 }
 
 .casters-cards[data-layout="column"] {

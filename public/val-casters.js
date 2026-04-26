@@ -57,7 +57,7 @@ function renderCasters(s) {
       socialsEl.appendChild(row);
     });
 
-    card.appendChild(socialsEl);
+    if (socialsEl.children.length > 0) card.appendChild(socialsEl);
     cards.appendChild(card);
   });
 }

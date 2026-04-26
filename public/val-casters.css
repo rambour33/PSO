@@ -36,6 +36,7 @@ html, body {
 /* ── Cards ───────────────────────────────────────────────────── */
 .val-casters-cards {
   display: flex; gap: 28px;
+  align-items: flex-start;
 }
 .val-casters-cards[data-layout='col'] {
   flex-direction: column; align-items: center; gap: 14px;
