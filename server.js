@@ -83,6 +83,7 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: { origin: '*', methods: ['GET', 'POST'] },
+  maxHttpBufferSize: 25e6,
 });
 
 app.use(express.json({ limit: '25mb' }));
@@ -421,17 +422,135 @@ app.get('/super-overlay/:n', (req, res) => {
 app.get('/avsync',              (req, res) => res.sendFile(path.join(__dirname, 'public', 'avsync.html')));
 app.get('/scoreboard-elements', (req, res) => res.sendFile(path.join(__dirname, 'public', 'scoreboard-elements.html')));
 
-// ─── Valorant HTML routes ─────────────────────────────────────────────────────
-app.get('/val-scoreboard', (req, res) => res.sendFile(path.join(__dirname, 'public', 'val-scoreboard.html')));
-app.get('/val-casters',    (req, res) => res.sendFile(path.join(__dirname, 'public', 'val-casters.html')));
-app.get('/val-pickban',    (req, res) => res.sendFile(path.join(__dirname, 'public', 'val-pickban.html')));
-app.get('/val-lineup',     (req, res) => res.sendFile(path.join(__dirname, 'public', 'val-lineup.html')));
+// ─── Collection OBS ───────────────────────────────────────────────────────────
+app.get('/api/obs-collection', (req, res) => {
+  const host = req.protocol + '://' + req.hostname + ':3002';
+  const CSS  = 'body { background-color: rgba(0, 0, 0, 0); margin: 0px auto; overflow: hidden; }';
 
-// ─── SF6 / Tekken 8 / CS2 HTML routes ────────────────────────────────────────
-app.get('/sf-scoreboard',  (req, res) => res.sendFile(path.join(__dirname, 'public', 'sf-scoreboard.html')));
-app.get('/tek-scoreboard', (req, res) => res.sendFile(path.join(__dirname, 'public', 'tek-scoreboard.html')));
-app.get('/cs-scoreboard',  (req, res) => res.sendFile(path.join(__dirname, 'public', 'cs-scoreboard.html')));
-app.get('/cs-mapveto',     (req, res) => res.sendFile(path.join(__dirname, 'public', 'cs-mapveto.html')));
+  const OVERLAYS = [
+    // ── Smash / Général ──────────────────────────────────────────────────────
+    { scene: 'PSO – Scoreboard',          source: 'PSO Scoreboard',          path: '/overlay' },
+    { scene: 'PSO – Scoreboard Slim',     source: 'PSO Scoreboard Slim',     path: '/overlay-slim' },
+    { scene: 'PSO – VS Screen',           source: 'PSO VS Screen',           path: '/vs-screen' },
+    { scene: 'PSO – Casters',             source: 'PSO Casters',             path: '/casters' },
+    { scene: 'PSO – Head to Head',        source: 'PSO Head to Head',        path: '/h2h' },
+    { scene: 'PSO – Stage Veto',          source: 'PSO Stage Veto',          path: '/stageveto' },
+    { scene: 'PSO – Stats Joueur',        source: 'PSO Stats Joueur',        path: '/player-stats' },
+    { scene: 'PSO – Historique Tournoi',  source: 'PSO Historique Tournoi',  path: '/tournament-history' },
+    // ── Caméra & layout ──────────────────────────────────────────────────────
+    { scene: 'PSO – Cam Overlay',         source: 'PSO Cam Overlay',         path: '/cam' },
+    { scene: 'PSO – Cadres',              source: 'PSO Cadres',              path: '/frames' },
+    { scene: 'PSO – Ticker',              source: 'PSO Ticker',              path: '/ticker' },
+    { scene: 'PSO – Stream Title',        source: 'PSO Stream Title',        path: '/stream-title' },
+    { scene: 'PSO – Super Overlay',       source: 'PSO Super Overlay',       path: '/super-overlay' },
+    // ── Scènes custom (Créateur de scènes) ───────────────────────────────────
+    ...Array.from({ length: 9 }, (_, i) => ({
+      scene:  `Scene Custom ${i + 1}`,
+      source: `PSO Scene Custom ${i + 1}`,
+      path:   `/super-overlay/${i + 1}`,
+    })),
+    // ── Twitch ───────────────────────────────────────────────────────────────
+    { scene: 'PSO – Twitch Layout',       source: 'PSO Twitch Layout',       path: '/twitch-layout' },
+    { scene: 'PSO – Twitch Viewers',      source: 'PSO Twitch Viewers',      path: '/twitch-viewer' },
+    { scene: 'PSO – Twitch Chat',         source: 'PSO Twitch Chat',         path: '/twitch-chat' },
+  ];
+
+  function makeBrowserSource(name, url) {
+    return {
+      balance_val: 0.5,
+      deinterlace_field_order: 0,
+      deinterlace_mode: 0,
+      enabled: true,
+      flags: 0,
+      hotkeys: {},
+      id: 'browser_source',
+      mixers: 0,
+      monitoring_type: 0,
+      muted: false,
+      name,
+      prev_ver: 503316480,
+      private_settings: {},
+      'push-to-mute-delay': 0,
+      'push-to-talk-delay': 0,
+      settings: {
+        css: CSS,
+        fps: 60,
+        fps_custom: false,
+        height: 1080,
+        reroute_audio: false,
+        restart_when_active: false,
+        shutdown: false,
+        url,
+        webpage_control_level: 1,
+        width: 1920,
+      },
+      sync: 0,
+      versioned_id: 'browser_source',
+      volume: 1.0,
+    };
+  }
+
+  function makeScene(name, sourceName, itemId) {
+    return {
+      id: 'scene',
+      name,
+      private_settings: {},
+      settings: {
+        custom_size: false,
+        id_counter: itemId,
+        items: [{
+          align: 5,
+          bounds: { x: 0.0, y: 0.0 },
+          bounds_align: 0,
+          bounds_type: 0,
+          crop_bottom: 0, crop_left: 0, crop_right: 0, crop_top: 0,
+          group_item_backup: false,
+          id: itemId,
+          locked: true,
+          name: sourceName,
+          pos: { x: 0.0, y: 0.0 },
+          private_settings: {},
+          rot: 0.0,
+          scale: { x: 1.0, y: 1.0 },
+          scale_filter: 'disable',
+          show_in_multiview: true,
+          visible: true,
+        }],
+      },
+      versioned_id: 'scene',
+    };
+  }
+
+  const sources = [];
+  const sceneOrder = [];
+  OVERLAYS.forEach((ov, i) => {
+    sources.push(makeBrowserSource(ov.source, host + ov.path));
+    sources.push(makeScene(ov.scene, ov.source, i + 1));
+    sceneOrder.push({ name: ov.scene });
+  });
+
+  const collection = {
+    current_program_scene: OVERLAYS[0].scene,
+    current_scene: OVERLAYS[0].scene,
+    current_transition: 'Fade',
+    global_audio_devices: null,
+    modules: {
+      'auto-scene-switcher': { active: false, interval: 300, scene_conditions: [], scene_no_match: '' },
+    },
+    name: 'PSO Overlays',
+    preview_locked: false,
+    quick_transitions: [],
+    saved_projectors: [],
+    scaling_enabled: false,
+    scene_order: sceneOrder,
+    sources,
+    transition_duration: 300,
+    transitions: [],
+  };
+
+  res.setHeader('Content-Disposition', 'attachment; filename="PSO-Overlays.json"');
+  res.json(collection);
+});
 
 // ─── Éléments libres (overlay transparent indépendant) ───────────────────────
 
@@ -563,28 +682,100 @@ function makeSceneLayers() {
   return SUPER_LAYER_DEFS.map((d, i) => ({ ...d, visible: false, x: 0, y: 0, opacity: 1.0, order: i }));
 }
 
-let superState = {
-  activeScene: 0,
-  scenes: Array.from({ length: 9 }, (_, i) => ({
-    name: `Scène ${i + 1}`,
-    bgColor: 'transparent',
-    layers: makeSceneLayers(),
-  })),
-};
+function makeDefaultSuperState() {
+  return {
+    activeScene: 0,
+    scenes: Array.from({ length: 9 }, (_, i) => ({
+      name: `Scène ${i + 1}`,
+      bgColor: 'transparent',
+      bgImage: null,
+      bgImageMode: 'texture',
+      bgImageBlend: 'normal',
+      bgImageOpacity: 100,
+      bgParticlesEnabled: false,
+      bgParticlesOpacity: 100,
+      bgParticlesCount:   100,
+      layers: makeSceneLayers(),
+    })),
+  };
+}
+
+function loadSuperState() {
+  try {
+    const raw  = fs.readFileSync(path.join(__dirname, 'config.json'), 'utf8');
+    const saved = JSON.parse(raw).superState;
+    if (!saved || !Array.isArray(saved.scenes)) return makeDefaultSuperState();
+    const def = makeDefaultSuperState();
+    return {
+      activeScene: Math.max(0, Math.min(8, saved.activeScene ?? 0)),
+      scenes: def.scenes.map((defScene, i) => {
+        const s = saved.scenes[i];
+        if (!s) return defScene;
+        const layers = defScene.layers.map(defLayer => {
+          const sl = (s.layers || []).find(l => l.id === defLayer.id);
+          return sl ? { ...defLayer, ...sl } : defLayer;
+        });
+        return {
+          name:               s.name               ?? defScene.name,
+          bgColor:            s.bgColor             ?? defScene.bgColor,
+          bgImage:            s.bgImage             ?? null,
+          bgImageMode:        s.bgImageMode          ?? defScene.bgImageMode,
+          bgImageBlend:       s.bgImageBlend         ?? defScene.bgImageBlend,
+          bgImageOpacity:     s.bgImageOpacity       ?? defScene.bgImageOpacity,
+          bgParticlesEnabled: s.bgParticlesEnabled   ?? defScene.bgParticlesEnabled,
+          bgParticlesOpacity: s.bgParticlesOpacity   ?? defScene.bgParticlesOpacity,
+          bgParticlesCount:   s.bgParticlesCount     ?? defScene.bgParticlesCount,
+          layers,
+        };
+      }),
+    };
+  } catch { return makeDefaultSuperState(); }
+}
+
+let superState = loadSuperState();
+
+let _superSaveTimer = null;
+function saveSuperState() {
+  try {
+    const cfgPath = path.join(__dirname, 'config.json');
+    const cfg = (() => { try { return JSON.parse(fs.readFileSync(cfgPath, 'utf8')); } catch { return {}; } })();
+    cfg.superState = superState;
+    fs.writeFileSync(cfgPath, JSON.stringify(cfg, null, 2));
+  } catch (e) { console.error('[superState] save error:', e.message); }
+}
 
 function getActiveScene() { return superState.scenes[superState.activeScene]; }
 function superBroadcast() {
   const scene = getActiveScene();
-  io.emit('superUpdate', { bgColor: scene.bgColor, layers: scene.layers });
+  io.emit('superUpdate', {
+    bgColor: scene.bgColor,
+    bgImage: scene.bgImage,
+    bgImageMode: scene.bgImageMode,
+    bgImageBlend: scene.bgImageBlend,
+    bgImageOpacity: scene.bgImageOpacity,
+    bgParticlesEnabled: scene.bgParticlesEnabled,
+    bgParticlesOpacity: scene.bgParticlesOpacity,
+    bgParticlesCount:   scene.bgParticlesCount,
+    layers: scene.layers,
+  });
   io.emit('superStateUpdate', superState);
+  clearTimeout(_superSaveTimer);
+  _superSaveTimer = setTimeout(saveSuperState, 600);
 }
 
 app.get('/api/super', (req, res) => res.json(superState));
 
 app.post('/api/super', (req, res) => {
   const scene = getActiveScene();
-  const { bgColor, layers } = req.body;
-  if (bgColor !== undefined) scene.bgColor = String(bgColor);
+  const { bgColor, bgImage, bgImageMode, bgImageBlend, bgImageOpacity, layers } = req.body;
+  if (bgColor      !== undefined) scene.bgColor      = String(bgColor);
+  if (bgImage      !== undefined) scene.bgImage      = bgImage === null ? null : String(bgImage);
+  if (bgImageMode  !== undefined) scene.bgImageMode  = String(bgImageMode);
+  if (bgImageBlend !== undefined) scene.bgImageBlend = String(bgImageBlend);
+  if (bgImageOpacity   !== undefined) scene.bgImageOpacity   = Math.max(0, Math.min(100, Number(bgImageOpacity)));
+  if (req.body.bgParticlesEnabled !== undefined) scene.bgParticlesEnabled = Boolean(req.body.bgParticlesEnabled);
+  if (req.body.bgParticlesOpacity !== undefined) scene.bgParticlesOpacity = Math.max(0, Math.min(100, Number(req.body.bgParticlesOpacity)));
+  if (req.body.bgParticlesCount   !== undefined) scene.bgParticlesCount   = Math.max(0, Math.min(500, Number(req.body.bgParticlesCount)));
   if (Array.isArray(layers)) {
     layers.forEach(incoming => {
       const t = scene.layers.find(l => l.id === incoming.id);
@@ -598,6 +789,20 @@ app.post('/api/super', (req, res) => {
   }
   superBroadcast();
   res.json({ ok: true });
+});
+
+app.post('/api/super/bg-upload', (req, res) => {
+  const { dataUrl } = req.body;
+  if (!dataUrl || !dataUrl.startsWith('data:')) return res.status(400).json({ error: 'Données invalides' });
+  const m = dataUrl.match(/^data:([^;]+);base64,(.+)$/s);
+  if (!m) return res.status(400).json({ error: 'Format invalide' });
+  const ext  = (m[1].split('/')[1] || 'png').replace(/[^a-z0-9]/g, '');
+  const data = Buffer.from(m[2], 'base64');
+  const dir  = path.join(__dirname, 'public', 'uploads');
+  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+  const fname = `bg-${Date.now()}.${ext}`;
+  fs.writeFileSync(path.join(dir, fname), data);
+  res.json({ url: `/uploads/${fname}` });
 });
 
 // Mapping layer id → getter de l'état courant de l'overlay
@@ -656,6 +861,7 @@ app.post('/api/super/scene/:n/layer/:id/snapshot', (req, res) => {
   if (!snap) return res.status(400).json({ error: 'Cet overlay ne supporte pas les snapshots' });
   layer.snapshot = snap;
   io.emit('superStateUpdate', superState);
+  saveSuperState();
   res.json({ ok: true });
 });
 
@@ -667,6 +873,7 @@ app.delete('/api/super/scene/:n/layer/:id/snapshot', (req, res) => {
   if (!layer) return res.status(404).json({ error: 'Calque introuvable' });
   layer.snapshot = null;
   io.emit('superStateUpdate', superState);
+  saveSuperState();
   res.json({ ok: true });
 });
 
@@ -676,6 +883,7 @@ app.post('/api/super/scene/:n/name', (req, res) => {
   const name = String(req.body.name || '').trim() || `Scène ${n + 1}`;
   superState.scenes[n].name = name;
   io.emit('superStateUpdate', superState);
+  saveSuperState();
   res.json({ ok: true });
 });
 
@@ -1937,254 +2145,6 @@ app.delete('/api/theme-presets/:name', (req, res) => {
   res.json(list);
 });
 
-// ─── Valorant ─────────────────────────────────────────────────────────────────
-
-let selectedGame = { game: 'ssbu' };
-
-const VAL_AGENTS = [
-  // Duelists
-  { id: 'jett',    name: 'Jett',    role: 'Duelist'    },
-  { id: 'reyna',   name: 'Reyna',   role: 'Duelist'    },
-  { id: 'phoenix', name: 'Phoenix', role: 'Duelist'    },
-  { id: 'neon',    name: 'Neon',    role: 'Duelist'    },
-  { id: 'iso',     name: 'Iso',     role: 'Duelist'    },
-  { id: 'yoru',    name: 'Yoru',    role: 'Duelist'    },
-  // Initiators
-  { id: 'sova',    name: 'Sova',    role: 'Initiator'  },
-  { id: 'breach',  name: 'Breach',  role: 'Initiator'  },
-  { id: 'kayo',    name: 'KAY/O',   role: 'Initiator'  },
-  { id: 'fade',    name: 'Fade',    role: 'Initiator'  },
-  { id: 'gekko',   name: 'Gekko',   role: 'Initiator'  },
-  { id: 'skye',    name: 'Skye',    role: 'Initiator'  },
-  // Controllers
-  { id: 'brimstone', name: 'Brimstone', role: 'Controller' },
-  { id: 'viper',     name: 'Viper',     role: 'Controller' },
-  { id: 'omen',      name: 'Omen',      role: 'Controller' },
-  { id: 'astra',     name: 'Astra',     role: 'Controller' },
-  { id: 'harbor',    name: 'Harbor',    role: 'Controller' },
-  { id: 'clove',     name: 'Clove',     role: 'Controller' },
-  // Sentinels
-  { id: 'killjoy',  name: 'Killjoy',  role: 'Sentinel' },
-  { id: 'cypher',   name: 'Cypher',   role: 'Sentinel' },
-  { id: 'sage',     name: 'Sage',     role: 'Sentinel' },
-  { id: 'chamber',  name: 'Chamber',  role: 'Sentinel' },
-  { id: 'deadlock', name: 'Deadlock', role: 'Sentinel' },
-  { id: 'vyse',     name: 'Vyse',     role: 'Sentinel' },
-];
-
-const VAL_MAPS = ['Ascent','Bind','Haven','Split','Icebox','Breeze','Fracture','Pearl','Lotus','Sunset','Abyss'];
-
-function makeValPlayers() {
-  return Array.from({ length: 5 }, () => ({ name: '', agent: '', role: '', locked: false, active: false }));
-}
-
-function makeValLineupPlayers() {
-  return Array.from({ length: 5 }, () => ({ name: '', agent: '', role: '', flag: '', igl: false }));
-}
-
-let valMatchState = {
-  visible:     true,
-  team1:       { name: 'TEAM ALPHA', color: '#FF4655', score: 0, logo: '' },
-  team2:       { name: 'TEAM BRAVO', color: '#3B71E4', score: 0, logo: '' },
-  event:       'VCT 2025',
-  mapName:     '',
-  currentMap:  1,
-  matchFormat: 'Bo3',
-  theme:       'valorant-default',
-  bgColor:     '#0A0A12',
-  bgOpacity:   95,
-};
-
-let valPickBanState = {
-  visible: false,
-  phase:   'agent',
-  event:   'VCT 2025',
-  team1: { name: 'TEAM ALPHA', color: '#FF4655', logo: '', players: makeValPlayers() },
-  team2: { name: 'TEAM BRAVO', color: '#3B71E4', logo: '', players: makeValPlayers() },
-  maps: VAL_MAPS.map(m => ({ name: m, status: 'available', team: null })),
-};
-
-let valLineupState = {
-  visible: false,
-  event:   'VCT 2025',
-  mapName: '',
-  team1: { name: 'TEAM ALPHA', color: '#FF4655', logo: '', players: makeValLineupPlayers() },
-  team2: { name: 'TEAM BRAVO', color: '#3B71E4', logo: '', players: makeValLineupPlayers() },
-};
-
-// ─── Valorant API routes ───────────────────────────────────────────────────────
-
-app.get('/api/game', (req, res) => res.json(selectedGame));
-app.post('/api/game', (req, res) => {
-  selectedGame = { ...selectedGame, ...req.body };
-  io.emit('gameUpdate', selectedGame);
-  res.json(selectedGame);
-});
-
-app.get('/api/val/agents',    (req, res) => res.json(VAL_AGENTS));
-app.get('/api/val/maps-list', (req, res) => res.json(VAL_MAPS));
-
-app.get('/api/val/match',  (req, res) => res.json(valMatchState));
-app.post('/api/val/match', (req, res) => {
-  const d = req.body;
-  valMatchState = { ...valMatchState, ...d };
-  if (d.team1) valMatchState.team1 = { ...valMatchState.team1, ...d.team1 };
-  if (d.team2) valMatchState.team2 = { ...valMatchState.team2, ...d.team2 };
-  io.emit('valMatchUpdate', valMatchState);
-  res.json(valMatchState);
-});
-
-app.get('/api/val/pickban',  (req, res) => res.json(valPickBanState));
-app.post('/api/val/pickban', (req, res) => {
-  const d = req.body;
-  valPickBanState = { ...valPickBanState, ...d };
-  if (d.team1)   valPickBanState.team1   = { ...valPickBanState.team1,   ...d.team1 };
-  if (d.team2)   valPickBanState.team2   = { ...valPickBanState.team2,   ...d.team2 };
-  if (d.maps)    valPickBanState.maps    = d.maps;
-  if (d.team1?.players) valPickBanState.team1.players = d.team1.players;
-  if (d.team2?.players) valPickBanState.team2.players = d.team2.players;
-  io.emit('valPickBanUpdate', valPickBanState);
-  res.json(valPickBanState);
-});
-
-app.post('/api/val/pickban/reset', (req, res) => {
-  valPickBanState.team1.players = makeValPlayers();
-  valPickBanState.team2.players = makeValPlayers();
-  valPickBanState.maps = VAL_MAPS.map(m => ({ name: m, status: 'available', team: null }));
-  io.emit('valPickBanUpdate', valPickBanState);
-  res.json(valPickBanState);
-});
-
-app.get('/api/val/lineup',  (req, res) => res.json(valLineupState));
-app.post('/api/val/lineup', (req, res) => {
-  const d = req.body;
-  valLineupState = { ...valLineupState, ...d };
-  if (d.team1)         valLineupState.team1         = { ...valLineupState.team1, ...d.team1 };
-  if (d.team2)         valLineupState.team2         = { ...valLineupState.team2, ...d.team2 };
-  if (d.team1?.players) valLineupState.team1.players = d.team1.players;
-  if (d.team2?.players) valLineupState.team2.players = d.team2.players;
-  io.emit('valLineupUpdate', valLineupState);
-  res.json(valLineupState);
-});
-
-// ─── Street Fighter 6 ─────────────────────────────────────────────────────────
-
-const SF_CHARS = [
-  'Ryu','Luke','Kimberly','Chun-Li','Manon','Zangief','JP','Dhalsim','Cammy','Dee Jay',
-  'Lily','Ken','Blanka','Guile','E.Honda','Rashid','Marisa','Juri','A.K.I.','Ed',
-  'Akuma','M.Bison','Terry','Mai','Elena','Bison',
-];
-
-let sfMatchState = {
-  visible:     true,
-  p1: { name: 'PLAYER 1', character: '', color: '#3A8FFF', score: 0 },
-  p2: { name: 'PLAYER 2', character: '', color: '#FF5A3A', score: 0 },
-  roundNum:    1,
-  matchFormat: 'Bo3',
-  event:       'Capcom Cup',
-  theme:       'sf6-default',
-  bgColor:     '#0A0602',
-  bgOpacity:   95,
-};
-
-app.get('/api/sf/chars', (req, res) => res.json(SF_CHARS));
-app.get('/api/sf/match',  (req, res) => res.json(sfMatchState));
-app.post('/api/sf/match', (req, res) => {
-  const d = req.body;
-  sfMatchState = { ...sfMatchState, ...d };
-  if (d.p1) sfMatchState.p1 = { ...sfMatchState.p1, ...d.p1 };
-  if (d.p2) sfMatchState.p2 = { ...sfMatchState.p2, ...d.p2 };
-  io.emit('sfMatchUpdate', sfMatchState);
-  res.json(sfMatchState);
-});
-
-// ─── Tekken 8 ─────────────────────────────────────────────────────────────────
-
-const TEK_CHARS = [
-  'Jin','Kazuya','Paul','Law','King','Lars','Devil Jin','Hwoarang','Ling Xiaoyu','Nina',
-  'Dragunov','Jack-8','Bryan','Yoshimitsu','Reina','Lili','Steve','Leo','Leroy','Alisa',
-  'Zafina','Kuma','Jun','Asuka','Lee','Claudio','Shaheen','Feng','Victor','Azucena',
-  'Raven','Eddy','Lidia','Anna',
-];
-
-let tekMatchState = {
-  visible:     true,
-  p1: { name: 'PLAYER 1', character: '', color: '#DC3232', score: 0 },
-  p2: { name: 'PLAYER 2', character: '', color: '#3A8FFF', score: 0 },
-  roundNum:    1,
-  matchFormat: 'Bo3',
-  event:       'Tekken World Tour',
-  theme:       'tek8-default',
-  bgColor:     '#080404',
-  bgOpacity:   96,
-};
-
-app.get('/api/tek/chars', (req, res) => res.json(TEK_CHARS));
-app.get('/api/tek/match',  (req, res) => res.json(tekMatchState));
-app.post('/api/tek/match', (req, res) => {
-  const d = req.body;
-  tekMatchState = { ...tekMatchState, ...d };
-  if (d.p1) tekMatchState.p1 = { ...tekMatchState.p1, ...d.p1 };
-  if (d.p2) tekMatchState.p2 = { ...tekMatchState.p2, ...d.p2 };
-  io.emit('tekMatchUpdate', tekMatchState);
-  res.json(tekMatchState);
-});
-
-// ─── Counter-Strike 2 ─────────────────────────────────────────────────────────
-
-const CS2_MAPS = ['Mirage','Inferno','Overpass','Nuke','Ancient','Anubis','Dust2','Vertigo','Train'];
-
-let cs2MatchState = {
-  visible:     true,
-  team1: { name: 'TEAM ALPHA', side: 'T',  color: '#E8B400', logo: '', score: 0 },
-  team2: { name: 'TEAM BRAVO', side: 'CT', color: '#5B94EB', logo: '', score: 0 },
-  mapName:     'Mirage',
-  roundNum:    1,
-  totalRounds: 24,
-  matchFormat: 'Bo3',
-  event:       'IEM Katowice',
-  theme:       'cs2-default',
-  bgColor:     '#060810',
-  bgOpacity:   96,
-};
-
-let cs2MapVetoState = {
-  visible: false,
-  phase:   'MAP VETO',
-  event:   'IEM Katowice',
-  team1: { name: 'TEAM ALPHA', color: '#E8B400', logo: '' },
-  team2: { name: 'TEAM BRAVO', color: '#5B94EB', logo: '' },
-  maps: CS2_MAPS.map(m => ({ name: m, status: 'available', team: null })),
-};
-
-app.get('/api/cs2/maps-list', (req, res) => res.json(CS2_MAPS));
-app.get('/api/cs2/match',  (req, res) => res.json(cs2MatchState));
-app.post('/api/cs2/match', (req, res) => {
-  const d = req.body;
-  cs2MatchState = { ...cs2MatchState, ...d };
-  if (d.team1) cs2MatchState.team1 = { ...cs2MatchState.team1, ...d.team1 };
-  if (d.team2) cs2MatchState.team2 = { ...cs2MatchState.team2, ...d.team2 };
-  io.emit('cs2MatchUpdate', cs2MatchState);
-  res.json(cs2MatchState);
-});
-
-app.get('/api/cs2/mapveto',  (req, res) => res.json(cs2MapVetoState));
-app.post('/api/cs2/mapveto', (req, res) => {
-  const d = req.body;
-  cs2MapVetoState = { ...cs2MapVetoState, ...d };
-  if (d.team1) cs2MapVetoState.team1 = { ...cs2MapVetoState.team1, ...d.team1 };
-  if (d.team2) cs2MapVetoState.team2 = { ...cs2MapVetoState.team2, ...d.team2 };
-  if (d.maps)  cs2MapVetoState.maps  = d.maps;
-  io.emit('cs2MapVetoUpdate', cs2MapVetoState);
-  res.json(cs2MapVetoState);
-});
-
-app.post('/api/cs2/mapveto/reset', (req, res) => {
-  cs2MapVetoState.maps = CS2_MAPS.map(m => ({ name: m, status: 'available', team: null }));
-  io.emit('cs2MapVetoUpdate', cs2MapVetoState);
-  res.json(cs2MapVetoState);
-});
-
 // ─── Socket.io ────────────────────────────────────────────────────────────────
 
 io.on('connection', (socket) => {
@@ -2200,81 +2160,21 @@ io.on('connection', (socket) => {
   socket.emit('camUpdate', camState);
   socket.emit('framesUpdate', framesState);
   const _activeScene = getActiveScene();
-  socket.emit('superUpdate', { bgColor: _activeScene.bgColor, layers: _activeScene.layers });
+  socket.emit('superUpdate', {
+    bgColor: _activeScene.bgColor,
+    bgImage: _activeScene.bgImage,
+    bgImageMode: _activeScene.bgImageMode,
+    bgImageBlend: _activeScene.bgImageBlend,
+    bgImageOpacity: _activeScene.bgImageOpacity,
+    bgParticlesEnabled: _activeScene.bgParticlesEnabled,
+    bgParticlesOpacity: _activeScene.bgParticlesOpacity,
+    bgParticlesCount: _activeScene.bgParticlesCount,
+    layers: _activeScene.layers,
+  });
   socket.emit('superStateUpdate', superState);
   socket.emit('titleUpdate', titleState);
   socket.emit('top8Update', top8State);
   socket.emit('elementsOverlayUpdate', elementsOverlayState);
-  // Valorant
-  socket.emit('gameUpdate',       selectedGame);
-  socket.emit('valMatchUpdate',   valMatchState);
-  socket.emit('valPickBanUpdate', valPickBanState);
-  socket.emit('valLineupUpdate',  valLineupState);
-  // SF6 / Tekken 8 / CS2
-  socket.emit('sfMatchUpdate',    sfMatchState);
-  socket.emit('tekMatchUpdate',   tekMatchState);
-  socket.emit('cs2MatchUpdate',   cs2MatchState);
-  socket.emit('cs2MapVetoUpdate', cs2MapVetoState);
-
-  socket.on('updateGame', (data) => {
-    selectedGame = { ...selectedGame, ...data };
-    io.emit('gameUpdate', selectedGame);
-  });
-
-  socket.on('updateValMatch', (data) => {
-    valMatchState = { ...valMatchState, ...data };
-    if (data.team1) valMatchState.team1 = { ...valMatchState.team1, ...data.team1 };
-    if (data.team2) valMatchState.team2 = { ...valMatchState.team2, ...data.team2 };
-    io.emit('valMatchUpdate', valMatchState);
-  });
-
-  socket.on('updateValPickBan', (data) => {
-    valPickBanState = { ...valPickBanState, ...data };
-    if (data.team1)         valPickBanState.team1         = { ...valPickBanState.team1, ...data.team1 };
-    if (data.team2)         valPickBanState.team2         = { ...valPickBanState.team2, ...data.team2 };
-    if (data.maps)          valPickBanState.maps          = data.maps;
-    if (data.team1?.players) valPickBanState.team1.players = data.team1.players;
-    if (data.team2?.players) valPickBanState.team2.players = data.team2.players;
-    io.emit('valPickBanUpdate', valPickBanState);
-  });
-
-  socket.on('updateValLineup', (data) => {
-    valLineupState = { ...valLineupState, ...data };
-    if (data.team1)         valLineupState.team1         = { ...valLineupState.team1, ...data.team1 };
-    if (data.team2)         valLineupState.team2         = { ...valLineupState.team2, ...data.team2 };
-    if (data.team1?.players) valLineupState.team1.players = data.team1.players;
-    if (data.team2?.players) valLineupState.team2.players = data.team2.players;
-    io.emit('valLineupUpdate', valLineupState);
-  });
-
-  socket.on('updateSfMatch', (data) => {
-    sfMatchState = { ...sfMatchState, ...data };
-    if (data.p1) sfMatchState.p1 = { ...sfMatchState.p1, ...data.p1 };
-    if (data.p2) sfMatchState.p2 = { ...sfMatchState.p2, ...data.p2 };
-    io.emit('sfMatchUpdate', sfMatchState);
-  });
-
-  socket.on('updateTekMatch', (data) => {
-    tekMatchState = { ...tekMatchState, ...data };
-    if (data.p1) tekMatchState.p1 = { ...tekMatchState.p1, ...data.p1 };
-    if (data.p2) tekMatchState.p2 = { ...tekMatchState.p2, ...data.p2 };
-    io.emit('tekMatchUpdate', tekMatchState);
-  });
-
-  socket.on('updateCs2Match', (data) => {
-    cs2MatchState = { ...cs2MatchState, ...data };
-    if (data.team1) cs2MatchState.team1 = { ...cs2MatchState.team1, ...data.team1 };
-    if (data.team2) cs2MatchState.team2 = { ...cs2MatchState.team2, ...data.team2 };
-    io.emit('cs2MatchUpdate', cs2MatchState);
-  });
-
-  socket.on('updateCs2MapVeto', (data) => {
-    cs2MapVetoState = { ...cs2MapVetoState, ...data };
-    if (data.team1) cs2MapVetoState.team1 = { ...cs2MapVetoState.team1, ...data.team1 };
-    if (data.team2) cs2MapVetoState.team2 = { ...cs2MapVetoState.team2, ...data.team2 };
-    if (data.maps)  cs2MapVetoState.maps  = data.maps;
-    io.emit('cs2MapVetoUpdate', cs2MapVetoState);
-  });
 
   // Déclenche l'animation d'entrée sur la VS screen
   socket.on('triggerVsScreen', () => {
@@ -2776,6 +2676,198 @@ app.get('/api/startgg/event/:id/player-stats/:entrantId', async (req, res) => {
     res.json({ playerName, playerTag, eventName, wins, losses, topCharacters, allMatches, nextMatch });
   } catch (e) {
     console.error('[player-stats]', e.message);
+    res.status(400).json({ error: e.message });
+  }
+});
+
+// ─── H2H State & API ─────────────────────────────────────────────────────────
+
+let h2hState = {
+  visible: false,
+  eventName: '',
+  player1: { tag: '', name: '', color: '#E83030', currentStats: {} },
+  player2: { tag: '', name: '', color: '#3070E8', currentStats: {} },
+  h2h: { totalSets: 0, player1Wins: 0, player2Wins: 0, topCharsP1: [], topCharsP2: [], sets: [] },
+};
+
+app.get('/api/h2h', (req, res) => res.json(h2hState));
+app.post('/api/h2h', (req, res) => {
+  h2hState = { ...h2hState, ...req.body };
+  io.emit('h2hUpdate', h2hState);
+  res.json({ ok: true });
+});
+
+// Calcul H2H entre deux entrants sur un event
+app.get('/api/startgg/event/:id/h2h/:e1/:e2', async (req, res) => {
+  try {
+    const { id: eventId, e1: entrantId1, e2: entrantId2 } = req.params;
+
+    // Fetch all sets for entrant1
+    let allSets = [];
+    let page = 1;
+    let totalPages = 1;
+    let eventName = '';
+
+    while (page <= totalPages) {
+      const data = await startggQuery(`
+        query H2H($eventId: ID!, $entrantId: ID!, $page: Int!) {
+          event(id: $eventId) {
+            id name
+            sets(
+              filters: { entrantIds: [$entrantId] }
+              perPage: 50 page: $page sortType: RECENT
+            ) {
+              pageInfo { total totalPages }
+              nodes {
+                id fullRoundText state winnerId
+                slots {
+                  entrant { id name participants { gamerTag prefix player { id } } }
+                  standing { stats { score { value } } }
+                }
+                games {
+                  winnerId
+                  selections {
+                    entrant { id }
+                    selectionType selectionValue
+                  }
+                }
+              }
+            }
+          }
+        }
+      `, { eventId, entrantId: entrantId1, page });
+
+      if (!data.event) return res.status(404).json({ error: 'Évènement introuvable' });
+      eventName = data.event.name;
+      totalPages = data.event.sets?.pageInfo?.totalPages || 1;
+      allSets = allSets.concat(data.event.sets?.nodes || []);
+      page++;
+    }
+
+    // Filter sets where opponent is entrant2
+    const h2hSets = allSets.filter(s =>
+      s.state === 3 &&
+      (s.slots || []).some(sl => String(sl.entrant?.id) === String(entrantId2))
+    );
+
+    // Also compute full stats for each player (all completed sets)
+    const completedSets1 = allSets.filter(s => s.state === 3);
+
+    function getSlots(s, myId) {
+      const mySlot  = (s.slots || []).find(sl => String(sl.entrant?.id) === String(myId));
+      const oppSlot = (s.slots || []).find(sl => String(sl.entrant?.id) !== String(myId));
+      return { mySlot, oppSlot };
+    }
+
+    function playerInfo(sets, myId) {
+      for (const s of sets) {
+        const { mySlot } = getSlots(s, myId);
+        if (mySlot?.entrant?.participants?.[0]) {
+          return {
+            tag:  mySlot.entrant.participants[0].prefix || '',
+            name: mySlot.entrant.participants[0].gamerTag || mySlot.entrant.name || '',
+          };
+        }
+      }
+      return { tag: '', name: '' };
+    }
+
+    function computeStats(sets, myId) {
+      let wins = 0, losses = 0;
+      const charCounts = {};
+      for (const s of sets) {
+        if (String(s.winnerId) === String(myId)) wins++; else losses++;
+        for (const g of (s.games || [])) {
+          for (const sel of (g.selections || [])) {
+            if (String(sel.entrant?.id) === String(myId) && sel.selectionType === 'CHARACTER') {
+              const cid = sel.selectionValue;
+              charCounts[cid] = (charCounts[cid] || 0) + 1;
+            }
+          }
+        }
+      }
+      const total = wins + losses;
+      const winRate = total > 0 ? Math.round((wins / total) * 100) : 0;
+      const topChars = Object.entries(charCounts)
+        .sort((a, b) => b[1] - a[1]).slice(0, 3)
+        .map(([charId]) => {
+          const internalId = SSBU_CHAR_MAP[parseInt(charId)];
+          const charEntry  = internalId ? characterList.find(c => c.id === internalId) : null;
+          return { name: charEntry?.name || `#${charId}`, image: internalId ? `/Stock Icons/chara_2_${internalId}_00.png` : '' };
+        });
+      return { wins, losses, winRate, topChars };
+    }
+
+    const p1info = playerInfo(allSets, entrantId1);
+    const stats1 = computeStats(completedSets1, entrantId1);
+
+    // For player 2, fetch separately (only need completed sets in this event)
+    let allSets2 = [];
+    page = 1; totalPages = 1;
+    while (page <= totalPages) {
+      const data2 = await startggQuery(`
+        query H2HP2($eventId: ID!, $entrantId: ID!, $page: Int!) {
+          event(id: $eventId) {
+            sets(filters: { entrantIds: [$entrantId] } perPage: 50 page: $page sortType: RECENT) {
+              pageInfo { totalPages }
+              nodes {
+                id state winnerId
+                slots { entrant { id name participants { gamerTag prefix } } standing { stats { score { value } } } }
+                games { winnerId selections { entrant { id } selectionType selectionValue } }
+              }
+            }
+          }
+        }
+      `, { eventId, entrantId: entrantId2, page });
+      totalPages = data2.event?.sets?.pageInfo?.totalPages || 1;
+      allSets2 = allSets2.concat(data2.event?.sets?.nodes || []);
+      page++;
+    }
+
+    const completedSets2 = allSets2.filter(s => s.state === 3);
+    const p2info = playerInfo(allSets2, entrantId2);
+    const stats2 = computeStats(completedSets2, entrantId2);
+
+    // H2H record
+    let p1wins = 0, p2wins = 0;
+    const h2hCharCounts1 = {}, h2hCharCounts2 = {};
+    const setsSummary = [];
+
+    for (const s of h2hSets) {
+      const isP1Win = String(s.winnerId) === String(entrantId1);
+      if (isP1Win) p1wins++; else p2wins++;
+
+      const { mySlot, oppSlot } = getSlots(s, entrantId1);
+      const s1 = mySlot?.standing?.stats?.score?.value ?? null;
+      const s2 = oppSlot?.standing?.stats?.score?.value ?? null;
+      setsSummary.push({ round: s.fullRoundText || '', p1wins: isP1Win ? 1 : 0, p2wins: isP1Win ? 0 : 1, score: s1 !== null && s2 !== null ? `${Math.max(0,s1)}-${Math.max(0,s2)}` : '' });
+
+      for (const g of (s.games || [])) {
+        for (const sel of (g.selections || [])) {
+          const cid = sel.selectionValue;
+          if (sel.selectionType !== 'CHARACTER') continue;
+          if (String(sel.entrant?.id) === String(entrantId1)) h2hCharCounts1[cid] = (h2hCharCounts1[cid] || 0) + 1;
+          else if (String(sel.entrant?.id) === String(entrantId2)) h2hCharCounts2[cid] = (h2hCharCounts2[cid] || 0) + 1;
+        }
+      }
+    }
+
+    function topH2HChars(counts) {
+      return Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 3).map(([charId]) => {
+        const internalId = SSBU_CHAR_MAP[parseInt(charId)];
+        const charEntry  = internalId ? characterList.find(c => c.id === internalId) : null;
+        return { name: charEntry?.name || `#${charId}`, image: internalId ? `/Stock Icons/chara_2_${internalId}_00.png` : '' };
+      });
+    }
+
+    res.json({
+      eventName,
+      player1: { tag: p1info.tag, name: p1info.name, currentStats: stats1 },
+      player2: { tag: p2info.tag, name: p2info.name, currentStats: stats2 },
+      h2h: { totalSets: p1wins + p2wins, player1Wins: p1wins, player2Wins: p2wins, topCharsP1: topH2HChars(h2hCharCounts1), topCharsP2: topH2HChars(h2hCharCounts2), sets: setsSummary },
+    });
+  } catch (e) {
+    console.error('[h2h]', e.message);
     res.status(400).json({ error: e.message });
   }
 });

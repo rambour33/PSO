@@ -3,3 +3,5 @@ roadmap
 selecteur de terrain 
 retravailler les pick et ban 
 generer une image de ruleset a partir du ruleset crée 
+pouvoir renommer les scenes custom sans qu'il y ai de ... quand c'est trop long
+simplifier l'interface nottament celle de cam overlay avec la tcheckbox

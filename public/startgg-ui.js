@@ -59,7 +59,7 @@
     showStatus('Clé API start.gg enregistrée');
   }
 
-  document.getElementById('sgg-save-key').addEventListener('click', () => saveApiKey('sgg-api-key'));
+  document.getElementById('sgg-save-key')?.addEventListener('click', () => saveApiKey('sgg-api-key'));
   document.getElementById('match-sgg-save-key')?.addEventListener('click', () => saveApiKey('match-sgg-api-key'));
 
   // ── Tournament Search ─────────────────────────────────────────────────────────
@@ -69,7 +69,8 @@
     if (!raw.trim()) return;
     const slug = slugFromInput(raw);
     showStatus('Recherche du tournoi…');
-    document.getElementById(infoId).style.display = 'none';
+    const infoEl = document.getElementById(infoId);
+    if (infoEl) infoEl.style.display = 'none';
     document.getElementById('sgg-entrants-section').style.display = 'none';
     document.getElementById('sgg-sets-section').style.display = 'none';
 
@@ -100,13 +101,24 @@
       }
       info.style.display = '';
     });
+
+    // Afficher la barre compacte
+    const bar = document.getElementById('sgg-active-bar');
+    if (bar) bar.style.display = '';
+
     showStatus('Tournoi chargé : ' + data.name);
   }
 
-  document.getElementById('sgg-search-btn').addEventListener('click', () =>
+  document.getElementById('sgg-search-btn')?.addEventListener('click', () =>
     searchTournament('sgg-slug', 'sgg-tournament-info', 'sgg-tournament-name', 'sgg-event-select'));
   document.getElementById('match-sgg-search-btn')?.addEventListener('click', () =>
     searchTournament('match-sgg-slug', 'match-sgg-tournament-info', 'match-sgg-tournament-name', 'match-sgg-event-select'));
+
+  // Bouton Modifier — ré-ouvre le bloc config
+  document.getElementById('sgg-modify-tournament')?.addEventListener('click', () => {
+    const wrap = document.getElementById('sgg-setup-wrap');
+    if (wrap) wrap.style.display = '';
+  });
 
   // ── Load Entrants ─────────────────────────────────────────────────────────────
 
@@ -155,6 +167,11 @@
     setupAutocomplete(1);
     setupAutocomplete(2);
     showStatus('Participants chargés : ' + allEntrants.length);
+
+    // Masquer le bloc config (connexion + recherche tournoi)
+    const setupWrap = document.getElementById('sgg-setup-wrap');
+    if (setupWrap) setupWrap.style.display = 'none';
+
     if (typeof window.onStartggEntrantsLoaded === 'function') {
       window.onStartggEntrantsLoaded(eventId, allEntrants);
     }

@@ -16,15 +16,6 @@
   <header class="header">
     <div class="header-left">
       <h1>PSO</h1>
-      <span class="badge" id="game-badge">Smash Bros Ultimate</span>
-      <!-- Sélecteur de jeu -->
-      <div class="game-selector" id="game-selector">
-        <button class="game-btn active" data-game="ssbu"    title="Super Smash Bros. Ultimate">SSBU</button>
-        <button class="game-btn" data-game="valorant" title="VALORANT">VAL</button>
-        <button class="game-btn" data-game="sf6"      title="Street Fighter 6">SF6</button>
-        <button class="game-btn" data-game="tek8"     title="Tekken 8">TK8</button>
-        <button class="game-btn" data-game="cs2"      title="Counter-Strike 2">CS2</button>
-      </div>
     </div>
     <div class="header-right">
       <div class="connection-status" id="conn-status">
@@ -99,14 +90,10 @@
   <!-- TAB NAV (desktop) -->
   <nav class="tab-nav" id="tab-nav-desktop">
     <button class="tab-btn active" data-tab="match" id="tab-btn-match">SSBU Overlays</button>
-    <button class="tab-btn game-tab-val" data-tab="valorant" id="tab-btn-valorant" style="display:none">Valorant</button>
-    <button class="tab-btn game-tab-sf6" data-tab="sf6"      id="tab-btn-sf6"      style="display:none">Street Fighter 6</button>
-    <button class="tab-btn game-tab-tek8" data-tab="tek8"    id="tab-btn-tek8"     style="display:none">Tekken 8</button>
-    <button class="tab-btn game-tab-cs2" data-tab="cs2"      id="tab-btn-cs2"      style="display:none">Counter-Strike 2</button>
+    <button class="tab-btn" data-tab="startgg">Start.gg Overlays</button>
     <button class="tab-btn" data-tab="themes">Thèmes</button>
     <button class="tab-btn" data-tab="custom">Liens overlays</button>
     <button class="tab-btn" data-tab="chars" style="display:none">Personnages</button>
-    <button class="tab-btn" data-tab="connexions">Connexions</button>
     <button class="tab-btn" data-tab="overlays">Overlays génériques</button>
     <button class="tab-btn" data-tab="studio">Créateur de scènes</button>
     <button class="tab-btn" data-tab="diffusions">Overlays plateformes de stream</button>
@@ -117,13 +104,9 @@
   <div class="tab-nav-mobile" id="tab-nav-mobile">
     <select id="tab-select-mobile" class="tab-mobile-select">
       <option value="match">SSBU Overlays</option>
-      <option value="valorant">Valorant</option>
-      <option value="sf6">Street Fighter 6</option>
-      <option value="tek8">Tekken 8</option>
-      <option value="cs2">Counter-Strike 2</option>
+      <option value="startgg">Start.gg Overlays</option>
       <option value="themes">Thèmes</option>
       <option value="custom">Liens overlays</option>
-      <option value="connexions">Connexions</option>
       <option value="overlays">Overlays génériques</option>
       <option value="studio">Créateur de scènes</option>
       <option value="diffusions">Overlays plateformes de stream</option>
@@ -340,134 +323,126 @@
     </section>
 
         <section class="section">
-          <div class="section-header"><h2>Logo central</h2></div>
-          <div class="custom-grid">
-            <div class="custom-card">
-              <h3>Logo central — Scoreboard</h3>
-              <p class="hint" style="margin-bottom:10px">Remplace le texte « VS » au centre.</p>
-              <div class="form-group">
-                <label>URL ou fichier local</label>
+          <div style="display:flex;gap:8px;align-items:flex-start">
+
+            <!-- ── Logo central ───────────────────────────────────── -->
+            <div class="custom-card" style="flex:1;min-width:0">
+              <h3>Logo central</h3>
+              <p class="hint" style="margin-bottom:8px">Remplace le texte « VS » au centre.</p>
+              <div class="form-group" style="margin-bottom:8px">
                 <div style="display:flex;gap:6px">
-                  <input type="text" id="center-logo" placeholder="https://... ou choisir un fichier →" style="flex:1" />
+                  <input type="text" id="center-logo" placeholder="URL ou fichier →" style="flex:1;min-width:0" />
                   <button id="btn-logo-file-pick" class="btn btn-outline btn-sm" title="Choisir un fichier local">📁</button>
                   <input type="file" id="center-logo-file-input" accept="image/*" style="display:none" />
                 </div>
               </div>
-              <div class="logo-preview-row">
-                <div class="logo-preview-box" id="center-logo-preview">
-                  <span>Aperçu</span>
-                </div>
+              <div class="logo-preview-row" style="margin-bottom:10px">
+                <div class="logo-preview-box" id="center-logo-preview"><span>Aperçu</span></div>
                 <button id="btn-apply-logo" class="btn btn-primary btn-sm">Appliquer</button>
               </div>
-              <div class="form-group" style="margin-top:12px">
-                <label>Particules logo (thèmes custom) <span class="hint">0 – 100</span></label>
-                <div class="logo-particles-row">
-                  <input type="range" id="logo-particles-range" min="0" max="100" value="0" />
-                  <input type="number" id="logo-particles-num" min="0" max="100" value="0" />
-                </div>
+              <div class="form-group" style="margin:0">
+                <label style="display:flex;align-items:center;gap:6px;cursor:pointer">
+                  <input type="checkbox" id="logo-particles-enabled" />
+                  Particules
+                </label>
+                <input type="number" id="logo-particles-num" min="1" max="100" value="3" style="width:72px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:13px;padding:4px 6px;text-align:center;display:none" />
+                <input type="range" id="logo-particles-range" min="0" max="100" value="0" style="display:none" />
               </div>
             </div>
-          </div>
-        </section>
 
-        <section class="section">
-          <div class="section-header"><h2>Drapeaux</h2></div>
-          <div class="custom-grid">
-            <div class="custom-card" style="grid-column:1/-1">
-              <h3>Taille</h3>
-              <div class="form-group" style="margin:0">
+            <!-- ── Drapeaux ───────────────────────────────────────── -->
+            <div class="custom-card" style="flex:1;min-width:0">
+              <h3>Drapeaux</h3>
+              <div class="form-group" style="margin-bottom:8px">
+                <label>Taille</label>
                 <div class="logo-particles-row">
                   <input type="range" id="flag-size-range" min="20" max="150" value="52" />
-                  <input type="number" id="flag-size-num" min="20" max="150" value="52" style="width:60px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:13px;padding:4px 6px;text-align:center" />
+                  <input type="number" id="flag-size-num" min="20" max="150" value="52" style="width:56px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:13px;padding:4px 6px;text-align:center" />
                   <span style="font-size:12px;color:var(--text-muted)">px</span>
                 </div>
               </div>
-            </div>
-            <div class="custom-card">
-              <h3>Position — Joueur 1</h3>
-              <div class="form-group" style="margin-bottom:10px">
-                <label>Décalage X</label>
-                <div class="logo-particles-row">
-                  <input type="range" id="p1-flag-x-range" min="-200" max="200" value="0" />
-                  <input type="number" id="p1-flag-x-num" min="-200" max="200" value="0" style="width:60px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:13px;padding:4px 6px;text-align:center" />
-                </div>
-              </div>
-              <div class="form-group" style="margin:0">
-                <label>Décalage Y</label>
-                <div class="logo-particles-row">
-                  <input type="range" id="p1-flag-y-range" min="-200" max="200" value="0" />
-                  <input type="number" id="p1-flag-y-num" min="-200" max="200" value="0" style="width:60px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:13px;padding:4px 6px;text-align:center" />
-                </div>
-              </div>
-            </div>
-            <div class="custom-card">
-              <h3>Position — Joueur 2</h3>
-              <div class="form-group" style="margin-bottom:10px">
-                <label>Décalage X</label>
-                <div class="logo-particles-row">
-                  <input type="range" id="p2-flag-x-range" min="-200" max="200" value="0" />
-                  <input type="number" id="p2-flag-x-num" min="-200" max="200" value="0" style="width:60px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:13px;padding:4px 6px;text-align:center" />
-                </div>
-              </div>
-              <div class="form-group" style="margin:0">
-                <label>Décalage Y</label>
-                <div class="logo-particles-row">
-                  <input type="range" id="p2-flag-y-range" min="-200" max="200" value="0" />
-                  <input type="number" id="p2-flag-y-num" min="-200" max="200" value="0" style="width:60px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:13px;padding:4px 6px;text-align:center" />
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section class="section">
-          <div class="section-header"><h2>Texture de fond</h2></div>
-          <div class="custom-grid">
-            <div class="custom-card" style="grid-column:1/-1">
-              <h3>Image</h3>
-              <p class="hint" style="margin-bottom:12px">Appliquée en arrière-plan sur tous les overlays. Fichiers stockés localement (<code>public/textures/</code>), non synchronisés sur Git.</p>
-              <div style="display:flex;gap:12px;align-items:flex-start">
-                <div id="texture-preview" style="width:80px;height:60px;border:1px solid var(--border);border-radius:6px;background-size:auto;background-repeat:repeat;background-position:0 0;flex-shrink:0;position:relative;overflow:hidden;background-color:var(--surface2)">
-                  <span id="texture-preview-empty" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--text-muted)">Aucune</span>
-                </div>
-                <div style="flex:1;display:flex;flex-direction:column;gap:8px">
-                  <div style="display:flex;gap:6px">
-                    <label class="btn btn-outline btn-sm" style="cursor:pointer">
-                      📁 Choisir fichier
-                      <input type="file" id="texture-file-input" accept="image/*" style="display:none" />
-                    </label>
-                    <button id="btn-texture-clear" class="btn btn-outline btn-sm" style="color:var(--danger);border-color:var(--danger)">✕ Retirer</button>
+              <div style="display:flex;gap:8px">
+                <div style="flex:1;min-width:0">
+                  <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;font-weight:600">J1</div>
+                  <div class="form-group" style="margin-bottom:6px">
+                    <label>X</label>
+                    <div class="logo-particles-row">
+                      <input type="range" id="p1-flag-x-range" min="-200" max="200" value="0" />
+                      <input type="number" id="p1-flag-x-num" min="-200" max="200" value="0" style="width:52px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:13px;padding:4px 4px;text-align:center" />
+                    </div>
                   </div>
                   <div class="form-group" style="margin:0">
-                    <label>Opacité <span class="hint">0 – 100</span></label>
+                    <label>Y</label>
                     <div class="logo-particles-row">
-                      <input type="range" id="texture-opacity-range" min="0" max="100" value="50" />
-                      <input type="number" id="texture-opacity-num" min="0" max="100" value="50" style="width:54px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:13px;padding:4px 6px;text-align:center" />
+                      <input type="range" id="p1-flag-y-range" min="-200" max="200" value="0" />
+                      <input type="number" id="p1-flag-y-num" min="-200" max="200" value="0" style="width:52px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:13px;padding:4px 4px;text-align:center" />
+                    </div>
+                  </div>
+                </div>
+                <div style="flex:1;min-width:0">
+                  <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;font-weight:600">J2</div>
+                  <div class="form-group" style="margin-bottom:6px">
+                    <label>X</label>
+                    <div class="logo-particles-row">
+                      <input type="range" id="p2-flag-x-range" min="-200" max="200" value="0" />
+                      <input type="number" id="p2-flag-x-num" min="-200" max="200" value="0" style="width:52px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:13px;padding:4px 4px;text-align:center" />
+                    </div>
+                  </div>
+                  <div class="form-group" style="margin:0">
+                    <label>Y</label>
+                    <div class="logo-particles-row">
+                      <input type="range" id="p2-flag-y-range" min="-200" max="200" value="0" />
+                      <input type="number" id="p2-flag-y-num" min="-200" max="200" value="0" style="width:52px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:13px;padding:4px 4px;text-align:center" />
                     </div>
                   </div>
                 </div>
               </div>
-              <div style="display:flex;gap:12px;margin-top:12px">
-                <div class="form-group" style="margin:0;flex:1">
-                  <label>Mode de fusion</label>
-                  <select id="texture-blend" style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:13px;padding:4px 6px">
-                    <option value="normal">Normal</option>
-                    <option value="multiply">Multiply</option>
-                    <option value="overlay">Overlay</option>
-                    <option value="screen">Screen</option>
-                    <option value="soft-light">Soft Light</option>
-                  </select>
+            </div>
+
+            <!-- ── Texture de fond ────────────────────────────────── -->
+            <div class="custom-card" style="flex:1;min-width:0">
+              <h3>Texture de fond</h3>
+              <div style="display:flex;gap:8px;align-items:flex-start;margin-bottom:8px">
+                <div id="texture-preview" style="width:60px;height:48px;border:1px solid var(--border);border-radius:6px;background-size:auto;background-repeat:repeat;background-position:0 0;flex-shrink:0;position:relative;overflow:hidden;background-color:var(--surface2)">
+                  <span id="texture-preview-empty" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--text-muted)">Aucune</span>
                 </div>
-                <div class="form-group" style="margin:0;flex:1">
-                  <label>Répétition</label>
-                  <select id="texture-size" style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:13px;padding:4px 6px">
-                    <option value="repeat">Répéter (tuile)</option>
-                    <option value="cover">Couvrir</option>
-                    <option value="contain">Contenir</option>
-                  </select>
+                <div style="flex:1;display:flex;flex-direction:column;gap:6px">
+                  <div style="display:flex;gap:6px">
+                    <label class="btn btn-outline btn-sm" style="cursor:pointer;font-size:11px">
+                      📁 Fichier
+                      <input type="file" id="texture-file-input" accept="image/*" style="display:none" />
+                    </label>
+                    <button id="btn-texture-clear" class="btn btn-outline btn-sm" style="color:var(--danger);border-color:var(--danger);font-size:11px">✕</button>
+                  </div>
+                  <div class="form-group" style="margin:0">
+                    <label>Opacité</label>
+                    <div class="logo-particles-row">
+                      <input type="range" id="texture-opacity-range" min="0" max="100" value="50" />
+                      <input type="number" id="texture-opacity-num" min="0" max="100" value="50" style="width:50px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:13px;padding:4px 4px;text-align:center" />
+                    </div>
+                  </div>
                 </div>
               </div>
+              <div class="form-group" style="margin-bottom:6px">
+                <label>Mode de fusion</label>
+                <select id="texture-blend" style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:13px;padding:4px 6px">
+                  <option value="normal">Normal</option>
+                  <option value="multiply">Multiply</option>
+                  <option value="overlay">Overlay</option>
+                  <option value="screen">Screen</option>
+                  <option value="soft-light">Soft Light</option>
+                </select>
+              </div>
+              <div class="form-group" style="margin:0">
+                <label>Répétition</label>
+                <select id="texture-size" style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:13px;padding:4px 6px">
+                  <option value="repeat">Répéter (tuile)</option>
+                  <option value="cover">Couvrir</option>
+                  <option value="contain">Contenir</option>
+                </select>
+              </div>
             </div>
+
           </div>
         </section>
 
@@ -475,102 +450,97 @@
 
       <div class="match-subpanel" id="sb-sub-custom">
         <section class="section">
-          <div class="section-header"><h2>Scoreboard</h2></div>
-          <div class="custom-grid">
-            <div class="custom-card">
-              <h3>Style d'affichage</h3>
-              <p class="hint" style="margin-bottom:12px">Bascule entre le scoreboard complet et la version compacte.</p>
-              <div class="theme-btn-row">
-                <button class="overlay-style-btn theme-btn active" data-style="full">Full ▬</button>
-                <button class="overlay-style-btn theme-btn" data-style="slim">Slim —</button>
-                <button class="overlay-style-btn theme-btn" data-style="full-rounded">Full arrondi ◉</button>
-                <button class="overlay-style-btn theme-btn" data-style="compact-rounded">Compact arrondi ◉</button>
-                <button class="overlay-style-btn theme-btn" data-style="lower-third">Lower Third ↓</button>
+          <div style="display:flex;gap:8px;align-items:flex-start">
+
+            <!-- ── Style ───────────────────────────────────────────── -->
+            <div class="custom-card" style="flex:2;min-width:0;padding:10px">
+              <h3 style="font-size:12px;margin-bottom:7px">Style</h3>
+              <div class="theme-btn-row" style="margin-bottom:5px;flex-wrap:wrap;gap:3px">
+                <button class="overlay-style-btn theme-btn active" data-style="full" style="font-size:10px;padding:3px 7px">Full ▬</button>
+                <button class="overlay-style-btn theme-btn" data-style="slim" style="font-size:10px;padding:3px 7px">Slim —</button>
+                <button class="overlay-style-btn theme-btn" data-style="full-rounded" style="font-size:10px;padding:3px 7px">Full ◉</button>
+                <button class="overlay-style-btn theme-btn" data-style="compact-rounded" style="font-size:10px;padding:3px 7px">Compact ◉</button>
+                <button class="overlay-style-btn theme-btn" data-style="lower-third" style="font-size:10px;padding:3px 7px">Lower ↓</button>
               </div>
-              <p class="hint" style="margin:12px 0 8px">Affichage du score</p>
-              <div class="theme-btn-row">
-                <button class="score-display-btn theme-btn active" data-display="numbers">123 Chiffres</button>
-                <button class="score-display-btn theme-btn" data-display="dots">◉ Points</button>
+              <div style="display:flex;gap:4px;margin-bottom:5px">
+                <button class="score-display-btn theme-btn active" data-display="numbers" style="font-size:10px;padding:3px 7px;flex:1">123</button>
+                <button class="score-display-btn theme-btn" data-display="dots" style="font-size:10px;padding:3px 7px;flex:1">◉ Points</button>
+                <button class="dots-orientation-btn theme-btn active" data-orientation="row" style="font-size:10px;padding:3px 7px;flex:1">— Ligne</button>
+                <button class="dots-orientation-btn theme-btn" data-orientation="column" style="font-size:10px;padding:3px 7px;flex:1">| Col.</button>
               </div>
-              <p class="hint" style="margin:12px 0 8px">Orientation des points</p>
-              <div class="theme-btn-row">
-                <button class="dots-orientation-btn theme-btn active" data-orientation="row">— Ligne</button>
-                <button class="dots-orientation-btn theme-btn" data-orientation="column">| Colonne</button>
-              </div>
-              <p class="hint" style="margin:12px 0 8px">Lower Third</p>
-              <button id="btn-lt-toggle" class="btn btn-outline btn-full">Lower Third : OFF</button>
-              <p class="hint" style="margin:12px 0 8px">Position de la barre événement</p>
-              <div class="theme-btn-row">
-                <button class="event-bar-pos-btn theme-btn active" data-pos="top">↑ Haut</button>
-                <button class="event-bar-pos-btn theme-btn" data-pos="bottom">↓ Bas</button>
+              <div style="display:flex;gap:4px">
+                <button id="btn-lt-toggle" class="btn btn-outline" style="font-size:10px;padding:3px 8px;flex:1">Lower Third : OFF</button>
+                <button class="event-bar-pos-btn theme-btn active" data-pos="top" style="font-size:11px;padding:3px 10px">↑</button>
+                <button class="event-bar-pos-btn theme-btn" data-pos="bottom" style="font-size:11px;padding:3px 10px">↓</button>
               </div>
             </div>
 
-            <div class="custom-card">
-              <h3>Position &amp; Taille</h3>
-              <div class="form-group" style="margin-bottom:12px">
-                <label>Taille <span class="hint">50 – 200 %</span></label>
+            <!-- ── Position & Taille ───────────────────────────────── -->
+            <div class="custom-card" style="flex:1;min-width:0;padding:10px">
+              <h3 style="font-size:12px;margin-bottom:7px">Position &amp; Taille</h3>
+              <div class="form-group" style="margin-bottom:7px">
+                <label>Taille %</label>
                 <div class="logo-particles-row">
                   <input type="range" id="sb-scale-range" min="50" max="200" value="100" step="1" />
-                  <input type="number" id="sb-scale-num" min="50" max="200" value="100" step="1" style="width:60px" />
+                  <input type="number" id="sb-scale-num" min="50" max="200" value="100" step="1" style="width:54px" />
                 </div>
               </div>
-              <div class="form-group" style="margin-bottom:12px">
-                <label>Axe X <span class="hint">−960 – 960 px</span></label>
+              <div class="form-group" style="margin-bottom:7px">
+                <label>X px</label>
                 <div class="logo-particles-row">
                   <input type="range" id="sb-x-range" min="-960" max="960" value="0" step="1" />
-                  <input type="number" id="sb-x-num" min="-960" max="960" value="0" step="1" style="width:66px" />
+                  <input type="number" id="sb-x-num" min="-960" max="960" value="0" step="1" style="width:58px" />
                 </div>
               </div>
               <div class="form-group" style="margin:0">
-                <label>Axe Y <span class="hint">−200 – 600 px</span></label>
+                <label>Y px</label>
                 <div class="logo-particles-row">
                   <input type="range" id="sb-y-range" min="-200" max="600" value="0" step="1" />
-                  <input type="number" id="sb-y-num" min="-200" max="600" value="0" step="1" style="width:66px" />
+                  <input type="number" id="sb-y-num" min="-200" max="600" value="0" step="1" style="width:58px" />
                 </div>
               </div>
             </div>
 
-            <div class="custom-card" id="lt-position-card" style="display:none;margin-top:0">
-              <h3>Position — Lower Third</h3>
-              <div class="form-group" style="margin-bottom:12px">
-                <label>Hauteur depuis le bas <span class="hint">px</span></label>
+            <!-- ── Lower Third position (hidden par défaut) ────────── -->
+            <div class="custom-card" id="lt-position-card" style="display:none;flex:1;min-width:0;padding:10px">
+              <h3 style="font-size:12px;margin-bottom:7px">Lower Third</h3>
+              <div class="form-group" style="margin-bottom:7px">
+                <label>Hauteur px</label>
                 <div class="logo-particles-row">
                   <input type="range" id="lt-bottom-range" min="0" max="500" value="150" step="1" />
-                  <input type="number" id="lt-bottom-num" min="0" max="500" value="150" step="1" style="width:66px" />
+                  <input type="number" id="lt-bottom-num" min="0" max="500" value="150" step="1" style="width:58px" />
                 </div>
               </div>
               <div class="form-group" style="margin:0">
-                <label>Marges latérales <span class="hint">px</span></label>
+                <label>Marges px</label>
                 <div class="logo-particles-row">
                   <input type="range" id="lt-padding-x-range" min="0" max="400" value="60" step="4" />
-                  <input type="number" id="lt-padding-x-num" min="0" max="400" value="60" step="4" style="width:66px" />
+                  <input type="number" id="lt-padding-x-num" min="0" max="400" value="60" step="4" style="width:58px" />
                 </div>
               </div>
             </div>
 
-            <div class="custom-card">
-              <h3>Barre événement</h3>
-              <div class="form-group" style="margin-bottom:12px">
-                <label>Taille texte</label>
-                <div style="display:flex;gap:8px;align-items:center">
-                  <input type="number" id="event-text-size" value="12" min="8" max="32" style="width:60px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:13px;padding:4px 6px;text-align:center" />
-                  <span style="font-size:12px;color:var(--text-muted)">px</span>
-                </div>
+            <!-- ── Barre événement ─────────────────────────────────── -->
+            <div class="custom-card" style="flex:1;min-width:0;padding:10px">
+              <h3 style="font-size:12px;margin-bottom:7px">Barre event.</h3>
+              <div class="form-group" style="margin-bottom:7px">
+                <label>Taille px</label>
+                <input type="number" id="event-text-size" value="12" min="8" max="32" style="width:60px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:13px;padding:4px 6px;text-align:center" />
               </div>
               <div class="form-group" style="margin:0">
-                <label>Couleur texte</label>
+                <label>Couleur</label>
                 <input type="color" id="event-text-color" value="#EAB830" />
               </div>
             </div>
 
-            <div class="custom-card">
-              <h3>Textes joueurs</h3>
-              <div class="form-group" style="margin-bottom:10px">
+            <!-- ── Textes joueurs ──────────────────────────────────── -->
+            <div class="custom-card" style="flex:1;min-width:0;padding:10px">
+              <h3 style="font-size:12px;margin-bottom:7px">Textes</h3>
+              <div class="form-group" style="margin-bottom:7px">
                 <label>Tag</label>
                 <input type="color" id="tag-color" value="#E8B830" />
               </div>
-              <div class="form-group" style="margin-bottom:10px">
+              <div class="form-group" style="margin-bottom:7px">
                 <label>Pseudo</label>
                 <input type="color" id="name-color" value="#F0EEF8" />
               </div>
@@ -580,40 +550,43 @@
               </div>
             </div>
 
-            <div class="custom-card">
-              <h3>Fond de l'overlay</h3>
+            <!-- ── Fond de l'overlay ───────────────────────────────── -->
+            <div class="custom-card" style="flex:1;min-width:0;padding:10px">
+              <h3 style="font-size:12px;margin-bottom:7px">Fond</h3>
               <div class="form-group" style="margin:0">
-                <label>Couleur</label>
-                <div style="display:flex;gap:8px;align-items:center">
+                <label>Couleur &amp; opacité</label>
+                <div style="display:flex;gap:6px;align-items:center">
                   <input type="color" id="sb-bg-color" value="#0E0E12" />
-                  <input type="number" id="sb-bg-opacity" value="100" min="0" max="100" style="width:60px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:13px;padding:4px 6px;text-align:center" />
-                  <span style="font-size:12px;color:var(--text-muted)">%</span>
+                  <input type="number" id="sb-bg-opacity" value="100" min="0" max="100" style="width:56px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:13px;padding:4px 5px;text-align:center" />
+                  <span style="font-size:11px;color:var(--text-muted)">%</span>
                 </div>
               </div>
             </div>
 
-            <div class="custom-card">
-              <h3>Particules</h3>
-              <div class="form-group" style="margin-bottom:14px">
-                <button id="btn-particles-toggle" class="btn btn-primary" style="width:100%">⏸ Désactiver les particules</button>
+            <!-- ── Particules ──────────────────────────────────────── -->
+            <div class="custom-card" style="flex:1;min-width:0;padding:10px">
+              <h3 style="font-size:12px;margin-bottom:7px">Particules</h3>
+              <div class="form-group" style="margin-bottom:7px">
+                <button id="btn-particles-toggle" class="btn btn-primary btn-sm" style="width:100%;font-size:11px">⏸ Désactiver</button>
               </div>
               <div id="particles-controls">
-                <div class="form-group" style="margin-bottom:14px">
-                  <label>Opacité <span class="hint">0 – 100 %</span></label>
+                <div class="form-group" style="margin-bottom:7px">
+                  <label>Opacité %</label>
                   <div class="logo-particles-row">
                     <input type="range" id="particle-opacity-range" min="0" max="100" value="100" />
-                    <input type="number" id="particle-opacity-num" min="0" max="100" value="100" style="width:56px" />
+                    <input type="number" id="particle-opacity-num" min="0" max="100" value="100" style="width:50px" />
                   </div>
                 </div>
                 <div class="form-group" style="margin:0">
-                  <label>Quantité <span class="hint">0 – 500 %</span></label>
+                  <label>Quantité %</label>
                   <div class="logo-particles-row">
                     <input type="range" id="particle-count-range" min="0" max="500" value="100" />
-                    <input type="number" id="particle-count-num" min="0" max="500" value="100" style="width:56px" />
+                    <input type="number" id="particle-count-num" min="0" max="500" value="100" style="width:50px" />
                   </div>
                 </div>
               </div>
             </div>
+
           </div>
         </section>
 
@@ -1689,6 +1662,84 @@
 
     <section class="section">
       <div class="section-header"><h2>Thèmes</h2></div>
+
+      <!-- ── Panneau de configuration du thème sélectionné ── -->
+      <div id="theme-config-panel" style="display:none;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:16px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <span style="font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--text-muted)">Configuration — <span id="theme-config-name" style="color:var(--gold)"></span></span>
+          <button id="btn-theme-config-close" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:16px;line-height:1;padding:0 2px">✕</button>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+
+          <!-- Particules -->
+          <div>
+            <div style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Particules</div>
+            <button id="tc-particles-toggle" class="btn btn-primary" style="width:100%;margin-bottom:10px">⏸ Désactiver</button>
+            <div id="tc-particles-controls">
+              <div class="form-group" style="margin-bottom:8px">
+                <label>Opacité</label>
+                <div class="logo-particles-row">
+                  <input type="range" id="tc-particle-opacity-range" min="0" max="100" value="100" />
+                  <input type="number" id="tc-particle-opacity-num" min="0" max="100" value="100" style="width:54px;background:var(--surface);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:13px;padding:4px 6px;text-align:center" />
+                </div>
+              </div>
+              <div class="form-group" style="margin:0">
+                <label>Densité</label>
+                <div class="logo-particles-row">
+                  <input type="range" id="tc-particle-count-range" min="0" max="500" value="100" />
+                  <input type="number" id="tc-particle-count-num" min="0" max="500" value="100" style="width:54px;background:var(--surface);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:13px;padding:4px 6px;text-align:center" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Texture -->
+          <div>
+            <div style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Texture de fond</div>
+            <div style="display:flex;gap:8px;align-items:flex-start;margin-bottom:10px">
+              <div id="tc-texture-preview" style="width:56px;height:42px;border:1px solid var(--border);border-radius:5px;background-size:auto;background-repeat:repeat;background-position:0 0;flex-shrink:0;position:relative;overflow:hidden;background-color:var(--surface)">
+                <span id="tc-texture-preview-empty" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--text-muted)">Aucune</span>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:5px">
+                <label class="btn btn-outline btn-sm" style="cursor:pointer;font-size:11px">
+                  📁 Choisir
+                  <input type="file" id="tc-texture-file-input" accept="image/*" style="display:none" />
+                </label>
+                <button id="tc-btn-texture-clear" class="btn btn-outline btn-sm" style="font-size:11px;color:var(--danger);border-color:var(--danger)">✕ Retirer</button>
+              </div>
+            </div>
+            <div class="form-group" style="margin-bottom:8px">
+              <label>Opacité</label>
+              <div class="logo-particles-row">
+                <input type="range" id="tc-texture-opacity-range" min="0" max="100" value="50" />
+                <input type="number" id="tc-texture-opacity-num" min="0" max="100" value="50" style="width:54px;background:var(--surface);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:13px;padding:4px 6px;text-align:center" />
+              </div>
+            </div>
+            <div style="display:flex;gap:8px">
+              <div class="form-group" style="margin:0;flex:1">
+                <label>Fusion</label>
+                <select id="tc-texture-blend" style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:12px;padding:4px 5px">
+                  <option value="normal">Normal</option>
+                  <option value="multiply">Multiply</option>
+                  <option value="overlay">Overlay</option>
+                  <option value="screen">Screen</option>
+                  <option value="soft-light">Soft Light</option>
+                </select>
+              </div>
+              <div class="form-group" style="margin:0;flex:1">
+                <label>Répétition</label>
+                <select id="tc-texture-size" style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:12px;padding:4px 5px">
+                  <option value="repeat">Tuile</option>
+                  <option value="cover">Couvrir</option>
+                  <option value="contain">Contenir</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
       <div class="themes-grid" id="themes-grid">
 
         <!-- ── Transparent ── -->
@@ -2620,83 +2671,6 @@
           <div class="theme-preset-name">Mii Gunner</div>
         </div>
 
-        <!-- ── Panneau de configuration du thème sélectionné ── -->
-        <div id="theme-config-panel" style="grid-column:1/-1;display:none;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-top:4px">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
-            <span style="font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--text-muted)">Configuration — <span id="theme-config-name" style="color:var(--gold)"></span></span>
-            <button id="btn-theme-config-close" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:16px;line-height:1;padding:0 2px">✕</button>
-          </div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
-
-            <!-- Particules -->
-            <div>
-              <div style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Particules</div>
-              <button id="tc-particles-toggle" class="btn btn-primary" style="width:100%;margin-bottom:10px">⏸ Désactiver</button>
-              <div id="tc-particles-controls">
-                <div class="form-group" style="margin-bottom:8px">
-                  <label>Opacité</label>
-                  <div class="logo-particles-row">
-                    <input type="range" id="tc-particle-opacity-range" min="0" max="100" value="100" />
-                    <input type="number" id="tc-particle-opacity-num" min="0" max="100" value="100" style="width:54px;background:var(--surface);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:13px;padding:4px 6px;text-align:center" />
-                  </div>
-                </div>
-                <div class="form-group" style="margin:0">
-                  <label>Densité</label>
-                  <div class="logo-particles-row">
-                    <input type="range" id="tc-particle-count-range" min="0" max="500" value="100" />
-                    <input type="number" id="tc-particle-count-num" min="0" max="500" value="100" style="width:54px;background:var(--surface);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:13px;padding:4px 6px;text-align:center" />
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Texture -->
-            <div>
-              <div style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Texture de fond</div>
-              <div style="display:flex;gap:8px;align-items:flex-start;margin-bottom:10px">
-                <div id="tc-texture-preview" style="width:56px;height:42px;border:1px solid var(--border);border-radius:5px;background-size:auto;background-repeat:repeat;background-position:0 0;flex-shrink:0;position:relative;overflow:hidden;background-color:var(--surface)">
-                  <span id="tc-texture-preview-empty" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--text-muted)">Aucune</span>
-                </div>
-                <div style="display:flex;flex-direction:column;gap:5px">
-                  <label class="btn btn-outline btn-sm" style="cursor:pointer;font-size:11px">
-                    📁 Choisir
-                    <input type="file" id="tc-texture-file-input" accept="image/*" style="display:none" />
-                  </label>
-                  <button id="tc-btn-texture-clear" class="btn btn-outline btn-sm" style="font-size:11px;color:var(--danger);border-color:var(--danger)">✕ Retirer</button>
-                </div>
-              </div>
-              <div class="form-group" style="margin-bottom:8px">
-                <label>Opacité</label>
-                <div class="logo-particles-row">
-                  <input type="range" id="tc-texture-opacity-range" min="0" max="100" value="50" />
-                  <input type="number" id="tc-texture-opacity-num" min="0" max="100" value="50" style="width:54px;background:var(--surface);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:13px;padding:4px 6px;text-align:center" />
-                </div>
-              </div>
-              <div style="display:flex;gap:8px">
-                <div class="form-group" style="margin:0;flex:1">
-                  <label>Fusion</label>
-                  <select id="tc-texture-blend" style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:12px;padding:4px 5px">
-                    <option value="normal">Normal</option>
-                    <option value="multiply">Multiply</option>
-                    <option value="overlay">Overlay</option>
-                    <option value="screen">Screen</option>
-                    <option value="soft-light">Soft Light</option>
-                  </select>
-                </div>
-                <div class="form-group" style="margin:0;flex:1">
-                  <label>Répétition</label>
-                  <select id="tc-texture-size" style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:12px;padding:4px 5px">
-                    <option value="repeat">Tuile</option>
-                    <option value="cover">Couvrir</option>
-                    <option value="contain">Contenir</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-
-          </div>
-        </div>
-
         <!-- ── Thème Custom ── -->
         <div class="themes-group-label" style="grid-column:1/-1;margin-top:8px">Thème Custom</div>
 
@@ -3100,6 +3074,14 @@
       <div class="section-header"><h2>URLs overlays OBS</h2></div>
       <div class="custom-grid" style="grid-template-columns:1fr">
         <div class="custom-card">
+          <!-- Téléchargement collection OBS -->
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 14px;margin-bottom:14px;background:linear-gradient(135deg,rgba(232,184,48,0.08),rgba(232,184,48,0.03));border:1px solid rgba(232,184,48,0.3);border-radius:8px;">
+            <div>
+              <div style="font-weight:700;font-size:13px;margin-bottom:4px;color:var(--text)">Collection de scènes OBS prête à l'emploi</div>
+              <div style="font-size:12px;color:var(--text-muted);line-height:1.5">Télécharge un fichier JSON à importer dans OBS via <strong style="color:var(--text)">Collection de scènes → Importer</strong>. Crée automatiquement une scène par overlay (1920×1080, fond transparent).</div>
+            </div>
+            <a href="/api/obs-collection" download="PSO-Overlays.json" class="btn btn-primary" style="white-space:nowrap;flex-shrink:0;padding:10px 18px;font-size:13px">⬇ Télécharger</a>
+          </div>
           <p class="hint" style="margin-bottom:10px">Copier-coller dans OBS → Source Navigateur.</p>
           <div id="obs-mode-bar" style="display:flex;align-items:center;gap:8px;margin-bottom:12px;padding:8px 10px;background:var(--surface2);border-radius:6px;border:1px solid var(--border)">
             <span style="font-size:11px;color:var(--text-muted);flex-shrink:0">URLs pour :</span>
@@ -3177,164 +3159,126 @@
 
   </div><!-- /tab-chars -->
 
-  <!-- ═══════════════════════════════════════════════════════════ -->
-  <!-- TAB : CONNEXIONS                                            -->
-  <!-- ═══════════════════════════════════════════════════════════ -->
-  <div class="tab-content" id="tab-connexions">
-
-
-
-    <!-- ── START.GG ──────────────────────────────────────────────── -->
-    <section class="section">
-      <div class="section-header">
-        <h2 style="display:flex;align-items:center;gap:10px">
-          <svg style="width:20px;height:20px;color:#17B978;flex-shrink:0" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm0 2c4.418 0 8 3.582 8 8s-3.582 8-8 8-8-3.582-8-8 3.582-8 8-8zm-1 4v4H7l5 6 5-6h-4V8h-2z"/></svg>
-          Connexion start.gg
-        </h2>
-      </div>
-
-      <!-- Statut connecté -->
-      <div id="conn-startgg-connected" class="custom-card" style="display:none;border-color:rgba(23,185,120,0.3);background:rgba(23,185,120,0.05)">
-        <div style="display:flex;align-items:center;gap:14px">
-          <svg style="width:36px;height:36px;color:#17B978;flex-shrink:0" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>
-          <div style="flex:1">
-            <div style="font-weight:700;font-size:15px;color:#5DEAB9">Clé API start.gg enregistrée</div>
-            <div style="display:flex;align-items:center;gap:6px;margin-top:5px">
-              <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#6BC96C"></span>
-              <span style="font-size:11px;font-weight:700;letter-spacing:1px;color:#6BC96C;text-transform:uppercase">Connecté</span>
-            </div>
-          </div>
-          <button class="btn btn-outline btn-sm" id="conn-startgg-remove" style="border-color:var(--danger);color:var(--danger);flex-shrink:0">Supprimer la clé</button>
-        </div>
-      </div>
-
-      <!-- Tuto + formulaire -->
-      <div id="conn-startgg-form">
-
-        <div class="custom-card" style="margin-bottom:0">
-          <h3 style="margin-bottom:14px;display:flex;align-items:center;gap:8px">
-            <span style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:#17B978;font-size:11px;font-weight:700;color:#fff;flex-shrink:0">?</span>
-            Comment créer une clé API start.gg
-          </h3>
-
-          <div class="conn-steps">
-
-            <div class="conn-step">
-              <div class="conn-step-num" style="background:#17B978">1</div>
-              <div class="conn-step-body">
-                <div class="conn-step-title">Se connecter à start.gg</div>
-                <p class="conn-step-desc">Va sur <a href="https://start.gg" target="_blank" class="conn-link" style="color:#17B978">start.gg ↗</a> et connecte-toi à ton compte (ou crée-en un gratuitement).</p>
-              </div>
-            </div>
-
-            <div class="conn-step">
-              <div class="conn-step-num" style="background:#17B978">2</div>
-              <div class="conn-step-body">
-                <div class="conn-step-title">Ouvrir les paramètres développeur</div>
-                <p class="conn-step-desc">Clique sur ton avatar en haut à droite → <strong>"Developer Settings"</strong>.<br>
-                Accès direct : <a href="https://start.gg/admin/profile/developer" target="_blank" class="conn-link" style="color:#17B978">start.gg/admin/profile/developer ↗</a></p>
-              </div>
-            </div>
-
-            <div class="conn-step">
-              <div class="conn-step-num" style="background:#17B978">3</div>
-              <div class="conn-step-body">
-                <div class="conn-step-title">Créer un token personnel</div>
-                <p class="conn-step-desc">Dans la section <strong>"Personal Access Tokens"</strong>, clique <strong>"Create token"</strong>. Donne-lui un nom (ex. <em>PSO Overlay</em>) et clique <strong>"Create"</strong>.</p>
-                <div class="conn-tip conn-tip-warn">
-                  <span class="conn-tip-icon">⚠️</span> Le token n'est affiché <strong>qu'une seule fois</strong>. Copie-le immédiatement avant de fermer la fenêtre.
-                </div>
-              </div>
-            </div>
-
-            <div class="conn-step">
-              <div class="conn-step-num" style="background:#17B978">4</div>
-              <div class="conn-step-body">
-                <div class="conn-step-title">Coller le token ci-dessous</div>
-                <p class="conn-step-desc">Colle le token dans le champ ci-dessous et clique <strong>"Enregistrer"</strong>.</p>
-              </div>
-            </div>
-
-          </div>
-        </div>
-
-        <!-- Formulaire -->
-        <div class="custom-card" style="margin-top:12px">
-          <h3 style="margin-bottom:12px">Clé API (Personal Access Token)</h3>
-          <div class="form-group" style="margin-bottom:0">
-            <div style="display:flex;gap:8px">
-              <input type="password" id="conn-startgg-key" placeholder="••••••••••••••••••••••••••••••••" autocomplete="new-password" style="flex:1" />
-              <button class="btn btn-primary btn-sm" id="conn-startgg-save" style="background:#17B978;border-color:#17B978;white-space:nowrap">Enregistrer</button>
-            </div>
-            <p id="conn-startgg-status" style="font-size:11px;color:var(--text-muted);margin-top:8px;min-height:16px"></p>
-          </div>
-        </div>
-
-        <!-- Ce que ça débloque -->
-        <div class="conn-unlocks" style="border-color:rgba(23,185,120,0.2);background:rgba(23,185,120,0.04)">
-          <div class="conn-unlocks-title" style="color:#17B978">Ce que la connexion start.gg débloque</div>
-          <div class="conn-unlocks-grid">
-            <div class="conn-unlock-item"><span class="conn-unlock-icon">🏆</span><span>Recherche de tournois</span></div>
-            <div class="conn-unlock-item"><span class="conn-unlock-icon">👥</span><span>Liste des participants</span></div>
-            <div class="conn-unlock-item"><span class="conn-unlock-icon">🎮</span><span>Sets en cours</span></div>
-            <div class="conn-unlock-item"><span class="conn-unlock-icon">📊</span><span>Stats et historique joueur</span></div>
-            <div class="conn-unlock-item"><span class="conn-unlock-icon">🥇</span><span>Standings Top 8</span></div>
-            <div class="conn-unlock-item"><span class="conn-unlock-icon">📺</span><span>Bracket en overlay</span></div>
-          </div>
-        </div>
-
-      </div>
-    </section>
-
-  </div><!-- /tab-connexions -->
+  <div class="tab-content" id="tab-connexions"></div><!-- /tab-connexions -->
 
   <!-- ═══════════════════════════════════════════════════════════ -->
   <!-- TAB : START.GG                                              -->
   <!-- ═══════════════════════════════════════════════════════════ -->
   <div class="tab-content" id="tab-startgg">
 
-    <!-- Config clé API -->
-    <section class="section">
-      <div class="section-header">
-        <h2>Connexion start.gg</h2>
-      </div>
-      <div class="form-group">
-        <label>Clé API personnelle (Personal Key)</label>
-        <p style="font-size:12px;color:var(--text-muted);margin-bottom:10px;line-height:1.6;">
-          Il faut créer une <strong style="color:var(--text)">Personal Key</strong> sur start.gg :<br>
-          Connecte-toi → <em>Profil → Developer Settings → Create new token</em><br>
-          <a href="https://start.gg/admin/profile/developer" target="_blank" style="color:var(--blue)">start.gg/admin/profile/developer ↗</a>
-        </p>
-        <div class="name-row">
-          <input type="password" id="sgg-api-key" placeholder="Colle ta Personal Key ici" style="flex:1" />
-          <button class="btn btn-primary btn-sm" id="sgg-save-key">Enregistrer</button>
-        </div>
-        <p class="hint" id="sgg-key-status">Chargement…</p>
-      </div>
-    </section>
-
-    <!-- Recherche tournoi -->
-    <section class="section">
-      <div class="section-header">
-        <h2>Tournoi</h2>
-      </div>
-      <div class="form-group">
-        <label>Slug ou URL start.gg</label>
-        <div class="name-row">
-          <input type="text" id="sgg-slug" placeholder="ex: tournament/combo-breaker-2024" style="flex:1" />
-          <button class="btn btn-primary btn-sm" id="sgg-search-btn">Chercher</button>
-        </div>
-        <p class="hint">Format attendu : <code>tournament/nom-du-tournoi</code></p>
-      </div>
+    <!-- Barre compacte (visible après recherche de tournoi) -->
+    <div id="sgg-active-bar" style="display:none;background:var(--surface2);border:1px solid rgba(23,185,120,0.3);border-radius:8px;padding:10px 14px;margin-bottom:12px">
       <div id="sgg-tournament-info" style="display:none">
-        <p class="hint" id="sgg-tournament-name"></p>
-        <div class="form-group">
-          <label>Évènement</label>
-          <select id="sgg-event-select" class="input-name" style="width:100%"></select>
-          <button class="btn btn-outline btn-sm" id="sgg-load-event" style="margin-top:6px">Charger les participants</button>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <svg style="width:16px;height:16px;color:#17B978;flex-shrink:0" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>
+          <span id="sgg-tournament-name" style="font-weight:700;color:#17B978;font-size:13px;flex-shrink:0;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>
+          <select id="sgg-event-select" class="input-name" style="flex:1;min-width:110px;background:var(--surface);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:12px;padding:3px 6px"></select>
+          <button class="btn btn-primary btn-sm" id="sgg-load-event">Charger</button>
+          <button id="sgg-modify-tournament" class="btn btn-outline btn-sm" style="font-size:11px;white-space:nowrap;flex-shrink:0">✎ Modifier</button>
         </div>
       </div>
-    </section>
+    </div>
+
+    <!-- Bloc config (connexion + recherche tournoi) — masqué après chargement -->
+    <div id="sgg-setup-wrap">
+
+      <!-- Connexion start.gg -->
+      <section class="section">
+        <div class="section-header">
+          <h2 style="display:flex;align-items:center;gap:10px">
+            <svg style="width:20px;height:20px;color:#17B978;flex-shrink:0" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm0 2c4.418 0 8 3.582 8 8s-3.582 8-8 8-8-3.582-8-8 3.582-8 8-8zm-1 4v4H7l5 6 5-6h-4V8h-2z"/></svg>
+            Connexion start.gg
+          </h2>
+        </div>
+        <div id="conn-startgg-connected" class="custom-card" style="display:none;border-color:rgba(23,185,120,0.3);background:rgba(23,185,120,0.05)">
+          <div style="display:flex;align-items:center;gap:14px">
+            <svg style="width:36px;height:36px;color:#17B978;flex-shrink:0" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>
+            <div style="flex:1">
+              <div style="font-weight:700;font-size:15px;color:#5DEAB9">Clé API start.gg enregistrée</div>
+              <div style="display:flex;align-items:center;gap:6px;margin-top:5px">
+                <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#6BC96C"></span>
+                <span style="font-size:11px;font-weight:700;letter-spacing:1px;color:#6BC96C;text-transform:uppercase">Connecté</span>
+              </div>
+            </div>
+            <button class="btn btn-outline btn-sm" id="conn-startgg-remove" style="border-color:var(--danger);color:var(--danger);flex-shrink:0">Supprimer la clé</button>
+          </div>
+        </div>
+        <div id="conn-startgg-form">
+          <div class="custom-card" style="margin-bottom:0">
+            <h3 style="margin-bottom:14px;display:flex;align-items:center;gap:8px">
+              <span style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:#17B978;font-size:11px;font-weight:700;color:#fff;flex-shrink:0">?</span>
+              Comment créer une clé API start.gg
+            </h3>
+            <div class="conn-steps">
+              <div class="conn-step">
+                <div class="conn-step-num" style="background:#17B978">1</div>
+                <div class="conn-step-body">
+                  <div class="conn-step-title">Se connecter à start.gg</div>
+                  <p class="conn-step-desc">Va sur <a href="https://start.gg" target="_blank" class="conn-link" style="color:#17B978">start.gg ↗</a> et connecte-toi à ton compte (ou crée-en un gratuitement).</p>
+                </div>
+              </div>
+              <div class="conn-step">
+                <div class="conn-step-num" style="background:#17B978">2</div>
+                <div class="conn-step-body">
+                  <div class="conn-step-title">Ouvrir les paramètres développeur</div>
+                  <p class="conn-step-desc">Clique sur ton avatar → <strong>"Developer Settings"</strong>.<br>
+                  Accès direct : <a href="https://start.gg/admin/profile/developer" target="_blank" class="conn-link" style="color:#17B978">start.gg/admin/profile/developer ↗</a></p>
+                </div>
+              </div>
+              <div class="conn-step">
+                <div class="conn-step-num" style="background:#17B978">3</div>
+                <div class="conn-step-body">
+                  <div class="conn-step-title">Créer un token personnel</div>
+                  <p class="conn-step-desc">Dans <strong>"Personal Access Tokens"</strong>, clique <strong>"Create token"</strong>.</p>
+                  <div class="conn-tip conn-tip-warn"><span class="conn-tip-icon">⚠️</span> Le token n'est affiché <strong>qu'une seule fois</strong>. Copie-le immédiatement.</div>
+                </div>
+              </div>
+              <div class="conn-step">
+                <div class="conn-step-num" style="background:#17B978">4</div>
+                <div class="conn-step-body">
+                  <div class="conn-step-title">Coller le token ci-dessous</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="custom-card" style="margin-top:12px">
+            <h3 style="margin-bottom:12px">Clé API (Personal Access Token)</h3>
+            <div class="form-group" style="margin-bottom:0">
+              <div style="display:flex;gap:8px">
+                <input type="password" id="conn-startgg-key" placeholder="••••••••••••••••••••••••••••••••" autocomplete="new-password" style="flex:1" />
+                <button class="btn btn-primary btn-sm" id="conn-startgg-save" style="background:#17B978;border-color:#17B978;white-space:nowrap">Enregistrer</button>
+              </div>
+              <p id="conn-startgg-status" style="font-size:11px;color:var(--text-muted);margin-top:8px;min-height:16px"></p>
+            </div>
+          </div>
+          <div class="conn-unlocks" style="border-color:rgba(23,185,120,0.2);background:rgba(23,185,120,0.04)">
+            <div class="conn-unlocks-title" style="color:#17B978">Ce que la connexion start.gg débloque</div>
+            <div class="conn-unlocks-grid">
+              <div class="conn-unlock-item"><span class="conn-unlock-icon">🏆</span><span>Recherche de tournois</span></div>
+              <div class="conn-unlock-item"><span class="conn-unlock-icon">👥</span><span>Liste des participants</span></div>
+              <div class="conn-unlock-item"><span class="conn-unlock-icon">🎮</span><span>Sets en cours</span></div>
+              <div class="conn-unlock-item"><span class="conn-unlock-icon">📊</span><span>Stats et historique joueur</span></div>
+              <div class="conn-unlock-item"><span class="conn-unlock-icon">🥇</span><span>Standings Top 8</span></div>
+              <div class="conn-unlock-item"><span class="conn-unlock-icon">📺</span><span>Bracket en overlay</span></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Recherche tournoi -->
+      <section class="section">
+        <div class="section-header"><h2>Tournoi</h2></div>
+        <div class="form-group">
+          <label>Slug ou URL start.gg</label>
+          <div class="name-row">
+            <input type="text" id="sgg-slug" placeholder="ex: tournament/combo-breaker-2024" style="flex:1" />
+            <button class="btn btn-primary btn-sm" id="sgg-search-btn">Chercher</button>
+          </div>
+          <p class="hint">Format attendu : <code>tournament/nom-du-tournoi</code></p>
+        </div>
+      </section>
+
+    </div><!-- /sgg-setup-wrap -->
 
     <!-- Participants -->
     <section class="section" id="sgg-entrants-section" style="display:none">
@@ -3559,6 +3503,55 @@
       </div>
     </section>
 
+    <!-- Head to Head -->
+    <section class="section" id="sgg-h2h-section" style="display:none">
+      <div class="section-header">
+        <h2>Head to Head</h2>
+        <a href="/h2h" target="_blank" class="btn btn-outline btn-sm">Overlay ↗</a>
+      </div>
+
+      <div class="custom-card-grid">
+
+        <!-- Sélection joueurs -->
+        <div class="custom-card">
+          <h3>Joueurs</h3>
+          <div class="form-group">
+            <label>Joueur 1</label>
+            <input type="text" id="h2h-search-1" placeholder="Filtrer…" style="width:100%;margin-bottom:5px" />
+            <select id="h2h-select-1" style="width:100%"><option value="">-- Choisir --</option></select>
+          </div>
+          <div class="form-group">
+            <label>Couleur J1</label>
+            <input type="color" id="h2h-color-1" value="#E83030" style="width:100%;height:32px;cursor:pointer;border:none;background:none;" />
+          </div>
+          <div class="form-group">
+            <label>Joueur 2</label>
+            <input type="text" id="h2h-search-2" placeholder="Filtrer…" style="width:100%;margin-bottom:5px" />
+            <select id="h2h-select-2" style="width:100%"><option value="">-- Choisir --</option></select>
+          </div>
+          <div class="form-group" style="margin-bottom:0">
+            <label>Couleur J2</label>
+            <input type="color" id="h2h-color-2" value="#3070E8" style="width:100%;height:32px;cursor:pointer;border:none;background:none;" />
+          </div>
+        </div>
+
+        <!-- Contrôles -->
+        <div class="custom-card">
+          <h3>Overlay</h3>
+          <button class="btn btn-primary btn-full" id="h2h-calc-btn" style="margin-bottom:10px">⚡ Calculer H2H</button>
+          <p class="hint" id="h2h-status" style="margin-bottom:10px"></p>
+          <div id="h2h-preview" style="display:none;margin-bottom:10px;padding:10px;background:var(--surface2);border-radius:6px;font-size:12px">
+            <div id="h2h-preview-content"></div>
+          </div>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-primary" id="h2h-show-btn" style="flex:1" disabled>Afficher</button>
+            <button class="btn btn-outline" id="h2h-hide-btn" style="flex:1">Masquer</button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
   </div><!-- /tab-startgg -->
 
 
@@ -3610,140 +3603,172 @@
             </div>
           </div>
           <div style="display:flex;gap:8px;align-items:center">
+            <button class="btn btn-outline btn-sm" id="btn-copy-cam-url" onclick="event.stopPropagation()" title="Copier l'URL OBS">📋 OBS</button>
             <a href="/cam" target="_blank" class="btn btn-outline btn-sm" onclick="event.stopPropagation()">Ouvrir ↗</a>
             <span class="accordion-chevron">▼</span>
           </div>
         </div>
         <div class="accordion-body">
-          <div class="custom-card">
-            <div style="display:flex;align-items:center;justify-content:space-between">
-              <h3>Afficher la cam</h3>
-              <label class="toggle-switch">
-                <input type="checkbox" id="cam-visible" />
-                <span class="toggle-slider"></span>
-              </label>
-            </div>
-          </div>
-          <div class="custom-card">
-            <h3>Taille</h3>
-            <div class="form-group" style="margin-bottom:12px">
-              <label>Largeur <span class="hint">px</span></label>
-              <div class="logo-particles-row">
-                <input type="range"  id="cam-width-range"  min="80" max="960" value="360" step="4" />
-                <input type="number" id="cam-width-num"    min="80" max="960" value="360" style="width:70px" />
-              </div>
-            </div>
-            <div class="form-group">
-              <label>Hauteur <span class="hint">px</span></label>
-              <div class="logo-particles-row">
-                <input type="range"  id="cam-height-range"  min="60" max="720" value="270" step="4" />
-                <input type="number" id="cam-height-num"    min="60" max="720" value="270" style="width:70px" />
-              </div>
-            </div>
-            <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
-              <button class="btn btn-outline btn-sm cam-preset-size" data-w="320" data-h="240">320×240</button>
-              <button class="btn btn-outline btn-sm cam-preset-size" data-w="360" data-h="270">360×270</button>
-              <button class="btn btn-outline btn-sm cam-preset-size" data-w="480" data-h="270">480×270 (16:9)</button>
-              <button class="btn btn-outline btn-sm cam-preset-size" data-w="640" data-h="360">640×360 (16:9)</button>
-            </div>
-          </div>
-          <div class="custom-card">
-            <h3>Position</h3>
-            <div class="form-group" style="margin-bottom:12px">
-              <label>Décalage X <span class="hint">gauche / droite depuis le centre</span></label>
-              <div class="logo-particles-row">
-                <input type="range"  id="cam-x-range"  min="-960" max="960" value="0" step="4" />
-                <input type="number" id="cam-x-num"    min="-960" max="960" value="0" style="width:70px" />
-              </div>
-            </div>
-            <div class="form-group">
-              <label>Distance du bas <span class="hint">px</span></label>
-              <div class="logo-particles-row">
-                <input type="range"  id="cam-y-range"  min="0" max="600" value="40" step="4" />
-                <input type="number" id="cam-y-num"    min="0" max="600" value="40" style="width:70px" />
-              </div>
-            </div>
-            <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
-              <button class="btn btn-outline btn-sm" id="cam-pos-center">⬛ Centre bas</button>
-              <button class="btn btn-outline btn-sm" id="cam-pos-left">⬛ Gauche bas</button>
-              <button class="btn btn-outline btn-sm" id="cam-pos-right">⬛ Droite bas</button>
-            </div>
-          </div>
-          <div class="custom-card">
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-              <h3>Label</h3>
-              <label class="toggle-switch">
-                <input type="checkbox" id="cam-show-label" checked />
-                <span class="toggle-slider"></span>
-              </label>
-            </div>
-            <input type="text" id="cam-label-text" value="CAM" maxlength="30"
-              style="width:100%;padding:8px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:14px" />
-          </div>
 
-          <!-- ── CAM 2 ──────────────────────────────────────────── -->
-          <div class="custom-card" style="border-top:2px solid var(--primary);margin-top:4px">
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
-              <h3>CAM 2</h3>
-              <label class="toggle-switch">
-                <input type="checkbox" id="cam2-visible" />
-                <span class="toggle-slider"></span>
-              </label>
-            </div>
+          <!-- ── Ligne CAM 1 + CAM 2 côte à côte ─────────────── -->
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;align-items:start">
 
-            <div class="form-group" style="margin-bottom:12px">
-              <label>Largeur <span class="hint">px</span></label>
-              <div class="logo-particles-row">
-                <input type="range"  id="cam2-width-range"  min="80" max="960" value="360" step="4" />
-                <input type="number" id="cam2-width-num"    min="80" max="960" value="360" style="width:70px" />
+            <!-- ── CAM 1 ──────────────────────────────────────── -->
+            <div style="display:flex;flex-direction:column;gap:8px;">
+              <div class="custom-card">
+                <div style="display:flex;align-items:center;justify-content:space-between">
+                  <h3>CAM 1</h3>
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="cam-visible" />
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
               </div>
-            </div>
-            <div class="form-group" style="margin-bottom:12px">
-              <label>Hauteur <span class="hint">px</span></label>
-              <div class="logo-particles-row">
-                <input type="range"  id="cam2-height-range"  min="60" max="720" value="270" step="4" />
-                <input type="number" id="cam2-height-num"    min="60" max="720" value="270" style="width:70px" />
+
+              <div class="custom-card">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+                  <h3 style="font-size:13px">Taille</h3>
+                  <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;color:var(--text-muted)">
+                    <input type="checkbox" id="cam-ratio-free" /> Ratio libre
+                  </label>
+                </div>
+                <div class="form-group" style="margin-bottom:10px">
+                  <label>Largeur <span class="hint">px</span></label>
+                  <div class="logo-particles-row">
+                    <input type="range"  id="cam-width-range"  min="80" max="960" value="360" step="4" />
+                    <input type="number" id="cam-width-num"    min="80" max="960" value="360" style="width:60px" />
+                  </div>
+                </div>
+                <div class="form-group" id="cam-height-row" style="margin-bottom:10px;display:none">
+                  <label>Hauteur <span class="hint">px</span></label>
+                  <div class="logo-particles-row">
+                    <input type="range"  id="cam-height-range"  min="60" max="720" value="270" step="4" />
+                    <input type="number" id="cam-height-num"    min="60" max="720" value="270" style="width:60px" />
+                  </div>
+                </div>
+                <div style="display:flex;gap:4px;flex-wrap:wrap">
+                  <button class="btn btn-outline btn-sm cam-preset-size" data-w="320" data-h="240">320×240</button>
+                  <button class="btn btn-outline btn-sm cam-preset-size" data-w="360" data-h="270">360×270</button>
+                  <button class="btn btn-outline btn-sm cam-preset-size" data-w="480" data-h="270">480×270</button>
+                  <button class="btn btn-outline btn-sm cam-preset-size" data-w="640" data-h="360">640×360</button>
+                </div>
               </div>
-            </div>
-            <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
-              <button class="btn btn-outline btn-sm cam2-preset-size" data-w="320" data-h="240">320×240</button>
-              <button class="btn btn-outline btn-sm cam2-preset-size" data-w="360" data-h="270">360×270</button>
-              <button class="btn btn-outline btn-sm cam2-preset-size" data-w="480" data-h="270">480×270</button>
-              <button class="btn btn-outline btn-sm cam2-preset-size" data-w="640" data-h="360">640×360</button>
+
+              <div class="custom-card">
+                <h3 style="font-size:13px;margin-bottom:10px">Position</h3>
+                <div class="form-group" style="margin-bottom:10px">
+                  <label>X <span class="hint">depuis le centre</span></label>
+                  <div class="logo-particles-row">
+                    <input type="range"  id="cam-x-range"  min="-960" max="960" value="0" step="4" />
+                    <input type="number" id="cam-x-num"    min="-960" max="960" value="0" style="width:60px" />
+                  </div>
+                </div>
+                <div class="form-group" style="margin-bottom:10px">
+                  <label>Y <span class="hint">du bas</span></label>
+                  <div class="logo-particles-row">
+                    <input type="range"  id="cam-y-range"  min="0" max="600" value="40" step="4" />
+                    <input type="number" id="cam-y-num"    min="0" max="600" value="40" style="width:60px" />
+                  </div>
+                </div>
+                <div style="display:flex;gap:4px;flex-wrap:wrap">
+                  <button class="btn btn-outline btn-sm" id="cam-pos-center">Centre</button>
+                  <button class="btn btn-outline btn-sm" id="cam-pos-left">Gauche</button>
+                  <button class="btn btn-outline btn-sm" id="cam-pos-right">Droite</button>
+                </div>
+              </div>
+
+              <div class="custom-card">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+                  <h3 style="font-size:13px">Label</h3>
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="cam-show-label" checked />
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+                <input type="text" id="cam-label-text" value="CAM" maxlength="30"
+                  style="width:100%;padding:6px 10px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:13px" />
+              </div>
             </div>
 
-            <div class="form-group" style="margin-bottom:12px">
-              <label>Décalage X <span class="hint">gauche / droite depuis le centre</span></label>
-              <div class="logo-particles-row">
-                <input type="range"  id="cam2-x-range"  min="-960" max="960" value="0" step="4" />
-                <input type="number" id="cam2-x-num"    min="-960" max="960" value="0" style="width:70px" />
+            <!-- ── CAM 2 ──────────────────────────────────────── -->
+            <div style="display:flex;flex-direction:column;gap:8px;">
+              <div class="custom-card">
+                <div style="display:flex;align-items:center;justify-content:space-between">
+                  <h3>CAM 2</h3>
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="cam2-visible" />
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="custom-card">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+                  <h3 style="font-size:13px">Taille</h3>
+                  <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;color:var(--text-muted)">
+                    <input type="checkbox" id="cam2-ratio-free" /> Ratio libre
+                  </label>
+                </div>
+                <div class="form-group" style="margin-bottom:10px">
+                  <label>Largeur <span class="hint">px</span></label>
+                  <div class="logo-particles-row">
+                    <input type="range"  id="cam2-width-range"  min="80" max="960" value="360" step="4" />
+                    <input type="number" id="cam2-width-num"    min="80" max="960" value="360" style="width:60px" />
+                  </div>
+                </div>
+                <div class="form-group" id="cam2-height-row" style="margin-bottom:10px;display:none">
+                  <label>Hauteur <span class="hint">px</span></label>
+                  <div class="logo-particles-row">
+                    <input type="range"  id="cam2-height-range"  min="60" max="720" value="270" step="4" />
+                    <input type="number" id="cam2-height-num"    min="60" max="720" value="270" style="width:60px" />
+                  </div>
+                </div>
+                <div style="display:flex;gap:4px;flex-wrap:wrap">
+                  <button class="btn btn-outline btn-sm cam2-preset-size" data-w="320" data-h="240">320×240</button>
+                  <button class="btn btn-outline btn-sm cam2-preset-size" data-w="360" data-h="270">360×270</button>
+                  <button class="btn btn-outline btn-sm cam2-preset-size" data-w="480" data-h="270">480×270</button>
+                  <button class="btn btn-outline btn-sm cam2-preset-size" data-w="640" data-h="360">640×360</button>
+                </div>
+              </div>
+
+              <div class="custom-card">
+                <h3 style="font-size:13px;margin-bottom:10px">Position</h3>
+                <div class="form-group" style="margin-bottom:10px">
+                  <label>X <span class="hint">depuis le centre</span></label>
+                  <div class="logo-particles-row">
+                    <input type="range"  id="cam2-x-range"  min="-960" max="960" value="0" step="4" />
+                    <input type="number" id="cam2-x-num"    min="-960" max="960" value="0" style="width:60px" />
+                  </div>
+                </div>
+                <div class="form-group" style="margin-bottom:10px">
+                  <label>Y <span class="hint">du bas</span></label>
+                  <div class="logo-particles-row">
+                    <input type="range"  id="cam2-y-range"  min="0" max="600" value="40" step="4" />
+                    <input type="number" id="cam2-y-num"    min="0" max="600" value="40" style="width:60px" />
+                  </div>
+                </div>
+                <div style="display:flex;gap:4px;flex-wrap:wrap">
+                  <button class="btn btn-outline btn-sm" id="cam2-pos-center">Centre</button>
+                  <button class="btn btn-outline btn-sm" id="cam2-pos-left">Gauche</button>
+                  <button class="btn btn-outline btn-sm" id="cam2-pos-right">Droite</button>
+                </div>
+              </div>
+
+              <div class="custom-card">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+                  <h3 style="font-size:13px">Label</h3>
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="cam2-show-label" checked />
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+                <input type="text" id="cam2-label-text" value="CAM 2" maxlength="30"
+                  style="width:100%;padding:6px 10px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:13px" />
               </div>
             </div>
-            <div class="form-group" style="margin-bottom:12px">
-              <label>Distance du bas <span class="hint">px</span></label>
-              <div class="logo-particles-row">
-                <input type="range"  id="cam2-y-range"  min="0" max="600" value="40" step="4" />
-                <input type="number" id="cam2-y-num"    min="0" max="600" value="40" style="width:70px" />
-              </div>
-            </div>
-            <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
-              <button class="btn btn-outline btn-sm" id="cam2-pos-center">⬛ Centre bas</button>
-              <button class="btn btn-outline btn-sm" id="cam2-pos-left">⬛ Gauche bas</button>
-              <button class="btn btn-outline btn-sm" id="cam2-pos-right">⬛ Droite bas</button>
-            </div>
+          </div><!-- /grid -->
 
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-              <label style="font-size:13px;font-weight:600">Label</label>
-              <label class="toggle-switch">
-                <input type="checkbox" id="cam2-show-label" checked />
-                <span class="toggle-slider"></span>
-              </label>
-            </div>
-            <input type="text" id="cam2-label-text" value="CAM 2" maxlength="30"
-              style="width:100%;padding:8px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:14px" />
-          </div>
-
-          <!-- ── Infos joueur ─────────────────────────────────── -->
+          <!-- ── Options communes ───────────────────────────────── -->
           <div class="custom-card">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
               <h3>Infos joueur</h3>
@@ -3772,7 +3797,7 @@
 
             <div class="form-group" style="margin-bottom:10px">
               <label>Champs affichés</label>
-              <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px">
+              <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:6px">
                 <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer">
                   <input type="checkbox" id="cam-field-tag"       checked /> Tag
                 </label>
@@ -3794,43 +3819,24 @@
               </div>
             </div>
 
-            <div class="form-group" style="margin-bottom:10px">
-              <label>Taille police <span class="hint">px</span></label>
-              <div class="logo-particles-row">
-                <input type="range"  id="cam-info-fs-range" min="8" max="28" value="13" step="1" />
-                <input type="number" id="cam-info-fs-num"   min="8" max="28" value="13" style="width:60px" />
-              </div>
-            </div>
-
-            <div class="form-group" style="margin-bottom:0">
-              <label>Opacité fond <span class="hint">%</span></label>
-              <div class="logo-particles-row">
-                <input type="range"  id="cam-info-bg-range" min="0" max="100" value="85" step="1" />
-                <input type="number" id="cam-info-bg-num"   min="0" max="100" value="85" style="width:60px" />
-              </div>
-            </div>
-          </div>
-
-          <div class="custom-card" style="padding:0;overflow:hidden;border-radius:8px;">
-            <div style="background:#111;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;">
-              <span style="font-size:12px;font-weight:600;color:var(--text-muted);letter-spacing:1px;text-transform:uppercase;">Aperçu</span>
-              <span style="font-size:11px;color:var(--text-muted)">1920 × 1080</span>
-            </div>
-            <div style="display:flex;gap:4px;background:#0a0a0f;padding:4px;">
-              <div style="flex:1;min-width:0;">
-                <div style="font-size:10px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;padding:3px 4px 4px;">CAM 1</div>
-                <div class="overlay-preview-wrap" id="cam-preview-wrap" style="border-radius:5px;">
-                  <iframe src="/cam" class="overlay-preview-frame" id="cam-preview"></iframe>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+              <div class="form-group" style="margin-bottom:0">
+                <label>Taille police <span class="hint">px</span></label>
+                <div class="logo-particles-row">
+                  <input type="range"  id="cam-info-fs-range" min="8" max="28" value="13" step="1" />
+                  <input type="number" id="cam-info-fs-num"   min="8" max="28" value="13" style="width:60px" />
                 </div>
               </div>
-              <div style="flex:1;min-width:0;">
-                <div style="font-size:10px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;padding:3px 4px 4px;">CAM 2</div>
-                <div class="overlay-preview-wrap" id="cam2-preview-wrap" style="border-radius:5px;">
-                  <iframe src="/cam" class="overlay-preview-frame" id="cam2-preview"></iframe>
+              <div class="form-group" style="margin-bottom:0">
+                <label>Opacité fond <span class="hint">%</span></label>
+                <div class="logo-particles-row">
+                  <input type="range"  id="cam-info-bg-range" min="0" max="100" value="85" step="1" />
+                  <input type="number" id="cam-info-bg-num"   min="0" max="100" value="85" style="width:60px" />
                 </div>
               </div>
             </div>
           </div>
+
         </div>
       </div>
 
@@ -3845,6 +3851,7 @@
             </div>
           </div>
           <div style="display:flex;gap:8px;align-items:center">
+            <button class="btn btn-outline btn-sm" id="btn-copy-frames-url" onclick="event.stopPropagation()" title="Copier l'URL OBS">📋 OBS</button>
             <a href="/frames" target="_blank" class="btn btn-outline btn-sm" onclick="event.stopPropagation()">Ouvrir ↗</a>
             <span class="accordion-chevron">▼</span>
           </div>
@@ -3892,268 +3899,141 @@
       </div>
 
       <!-- Cadres individuels -->
-      <div id="frames-cards">
+      <div id="frames-cards" style="display:flex;gap:6px;align-items:stretch;">
 
         <!-- Cadre 1 -->
-        <div class="custom-card frame-card" id="frame-card-0">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-            <h3>Cadre 1</h3>
-            <label class="toggle-switch" title="Afficher / Masquer">
-              <input type="checkbox" class="frame-visible-toggle" data-idx="0" checked />
-              <span class="toggle-slider"></span>
-            </label>
+        <div class="custom-card frame-card" id="frame-card-0" style="flex:1;min-width:0;padding:10px 8px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+            <span style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text-muted)">C1</span>
+            <label class="toggle-switch"><input type="checkbox" class="frame-visible-toggle" data-idx="0" checked /><span class="toggle-slider"></span></label>
           </div>
-          <!-- Position -->
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
-            <div class="form-group">
-              <label>X <span class="hint">centre X</span></label>
-              <input type="number" class="frame-x" data-idx="0" value="320" min="0" max="1920" />
-            </div>
-            <div class="form-group">
-              <label>Y <span class="hint">centre Y</span></label>
-              <input type="number" class="frame-y" data-idx="0" value="250" min="0" max="1080" />
-            </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-bottom:5px;">
+            <div><div style="font-size:10px;color:var(--text-muted);margin-bottom:2px">X</div><input type="number" class="frame-x" data-idx="0" value="320" min="0" max="1920" style="width:100%;padding:3px 4px;font-size:12px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text)" /></div>
+            <div><div style="font-size:10px;color:var(--text-muted);margin-bottom:2px">Y</div><input type="number" class="frame-y" data-idx="0" value="250" min="0" max="1080" style="width:100%;padding:3px 4px;font-size:12px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text)" /></div>
           </div>
-          <!-- Taille -->
-          <div class="form-group" style="margin-bottom:12px;">
-            <label>Taille</label>
-            <input type="range" class="frame-w" data-idx="0" data-ratio="0.75" value="560" min="50" max="1920" style="width:100%;" />
-            <input type="hidden" class="frame-h" data-idx="0" value="420" />
+          <div style="margin-bottom:5px;"><div style="font-size:10px;color:var(--text-muted);margin-bottom:2px">Largeur</div><input type="number" class="frame-w" data-idx="0" data-ratio="0.75" value="560" min="50" max="1920" style="width:100%;padding:3px 4px;font-size:12px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text)" /><input type="hidden" class="frame-h" data-idx="0" value="420" /></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:3px;margin-bottom:5px;">
+            <button class="btn btn-outline btn-sm frame-ratio-btn" data-idx="0" data-ratio="16/9" style="padding:2px;font-size:10px">16:9</button>
+            <button class="btn btn-outline btn-sm frame-ratio-btn" data-idx="0" data-ratio="4/3" style="padding:2px;font-size:10px">4:3</button>
+            <button class="btn btn-outline btn-sm frame-ratio-btn" data-idx="0" data-ratio="1/1" style="padding:2px;font-size:10px">1:1</button>
+            <button class="btn btn-outline btn-sm frame-ratio-btn" data-idx="0" data-ratio="9/16" style="padding:2px;font-size:10px">9:16</button>
           </div>
-          <!-- Ratio rapide -->
-          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;">
-            <span style="font-size:12px;color:var(--text-muted);align-self:center;">Ratio :</span>
-            <button class="btn btn-outline btn-sm frame-ratio-btn" data-idx="0" data-ratio="16/9">16:9</button>
-            <button class="btn btn-outline btn-sm frame-ratio-btn" data-idx="0" data-ratio="4/3">4:3</button>
-            <button class="btn btn-outline btn-sm frame-ratio-btn" data-idx="0" data-ratio="1/1">1:1</button>
-            <button class="btn btn-outline btn-sm frame-ratio-btn" data-idx="0" data-ratio="9/16">9:16</button>
-          </div>
-          <!-- Options -->
-          <div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-bottom:12px;">
-            <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;">
-              <input type="checkbox" class="frame-showbg" data-idx="0" /> Fond semi-transparent
-            </label>
-          </div>
-          <!-- Label -->
-          <div class="form-group">
-            <label>Label <span class="hint">facultatif — affiché en bas du cadre</span></label>
-            <input type="text" class="frame-label" data-idx="0" placeholder="ex: Caméra 1" maxlength="40" />
-          </div>
-          <button class="btn btn-primary btn-sm frame-save-btn" data-idx="0" style="margin-top:10px;">Appliquer le cadre 1</button>
+          <label style="display:flex;align-items:center;gap:4px;font-size:11px;cursor:pointer;margin-bottom:5px"><input type="checkbox" class="frame-showbg" data-idx="0" /> Fond</label>
+          <input type="text" class="frame-label" data-idx="0" placeholder="Label…" maxlength="40" style="width:100%;padding:3px 4px;font-size:11px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);margin-bottom:5px" />
+          <button class="btn btn-primary btn-sm frame-save-btn" data-idx="0" style="width:100%;padding:4px;font-size:11px">Appliquer</button>
         </div>
 
         <!-- Cadre 2 -->
-        <div class="custom-card frame-card" id="frame-card-1" style="display:none;">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-            <h3>Cadre 2</h3>
-            <label class="toggle-switch" title="Afficher / Masquer">
-              <input type="checkbox" class="frame-visible-toggle" data-idx="1" checked />
-              <span class="toggle-slider"></span>
-            </label>
+        <div class="custom-card frame-card" id="frame-card-1" style="flex:1;min-width:0;padding:10px 8px;display:none;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+            <span style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text-muted)">C2</span>
+            <label class="toggle-switch"><input type="checkbox" class="frame-visible-toggle" data-idx="1" checked /><span class="toggle-slider"></span></label>
           </div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
-            <div class="form-group">
-              <label>X</label>
-              <input type="number" class="frame-x" data-idx="1" value="920" min="0" max="1920" />
-            </div>
-            <div class="form-group">
-              <label>Y</label>
-              <input type="number" class="frame-y" data-idx="1" value="250" min="0" max="1080" />
-            </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-bottom:5px;">
+            <div><div style="font-size:10px;color:var(--text-muted);margin-bottom:2px">X</div><input type="number" class="frame-x" data-idx="1" value="920" min="0" max="1920" style="width:100%;padding:3px 4px;font-size:12px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text)" /></div>
+            <div><div style="font-size:10px;color:var(--text-muted);margin-bottom:2px">Y</div><input type="number" class="frame-y" data-idx="1" value="250" min="0" max="1080" style="width:100%;padding:3px 4px;font-size:12px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text)" /></div>
           </div>
-          <div class="form-group" style="margin-bottom:12px;">
-            <label>Taille</label>
-            <input type="range" class="frame-w" data-idx="1" data-ratio="0.75" value="560" min="50" max="1920" style="width:100%;" />
-            <input type="hidden" class="frame-h" data-idx="1" value="420" />
+          <div style="margin-bottom:5px;"><div style="font-size:10px;color:var(--text-muted);margin-bottom:2px">Largeur</div><input type="number" class="frame-w" data-idx="1" data-ratio="0.75" value="560" min="50" max="1920" style="width:100%;padding:3px 4px;font-size:12px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text)" /><input type="hidden" class="frame-h" data-idx="1" value="420" /></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:3px;margin-bottom:5px;">
+            <button class="btn btn-outline btn-sm frame-ratio-btn" data-idx="1" data-ratio="16/9" style="padding:2px;font-size:10px">16:9</button>
+            <button class="btn btn-outline btn-sm frame-ratio-btn" data-idx="1" data-ratio="4/3" style="padding:2px;font-size:10px">4:3</button>
+            <button class="btn btn-outline btn-sm frame-ratio-btn" data-idx="1" data-ratio="1/1" style="padding:2px;font-size:10px">1:1</button>
+            <button class="btn btn-outline btn-sm frame-ratio-btn" data-idx="1" data-ratio="9/16" style="padding:2px;font-size:10px">9:16</button>
           </div>
-          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;">
-            <span style="font-size:12px;color:var(--text-muted);align-self:center;">Ratio :</span>
-            <button class="btn btn-outline btn-sm frame-ratio-btn" data-idx="1" data-ratio="16/9">16:9</button>
-            <button class="btn btn-outline btn-sm frame-ratio-btn" data-idx="1" data-ratio="4/3">4:3</button>
-            <button class="btn btn-outline btn-sm frame-ratio-btn" data-idx="1" data-ratio="1/1">1:1</button>
-            <button class="btn btn-outline btn-sm frame-ratio-btn" data-idx="1" data-ratio="9/16">9:16</button>
-          </div>
-          <div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-bottom:12px;">
-            <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;">
-              <input type="checkbox" class="frame-showbg" data-idx="1" /> Fond semi-transparent
-            </label>
-          </div>
-          <div class="form-group">
-            <label>Label <span class="hint">facultatif</span></label>
-            <input type="text" class="frame-label" data-idx="1" placeholder="ex: Caméra 2" maxlength="40" />
-          </div>
-          <button class="btn btn-primary btn-sm frame-save-btn" data-idx="1" style="margin-top:10px;">Appliquer le cadre 2</button>
+          <label style="display:flex;align-items:center;gap:4px;font-size:11px;cursor:pointer;margin-bottom:5px"><input type="checkbox" class="frame-showbg" data-idx="1" /> Fond</label>
+          <input type="text" class="frame-label" data-idx="1" placeholder="Label…" maxlength="40" style="width:100%;padding:3px 4px;font-size:11px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);margin-bottom:5px" />
+          <button class="btn btn-primary btn-sm frame-save-btn" data-idx="1" style="width:100%;padding:4px;font-size:11px">Appliquer</button>
         </div>
 
         <!-- Cadre 3 -->
-        <div class="custom-card frame-card" id="frame-card-2" style="display:none;">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-            <h3>Cadre 3</h3>
-            <label class="toggle-switch" title="Afficher / Masquer">
-              <input type="checkbox" class="frame-visible-toggle" data-idx="2" checked />
-              <span class="toggle-slider"></span>
-            </label>
+        <div class="custom-card frame-card" id="frame-card-2" style="flex:1;min-width:0;padding:10px 8px;display:none;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+            <span style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text-muted)">C3</span>
+            <label class="toggle-switch"><input type="checkbox" class="frame-visible-toggle" data-idx="2" checked /><span class="toggle-slider"></span></label>
           </div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
-            <div class="form-group">
-              <label>X</label>
-              <input type="number" class="frame-x" data-idx="2" value="920" min="0" max="1920" />
-            </div>
-            <div class="form-group">
-              <label>Y</label>
-              <input type="number" class="frame-y" data-idx="2" value="710" min="0" max="1080" />
-            </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-bottom:5px;">
+            <div><div style="font-size:10px;color:var(--text-muted);margin-bottom:2px">X</div><input type="number" class="frame-x" data-idx="2" value="920" min="0" max="1920" style="width:100%;padding:3px 4px;font-size:12px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text)" /></div>
+            <div><div style="font-size:10px;color:var(--text-muted);margin-bottom:2px">Y</div><input type="number" class="frame-y" data-idx="2" value="710" min="0" max="1080" style="width:100%;padding:3px 4px;font-size:12px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text)" /></div>
           </div>
-          <div class="form-group" style="margin-bottom:12px;">
-            <label>Taille</label>
-            <input type="range" class="frame-w" data-idx="2" data-ratio="0.75" value="560" min="50" max="1920" style="width:100%;" />
-            <input type="hidden" class="frame-h" data-idx="2" value="420" />
+          <div style="margin-bottom:5px;"><div style="font-size:10px;color:var(--text-muted);margin-bottom:2px">Largeur</div><input type="number" class="frame-w" data-idx="2" data-ratio="0.75" value="560" min="50" max="1920" style="width:100%;padding:3px 4px;font-size:12px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text)" /><input type="hidden" class="frame-h" data-idx="2" value="420" /></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:3px;margin-bottom:5px;">
+            <button class="btn btn-outline btn-sm frame-ratio-btn" data-idx="2" data-ratio="16/9" style="padding:2px;font-size:10px">16:9</button>
+            <button class="btn btn-outline btn-sm frame-ratio-btn" data-idx="2" data-ratio="4/3" style="padding:2px;font-size:10px">4:3</button>
+            <button class="btn btn-outline btn-sm frame-ratio-btn" data-idx="2" data-ratio="1/1" style="padding:2px;font-size:10px">1:1</button>
+            <button class="btn btn-outline btn-sm frame-ratio-btn" data-idx="2" data-ratio="9/16" style="padding:2px;font-size:10px">9:16</button>
           </div>
-          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;">
-            <span style="font-size:12px;color:var(--text-muted);align-self:center;">Ratio :</span>
-            <button class="btn btn-outline btn-sm frame-ratio-btn" data-idx="2" data-ratio="16/9">16:9</button>
-            <button class="btn btn-outline btn-sm frame-ratio-btn" data-idx="2" data-ratio="4/3">4:3</button>
-            <button class="btn btn-outline btn-sm frame-ratio-btn" data-idx="2" data-ratio="1/1">1:1</button>
-            <button class="btn btn-outline btn-sm frame-ratio-btn" data-idx="2" data-ratio="9/16">9:16</button>
-          </div>
-          <div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-bottom:12px;">
-            <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;">
-              <input type="checkbox" class="frame-showbg" data-idx="2" /> Fond semi-transparent
-            </label>
-          </div>
-          <div class="form-group">
-            <label>Label <span class="hint">facultatif</span></label>
-            <input type="text" class="frame-label" data-idx="2" placeholder="ex: Caméra 3" maxlength="40" />
-          </div>
-          <button class="btn btn-primary btn-sm frame-save-btn" data-idx="2" style="margin-top:10px;">Appliquer le cadre 3</button>
+          <label style="display:flex;align-items:center;gap:4px;font-size:11px;cursor:pointer;margin-bottom:5px"><input type="checkbox" class="frame-showbg" data-idx="2" /> Fond</label>
+          <input type="text" class="frame-label" data-idx="2" placeholder="Label…" maxlength="40" style="width:100%;padding:3px 4px;font-size:11px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);margin-bottom:5px" />
+          <button class="btn btn-primary btn-sm frame-save-btn" data-idx="2" style="width:100%;padding:4px;font-size:11px">Appliquer</button>
         </div>
 
         <!-- Cadre 4 -->
-        <div class="custom-card frame-card" id="frame-card-3" style="display:none;">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-            <h3>Cadre 4</h3>
-            <label class="toggle-switch" title="Afficher / Masquer">
-              <input type="checkbox" class="frame-visible-toggle" data-idx="3" checked />
-              <span class="toggle-slider"></span>
-            </label>
+        <div class="custom-card frame-card" id="frame-card-3" style="flex:1;min-width:0;padding:10px 8px;display:none;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+            <span style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text-muted)">C4</span>
+            <label class="toggle-switch"><input type="checkbox" class="frame-visible-toggle" data-idx="3" checked /><span class="toggle-slider"></span></label>
           </div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
-            <div class="form-group"><label>X</label><input type="number" class="frame-x" data-idx="3" value="320" min="0" max="1920" /></div>
-            <div class="form-group"><label>Y</label><input type="number" class="frame-y" data-idx="3" value="658" min="0" max="1080" /></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-bottom:5px;">
+            <div><div style="font-size:10px;color:var(--text-muted);margin-bottom:2px">X</div><input type="number" class="frame-x" data-idx="3" value="320" min="0" max="1920" style="width:100%;padding:3px 4px;font-size:12px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text)" /></div>
+            <div><div style="font-size:10px;color:var(--text-muted);margin-bottom:2px">Y</div><input type="number" class="frame-y" data-idx="3" value="658" min="0" max="1080" style="width:100%;padding:3px 4px;font-size:12px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text)" /></div>
           </div>
-          <div class="form-group" style="margin-bottom:12px;">
-            <label>Taille</label>
-            <input type="range" class="frame-w" data-idx="3" data-ratio="0.5625" value="560" min="50" max="1920" style="width:100%;" />
-            <input type="hidden" class="frame-h" data-idx="3" value="315" />
+          <div style="margin-bottom:5px;"><div style="font-size:10px;color:var(--text-muted);margin-bottom:2px">Largeur</div><input type="number" class="frame-w" data-idx="3" data-ratio="0.5625" value="560" min="50" max="1920" style="width:100%;padding:3px 4px;font-size:12px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text)" /><input type="hidden" class="frame-h" data-idx="3" value="315" /></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:3px;margin-bottom:5px;">
+            <button class="btn btn-outline btn-sm frame-ratio-btn" data-idx="3" data-ratio="16/9" style="padding:2px;font-size:10px">16:9</button>
+            <button class="btn btn-outline btn-sm frame-ratio-btn" data-idx="3" data-ratio="4/3" style="padding:2px;font-size:10px">4:3</button>
+            <button class="btn btn-outline btn-sm frame-ratio-btn" data-idx="3" data-ratio="1/1" style="padding:2px;font-size:10px">1:1</button>
+            <button class="btn btn-outline btn-sm frame-ratio-btn" data-idx="3" data-ratio="9/16" style="padding:2px;font-size:10px">9:16</button>
           </div>
-          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;">
-            <span style="font-size:12px;color:var(--text-muted);align-self:center;">Ratio :</span>
-            <button class="btn btn-outline btn-sm frame-ratio-btn" data-idx="3" data-ratio="16/9">16:9</button>
-            <button class="btn btn-outline btn-sm frame-ratio-btn" data-idx="3" data-ratio="4/3">4:3</button>
-            <button class="btn btn-outline btn-sm frame-ratio-btn" data-idx="3" data-ratio="1/1">1:1</button>
-            <button class="btn btn-outline btn-sm frame-ratio-btn" data-idx="3" data-ratio="9/16">9:16</button>
-          </div>
-          <div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-bottom:12px;">
-            <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;">
-              <input type="checkbox" class="frame-showbg" data-idx="3" /> Fond semi-transparent
-            </label>
-          </div>
-          <div class="form-group">
-            <label>Label <span class="hint">facultatif</span></label>
-            <input type="text" class="frame-label" data-idx="3" placeholder="ex: Caméra 4" maxlength="40" />
-          </div>
-          <button class="btn btn-primary btn-sm frame-save-btn" data-idx="3" style="margin-top:10px;">Appliquer le cadre 4</button>
+          <label style="display:flex;align-items:center;gap:4px;font-size:11px;cursor:pointer;margin-bottom:5px"><input type="checkbox" class="frame-showbg" data-idx="3" /> Fond</label>
+          <input type="text" class="frame-label" data-idx="3" placeholder="Label…" maxlength="40" style="width:100%;padding:3px 4px;font-size:11px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);margin-bottom:5px" />
+          <button class="btn btn-primary btn-sm frame-save-btn" data-idx="3" style="width:100%;padding:4px;font-size:11px">Appliquer</button>
         </div>
 
         <!-- Cadre 5 -->
-        <div class="custom-card frame-card" id="frame-card-4" style="display:none;">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-            <h3>Cadre 5</h3>
-            <label class="toggle-switch" title="Afficher / Masquer">
-              <input type="checkbox" class="frame-visible-toggle" data-idx="4" checked />
-              <span class="toggle-slider"></span>
-            </label>
+        <div class="custom-card frame-card" id="frame-card-4" style="flex:1;min-width:0;padding:10px 8px;display:none;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+            <span style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text-muted)">C5</span>
+            <label class="toggle-switch"><input type="checkbox" class="frame-visible-toggle" data-idx="4" checked /><span class="toggle-slider"></span></label>
           </div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
-            <div class="form-group"><label>X</label><input type="number" class="frame-x" data-idx="4" value="1580" min="0" max="1920" /></div>
-            <div class="form-group"><label>Y</label><input type="number" class="frame-y" data-idx="4" value="198" min="0" max="1080" /></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-bottom:5px;">
+            <div><div style="font-size:10px;color:var(--text-muted);margin-bottom:2px">X</div><input type="number" class="frame-x" data-idx="4" value="1580" min="0" max="1920" style="width:100%;padding:3px 4px;font-size:12px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text)" /></div>
+            <div><div style="font-size:10px;color:var(--text-muted);margin-bottom:2px">Y</div><input type="number" class="frame-y" data-idx="4" value="198" min="0" max="1080" style="width:100%;padding:3px 4px;font-size:12px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text)" /></div>
           </div>
-          <div class="form-group" style="margin-bottom:12px;">
-            <label>Taille</label>
-            <input type="range" class="frame-w" data-idx="4" data-ratio="0.5625" value="560" min="50" max="1920" style="width:100%;" />
-            <input type="hidden" class="frame-h" data-idx="4" value="315" />
+          <div style="margin-bottom:5px;"><div style="font-size:10px;color:var(--text-muted);margin-bottom:2px">Largeur</div><input type="number" class="frame-w" data-idx="4" data-ratio="0.5625" value="560" min="50" max="1920" style="width:100%;padding:3px 4px;font-size:12px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text)" /><input type="hidden" class="frame-h" data-idx="4" value="315" /></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:3px;margin-bottom:5px;">
+            <button class="btn btn-outline btn-sm frame-ratio-btn" data-idx="4" data-ratio="16/9" style="padding:2px;font-size:10px">16:9</button>
+            <button class="btn btn-outline btn-sm frame-ratio-btn" data-idx="4" data-ratio="4/3" style="padding:2px;font-size:10px">4:3</button>
+            <button class="btn btn-outline btn-sm frame-ratio-btn" data-idx="4" data-ratio="1/1" style="padding:2px;font-size:10px">1:1</button>
+            <button class="btn btn-outline btn-sm frame-ratio-btn" data-idx="4" data-ratio="9/16" style="padding:2px;font-size:10px">9:16</button>
           </div>
-          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;">
-            <span style="font-size:12px;color:var(--text-muted);align-self:center;">Ratio :</span>
-            <button class="btn btn-outline btn-sm frame-ratio-btn" data-idx="4" data-ratio="16/9">16:9</button>
-            <button class="btn btn-outline btn-sm frame-ratio-btn" data-idx="4" data-ratio="4/3">4:3</button>
-            <button class="btn btn-outline btn-sm frame-ratio-btn" data-idx="4" data-ratio="1/1">1:1</button>
-            <button class="btn btn-outline btn-sm frame-ratio-btn" data-idx="4" data-ratio="9/16">9:16</button>
-          </div>
-          <div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-bottom:12px;">
-            <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;">
-              <input type="checkbox" class="frame-showbg" data-idx="4" /> Fond semi-transparent
-            </label>
-          </div>
-          <div class="form-group">
-            <label>Label <span class="hint">facultatif</span></label>
-            <input type="text" class="frame-label" data-idx="4" placeholder="ex: Caméra 5" maxlength="40" />
-          </div>
-          <button class="btn btn-primary btn-sm frame-save-btn" data-idx="4" style="margin-top:10px;">Appliquer le cadre 5</button>
+          <label style="display:flex;align-items:center;gap:4px;font-size:11px;cursor:pointer;margin-bottom:5px"><input type="checkbox" class="frame-showbg" data-idx="4" /> Fond</label>
+          <input type="text" class="frame-label" data-idx="4" placeholder="Label…" maxlength="40" style="width:100%;padding:3px 4px;font-size:11px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);margin-bottom:5px" />
+          <button class="btn btn-primary btn-sm frame-save-btn" data-idx="4" style="width:100%;padding:4px;font-size:11px">Appliquer</button>
         </div>
 
         <!-- Cadre 6 -->
-        <div class="custom-card frame-card" id="frame-card-5" style="display:none;">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-            <h3>Cadre 6</h3>
-            <label class="toggle-switch" title="Afficher / Masquer">
-              <input type="checkbox" class="frame-visible-toggle" data-idx="5" checked />
-              <span class="toggle-slider"></span>
-            </label>
+        <div class="custom-card frame-card" id="frame-card-5" style="flex:1;min-width:0;padding:10px 8px;display:none;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+            <span style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text-muted)">C6</span>
+            <label class="toggle-switch"><input type="checkbox" class="frame-visible-toggle" data-idx="5" checked /><span class="toggle-slider"></span></label>
           </div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
-            <div class="form-group"><label>X</label><input type="number" class="frame-x" data-idx="5" value="1580" min="0" max="1920" /></div>
-            <div class="form-group"><label>Y</label><input type="number" class="frame-y" data-idx="5" value="578" min="0" max="1080" /></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-bottom:5px;">
+            <div><div style="font-size:10px;color:var(--text-muted);margin-bottom:2px">X</div><input type="number" class="frame-x" data-idx="5" value="1580" min="0" max="1920" style="width:100%;padding:3px 4px;font-size:12px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text)" /></div>
+            <div><div style="font-size:10px;color:var(--text-muted);margin-bottom:2px">Y</div><input type="number" class="frame-y" data-idx="5" value="578" min="0" max="1080" style="width:100%;padding:3px 4px;font-size:12px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text)" /></div>
           </div>
-          <div class="form-group" style="margin-bottom:12px;">
-            <label>Taille</label>
-            <input type="range" class="frame-w" data-idx="5" data-ratio="0.5625" value="560" min="50" max="1920" style="width:100%;" />
-            <input type="hidden" class="frame-h" data-idx="5" value="315" />
+          <div style="margin-bottom:5px;"><div style="font-size:10px;color:var(--text-muted);margin-bottom:2px">Largeur</div><input type="number" class="frame-w" data-idx="5" data-ratio="0.5625" value="560" min="50" max="1920" style="width:100%;padding:3px 4px;font-size:12px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text)" /><input type="hidden" class="frame-h" data-idx="5" value="315" /></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:3px;margin-bottom:5px;">
+            <button class="btn btn-outline btn-sm frame-ratio-btn" data-idx="5" data-ratio="16/9" style="padding:2px;font-size:10px">16:9</button>
+            <button class="btn btn-outline btn-sm frame-ratio-btn" data-idx="5" data-ratio="4/3" style="padding:2px;font-size:10px">4:3</button>
+            <button class="btn btn-outline btn-sm frame-ratio-btn" data-idx="5" data-ratio="1/1" style="padding:2px;font-size:10px">1:1</button>
+            <button class="btn btn-outline btn-sm frame-ratio-btn" data-idx="5" data-ratio="9/16" style="padding:2px;font-size:10px">9:16</button>
           </div>
-          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;">
-            <span style="font-size:12px;color:var(--text-muted);align-self:center;">Ratio :</span>
-            <button class="btn btn-outline btn-sm frame-ratio-btn" data-idx="5" data-ratio="16/9">16:9</button>
-            <button class="btn btn-outline btn-sm frame-ratio-btn" data-idx="5" data-ratio="4/3">4:3</button>
-            <button class="btn btn-outline btn-sm frame-ratio-btn" data-idx="5" data-ratio="1/1">1:1</button>
-            <button class="btn btn-outline btn-sm frame-ratio-btn" data-idx="5" data-ratio="9/16">9:16</button>
-          </div>
-          <div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-bottom:12px;">
-            <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;">
-              <input type="checkbox" class="frame-showbg" data-idx="5" /> Fond semi-transparent
-            </label>
-          </div>
-          <div class="form-group">
-            <label>Label <span class="hint">facultatif</span></label>
-            <input type="text" class="frame-label" data-idx="5" placeholder="ex: Caméra 6" maxlength="40" />
-          </div>
-          <button class="btn btn-primary btn-sm frame-save-btn" data-idx="5" style="margin-top:10px;">Appliquer le cadre 6</button>
+          <label style="display:flex;align-items:center;gap:4px;font-size:11px;cursor:pointer;margin-bottom:5px"><input type="checkbox" class="frame-showbg" data-idx="5" /> Fond</label>
+          <input type="text" class="frame-label" data-idx="5" placeholder="Label…" maxlength="40" style="width:100%;padding:3px 4px;font-size:11px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);margin-bottom:5px" />
+          <button class="btn btn-primary btn-sm frame-save-btn" data-idx="5" style="width:100%;padding:4px;font-size:11px">Appliquer</button>
         </div>
 
       </div><!-- /frames-cards -->
-
-      <!-- URL OBS -->
-      <div class="custom-card">
-        <h3>Source OBS</h3>
-        <p style="font-size:13px;color:var(--text-muted);margin-bottom:10px;line-height:1.6;">
-          Ajoute une <strong>Source Navigateur</strong> · Résolution <strong>1920 × 1080</strong> · Fond transparent.
-        </p>
-        <div class="name-row" style="gap:8px;">
-          <input type="text" id="frames-url" readonly
-            style="flex:1;font-size:12px;background:var(--surface2);border:1px solid var(--border);color:var(--text-muted);"
-            value="http://localhost:3002/frames" />
-          <button class="btn btn-primary btn-sm" id="btn-copy-frames-url">Copier</button>
-        </div>
-      </div>
 
         </div><!-- /accordion-body-frames -->
       </div><!-- /accordion-frames -->
@@ -4661,15 +4541,89 @@
       <div id="studio-layer-controls"><!-- Généré par JS --></div>
       <div class="custom-card">
         <h3>Fond du Super Overlay</h3>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+
+        <!-- ── Couleur de fond ─────────────────────────────── -->
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px">
           <button class="btn btn-outline btn-sm so-bg-preset active-sep" data-bg="transparent">Transparent</button>
           <button class="btn btn-outline btn-sm so-bg-preset" data-bg="#000000">Noir</button>
           <button class="btn btn-outline btn-sm so-bg-preset" data-bg="#111118">Presque noir</button>
           <button class="btn btn-outline btn-sm so-bg-preset" data-bg="#1a1a2e">Bleu nuit</button>
+          <button class="btn btn-outline btn-sm" id="btn-so-bg-theme" title="Utilise la couleur primaire du thème actif">🎨 Couleur thème</button>
           <div style="display:flex;align-items:center;gap:6px;">
             <label style="font-size:12px;color:var(--text-muted);">Perso :</label>
             <input type="color" id="so-bg-color-picker" value="#000000" style="width:32px;height:28px;cursor:pointer;border:none;background:none;" />
           </div>
+        </div>
+
+        <!-- ── Image / Texture ────────────────────────────── -->
+        <div style="border-top:1px solid var(--border);padding-top:10px;">
+          <div style="display:flex;gap:6px;align-items:center;margin-bottom:8px;flex-wrap:wrap">
+            <label style="font-size:12px;font-weight:600;color:var(--text-muted);white-space:nowrap">Image / Texture</label>
+            <button class="btn btn-outline btn-sm so-bg-img-mode-btn active-sep" data-mode="texture">🔲 Texture répétée</button>
+            <button class="btn btn-outline btn-sm so-bg-img-mode-btn" data-mode="image">🖼 Image plein écran</button>
+          </div>
+          <div style="display:flex;gap:8px;align-items:flex-start">
+            <div id="so-bg-img-preview" style="width:64px;height:48px;border:1px solid var(--border);border-radius:6px;flex-shrink:0;background-size:cover;background-position:center;background-color:var(--surface2);position:relative;overflow:hidden">
+              <span id="so-bg-img-preview-empty" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--text-muted)">Aucune</span>
+            </div>
+            <div style="flex:1;display:flex;flex-direction:column;gap:6px">
+              <div style="display:flex;gap:6px">
+                <label class="btn btn-outline btn-sm" style="cursor:pointer;font-size:11px">
+                  📁 Fichier
+                  <input type="file" id="so-bg-img-file" accept="image/*" style="display:none" />
+                </label>
+                <button id="btn-so-bg-img-clear" class="btn btn-outline btn-sm" style="color:var(--danger);border-color:var(--danger);font-size:11px">✕</button>
+              </div>
+              <div style="display:flex;gap:8px">
+                <div class="form-group" style="margin:0;flex:1">
+                  <label>Fusion</label>
+                  <select id="so-bg-img-blend" style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:12px;padding:3px 5px">
+                    <option value="normal">Normal</option>
+                    <option value="multiply">Multiply</option>
+                    <option value="screen">Screen</option>
+                    <option value="overlay">Overlay</option>
+                    <option value="soft-light">Soft Light</option>
+                    <option value="hard-light">Hard Light</option>
+                    <option value="color-dodge">Color Dodge</option>
+                    <option value="color-burn">Color Burn</option>
+                    <option value="lighten">Lighten</option>
+                    <option value="darken">Darken</option>
+                    <option value="difference">Difference</option>
+                    <option value="exclusion">Exclusion</option>
+                  </select>
+                </div>
+                <div class="form-group" style="margin:0;flex:1">
+                  <label>Opacité %</label>
+                  <input type="number" id="so-bg-img-opacity" min="0" max="100" value="100" style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:12px;padding:3px 5px;text-align:center" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── Particules thème ────────────────────────────── -->
+          <div style="border-top:1px solid var(--border);padding-top:10px;margin-top:2px">
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;margin-bottom:8px;font-size:13px;font-weight:600">
+              <input type="checkbox" id="so-particles-enabled" />
+              Particules (sync thème)
+            </label>
+            <div id="so-particles-controls" style="display:none;gap:8px">
+              <div class="form-group" style="margin:0;flex:1">
+                <label>Opacité %</label>
+                <div class="logo-particles-row">
+                  <input type="range" id="so-particles-opacity-range" min="0" max="100" value="100" />
+                  <input type="number" id="so-particles-opacity-num" min="0" max="100" value="100" style="width:50px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:12px;padding:3px 5px;text-align:center" />
+                </div>
+              </div>
+              <div class="form-group" style="margin:0;flex:1">
+                <label>Quantité %</label>
+                <div class="logo-particles-row">
+                  <input type="range" id="so-particles-count-range" min="0" max="500" value="100" />
+                  <input type="number" id="so-particles-count-num" min="0" max="500" value="100" style="width:50px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:12px;padding:3px 5px;text-align:center" />
+                </div>
+              </div>
+            </div>
+          </div>
+
         </div>
       </div>
       <div class="custom-card">
@@ -5478,724 +5432,6 @@
     </section>
   </div><!-- /tab-overlayip -->
 
-  <!-- ═══════════════════════════════════════════════════════════ -->
-  <!-- TAB : VALORANT                                              -->
-  <!-- ═══════════════════════════════════════════════════════════ -->
-  <div class="tab-content" id="tab-valorant">
-
-    <!-- SUB-NAV -->
-    <div class="match-subnav">
-      <button class="match-subnav-btn active" data-panel="val-panel-scoreboard">Scoreboard</button>
-      <button class="match-subnav-btn" data-panel="val-panel-casters">Casters</button>
-      <button class="match-subnav-btn" data-panel="val-panel-pickban">Pick &amp; Ban</button>
-      <button class="match-subnav-btn" data-panel="val-panel-lineup">Lineup</button>
-      <button class="match-subnav-btn" data-panel="val-panel-themes">Thèmes</button>
-    </div>
-
-    <!-- ═══════ PANEL : SCOREBOARD ═══════════════════════════════ -->
-    <div class="match-panel active" id="val-panel-scoreboard">
-      <section class="section">
-        <div class="section-header">
-          <h2>Scoreboard Valorant</h2>
-          <div style="display:flex;gap:8px;align-items:center">
-            <button class="btn btn-outline btn-sm" onclick="window.open('/val-scoreboard','_blank')">↗ Overlay</button>
-            <label class="toggle-label">
-              <input type="checkbox" id="val-sb-visible" checked />
-              <span class="toggle-track"><span class="toggle-thumb"></span></span>
-              Visible
-            </label>
-          </div>
-        </div>
-
-        <!-- Équipes côte-à-côte -->
-        <div class="scoreboard-grid" style="grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
-
-          <!-- Équipe 1 -->
-          <div class="player-card" style="border-top:3px solid var(--val-t1-color,#FF4655)">
-            <div class="player-card-header">
-              <h3>Équipe 1</h3>
-              <div class="color-row">
-                <label>Couleur</label>
-                <input type="color" id="val-t1-color" value="#FF4655" />
-              </div>
-            </div>
-            <div class="form-group">
-              <label>Nom</label>
-              <input type="text" id="val-t1-name" value="TEAM ALPHA" />
-            </div>
-            <div class="form-group">
-              <label>Score (maps gagnées)</label>
-              <div style="display:flex;align-items:center;gap:8px">
-                <button class="btn btn-outline btn-sm" id="val-t1-score-minus">−</button>
-                <span id="val-t1-score-display" style="font-size:22px;font-weight:700;min-width:30px;text-align:center">0</span>
-                <button class="btn btn-outline btn-sm" id="val-t1-score-plus">+</button>
-              </div>
-            </div>
-            <div class="form-group">
-              <label>URL Logo (optionnel)</label>
-              <input type="text" id="val-t1-logo" placeholder="https://... ou vide" />
-            </div>
-          </div>
-
-          <!-- Équipe 2 -->
-          <div class="player-card" style="border-top:3px solid var(--val-t2-color,#3B71E4)">
-            <div class="player-card-header">
-              <h3>Équipe 2</h3>
-              <div class="color-row">
-                <label>Couleur</label>
-                <input type="color" id="val-t2-color" value="#3B71E4" />
-              </div>
-            </div>
-            <div class="form-group">
-              <label>Nom</label>
-              <input type="text" id="val-t2-name" value="TEAM BRAVO" />
-            </div>
-            <div class="form-group">
-              <label>Score (maps gagnées)</label>
-              <div style="display:flex;align-items:center;gap:8px">
-                <button class="btn btn-outline btn-sm" id="val-t2-score-minus">−</button>
-                <span id="val-t2-score-display" style="font-size:22px;font-weight:700;min-width:30px;text-align:center">0</span>
-                <button class="btn btn-outline btn-sm" id="val-t2-score-plus">+</button>
-              </div>
-            </div>
-            <div class="form-group">
-              <label>URL Logo (optionnel)</label>
-              <input type="text" id="val-t2-logo" placeholder="https://... ou vide" />
-            </div>
-          </div>
-        </div>
-
-        <!-- Infos match -->
-        <div class="scoreboard-grid" style="grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px">
-          <div class="form-group">
-            <label>Événement</label>
-            <input type="text" id="val-event" value="VCT 2025" />
-          </div>
-          <div class="form-group">
-            <label>Map</label>
-            <select id="val-map-name">
-              <option value="">— Choisir —</option>
-              <option>Ascent</option><option>Bind</option><option>Haven</option>
-              <option>Split</option><option>Icebox</option><option>Breeze</option>
-              <option>Fracture</option><option>Pearl</option><option>Lotus</option>
-              <option>Sunset</option><option>Abyss</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>Format</label>
-            <select id="val-match-format">
-              <option value="Bo1">Bo1</option>
-              <option value="Bo3" selected>Bo3</option>
-              <option value="Bo5">Bo5</option>
-            </select>
-          </div>
-        </div>
-        <div class="form-group" style="max-width:180px;margin-bottom:12px">
-          <label>Numéro de map</label>
-          <input type="number" id="val-current-map" value="1" min="1" max="5" />
-        </div>
-
-        <!-- Fond -->
-        <div style="display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap">
-          <div class="form-group" style="margin-bottom:0">
-            <label>Couleur fond</label>
-            <input type="color" id="val-sb-bg-color" value="#0A0A12" />
-          </div>
-          <div class="form-group" style="flex:1;min-width:120px;margin-bottom:0">
-            <label>Opacité fond <span id="val-sb-bg-opacity-val">95</span>%</label>
-            <input type="range" id="val-sb-bg-opacity" min="0" max="100" value="95" />
-          </div>
-        </div>
-      </section>
-    </div><!-- /val-panel-scoreboard -->
-
-    <!-- ═══════ PANEL : CASTERS ═══════════════════════════════════ -->
-    <div class="match-panel" id="val-panel-casters">
-      <section class="section">
-        <div class="section-header">
-          <h2>Casters Valorant</h2>
-          <button class="btn btn-outline btn-sm" onclick="window.open('/val-casters','_blank')">↗ Overlay</button>
-        </div>
-
-        <!-- Caster 1 -->
-        <div class="caster-inline-block">
-          <div class="caster-inline-title">Caster 1</div>
-          <div class="form-row">
-            <div class="form-group" style="flex:1"><label>Nom</label><input type="text" id="val-c1-name" placeholder="Pseudo du caster" /></div>
-            <div class="form-group" style="flex:1"><label>Twitter / X</label><input type="text" id="val-c1-twitter" placeholder="@handle" /></div>
-          </div>
-          <div class="form-row">
-            <div class="form-group" style="flex:1"><label>Twitch</label><input type="text" id="val-c1-twitch" placeholder="channel" /></div>
-            <div class="form-group" style="flex:1"><label>YouTube</label><input type="text" id="val-c1-youtube" placeholder="@channel" /></div>
-          </div>
-        </div>
-
-        <!-- Caster 2 -->
-        <div class="caster-inline-block">
-          <div class="caster-inline-title">Caster 2</div>
-          <div class="form-row">
-            <div class="form-group" style="flex:1"><label>Nom</label><input type="text" id="val-c2-name" placeholder="Pseudo du caster" /></div>
-            <div class="form-group" style="flex:1"><label>Twitter / X</label><input type="text" id="val-c2-twitter" placeholder="@handle" /></div>
-          </div>
-          <div class="form-row">
-            <div class="form-group" style="flex:1"><label>Twitch</label><input type="text" id="val-c2-twitch" placeholder="channel" /></div>
-            <div class="form-group" style="flex:1"><label>YouTube</label><input type="text" id="val-c2-youtube" placeholder="@channel" /></div>
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label>Disposition</label>
-          <div class="btn-group">
-            <button class="btn btn-outline btn-sm val-casters-layout-btn active" data-layout="row">Rangée</button>
-            <button class="btn btn-outline btn-sm val-casters-layout-btn" data-layout="col">Colonne</button>
-          </div>
-        </div>
-        <div class="form-group">
-          <label>
-            <input type="checkbox" id="val-casters-visible" />
-            Afficher les casters Valorant
-          </label>
-        </div>
-      </section>
-    </div><!-- /val-panel-casters -->
-
-    <!-- ═══════ PANEL : PICK & BAN ════════════════════════════════ -->
-    <div class="match-panel" id="val-panel-pickban">
-      <section class="section">
-        <div class="section-header">
-          <h2>Pick &amp; Ban</h2>
-          <div style="display:flex;gap:8px;align-items:center">
-            <button class="btn btn-outline btn-sm" onclick="window.open('/val-pickban','_blank')">↗ Overlay</button>
-            <button class="btn btn-outline btn-sm" id="val-pb-reset" style="border-color:#e05;color:#e05">↺ Reset</button>
-            <label class="toggle-label">
-              <input type="checkbox" id="val-pb-visible" />
-              <span class="toggle-track"><span class="toggle-thumb"></span></span>
-              Visible
-            </label>
-          </div>
-        </div>
-
-        <!-- Phase -->
-        <div class="form-group" style="margin-bottom:16px">
-          <label>Phase</label>
-          <div class="btn-group">
-            <button class="btn btn-outline btn-sm val-pb-phase-btn active" data-phase="agent">Agent Select</button>
-            <button class="btn btn-outline btn-sm val-pb-phase-btn" data-phase="map">Map Veto</button>
-          </div>
-        </div>
-
-        <!-- Joueurs Équipe 1 & 2 -->
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
-          <!-- Équipe 1 -->
-          <div>
-            <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
-              <div style="width:12px;height:12px;border-radius:50%;background:var(--val-pb-t1-clr,#FF4655)"></div>
-              <strong id="val-pb-t1-label">TEAM ALPHA</strong>
-            </div>
-            <div id="val-pb-t1-players" class="val-pb-players-list"></div>
-          </div>
-          <!-- Équipe 2 -->
-          <div>
-            <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
-              <div style="width:12px;height:12px;border-radius:50%;background:var(--val-pb-t2-clr,#3B71E4)"></div>
-              <strong id="val-pb-t2-label">TEAM BRAVO</strong>
-            </div>
-            <div id="val-pb-t2-players" class="val-pb-players-list"></div>
-          </div>
-        </div>
-
-        <!-- Map Veto (visible en mode map) -->
-        <div id="val-map-veto-section" style="display:none">
-          <h3 style="margin-bottom:10px;font-size:13px;letter-spacing:1px;opacity:.6">VETO DES MAPS</h3>
-          <div id="val-map-veto-list" class="val-map-veto-list"></div>
-        </div>
-      </section>
-    </div><!-- /val-panel-pickban -->
-
-    <!-- ═══════ PANEL : LINEUP ════════════════════════════════════ -->
-    <div class="match-panel" id="val-panel-lineup">
-      <section class="section">
-        <div class="section-header">
-          <h2>Lineup Joueurs</h2>
-          <div style="display:flex;gap:8px;align-items:center">
-            <button class="btn btn-outline btn-sm" onclick="window.open('/val-lineup','_blank')">↗ Overlay</button>
-            <label class="toggle-label">
-              <input type="checkbox" id="val-lu-visible" />
-              <span class="toggle-track"><span class="toggle-thumb"></span></span>
-              Visible
-            </label>
-          </div>
-        </div>
-
-        <div class="form-group" style="max-width:320px;margin-bottom:16px">
-          <label>Map / Info centre</label>
-          <input type="text" id="val-lu-map" placeholder="ex : ASCENT" />
-        </div>
-
-        <!-- Joueurs côte-à-côte -->
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
-          <!-- Équipe 1 -->
-          <div>
-            <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
-              <div style="width:12px;height:12px;border-radius:50%;background:var(--val-pb-t1-clr,#FF4655)"></div>
-              <strong id="val-lu-t1-label">TEAM ALPHA</strong>
-            </div>
-            <div id="val-lu-t1-players" class="val-lu-players-list"></div>
-          </div>
-          <!-- Équipe 2 -->
-          <div>
-            <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
-              <div style="width:12px;height:12px;border-radius:50%;background:var(--val-pb-t2-clr,#3B71E4)"></div>
-              <strong id="val-lu-t2-label">TEAM BRAVO</strong>
-            </div>
-            <div id="val-lu-t2-players" class="val-lu-players-list"></div>
-          </div>
-        </div>
-      </section>
-    </div><!-- /val-panel-lineup -->
-
-    <!-- ═══════ PANEL : THÈMES ════════════════════════════════════ -->
-    <div class="match-panel" id="val-panel-themes">
-      <section class="section">
-        <div class="section-header"><h2>Thèmes Valorant</h2></div>
-
-        <div class="val-theme-grid" id="val-theme-grid">
-          <!-- Généré par JS -->
-        </div>
-
-        <div style="margin-top:20px;padding-top:16px;border-top:1px solid rgba(255,255,255,.07)">
-          <h3 style="font-size:13px;letter-spacing:1px;opacity:.6;margin-bottom:12px">PERSONNALISATION</h3>
-          <div style="display:flex;gap:16px;flex-wrap:wrap">
-            <div class="form-group" style="margin-bottom:0">
-              <label>Couleur équipe 1</label>
-              <input type="color" id="val-theme-t1-color" value="#FF4655" />
-            </div>
-            <div class="form-group" style="margin-bottom:0">
-              <label>Couleur équipe 2</label>
-              <input type="color" id="val-theme-t2-color" value="#3B71E4" />
-            </div>
-            <div class="form-group" style="margin-bottom:0">
-              <label>Fond</label>
-              <input type="color" id="val-theme-bg-color" value="#0A0A12" />
-            </div>
-            <div class="form-group" style="flex:1;min-width:140px;margin-bottom:0">
-              <label>Opacité fond <span id="val-theme-bg-opacity-val">95</span>%</label>
-              <input type="range" id="val-theme-bg-opacity" min="0" max="100" value="95" />
-            </div>
-          </div>
-        </div>
-      </section>
-    </div><!-- /val-panel-themes -->
-
-  </div><!-- /tab-valorant -->
-
-  <!-- ═══════════════════════════════════════════════════════════ -->
-  <!-- TAB : STREET FIGHTER 6                                    -->
-  <!-- ═══════════════════════════════════════════════════════════ -->
-  <div class="tab-content" id="tab-sf6">
-
-    <div class="match-subnav">
-      <button class="match-subnav-btn active" data-panel="sf6-panel-match">Match</button>
-      <button class="match-subnav-btn" data-panel="sf6-panel-casters">Casters</button>
-      <button class="match-subnav-btn" data-panel="sf6-panel-themes">Thèmes</button>
-    </div>
-
-    <!-- ═══ MATCH ═════════════════════════════════════════════════ -->
-    <div class="match-panel" id="sf6-panel-match">
-      <section class="section">
-        <div class="section-header">
-          <h2>Scoreboard SF6</h2>
-          <button class="btn btn-outline btn-sm" onclick="window.open('/sf-scoreboard','_blank')">↗ Overlay</button>
-        </div>
-
-        <!-- Info centrale -->
-        <div class="form-row">
-          <div class="form-group" style="flex:1"><label>Événement</label><input type="text" id="sf6-event" value="Capcom Cup" /></div>
-          <div class="form-group" style="flex:1"><label>Format</label>
-            <select id="sf6-format">
-              <option value="Bo1">Bo1</option><option value="Bo3" selected>Bo3</option>
-              <option value="Bo5">Bo5</option><option value="Grand Final">Grand Final</option>
-            </select>
-          </div>
-          <div class="form-group" style="width:100px"><label>Round</label><input type="number" id="sf6-round" min="1" max="99" value="1" /></div>
-        </div>
-
-        <!-- Joueur 1 -->
-        <div class="caster-inline-block" style="--accent:#3A8FFF">
-          <div class="caster-inline-title" style="color:#3A8FFF">Joueur 1</div>
-          <div class="form-row">
-            <div class="form-group" style="flex:2"><label>Pseudo</label><input type="text" id="sf6-p1-name" placeholder="Joueur 1" /></div>
-            <div class="form-group" style="flex:2">
-              <label>Personnage</label>
-              <select id="sf6-p1-char"><option value="">— Choisir —</option></select>
-            </div>
-            <div class="form-group" style="flex:1"><label>Score</label>
-              <div style="display:flex;align-items:center;gap:6px">
-                <button class="btn btn-outline btn-sm sf6-score-btn" data-player="p1" data-dir="-1">−</button>
-                <span id="sf6-p1-score-display" style="min-width:24px;text-align:center;font-weight:700">0</span>
-                <button class="btn btn-outline btn-sm sf6-score-btn" data-player="p1" data-dir="1">+</button>
-              </div>
-            </div>
-            <div class="form-group" style="width:80px"><label>Couleur</label><input type="color" id="sf6-p1-color" value="#3A8FFF" /></div>
-          </div>
-        </div>
-
-        <!-- Joueur 2 -->
-        <div class="caster-inline-block" style="--accent:#FF5A3A">
-          <div class="caster-inline-title" style="color:#FF5A3A">Joueur 2</div>
-          <div class="form-row">
-            <div class="form-group" style="flex:2"><label>Pseudo</label><input type="text" id="sf6-p2-name" placeholder="Joueur 2" /></div>
-            <div class="form-group" style="flex:2">
-              <label>Personnage</label>
-              <select id="sf6-p2-char"><option value="">— Choisir —</option></select>
-            </div>
-            <div class="form-group" style="flex:1"><label>Score</label>
-              <div style="display:flex;align-items:center;gap:6px">
-                <button class="btn btn-outline btn-sm sf6-score-btn" data-player="p2" data-dir="-1">−</button>
-                <span id="sf6-p2-score-display" style="min-width:24px;text-align:center;font-weight:700">0</span>
-                <button class="btn btn-outline btn-sm sf6-score-btn" data-player="p2" data-dir="1">+</button>
-              </div>
-            </div>
-            <div class="form-group" style="width:80px"><label>Couleur</label><input type="color" id="sf6-p2-color" value="#FF5A3A" /></div>
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label><input type="checkbox" id="sf6-sb-visible" checked /> Afficher le scoreboard</label>
-        </div>
-        <button class="btn btn-outline btn-sm" id="sf6-reset-scores">Réinitialiser les scores</button>
-      </section>
-    </div><!-- /sf6-panel-match -->
-
-    <!-- ═══ CASTERS ═══════════════════════════════════════════════ -->
-    <div class="match-panel" id="sf6-panel-casters">
-      <section class="section">
-        <div class="section-header">
-          <h2>Casters SF6</h2>
-          <button class="btn btn-outline btn-sm" onclick="window.open('/val-casters','_blank')">↗ Overlay</button>
-        </div>
-        <div class="caster-inline-block">
-          <div class="caster-inline-title">Caster 1</div>
-          <div class="form-row">
-            <div class="form-group" style="flex:1"><label>Nom</label><input type="text" id="sf6-c1-name" /></div>
-            <div class="form-group" style="flex:1"><label>Twitter / X</label><input type="text" id="sf6-c1-twitter" /></div>
-          </div>
-          <div class="form-row">
-            <div class="form-group" style="flex:1"><label>Twitch</label><input type="text" id="sf6-c1-twitch" /></div>
-            <div class="form-group" style="flex:1"><label>YouTube</label><input type="text" id="sf6-c1-youtube" /></div>
-          </div>
-        </div>
-        <div class="caster-inline-block">
-          <div class="caster-inline-title">Caster 2</div>
-          <div class="form-row">
-            <div class="form-group" style="flex:1"><label>Nom</label><input type="text" id="sf6-c2-name" /></div>
-            <div class="form-group" style="flex:1"><label>Twitter / X</label><input type="text" id="sf6-c2-twitter" /></div>
-          </div>
-          <div class="form-row">
-            <div class="form-group" style="flex:1"><label>Twitch</label><input type="text" id="sf6-c2-twitch" /></div>
-            <div class="form-group" style="flex:1"><label>YouTube</label><input type="text" id="sf6-c2-youtube" /></div>
-          </div>
-        </div>
-        <div class="form-group">
-          <label>Disposition</label>
-          <div class="btn-group">
-            <button class="btn btn-outline btn-sm sf6-casters-layout-btn active" data-layout="row">Rangée</button>
-            <button class="btn btn-outline btn-sm sf6-casters-layout-btn" data-layout="col">Colonne</button>
-          </div>
-        </div>
-        <div class="form-group"><label><input type="checkbox" id="sf6-casters-visible" /> Afficher les casters</label></div>
-      </section>
-    </div><!-- /sf6-panel-casters -->
-
-    <!-- ═══ THÈMES ════════════════════════════════════════════════ -->
-    <div class="match-panel" id="sf6-panel-themes">
-      <section class="section">
-        <div class="section-header"><h2>Thèmes SF6</h2></div>
-        <div class="val-theme-grid" id="sf6-theme-grid"></div>
-      </section>
-    </div><!-- /sf6-panel-themes -->
-
-  </div><!-- /tab-sf6 -->
-
-  <!-- ═══════════════════════════════════════════════════════════ -->
-  <!-- TAB : TEKKEN 8                                            -->
-  <!-- ═══════════════════════════════════════════════════════════ -->
-  <div class="tab-content" id="tab-tek8">
-
-    <div class="match-subnav">
-      <button class="match-subnav-btn active" data-panel="tek8-panel-match">Match</button>
-      <button class="match-subnav-btn" data-panel="tek8-panel-casters">Casters</button>
-      <button class="match-subnav-btn" data-panel="tek8-panel-themes">Thèmes</button>
-    </div>
-
-    <!-- ═══ MATCH ═════════════════════════════════════════════════ -->
-    <div class="match-panel" id="tek8-panel-match">
-      <section class="section">
-        <div class="section-header">
-          <h2>Scoreboard Tekken 8</h2>
-          <button class="btn btn-outline btn-sm" onclick="window.open('/tek-scoreboard','_blank')">↗ Overlay</button>
-        </div>
-
-        <div class="form-row">
-          <div class="form-group" style="flex:1"><label>Événement</label><input type="text" id="tek8-event" value="Tekken World Tour" /></div>
-          <div class="form-group" style="flex:1"><label>Format</label>
-            <select id="tek8-format">
-              <option value="Bo1">Bo1</option><option value="Bo3" selected>Bo3</option>
-              <option value="Bo5">Bo5</option><option value="Grand Final">Grand Final</option>
-            </select>
-          </div>
-          <div class="form-group" style="width:100px"><label>Round</label><input type="number" id="tek8-round" min="1" max="99" value="1" /></div>
-        </div>
-
-        <div class="caster-inline-block" style="--accent:#DC3232">
-          <div class="caster-inline-title" style="color:#DC3232">Joueur 1</div>
-          <div class="form-row">
-            <div class="form-group" style="flex:2"><label>Pseudo</label><input type="text" id="tek8-p1-name" placeholder="Joueur 1" /></div>
-            <div class="form-group" style="flex:2">
-              <label>Personnage</label>
-              <select id="tek8-p1-char"><option value="">— Choisir —</option></select>
-            </div>
-            <div class="form-group" style="flex:1"><label>Score</label>
-              <div style="display:flex;align-items:center;gap:6px">
-                <button class="btn btn-outline btn-sm tek8-score-btn" data-player="p1" data-dir="-1">−</button>
-                <span id="tek8-p1-score-display" style="min-width:24px;text-align:center;font-weight:700">0</span>
-                <button class="btn btn-outline btn-sm tek8-score-btn" data-player="p1" data-dir="1">+</button>
-              </div>
-            </div>
-            <div class="form-group" style="width:80px"><label>Couleur</label><input type="color" id="tek8-p1-color" value="#DC3232" /></div>
-          </div>
-        </div>
-
-        <div class="caster-inline-block" style="--accent:#3A8FFF">
-          <div class="caster-inline-title" style="color:#3A8FFF">Joueur 2</div>
-          <div class="form-row">
-            <div class="form-group" style="flex:2"><label>Pseudo</label><input type="text" id="tek8-p2-name" placeholder="Joueur 2" /></div>
-            <div class="form-group" style="flex:2">
-              <label>Personnage</label>
-              <select id="tek8-p2-char"><option value="">— Choisir —</option></select>
-            </div>
-            <div class="form-group" style="flex:1"><label>Score</label>
-              <div style="display:flex;align-items:center;gap:6px">
-                <button class="btn btn-outline btn-sm tek8-score-btn" data-player="p2" data-dir="-1">−</button>
-                <span id="tek8-p2-score-display" style="min-width:24px;text-align:center;font-weight:700">0</span>
-                <button class="btn btn-outline btn-sm tek8-score-btn" data-player="p2" data-dir="1">+</button>
-              </div>
-            </div>
-            <div class="form-group" style="width:80px"><label>Couleur</label><input type="color" id="tek8-p2-color" value="#3A8FFF" /></div>
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label><input type="checkbox" id="tek8-sb-visible" checked /> Afficher le scoreboard</label>
-        </div>
-        <button class="btn btn-outline btn-sm" id="tek8-reset-scores">Réinitialiser les scores</button>
-      </section>
-    </div><!-- /tek8-panel-match -->
-
-    <!-- ═══ CASTERS ═══════════════════════════════════════════════ -->
-    <div class="match-panel" id="tek8-panel-casters">
-      <section class="section">
-        <div class="section-header">
-          <h2>Casters Tekken 8</h2>
-          <button class="btn btn-outline btn-sm" onclick="window.open('/val-casters','_blank')">↗ Overlay</button>
-        </div>
-        <div class="caster-inline-block">
-          <div class="caster-inline-title">Caster 1</div>
-          <div class="form-row">
-            <div class="form-group" style="flex:1"><label>Nom</label><input type="text" id="tek8-c1-name" /></div>
-            <div class="form-group" style="flex:1"><label>Twitter / X</label><input type="text" id="tek8-c1-twitter" /></div>
-          </div>
-          <div class="form-row">
-            <div class="form-group" style="flex:1"><label>Twitch</label><input type="text" id="tek8-c1-twitch" /></div>
-            <div class="form-group" style="flex:1"><label>YouTube</label><input type="text" id="tek8-c1-youtube" /></div>
-          </div>
-        </div>
-        <div class="caster-inline-block">
-          <div class="caster-inline-title">Caster 2</div>
-          <div class="form-row">
-            <div class="form-group" style="flex:1"><label>Nom</label><input type="text" id="tek8-c2-name" /></div>
-            <div class="form-group" style="flex:1"><label>Twitter / X</label><input type="text" id="tek8-c2-twitter" /></div>
-          </div>
-          <div class="form-row">
-            <div class="form-group" style="flex:1"><label>Twitch</label><input type="text" id="tek8-c2-twitch" /></div>
-            <div class="form-group" style="flex:1"><label>YouTube</label><input type="text" id="tek8-c2-youtube" /></div>
-          </div>
-        </div>
-        <div class="form-group">
-          <label>Disposition</label>
-          <div class="btn-group">
-            <button class="btn btn-outline btn-sm tek8-casters-layout-btn active" data-layout="row">Rangée</button>
-            <button class="btn btn-outline btn-sm tek8-casters-layout-btn" data-layout="col">Colonne</button>
-          </div>
-        </div>
-        <div class="form-group"><label><input type="checkbox" id="tek8-casters-visible" /> Afficher les casters</label></div>
-      </section>
-    </div><!-- /tek8-panel-casters -->
-
-    <!-- ═══ THÈMES ════════════════════════════════════════════════ -->
-    <div class="match-panel" id="tek8-panel-themes">
-      <section class="section">
-        <div class="section-header"><h2>Thèmes Tekken 8</h2></div>
-        <div class="val-theme-grid" id="tek8-theme-grid"></div>
-      </section>
-    </div><!-- /tek8-panel-themes -->
-
-  </div><!-- /tab-tek8 -->
-
-  <!-- ═══════════════════════════════════════════════════════════ -->
-  <!-- TAB : COUNTER-STRIKE 2                                    -->
-  <!-- ═══════════════════════════════════════════════════════════ -->
-  <div class="tab-content" id="tab-cs2">
-
-    <div class="match-subnav">
-      <button class="match-subnav-btn active" data-panel="cs2-panel-match">Match</button>
-      <button class="match-subnav-btn" data-panel="cs2-panel-casters">Casters</button>
-      <button class="match-subnav-btn" data-panel="cs2-panel-veto">Map Veto</button>
-      <button class="match-subnav-btn" data-panel="cs2-panel-themes">Thèmes</button>
-    </div>
-
-    <!-- ═══ MATCH ═════════════════════════════════════════════════ -->
-    <div class="match-panel" id="cs2-panel-match">
-      <section class="section">
-        <div class="section-header">
-          <h2>Scoreboard CS2</h2>
-          <button class="btn btn-outline btn-sm" onclick="window.open('/cs-scoreboard','_blank')">↗ Overlay</button>
-        </div>
-
-        <div class="form-row">
-          <div class="form-group" style="flex:2"><label>Événement</label><input type="text" id="cs2-event" value="IEM Katowice" /></div>
-          <div class="form-group" style="flex:2"><label>Map actuelle</label>
-            <select id="cs2-map">
-              <option>Mirage</option><option>Inferno</option><option>Overpass</option>
-              <option>Nuke</option><option>Ancient</option><option>Anubis</option>
-              <option>Dust2</option><option>Vertigo</option><option>Train</option>
-            </select>
-          </div>
-          <div class="form-group" style="flex:1"><label>Format</label>
-            <select id="cs2-format"><option value="Bo1">Bo1</option><option value="Bo3" selected>Bo3</option><option value="Bo5">Bo5</option></select>
-          </div>
-        </div>
-        <div class="form-row">
-          <div class="form-group" style="flex:1"><label>Round actuel</label><input type="number" id="cs2-round" min="1" max="30" value="1" /></div>
-          <div class="form-group" style="flex:1"><label>Rounds totaux</label><input type="number" id="cs2-total-rounds" min="12" max="30" value="24" /></div>
-        </div>
-
-        <!-- Équipe 1 (côté T) -->
-        <div class="caster-inline-block" style="--accent:#E8B400">
-          <div class="caster-inline-title" style="color:#E8B400">Équipe 1 (T)</div>
-          <div class="form-row">
-            <div class="form-group" style="flex:2"><label>Nom</label><input type="text" id="cs2-t1-name" placeholder="Team Alpha" /></div>
-            <div class="form-group" style="flex:1"><label>Côté</label>
-              <select id="cs2-t1-side"><option value="T">T (Terroristes)</option><option value="CT">CT (Counter-Terroristes)</option></select>
-            </div>
-            <div class="form-group" style="flex:1"><label>Score</label>
-              <div style="display:flex;align-items:center;gap:6px">
-                <button class="btn btn-outline btn-sm cs2-score-btn" data-team="team1" data-dir="-1">−</button>
-                <span id="cs2-t1-score-display" style="min-width:24px;text-align:center;font-weight:700">0</span>
-                <button class="btn btn-outline btn-sm cs2-score-btn" data-team="team1" data-dir="1">+</button>
-              </div>
-            </div>
-            <div class="form-group" style="width:80px"><label>Couleur</label><input type="color" id="cs2-t1-color" value="#E8B400" /></div>
-          </div>
-          <div class="form-group"><label>Logo URL</label><input type="text" id="cs2-t1-logo" placeholder="https://..." /></div>
-        </div>
-
-        <!-- Équipe 2 (côté CT) -->
-        <div class="caster-inline-block" style="--accent:#5B94EB">
-          <div class="caster-inline-title" style="color:#5B94EB">Équipe 2 (CT)</div>
-          <div class="form-row">
-            <div class="form-group" style="flex:2"><label>Nom</label><input type="text" id="cs2-t2-name" placeholder="Team Bravo" /></div>
-            <div class="form-group" style="flex:1"><label>Côté</label>
-              <select id="cs2-t2-side"><option value="T">T (Terroristes)</option><option value="CT" selected>CT (Counter-Terroristes)</option></select>
-            </div>
-            <div class="form-group" style="flex:1"><label>Score</label>
-              <div style="display:flex;align-items:center;gap:6px">
-                <button class="btn btn-outline btn-sm cs2-score-btn" data-team="team2" data-dir="-1">−</button>
-                <span id="cs2-t2-score-display" style="min-width:24px;text-align:center;font-weight:700">0</span>
-                <button class="btn btn-outline btn-sm cs2-score-btn" data-team="team2" data-dir="1">+</button>
-              </div>
-            </div>
-            <div class="form-group" style="width:80px"><label>Couleur</label><input type="color" id="cs2-t2-color" value="#5B94EB" /></div>
-          </div>
-          <div class="form-group"><label>Logo URL</label><input type="text" id="cs2-t2-logo" placeholder="https://..." /></div>
-        </div>
-
-        <div class="form-row" style="gap:12px;align-items:center">
-          <label><input type="checkbox" id="cs2-sb-visible" checked /> Afficher le scoreboard</label>
-          <button class="btn btn-outline btn-sm" id="cs2-reset-scores">Réinitialiser les scores</button>
-          <button class="btn btn-outline btn-sm" id="cs2-swap-sides">⇆ Inverser les côtés</button>
-        </div>
-      </section>
-    </div><!-- /cs2-panel-match -->
-
-    <!-- ═══ CASTERS ═══════════════════════════════════════════════ -->
-    <div class="match-panel" id="cs2-panel-casters">
-      <section class="section">
-        <div class="section-header">
-          <h2>Casters CS2</h2>
-          <button class="btn btn-outline btn-sm" onclick="window.open('/val-casters','_blank')">↗ Overlay</button>
-        </div>
-        <div class="caster-inline-block">
-          <div class="caster-inline-title">Caster 1</div>
-          <div class="form-row">
-            <div class="form-group" style="flex:1"><label>Nom</label><input type="text" id="cs2-c1-name" /></div>
-            <div class="form-group" style="flex:1"><label>Twitter / X</label><input type="text" id="cs2-c1-twitter" /></div>
-          </div>
-          <div class="form-row">
-            <div class="form-group" style="flex:1"><label>Twitch</label><input type="text" id="cs2-c1-twitch" /></div>
-            <div class="form-group" style="flex:1"><label>YouTube</label><input type="text" id="cs2-c1-youtube" /></div>
-          </div>
-        </div>
-        <div class="caster-inline-block">
-          <div class="caster-inline-title">Caster 2</div>
-          <div class="form-row">
-            <div class="form-group" style="flex:1"><label>Nom</label><input type="text" id="cs2-c2-name" /></div>
-            <div class="form-group" style="flex:1"><label>Twitter / X</label><input type="text" id="cs2-c2-twitter" /></div>
-          </div>
-          <div class="form-row">
-            <div class="form-group" style="flex:1"><label>Twitch</label><input type="text" id="cs2-c2-twitch" /></div>
-            <div class="form-group" style="flex:1"><label>YouTube</label><input type="text" id="cs2-c2-youtube" /></div>
-          </div>
-        </div>
-        <div class="form-group">
-          <label>Disposition</label>
-          <div class="btn-group">
-            <button class="btn btn-outline btn-sm cs2-casters-layout-btn active" data-layout="row">Rangée</button>
-            <button class="btn btn-outline btn-sm cs2-casters-layout-btn" data-layout="col">Colonne</button>
-          </div>
-        </div>
-        <div class="form-group"><label><input type="checkbox" id="cs2-casters-visible" /> Afficher les casters</label></div>
-      </section>
-    </div><!-- /cs2-panel-casters -->
-
-    <!-- ═══ MAP VETO ═══════════════════════════════════════════════ -->
-    <div class="match-panel" id="cs2-panel-veto">
-      <section class="section">
-        <div class="section-header">
-          <h2>Map Veto</h2>
-          <div style="display:flex;gap:8px;align-items:center">
-            <button class="btn btn-outline btn-sm" onclick="window.open('/cs-mapveto','_blank')">↗ Overlay</button>
-            <button class="btn btn-outline btn-sm" id="cs2-mv-visible-btn">Afficher</button>
-            <button class="btn btn-outline btn-sm" style="color:#e05" id="cs2-mv-reset">Réinitialiser</button>
-          </div>
-        </div>
-        <div class="form-row">
-          <div class="form-group" style="flex:1"><label>Phase</label><input type="text" id="cs2-mv-phase" value="MAP VETO" /></div>
-        </div>
-        <p class="hint" style="margin-bottom:10px">Clic : disponible → pick T1 → pick T2 → ban T1 → ban T2 → decider → disponible</p>
-        <div class="cs2-map-veto-list" id="cs2-map-veto-list"></div>
-      </section>
-    </div><!-- /cs2-panel-veto -->
-
-    <!-- ═══ THÈMES ════════════════════════════════════════════════ -->
-    <div class="match-panel" id="cs2-panel-themes">
-      <section class="section">
-        <div class="section-header"><h2>Thèmes CS2</h2></div>
-        <div class="val-theme-grid" id="cs2-theme-grid"></div>
-      </section>
-    </div><!-- /cs2-panel-themes -->
-
-  </div><!-- /tab-cs2 -->
 
   <footer class="footer">
     <div id="status-msg" class="status-msg">Prêt</div>
@@ -6213,6 +5449,7 @@
 <script src="control.js"></script>
 <script src="startgg-ui.js"></script>
 <script src="player-stats-control.js"></script>
+<script src="h2h-control.js"></script>
 <script src="flag-picker.js"></script>
 </body>
 </html>

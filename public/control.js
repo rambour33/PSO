@@ -87,9 +87,12 @@ function syncFromState(s) {
   document.getElementById('event-name').value = s.event;
   document.getElementById('event-stage').value = s.stage;
   document.getElementById('center-logo').value = s.centerLogo || '';
-  const lpVal = s.logoParticleCount ?? 3;
-  document.getElementById('logo-particles-range').value = lpVal;
-  document.getElementById('logo-particles-num').value   = lpVal;
+  const lpVal = s.logoParticleCount ?? 0;
+  const lpOn  = lpVal > 0;
+  document.getElementById('logo-particles-enabled').checked = lpOn;
+  document.getElementById('logo-particles-num').style.display = lpOn ? '' : 'none';
+  document.getElementById('logo-particles-num').value   = lpOn ? lpVal : 3;
+  document.getElementById('logo-particles-range').value = lpOn ? lpVal : 0;
   const pOp = s.particleOpacity ?? 100;
   document.getElementById('particle-opacity-range').value = pOp;
   document.getElementById('particle-opacity-num').value   = pOp;
@@ -329,7 +332,9 @@ function buildStateFromForm() {
     sbBgOpacity: parseInt(document.getElementById('sb-bg-opacity')?.value ?? 100),
     format: state.format,
     customWins: parseInt(document.getElementById('custom-wins').value) || 2,
-    logoParticleCount: parseInt(document.getElementById('logo-particles-num').value) || 3,
+    logoParticleCount: document.getElementById('logo-particles-enabled')?.checked
+      ? (parseInt(document.getElementById('logo-particles-num').value) || 3)
+      : 0,
     particleOpacity:    parseInt(document.getElementById('particle-opacity-num')?.value ?? 100),
     particleCountScale: parseInt(document.getElementById('particle-count-num')?.value ?? 100),
     particlesEnabled:   state.particlesEnabled !== false,
@@ -1808,9 +1813,9 @@ document.getElementById('btn-hide-player-colors').addEventListener('click', () =
   });
 });
 
-// Particules logo — sync slider ↔ number
-document.getElementById('logo-particles-range').addEventListener('input', function () {
-  document.getElementById('logo-particles-num').value = this.value;
+// Particules logo — checkbox + number
+document.getElementById('logo-particles-enabled').addEventListener('change', function () {
+  document.getElementById('logo-particles-num').style.display = this.checked ? '' : 'none';
   emitState(buildStateFromForm());
 });
 document.getElementById('logo-particles-num').addEventListener('change', function () {
@@ -4825,12 +4830,6 @@ document.getElementById('btn-copy-ticker-url')?.addEventListener('click', () => 
 
 // ── Cadres (Frames) ───────────────────────────────────────────────
 
-// Corriger URL avec le bon host
-(function () {
-  const el = document.getElementById('frames-url');
-  if (el) el.value = window.location.origin + '/frames';
-})();
-
 let framesLocal = {
   count: 1,
   frames: [
@@ -4926,23 +4925,54 @@ let framesLocal = {
     camSend({ label: e.target.value });
   });
 
-  // Sliders taille + position
-  [
-    ['cam-width',  'width',   true],
-    ['cam-height', 'height',  true],
-    ['cam-x',      'offsetX', false],
-    ['cam-y',      'offsetY', false],
-  ].forEach(([base, key, positive]) => {
+  // Sliders position CAM 1
+  [['cam-x', 'offsetX'], ['cam-y', 'offsetY']].forEach(([base, key]) => {
     const range = document.getElementById(base + '-range');
     const num   = document.getElementById(base + '-num');
     if (!range || !num) return;
-    function sync(val) {
-      range.value = val; num.value = val;
-      camSend({ [key]: Number(val) });
-    }
+    function sync(val) { range.value = val; num.value = val; camSend({ [key]: Number(val) }); }
     range.addEventListener('input', () => sync(range.value));
     num.addEventListener('input',   () => sync(num.value));
   });
+
+  // Ratio lock CAM 1
+  let cam1RatioLocked = true;
+  document.getElementById('cam-ratio-free')?.addEventListener('change', (e) => {
+    cam1RatioLocked = !e.target.checked;
+    const row = document.getElementById('cam-height-row');
+    if (row) row.style.display = e.target.checked ? '' : 'none';
+  });
+
+  // Largeur CAM 1
+  (function () {
+    const range = document.getElementById('cam-width-range');
+    const num   = document.getElementById('cam-width-num');
+    if (!range || !num) return;
+    function sync(val) {
+      const w = Math.max(80, Number(val));
+      range.value = w; num.value = w;
+      if (cam1RatioLocked) {
+        const ratio = (camLocal.height || 270) / (camLocal.width || 360);
+        const h = Math.round(w * ratio);
+        camSetInput('cam-height-range', h); camSetInput('cam-height-num', h);
+        camSend({ width: w, height: h });
+      } else {
+        camSend({ width: w });
+      }
+    }
+    range.addEventListener('input', () => sync(range.value));
+    num.addEventListener('input',   () => sync(num.value));
+  })();
+
+  // Hauteur CAM 1 (mode ratio libre uniquement)
+  (function () {
+    const range = document.getElementById('cam-height-range');
+    const num   = document.getElementById('cam-height-num');
+    if (!range || !num) return;
+    function sync(val) { range.value = val; num.value = val; camSend({ height: Number(val) }); }
+    range.addEventListener('input', () => sync(range.value));
+    num.addEventListener('input',   () => sync(num.value));
+  })();
 
   // Presets taille
   document.querySelectorAll('.cam-preset-size').forEach(btn => {
@@ -5045,19 +5075,54 @@ let framesLocal = {
     cam2Send({ label: e.target.value });
   });
 
-  [
-    ['cam2-width-range',  'cam2-width-num',  'width'],
-    ['cam2-height-range', 'cam2-height-num', 'height'],
-    ['cam2-x-range',      'cam2-x-num',      'offsetX'],
-    ['cam2-y-range',      'cam2-y-num',      'offsetY'],
-  ].forEach(([rangeId, numId, key]) => {
-    const range = document.getElementById(rangeId);
-    const num   = document.getElementById(numId);
+  // Sliders position CAM 2
+  [['cam2-x', 'offsetX'], ['cam2-y', 'offsetY']].forEach(([base, key]) => {
+    const range = document.getElementById(base + '-range');
+    const num   = document.getElementById(base + '-num');
     if (!range || !num) return;
     function sync(val) { range.value = val; num.value = val; cam2Send({ [key]: Number(val) }); }
     range.addEventListener('input', () => sync(range.value));
     num.addEventListener('input',   () => sync(num.value));
   });
+
+  // Ratio lock CAM 2
+  let cam2RatioLocked = true;
+  document.getElementById('cam2-ratio-free')?.addEventListener('change', (e) => {
+    cam2RatioLocked = !e.target.checked;
+    const row = document.getElementById('cam2-height-row');
+    if (row) row.style.display = e.target.checked ? '' : 'none';
+  });
+
+  // Largeur CAM 2
+  (function () {
+    const range = document.getElementById('cam2-width-range');
+    const num   = document.getElementById('cam2-width-num');
+    if (!range || !num) return;
+    function sync(val) {
+      const w = Math.max(80, Number(val));
+      range.value = w; num.value = w;
+      if (cam2RatioLocked) {
+        const ratio = (camLocal.cam2.height || 270) / (camLocal.cam2.width || 360);
+        const h = Math.round(w * ratio);
+        cam2SetInput('cam2-height-range', h); cam2SetInput('cam2-height-num', h);
+        cam2Send({ width: w, height: h });
+      } else {
+        cam2Send({ width: w });
+      }
+    }
+    range.addEventListener('input', () => sync(range.value));
+    num.addEventListener('input',   () => sync(num.value));
+  })();
+
+  // Hauteur CAM 2 (mode ratio libre uniquement)
+  (function () {
+    const range = document.getElementById('cam2-height-range');
+    const num   = document.getElementById('cam2-height-num');
+    if (!range || !num) return;
+    function sync(val) { range.value = val; num.value = val; cam2Send({ height: Number(val) }); }
+    range.addEventListener('input', () => sync(range.value));
+    num.addEventListener('input',   () => sync(num.value));
+  })();
 
   document.querySelectorAll('.cam2-preset-size').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -5203,14 +5268,14 @@ document.querySelectorAll('.frame-ratio-btn').forEach(btn => {
   });
 });
 
-// Slider Taille : met à jour hauteur puis applique
-document.querySelectorAll('.frame-w[type="range"]').forEach(range => {
-  const idx = Number(range.dataset.idx);
+// Largeur : met à jour hauteur puis applique
+document.querySelectorAll('.frame-w[type="number"]').forEach(input => {
+  const idx = Number(input.dataset.idx);
   const hEl = document.querySelector(`.frame-h[data-idx="${idx}"]`);
-  range.addEventListener('input', () => {
+  input.addEventListener('input', () => {
     if (hEl) {
-      const ratio = parseFloat(range.dataset.ratio) || 0.75;
-      hEl.value = Math.round(Number(range.value) * ratio);
+      const ratio = parseFloat(input.dataset.ratio) || 0.75;
+      hEl.value = Math.round(Number(input.value) * ratio);
     }
     applyFrameCard(idx);
   });
@@ -5279,13 +5344,20 @@ Object.keys(PRESETS).forEach(id => {
   });
 });
 
-// Copier URL
+// Copier URL cadres
 document.getElementById('btn-copy-frames-url')?.addEventListener('click', () => {
-  const el = document.getElementById('frames-url');
-  if (!el) return;
-  navigator.clipboard.writeText(el.value)
+  const url = window.location.origin + '/frames';
+  navigator.clipboard.writeText(url)
     .then(() => setStatus('URL cadres copiée'))
-    .catch(() => { el.select(); document.execCommand('copy'); setStatus('URL cadres copiée'); });
+    .catch(() => setStatus('URL cadres copiée'));
+});
+
+// Copier URL cam
+document.getElementById('btn-copy-cam-url')?.addEventListener('click', () => {
+  const url = window.location.origin + '/cam';
+  navigator.clipboard.writeText(url)
+    .then(() => setStatus('URL cam copiée'))
+    .catch(() => setStatus('URL cam copiée'));
 });
 
 // ── Studio / Super Overlay ────────────────────────────────────────
@@ -5333,18 +5405,38 @@ const LAYER_COLORS = {
   'avsync':              '#78909C',
 };
 
+// Couleurs primaires par thème (pour "Couleur thème" du fond studio)
+const STUDIO_THEME_PRIMARY = {
+  default:    '#E8B830', dual:       '#E8B830', cyberpunk:  '#00F5FF',
+  synthwave:  '#FF6EC7', midnight:   '#4488FF', egypt:      '#D4A017',
+  city:       '#A0C4D8', eco:        '#6BC96C', water:      '#29B6F6',
+  fire:       '#FF6B00', rainbow:    '#FF6EC7', trans:      '#55CDFC',
+  pan:        '#FF218C', bi:         '#9B59D0', lesbian:    '#FF4500',
+  plage:      '#F4D35E', smario:     '#E52222', ssonic:     '#1E90FF',
+  spikachu:   '#FFD700', ssephiroth: '#C0C0C0', transparent:'#E8B830',
+};
+
 // État complet multi-scènes (synchronisé depuis le serveur)
 let superFullState = { activeScene: 0, scenes: [] };
 // Vue locale de la scène active (utilisée par renderLayerList/renderCanvas)
-let superLocal = { bgColor: 'transparent', layers: [] };
+let superLocal = { bgColor: 'transparent', bgImage: null, bgImageMode: 'texture', bgImageBlend: 'normal', bgImageOpacity: 100, bgParticlesEnabled: false, bgParticlesOpacity: 100, bgParticlesCount: 100, layers: [] };
 let studioScale = 0.5;
 
 /* ── Scène active → superLocal ─────────────────────────────── */
 function syncSceneToLocal() {
   const scene = superFullState.scenes[superFullState.activeScene];
   if (!scene) return;
-  superLocal.bgColor = scene.bgColor;
-  superLocal.layers  = scene.layers; // inclut snapshot si présent
+  superLocal.bgColor           = scene.bgColor;
+  superLocal.bgImage           = scene.bgImage           ?? null;
+  superLocal.bgImageMode       = scene.bgImageMode       ?? 'texture';
+  superLocal.bgImageBlend      = scene.bgImageBlend      ?? 'normal';
+  superLocal.bgImageOpacity    = scene.bgImageOpacity    ?? 100;
+  superLocal.bgParticlesEnabled= scene.bgParticlesEnabled?? false;
+  superLocal.bgParticlesOpacity= scene.bgParticlesOpacity?? 100;
+  superLocal.bgParticlesCount  = scene.bgParticlesCount  ?? 100;
+  superLocal.layers            = scene.layers;
+  syncBgImageUI();
+  syncParticlesUI();
 }
 
 /* ── Rendu du sélecteur de scènes ──────────────────────────── */
@@ -5649,6 +5741,18 @@ function renderCanvas() {
 
   recalcStudioScale();
 
+  // Fond couleur + image
+  inner.style.backgroundColor    = (superLocal.bgColor && superLocal.bgColor !== 'transparent') ? superLocal.bgColor : 'transparent';
+  if (superLocal.bgImage) {
+    const _isImg = superLocal.bgImageMode === 'image';
+    inner.style.backgroundImage    = `url('${superLocal.bgImage}')`;
+    inner.style.backgroundSize     = _isImg ? 'cover' : 'auto';
+    inner.style.backgroundRepeat   = _isImg ? 'no-repeat' : 'repeat';
+    inner.style.backgroundPosition = 'center';
+  } else {
+    inner.style.backgroundImage = '';
+  }
+
   const sorted = superLocal.layers.slice().sort((a, b) => a.order - b.order);
 
   /* ── Iframes ── */
@@ -5905,19 +6009,137 @@ document.getElementById('btn-reset-all-pos')?.addEventListener('click', () => {
   renderLayerControls();
 });
 
-/* ── Fond du Super Overlay ──────────────────────────────────── */
+/* ── Fond du Super Overlay — couleur ────────────────────────── */
 document.querySelectorAll('.so-bg-preset').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('.so-bg-preset').forEach(b => b.classList.remove('active-sep'));
     btn.classList.add('active-sep');
     superLocal.bgColor = btn.dataset.bg;
+    renderCanvas();
     superSend();
   });
 });
 document.getElementById('so-bg-color-picker')?.addEventListener('input', function () {
   document.querySelectorAll('.so-bg-preset').forEach(b => b.classList.remove('active-sep'));
   superLocal.bgColor = this.value;
+  renderCanvas();
   superSend();
+});
+document.getElementById('btn-so-bg-theme')?.addEventListener('click', () => {
+  const primary = STUDIO_THEME_PRIMARY[state.overlayTheme] || '#E8B830';
+  document.querySelectorAll('.so-bg-preset').forEach(b => b.classList.remove('active-sep'));
+  superLocal.bgColor = primary;
+  renderCanvas();
+  superSend();
+});
+
+/* ── Fond du Super Overlay — image / texture ─────────────────── */
+function syncBgImageUI() {
+  const preview   = document.getElementById('so-bg-img-preview');
+  const emptySpan = document.getElementById('so-bg-img-preview-empty');
+  const blend     = document.getElementById('so-bg-img-blend');
+  const opacity   = document.getElementById('so-bg-img-opacity');
+  if (preview) {
+    if (superLocal.bgImage) {
+      preview.style.backgroundImage = `url('${superLocal.bgImage}')`;
+      if (emptySpan) emptySpan.style.display = 'none';
+    } else {
+      preview.style.backgroundImage = '';
+      if (emptySpan) emptySpan.style.display = '';
+    }
+  }
+  if (blend)   blend.value   = superLocal.bgImageBlend  || 'normal';
+  if (opacity) opacity.value = superLocal.bgImageOpacity ?? 100;
+  document.querySelectorAll('.so-bg-img-mode-btn').forEach(b => {
+    b.classList.toggle('active-sep', b.dataset.mode === (superLocal.bgImageMode || 'texture'));
+  });
+}
+
+document.querySelectorAll('.so-bg-img-mode-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.so-bg-img-mode-btn').forEach(b => b.classList.remove('active-sep'));
+    btn.classList.add('active-sep');
+    superLocal.bgImageMode = btn.dataset.mode;
+    superSend();
+  });
+});
+
+document.getElementById('so-bg-img-file')?.addEventListener('change', function () {
+  const file = this.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    fetch('/api/super/bg-upload', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ dataUrl: e.target.result }),
+    })
+      .then(r => r.json())
+      .then(d => {
+        if (!d.url) return;
+        superLocal.bgImage = d.url;
+        syncBgImageUI();
+        renderCanvas();
+        superSend();
+      })
+      .catch(err => setStatus('Erreur upload image : ' + err.message));
+  };
+  reader.readAsDataURL(file);
+  this.value = '';
+});
+
+document.getElementById('btn-so-bg-img-clear')?.addEventListener('click', () => {
+  superLocal.bgImage = null;
+  syncBgImageUI();
+  superSend();
+});
+
+document.getElementById('so-bg-img-blend')?.addEventListener('change', function () {
+  superLocal.bgImageBlend = this.value;
+  superSend();
+});
+
+document.getElementById('so-bg-img-opacity')?.addEventListener('input', function () {
+  superLocal.bgImageOpacity = Math.max(0, Math.min(100, parseInt(this.value) || 100));
+  superSend();
+});
+
+/* ── Fond du Super Overlay — particules ─────────────────────── */
+function syncParticlesUI() {
+  const cb      = document.getElementById('so-particles-enabled');
+  const ctrls   = document.getElementById('so-particles-controls');
+  const opRange = document.getElementById('so-particles-opacity-range');
+  const opNum   = document.getElementById('so-particles-opacity-num');
+  const ctRange = document.getElementById('so-particles-count-range');
+  const ctNum   = document.getElementById('so-particles-count-num');
+  const on = superLocal.bgParticlesEnabled;
+  if (cb)    cb.checked = on;
+  if (ctrls) ctrls.style.display = on ? 'flex' : 'none';
+  if (opRange) opRange.value = superLocal.bgParticlesOpacity;
+  if (opNum)   opNum.value   = superLocal.bgParticlesOpacity;
+  if (ctRange) ctRange.value = superLocal.bgParticlesCount;
+  if (ctNum)   ctNum.value   = superLocal.bgParticlesCount;
+}
+
+document.getElementById('so-particles-enabled')?.addEventListener('change', function () {
+  superLocal.bgParticlesEnabled = this.checked;
+  document.getElementById('so-particles-controls').style.display = this.checked ? 'flex' : 'none';
+  superSend();
+});
+
+['opacity', 'count'].forEach(key => {
+  const range = document.getElementById(`so-particles-${key}-range`);
+  const num   = document.getElementById(`so-particles-${key}-num`);
+  if (range) range.addEventListener('input', function () {
+    if (num) num.value = this.value;
+    superLocal[key === 'opacity' ? 'bgParticlesOpacity' : 'bgParticlesCount'] = parseInt(this.value);
+    superSend();
+  });
+  if (num) num.addEventListener('input', function () {
+    if (range) range.value = this.value;
+    superLocal[key === 'opacity' ? 'bgParticlesOpacity' : 'bgParticlesCount'] = parseInt(this.value) || 0;
+    superSend();
+  });
 });
 
 /* ── Copier URL ──────────────────────────────────────────────── */
@@ -5944,11 +6166,17 @@ function updateStudioFullState(s) {
 
 /* ── Mise à jour scène active uniquement (superUpdate) ─────── */
 function updateStudioUI(s) {
-  // s = { bgColor, layers } de la scène active
   const scene = superFullState.scenes[superFullState.activeScene];
   if (scene) {
-    scene.bgColor = s.bgColor;
-    scene.layers  = s.layers;
+    scene.bgColor            = s.bgColor;
+    scene.bgImage            = s.bgImage            ?? scene.bgImage;
+    scene.bgImageMode        = s.bgImageMode        ?? scene.bgImageMode;
+    scene.bgImageBlend       = s.bgImageBlend       ?? scene.bgImageBlend;
+    scene.bgImageOpacity     = s.bgImageOpacity     ?? scene.bgImageOpacity;
+    scene.bgParticlesEnabled = s.bgParticlesEnabled ?? scene.bgParticlesEnabled;
+    scene.bgParticlesOpacity = s.bgParticlesOpacity ?? scene.bgParticlesOpacity;
+    scene.bgParticlesCount   = s.bgParticlesCount   ?? scene.bgParticlesCount;
+    scene.layers             = s.layers;
   }
   syncSceneToLocal();
   renderLayerList();
@@ -6738,8 +6966,7 @@ function showThemeConfigPanel(key) {
   if (sizeEl)  sizeEl.value  = state.overlayTextureSize  || 'repeat';
 
   panel.style.display = 'block';
-  // Scroll to panel
-  panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 // Fermer
@@ -10578,1149 +10805,5 @@ socket.on('stateUpdate', (s) => {
     }
   })();
 
-  // ══════════════════════════════════════════════════════════════
-  //  VALORANT — Sélecteur de jeu + panneau de contrôle
-  // ══════════════════════════════════════════════════════════════
-  (() => {
-
-    // ── Données locales ───────────────────────────────────────────
-    const VAL_AGENTS = [
-      { id:'jett',     name:'Jett',      role:'Duelist'    },
-      { id:'reyna',    name:'Reyna',     role:'Duelist'    },
-      { id:'phoenix',  name:'Phoenix',   role:'Duelist'    },
-      { id:'neon',     name:'Neon',      role:'Duelist'    },
-      { id:'iso',      name:'Iso',       role:'Duelist'    },
-      { id:'yoru',     name:'Yoru',      role:'Duelist'    },
-      { id:'sova',     name:'Sova',      role:'Initiator'  },
-      { id:'breach',   name:'Breach',    role:'Initiator'  },
-      { id:'kayo',     name:'KAY/O',     role:'Initiator'  },
-      { id:'fade',     name:'Fade',      role:'Initiator'  },
-      { id:'gekko',    name:'Gekko',     role:'Initiator'  },
-      { id:'skye',     name:'Skye',      role:'Initiator'  },
-      { id:'brimstone',name:'Brimstone', role:'Controller' },
-      { id:'viper',    name:'Viper',     role:'Controller' },
-      { id:'omen',     name:'Omen',      role:'Controller' },
-      { id:'astra',    name:'Astra',     role:'Controller' },
-      { id:'harbor',   name:'Harbor',    role:'Controller' },
-      { id:'clove',    name:'Clove',     role:'Controller' },
-      { id:'killjoy',  name:'Killjoy',   role:'Sentinel'   },
-      { id:'cypher',   name:'Cypher',    role:'Sentinel'   },
-      { id:'sage',     name:'Sage',      role:'Sentinel'   },
-      { id:'chamber',  name:'Chamber',   role:'Sentinel'   },
-      { id:'deadlock', name:'Deadlock',  role:'Sentinel'   },
-      { id:'vyse',     name:'Vyse',      role:'Sentinel'   },
-    ];
-
-    const VAL_MAPS = ['Ascent','Bind','Haven','Split','Icebox','Breeze','Fracture','Pearl','Lotus','Sunset','Abyss'];
-
-    const VAL_THEMES = [
-      { id:'valorant-default', name:'VALORANT',      sub:'Officiel',    primary:'#FF4655', secondary:'#3B71E4' },
-      { id:'valorant-dark',    name:'Dark Protocol', sub:'Sombre',      primary:'#FF4655', secondary:'#888888' },
-      { id:'valorant-night',   name:'Night Market',  sub:'Nuit',        primary:'#BD3944', secondary:'#4C1B7B' },
-      { id:'sentinels',        name:'Sentinels',     sub:'Équipe',      primary:'#E31937', secondary:'#1B478A' },
-      { id:'fnatic',           name:'Fnatic',        sub:'Équipe',      primary:'#F5821F', secondary:'#1B1B1B' },
-      { id:'navi',             name:'Natus Vincere', sub:'Équipe',      primary:'#F7CF00', secondary:'#1A1A1A' },
-      { id:'team-liquid',      name:'Team Liquid',   sub:'Équipe',      primary:'#009AC7', secondary:'#FFFFFF' },
-      { id:'loud',             name:'LOUD',          sub:'Équipe',      primary:'#73E02A', secondary:'#FFFFFF' },
-      { id:'cloud9',           name:'Cloud9',        sub:'Équipe',      primary:'#00C8FF', secondary:'#1B3A70' },
-      { id:'vitality',         name:'Team Vitality', sub:'Équipe',      primary:'#F5D000', secondary:'#222222' },
-      { id:'drx',              name:'DRX',           sub:'Équipe',      primary:'#00A3FF', secondary:'#003A8C' },
-      { id:'paper-rex',        name:'Paper Rex',     sub:'Équipe',      primary:'#FF6B00', secondary:'#1A1A1A' },
-    ];
-
-    let valMatchLocal = {
-      visible: true,
-      team1: { name:'TEAM ALPHA', color:'#FF4655', score:0, logo:'' },
-      team2: { name:'TEAM BRAVO', color:'#3B71E4', score:0, logo:'' },
-      event:'VCT 2025', mapName:'', currentMap:1, matchFormat:'Bo3',
-      theme:'valorant-default', bgColor:'#0A0A12', bgOpacity:95,
-    };
-
-    let valPbLocal = {
-      visible: false, phase:'agent', event:'VCT 2025',
-      team1: { name:'TEAM ALPHA', color:'#FF4655', logo:'',
-               players: Array.from({length:5}, () => ({name:'',agent:'',role:'',locked:false,active:false})) },
-      team2: { name:'TEAM BRAVO', color:'#3B71E4', logo:'',
-               players: Array.from({length:5}, () => ({name:'',agent:'',role:'',locked:false,active:false})) },
-      maps: VAL_MAPS.map(m => ({name:m, status:'available', team:null})),
-    };
-
-    let valLuLocal = {
-      visible: false,
-      team1: { name:'TEAM ALPHA', color:'#FF4655', logo:'',
-               players: Array.from({length:5}, () => ({name:'',agent:'',role:'',flag:'',igl:false})) },
-      team2: { name:'TEAM BRAVO', color:'#3B71E4', logo:'',
-               players: Array.from({length:5}, () => ({name:'',agent:'',role:'',flag:'',igl:false})) },
-      event:'VCT 2025', mapName:'',
-    };
-
-    // ── Debounces ─────────────────────────────────────────────────
-    let _dbMatch = null, _dbPb = null, _dbLu = null;
-    const sendValMatch = () => { clearTimeout(_dbMatch); _dbMatch = setTimeout(() => socket.emit('updateValMatch',   valMatchLocal), 120); };
-    const sendValPb    = () => { clearTimeout(_dbPb);    _dbPb    = setTimeout(() => socket.emit('updateValPickBan', valPbLocal),    120); };
-    const sendValLu    = () => { clearTimeout(_dbLu);    _dbLu    = setTimeout(() => socket.emit('updateValLineup',  valLuLocal),    120); };
-
-    const $ = id => document.getElementById(id);
-
-    function agentOptionsHtml(selectedId) {
-      let html = '<option value="">— Agent —</option>';
-      ['Duelist','Initiator','Controller','Sentinel'].forEach(role => {
-        const agents = VAL_AGENTS.filter(a => a.role === role);
-        html += `<optgroup label="${role}">`;
-        agents.forEach(a => {
-          html += `<option value="${a.id}" data-role="${a.role}" ${a.id === selectedId ? 'selected' : ''}>${a.name}</option>`;
-        });
-        html += '</optgroup>';
-      });
-      return html;
-    }
-
-    // ── Sélecteur de jeu ──────────────────────────────────────────
-    const GAME_META = {
-      ssbu:     { badge: 'Smash Bros Ultimate', tabId: 'tab-match',    btnId: 'tab-btn-match' },
-      valorant: { badge: 'VALORANT',            tabId: 'tab-valorant', btnId: 'tab-btn-valorant' },
-      sf6:      { badge: 'Street Fighter 6',    tabId: 'tab-sf6',      btnId: 'tab-btn-sf6' },
-      tek8:     { badge: 'Tekken 8',            tabId: 'tab-tek8',     btnId: 'tab-btn-tek8' },
-      cs2:      { badge: 'Counter-Strike 2',    tabId: 'tab-cs2',      btnId: 'tab-btn-cs2' },
-    };
-
-    function applyGameSwitch(game) {
-      const meta  = GAME_META[game] || GAME_META.ssbu;
-      const badge = $('game-badge');
-      if (badge) badge.textContent = meta.badge;
-
-      // Affiche le bon bouton d'onglet, cache les autres jeux
-      Object.entries(GAME_META).forEach(([g, m]) => {
-        const btn = $(m.btnId);
-        if (!btn) return;
-        if (g === 'ssbu') {
-          btn.style.display = (game === 'ssbu') ? '' : 'none';
-        } else {
-          btn.style.display = (g === game) ? '' : 'none';
-        }
-      });
-
-      // Active l'onglet du jeu sélectionné
-      const targetBtn = $(meta.btnId);
-      const targetTab = $(meta.tabId);
-      if (targetBtn && !targetBtn.classList.contains('active')) {
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        targetBtn.classList.add('active');
-        document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-        if (targetTab) targetTab.classList.add('active');
-      }
-    }
-
-    document.querySelectorAll('.game-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.querySelectorAll('.game-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        applyGameSwitch(btn.dataset.game);
-        socket.emit('updateGame', { game: btn.dataset.game });
-      });
-    });
-
-    socket.on('gameUpdate', s => {
-      if (!s) return;
-      document.querySelectorAll('.game-btn').forEach(b => b.classList.toggle('active', b.dataset.game === s.game));
-      applyGameSwitch(s.game);
-    });
-
-    // ── Sous-navigation Valorant ──────────────────────────────────
-    document.querySelectorAll('#tab-valorant .match-subnav-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.querySelectorAll('#tab-valorant .match-subnav-btn').forEach(b => b.classList.remove('active'));
-        document.querySelectorAll('#tab-valorant .match-panel').forEach(p => p.classList.remove('active'));
-        btn.classList.add('active');
-        const panel = $(btn.dataset.panel);
-        if (panel) panel.classList.add('active');
-        const vetoSection = $('val-map-veto-section');
-        if (vetoSection) vetoSection.style.display =
-          (btn.dataset.panel === 'val-panel-pickban' && valPbLocal.phase === 'map') ? 'block' : 'none';
-      });
-    });
-
-    // ═══ SCOREBOARD ═════════════════════════════════════════════
-
-    function syncValScoreboardUI(s) {
-      if (!s) return;
-      const t1 = s.team1 || {}, t2 = s.team2 || {};
-      if ($('val-t1-name'))    $('val-t1-name').value    = t1.name  || '';
-      if ($('val-t2-name'))    $('val-t2-name').value    = t2.name  || '';
-      if ($('val-t1-color'))   $('val-t1-color').value   = t1.color || '#FF4655';
-      if ($('val-t2-color'))   $('val-t2-color').value   = t2.color || '#3B71E4';
-      if ($('val-t1-logo'))    $('val-t1-logo').value    = t1.logo  || '';
-      if ($('val-t2-logo'))    $('val-t2-logo').value    = t2.logo  || '';
-      if ($('val-t1-score-display')) $('val-t1-score-display').textContent = t1.score ?? 0;
-      if ($('val-t2-score-display')) $('val-t2-score-display').textContent = t2.score ?? 0;
-      if ($('val-event'))         $('val-event').value          = s.event       || 'VCT 2025';
-      if ($('val-map-name'))      $('val-map-name').value       = s.mapName     || '';
-      if ($('val-match-format'))  $('val-match-format').value   = s.matchFormat || 'Bo3';
-      if ($('val-current-map'))   $('val-current-map').value    = s.currentMap  || 1;
-      if ($('val-sb-bg-color'))   $('val-sb-bg-color').value    = s.bgColor     || '#0A0A12';
-      if ($('val-sb-bg-opacity')) $('val-sb-bg-opacity').value  = s.bgOpacity   ?? 95;
-      if ($('val-sb-bg-opacity-val')) $('val-sb-bg-opacity-val').textContent = s.bgOpacity ?? 95;
-      if ($('val-sb-visible'))    $('val-sb-visible').checked   = s.visible !== false;
-      if ($('val-theme-t1-color')) $('val-theme-t1-color').value = t1.color || '#FF4655';
-      if ($('val-theme-t2-color')) $('val-theme-t2-color').value = t2.color || '#3B71E4';
-      if ($('val-theme-bg-color')) $('val-theme-bg-color').value = s.bgColor || '#0A0A12';
-      if ($('val-theme-bg-opacity'))     $('val-theme-bg-opacity').value   = s.bgOpacity ?? 95;
-      if ($('val-theme-bg-opacity-val')) $('val-theme-bg-opacity-val').textContent = s.bgOpacity ?? 95;
-      document.querySelectorAll('.val-theme-card').forEach(c => c.classList.toggle('active', c.dataset.theme === s.theme));
-    }
-
-    // Score +/-
-    ['t1','t2'].forEach(t => {
-      const team = t === 't1' ? 'team1' : 'team2';
-      const disp = $(`val-${t}-score-display`);
-      [$(`val-${t}-score-plus`), $(`val-${t}-score-minus`)].forEach((btn, isMin) => {
-        if (!btn) return;
-        btn.addEventListener('click', () => {
-          const cur = valMatchLocal[team].score || 0;
-          valMatchLocal[team].score = isMin ? Math.max(0, cur - 1) : Math.min(9, cur + 1);
-          if (disp) disp.textContent = valMatchLocal[team].score;
-          sendValMatch();
-        });
-      });
-    });
-
-    // Champs scoreboard
-    [
-      { id:'val-t1-name',      upd: v => { valMatchLocal.team1.name     = v; syncTeamNamesToSub(); sendValPb(); sendValLu(); } },
-      { id:'val-t2-name',      upd: v => { valMatchLocal.team2.name     = v; syncTeamNamesToSub(); sendValPb(); sendValLu(); } },
-      { id:'val-t1-color',     upd: v => { valMatchLocal.team1.color    = v; valPbLocal.team1.color = v; valLuLocal.team1.color = v; sendValPb(); sendValLu(); } },
-      { id:'val-t2-color',     upd: v => { valMatchLocal.team2.color    = v; valPbLocal.team2.color = v; valLuLocal.team2.color = v; sendValPb(); sendValLu(); } },
-      { id:'val-t1-logo',      upd: v => { valMatchLocal.team1.logo     = v; } },
-      { id:'val-t2-logo',      upd: v => { valMatchLocal.team2.logo     = v; } },
-      { id:'val-event',        upd: v => { valMatchLocal.event          = v; valPbLocal.event = v; valLuLocal.event = v; sendValPb(); sendValLu(); } },
-      { id:'val-map-name',     upd: v => { valMatchLocal.mapName        = v; valLuLocal.mapName = v; sendValLu(); } },
-      { id:'val-match-format', upd: v => { valMatchLocal.matchFormat    = v; } },
-      { id:'val-current-map',  upd: v => { valMatchLocal.currentMap     = parseInt(v)||1; } },
-      { id:'val-sb-bg-color',  upd: v => { valMatchLocal.bgColor        = v; } },
-    ].forEach(({ id, upd }) => {
-      const el = $(id);
-      if (el) el.addEventListener('input', () => { upd(el.value); sendValMatch(); });
-    });
-
-    const sbOpacityEl = $('val-sb-bg-opacity');
-    if (sbOpacityEl) sbOpacityEl.addEventListener('input', () => {
-      valMatchLocal.bgOpacity = parseInt(sbOpacityEl.value);
-      if ($('val-sb-bg-opacity-val')) $('val-sb-bg-opacity-val').textContent = sbOpacityEl.value;
-      sendValMatch();
-    });
-
-    const sbVisibleEl = $('val-sb-visible');
-    if (sbVisibleEl) sbVisibleEl.addEventListener('change', () => { valMatchLocal.visible = sbVisibleEl.checked; sendValMatch(); });
-
-    // ═══ THÈMES ══════════════════════════════════════════════════
-
-    function buildThemeGrid() {
-      const grid = $('val-theme-grid');
-      if (!grid) return;
-      grid.innerHTML = '';
-      VAL_THEMES.forEach(th => {
-        const card = document.createElement('div');
-        card.className = 'val-theme-card'; card.dataset.theme = th.id;
-        card.style.setProperty('--val-card-color', th.primary);
-        card.innerHTML = `
-          <div class="val-theme-swatch">
-            <div class="val-theme-swatch-dot" style="background:${th.primary}"></div>
-            <div class="val-theme-swatch-dot" style="background:${th.secondary}"></div>
-          </div>
-          <div class="val-theme-name">${th.name}</div>
-          <div class="val-theme-sub">${th.sub}</div>`;
-        card.addEventListener('click', () => {
-          valMatchLocal.theme       = th.id;
-          valMatchLocal.team1.color = th.primary;
-          valMatchLocal.team2.color = th.secondary;
-          valPbLocal.team1.color    = th.primary;
-          valPbLocal.team2.color    = th.secondary;
-          valLuLocal.team1.color    = th.primary;
-          valLuLocal.team2.color    = th.secondary;
-          document.querySelectorAll('.val-theme-card').forEach(c => c.classList.toggle('active', c.dataset.theme === th.id));
-          ['val-t1-color','val-theme-t1-color'].forEach(id => { if ($(id)) $(id).value = th.primary; });
-          ['val-t2-color','val-theme-t2-color'].forEach(id => { if ($(id)) $(id).value = th.secondary; });
-          sendValMatch(); sendValPb(); sendValLu();
-        });
-        grid.appendChild(card);
-      });
-    }
-    buildThemeGrid();
-
-    [
-      { id:'val-theme-t1-color', upd: v => { valMatchLocal.team1.color = v; valPbLocal.team1.color = v; valLuLocal.team1.color = v; if ($('val-t1-color')) $('val-t1-color').value = v; } },
-      { id:'val-theme-t2-color', upd: v => { valMatchLocal.team2.color = v; valPbLocal.team2.color = v; valLuLocal.team2.color = v; if ($('val-t2-color')) $('val-t2-color').value = v; } },
-      { id:'val-theme-bg-color', upd: v => { valMatchLocal.bgColor = v; if ($('val-sb-bg-color')) $('val-sb-bg-color').value = v; } },
-    ].forEach(({ id, upd }) => {
-      const el = $(id);
-      if (el) el.addEventListener('input', () => { upd(el.value); sendValMatch(); sendValPb(); sendValLu(); });
-    });
-
-    const themeOpacityEl = $('val-theme-bg-opacity');
-    if (themeOpacityEl) themeOpacityEl.addEventListener('input', () => {
-      valMatchLocal.bgOpacity = parseInt(themeOpacityEl.value);
-      if ($('val-theme-bg-opacity-val')) $('val-theme-bg-opacity-val').textContent = themeOpacityEl.value;
-      if ($('val-sb-bg-opacity'))        $('val-sb-bg-opacity').value               = themeOpacityEl.value;
-      if ($('val-sb-bg-opacity-val'))    $('val-sb-bg-opacity-val').textContent      = themeOpacityEl.value;
-      sendValMatch();
-    });
-
-    // ═══ CASTERS ═════════════════════════════════════════════════
-
-    document.querySelectorAll('.val-casters-layout-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.querySelectorAll('.val-casters-layout-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        socket.emit('updateCasters', { layout: btn.dataset.layout });
-      });
-    });
-
-    const valCastersVisibleEl = $('val-casters-visible');
-    if (valCastersVisibleEl) valCastersVisibleEl.addEventListener('change', () =>
-      socket.emit('updateCasters', { visible: valCastersVisibleEl.checked }));
-
-    // Saisie directe des casters dans le panneau Valorant
-    let _valCastersLocal = [
-      { name: '', twitter: '', twitch: '', youtube: '' },
-      { name: '', twitter: '', twitch: '', youtube: '' },
-    ];
-    function syncValCastersFromState(s) {
-      if (!s || !s.casters) return;
-      _valCastersLocal = s.casters.map(c => ({ ...c }));
-      [0, 1].forEach(i => {
-        const c = _valCastersLocal[i] || {};
-        ['name','twitter','twitch','youtube'].forEach(f => {
-          const el = $(`val-c${i+1}-${f}`);
-          if (el) el.value = c[f] || '';
-        });
-      });
-    }
-    ['name','twitter','twitch','youtube'].forEach(field => {
-      [0, 1].forEach(idx => {
-        const el = $(`val-c${idx+1}-${field}`);
-        if (!el) return;
-        el.addEventListener('input', () => {
-          _valCastersLocal[idx][field] = el.value;
-          socket.emit('updateCasters', { casters: _valCastersLocal });
-        });
-      });
-    });
-
-    socket.on('castersUpdate', s => {
-      if (!s) return;
-      if (valCastersVisibleEl) valCastersVisibleEl.checked = s.visible;
-      document.querySelectorAll('.val-casters-layout-btn').forEach(b =>
-        b.classList.toggle('active', b.dataset.layout === (s.layout||'row')));
-      syncValCastersFromState(s);
-    });
-
-    fetch('/api/casters').then(r => r.json()).then(syncValCastersFromState).catch(() => {});
-
-    // ═══ PICK & BAN ══════════════════════════════════════════════
-
-    function renderPbPlayerRows(team, containerId, teamKey) {
-      const container = $(containerId);
-      if (!container) return;
-      container.innerHTML = '';
-      team.players.forEach((p, i) => {
-        const row = document.createElement('div');
-        row.className = 'val-pb-player-row';
-
-        const nameInput = document.createElement('input');
-        nameInput.type = 'text'; nameInput.value = p.name || ''; nameInput.placeholder = `Joueur ${i+1}`;
-        nameInput.addEventListener('input', () => { valPbLocal[teamKey].players[i].name = nameInput.value; sendValPb(); });
-
-        const agentSel = document.createElement('select');
-        agentSel.innerHTML = agentOptionsHtml(p.agent || '');
-        agentSel.addEventListener('change', () => {
-          const opt = agentSel.selectedOptions[0];
-          valPbLocal[teamKey].players[i].agent = agentSel.value;
-          valPbLocal[teamKey].players[i].role  = opt?.dataset.role || '';
-          sendValPb();
-        });
-
-        const lockBtn = document.createElement('div');
-        lockBtn.className = 'val-pb-player-lock' + (p.locked ? ' locked' : '');
-        lockBtn.textContent = p.locked ? '🔒' : '○';
-        lockBtn.addEventListener('click', () => {
-          valPbLocal[teamKey].players[i].locked = !valPbLocal[teamKey].players[i].locked;
-          lockBtn.classList.toggle('locked', valPbLocal[teamKey].players[i].locked);
-          lockBtn.textContent = valPbLocal[teamKey].players[i].locked ? '🔒' : '○';
-          sendValPb();
-        });
-
-        row.appendChild(nameInput);
-        row.appendChild(agentSel);
-        row.appendChild(lockBtn);
-        container.appendChild(row);
-      });
-    }
-
-    function renderMapVeto() {
-      const list = $('val-map-veto-list');
-      if (!list) return;
-      list.innerHTML = '';
-      valPbLocal.maps.forEach(m => {
-        const item = document.createElement('div');
-        const cls = m.status === 'picked' ? 'picked' :
-                    m.status === 'banned' && m.team === 1 ? 'banned-1' :
-                    m.status === 'banned' && m.team === 2 ? 'banned-2' : '';
-        item.className = 'val-map-veto-item' + (cls ? ' ' + cls : '');
-        const label = m.status === 'picked' ? 'PICK' : m.status === 'banned' ? `BAN T${m.team}` : '';
-        item.innerHTML = `<span>${m.name}</span>${label ? `<span class="val-map-veto-status">${label}</span>` : ''}`;
-        item.addEventListener('click', () => {
-          if (m.status === 'available')                { m.status = 'picked';  m.team = null; }
-          else if (m.status === 'picked')              { m.status = 'banned';  m.team = 1; }
-          else if (m.status === 'banned' && m.team===1){ m.status = 'banned';  m.team = 2; }
-          else                                         { m.status = 'available'; m.team = null; }
-          renderMapVeto(); sendValPb();
-        });
-        list.appendChild(item);
-      });
-    }
-
-    function initPickBan() {
-      document.querySelectorAll('.val-pb-phase-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-          document.querySelectorAll('.val-pb-phase-btn').forEach(b => b.classList.remove('active'));
-          btn.classList.add('active');
-          valPbLocal.phase = btn.dataset.phase;
-          if ($('val-map-veto-section')) $('val-map-veto-section').style.display = valPbLocal.phase === 'map' ? 'block' : 'none';
-          sendValPb();
-        });
-      });
-      const pbVisibleEl = $('val-pb-visible');
-      if (pbVisibleEl) pbVisibleEl.addEventListener('change', () => { valPbLocal.visible = pbVisibleEl.checked; sendValPb(); });
-      const resetBtn = $('val-pb-reset');
-      if (resetBtn) resetBtn.addEventListener('click', () => fetch('/api/val/pickban/reset', { method:'POST' }));
-      renderPbPlayerRows(valPbLocal.team1, 'val-pb-t1-players', 'team1');
-      renderPbPlayerRows(valPbLocal.team2, 'val-pb-t2-players', 'team2');
-      renderMapVeto();
-    }
-
-    function syncPbUI(s) {
-      if (!s) return;
-      const el = $('val-pb-visible');
-      if (el) el.checked = s.visible;
-      if ($('val-pb-t1-label')) $('val-pb-t1-label').textContent = (s.team1?.name||'TEAM ALPHA').toUpperCase();
-      if ($('val-pb-t2-label')) $('val-pb-t2-label').textContent = (s.team2?.name||'TEAM BRAVO').toUpperCase();
-      document.querySelectorAll('.val-pb-phase-btn').forEach(b => b.classList.toggle('active', b.dataset.phase === (s.phase||'agent')));
-      if ($('val-map-veto-section')) $('val-map-veto-section').style.display = s.phase === 'map' ? 'block' : 'none';
-    }
-
-    // ═══ LINEUP ══════════════════════════════════════════════════
-
-    function renderLuPlayerRows(team, containerId, teamKey) {
-      const container = $(containerId);
-      if (!container) return;
-      container.innerHTML = '';
-      team.players.forEach((p, i) => {
-        const row = document.createElement('div');
-        row.className = 'val-lu-player-row';
-
-        const nameInput = document.createElement('input');
-        nameInput.type = 'text'; nameInput.value = p.name || ''; nameInput.placeholder = `Joueur ${i+1}`;
-        nameInput.addEventListener('input', () => { valLuLocal[teamKey].players[i].name = nameInput.value; sendValLu(); });
-
-        const agentSel = document.createElement('select');
-        agentSel.innerHTML = agentOptionsHtml(p.agent || '');
-        agentSel.addEventListener('change', () => {
-          valLuLocal[teamKey].players[i].agent = agentSel.value;
-          valLuLocal[teamKey].players[i].role  = agentSel.selectedOptions[0]?.dataset.role || '';
-          sendValLu();
-        });
-
-        const flagInput = document.createElement('input');
-        flagInput.type = 'text'; flagInput.value = p.flag || ''; flagInput.placeholder = 'FR/KR/US';
-        flagInput.maxLength = 2; flagInput.style.textTransform = 'uppercase';
-        flagInput.addEventListener('input', () => { valLuLocal[teamKey].players[i].flag = flagInput.value.toUpperCase().slice(0,2); sendValLu(); });
-
-        const iglBtn = document.createElement('div');
-        iglBtn.className = 'val-lu-player-igl' + (p.igl ? ' active' : '');
-        iglBtn.textContent = 'IGL';
-        iglBtn.addEventListener('click', () => {
-          valLuLocal[teamKey].players[i].igl = !valLuLocal[teamKey].players[i].igl;
-          iglBtn.classList.toggle('active', valLuLocal[teamKey].players[i].igl);
-          sendValLu();
-        });
-
-        row.appendChild(nameInput); row.appendChild(agentSel); row.appendChild(flagInput); row.appendChild(iglBtn);
-        container.appendChild(row);
-      });
-    }
-
-    function initLineup() {
-      const el = $('val-lu-visible');
-      if (el) el.addEventListener('change', () => { valLuLocal.visible = el.checked; sendValLu(); });
-      const mapEl = $('val-lu-map');
-      if (mapEl) mapEl.addEventListener('input', () => { valLuLocal.mapName = mapEl.value; sendValLu(); });
-      renderLuPlayerRows(valLuLocal.team1, 'val-lu-t1-players', 'team1');
-      renderLuPlayerRows(valLuLocal.team2, 'val-lu-t2-players', 'team2');
-    }
-
-    function syncLuUI(s) {
-      if (!s) return;
-      const el = $('val-lu-visible');
-      if (el) el.checked = s.visible;
-      if ($('val-lu-map'))      $('val-lu-map').value = s.mapName || '';
-      if ($('val-lu-t1-label')) $('val-lu-t1-label').textContent = (s.team1?.name||'TEAM ALPHA').toUpperCase();
-      if ($('val-lu-t2-label')) $('val-lu-t2-label').textContent = (s.team2?.name||'TEAM BRAVO').toUpperCase();
-    }
-
-    function syncTeamNamesToSub() {
-      const t1n = valMatchLocal.team1.name;
-      const t2n = valMatchLocal.team2.name;
-      valPbLocal.team1.name = t1n; valPbLocal.team2.name = t2n;
-      valLuLocal.team1.name = t1n; valLuLocal.team2.name = t2n;
-      if ($('val-pb-t1-label')) $('val-pb-t1-label').textContent = t1n.toUpperCase();
-      if ($('val-pb-t2-label')) $('val-pb-t2-label').textContent = t2n.toUpperCase();
-      if ($('val-lu-t1-label')) $('val-lu-t1-label').textContent = t1n.toUpperCase();
-      if ($('val-lu-t2-label')) $('val-lu-t2-label').textContent = t2n.toUpperCase();
-    }
-
-    // ── Réceptions socket ─────────────────────────────────────────
-    socket.on('valMatchUpdate', s => {
-      if (!s) return;
-      valMatchLocal = { ...valMatchLocal, ...s };
-      if (s.team1) valMatchLocal.team1 = { ...valMatchLocal.team1, ...s.team1 };
-      if (s.team2) valMatchLocal.team2 = { ...valMatchLocal.team2, ...s.team2 };
-      syncValScoreboardUI(valMatchLocal);
-    });
-
-    socket.on('valPickBanUpdate', s => {
-      if (!s) return;
-      valPbLocal = { ...valPbLocal, ...s };
-      if (s.team1)          valPbLocal.team1         = { ...valPbLocal.team1, ...s.team1 };
-      if (s.team2)          valPbLocal.team2         = { ...valPbLocal.team2, ...s.team2 };
-      if (s.maps)           valPbLocal.maps          = s.maps;
-      if (s.team1?.players) valPbLocal.team1.players = s.team1.players;
-      if (s.team2?.players) valPbLocal.team2.players = s.team2.players;
-      syncPbUI(valPbLocal);
-      renderPbPlayerRows(valPbLocal.team1, 'val-pb-t1-players', 'team1');
-      renderPbPlayerRows(valPbLocal.team2, 'val-pb-t2-players', 'team2');
-      renderMapVeto();
-    });
-
-    socket.on('valLineupUpdate', s => {
-      if (!s) return;
-      valLuLocal = { ...valLuLocal, ...s };
-      if (s.team1)          valLuLocal.team1         = { ...valLuLocal.team1, ...s.team1 };
-      if (s.team2)          valLuLocal.team2         = { ...valLuLocal.team2, ...s.team2 };
-      if (s.team1?.players) valLuLocal.team1.players = s.team1.players;
-      if (s.team2?.players) valLuLocal.team2.players = s.team2.players;
-      syncLuUI(valLuLocal);
-      renderLuPlayerRows(valLuLocal.team1, 'val-lu-t1-players', 'team1');
-      renderLuPlayerRows(valLuLocal.team2, 'val-lu-t2-players', 'team2');
-    });
-
-    // ── Init (fetch état initial) ─────────────────────────────────
-    fetch('/api/game').then(r => r.json()).then(s => {
-      if (!s) return;
-      document.querySelectorAll('.game-btn').forEach(b => b.classList.toggle('active', b.dataset.game === s.game));
-      applyGameSwitch(s.game);
-    }).catch(() => {});
-
-    fetch('/api/val/match').then(r => r.json()).then(s => {
-      if (!s) return;
-      valMatchLocal = { ...valMatchLocal, ...s };
-      if (s.team1) valMatchLocal.team1 = { ...valMatchLocal.team1, ...s.team1 };
-      if (s.team2) valMatchLocal.team2 = { ...valMatchLocal.team2, ...s.team2 };
-      syncValScoreboardUI(valMatchLocal);
-    }).catch(() => {});
-
-    fetch('/api/val/pickban').then(r => r.json()).then(s => {
-      if (!s) return;
-      valPbLocal = { ...valPbLocal, ...s };
-      if (s.team1)          valPbLocal.team1         = { ...valPbLocal.team1, ...s.team1 };
-      if (s.team2)          valPbLocal.team2         = { ...valPbLocal.team2, ...s.team2 };
-      if (s.maps)           valPbLocal.maps          = s.maps;
-      if (s.team1?.players) valPbLocal.team1.players = s.team1.players;
-      if (s.team2?.players) valPbLocal.team2.players = s.team2.players;
-      initPickBan(); syncPbUI(valPbLocal);
-    }).catch(() => { initPickBan(); });
-
-    fetch('/api/val/lineup').then(r => r.json()).then(s => {
-      if (!s) return;
-      valLuLocal = { ...valLuLocal, ...s };
-      if (s.team1)          valLuLocal.team1         = { ...valLuLocal.team1, ...s.team1 };
-      if (s.team2)          valLuLocal.team2         = { ...valLuLocal.team2, ...s.team2 };
-      if (s.team1?.players) valLuLocal.team1.players = s.team1.players;
-      if (s.team2?.players) valLuLocal.team2.players = s.team2.players;
-      initLineup(); syncLuUI(valLuLocal);
-    }).catch(() => { initLineup(); });
-
-  })();
-
-  // ══════════════════════════════════════════════════════════════════════
-  // ■ STREET FIGHTER 6
-  // ══════════════════════════════════════════════════════════════════════
-  (() => {
-    const SF6_THEMES = [
-      { id:'sf6-default', name:'SF6 Default',  sub:'Officiel',    primary:'#F7B731', p1:'#3A8FFF', p2:'#FF5A3A' },
-      { id:'sf6-capcom',  name:'Capcom Cup',   sub:'Tournoi',     primary:'#D4A017', p1:'#2A7FFF', p2:'#FF4A2A' },
-      { id:'sf6-red',     name:'Rouge Intense', sub:'Dramatique', primary:'#FF2040', p1:'#FF2040', p2:'#2040FF' },
-      { id:'sf6-blue',    name:'Bleu Électrique',sub:'Dynamique', primary:'#1A90FF', p1:'#FF8C00', p2:'#1A90FF' },
-      { id:'sf6-classic', name:'Classique',    sub:'Rétro',       primary:'#FFFFFF', p1:'#FF0000', p2:'#0000FF' },
-    ];
-
-    let sfLocal = {
-      visible: true, theme: 'sf6-default',
-      p1: { name:'', character:'', color:'#3A8FFF', score:0 },
-      p2: { name:'', character:'', color:'#FF5A3A', score:0 },
-      roundNum: 1, matchFormat: 'Bo3', event: 'Capcom Cup',
-    };
-    let _sfCastersLocal = [
-      { name:'', twitter:'', twitch:'', youtube:'' },
-      { name:'', twitter:'', twitch:'', youtube:'' },
-    ];
-
-    let _dbSf = null;
-    const sendSf = () => { clearTimeout(_dbSf); _dbSf = setTimeout(() => socket.emit('updateSfMatch', sfLocal), 120); };
-
-    // Sous-navigation
-    document.querySelectorAll('#tab-sf6 .match-subnav-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.querySelectorAll('#tab-sf6 .match-subnav-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        document.querySelectorAll('#tab-sf6 .match-panel').forEach(p => p.classList.remove('active'));
-        const panel = $(`${btn.dataset.panel}`);
-        if (panel) panel.classList.add('active');
-      });
-    });
-
-    // Charger la liste des personnages
-    fetch('/api/sf/chars').then(r => r.json()).then(chars => {
-      ['sf6-p1-char','sf6-p2-char'].forEach(id => {
-        const sel = $(id);
-        if (!sel) return;
-        chars.forEach(c => { const o = document.createElement('option'); o.value=c; o.textContent=c; sel.appendChild(o); });
-      });
-    }).catch(() => {});
-
-    // Champs texte/select
-    [
-      { id:'sf6-event',    upd: v => { sfLocal.event = v; } },
-      { id:'sf6-format',   upd: v => { sfLocal.matchFormat = v; } },
-      { id:'sf6-round',    upd: v => { sfLocal.roundNum = parseInt(v)||1; } },
-      { id:'sf6-p1-name',  upd: v => { sfLocal.p1.name = v; } },
-      { id:'sf6-p1-char',  upd: v => { sfLocal.p1.character = v; } },
-      { id:'sf6-p1-color', upd: v => { sfLocal.p1.color = v; } },
-      { id:'sf6-p2-name',  upd: v => { sfLocal.p2.name = v; } },
-      { id:'sf6-p2-char',  upd: v => { sfLocal.p2.character = v; } },
-      { id:'sf6-p2-color', upd: v => { sfLocal.p2.color = v; } },
-    ].forEach(({ id, upd }) => {
-      const el = $(id);
-      if (el) el.addEventListener('input', () => { upd(el.value); sendSf(); });
-    });
-
-    // Boutons score
-    document.querySelectorAll('.sf6-score-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const p = btn.dataset.player;
-        const dir = parseInt(btn.dataset.dir);
-        sfLocal[p].score = Math.max(0, Math.min(9, (sfLocal[p].score||0)+dir));
-        const disp = $(`sf6-${p}-score-display`);
-        if (disp) disp.textContent = sfLocal[p].score;
-        sendSf();
-      });
-    });
-
-    // Visibilité
-    const sfVisEl = $('sf6-sb-visible');
-    if (sfVisEl) sfVisEl.addEventListener('change', () => { sfLocal.visible = sfVisEl.checked; sendSf(); });
-
-    // Réinitialiser scores
-    const sfResetBtn = $('sf6-reset-scores');
-    if (sfResetBtn) sfResetBtn.addEventListener('click', () => {
-      sfLocal.p1.score = 0; sfLocal.p2.score = 0;
-      if ($('sf6-p1-score-display')) $('sf6-p1-score-display').textContent = 0;
-      if ($('sf6-p2-score-display')) $('sf6-p2-score-display').textContent = 0;
-      sendSf();
-    });
-
-    // Thèmes SF6
-    function buildSf6ThemeGrid() {
-      const grid = $('sf6-theme-grid');
-      if (!grid) return;
-      grid.innerHTML = '';
-      SF6_THEMES.forEach(th => {
-        const card = document.createElement('div');
-        card.className = 'val-theme-card';
-        card.innerHTML = `<div class="val-theme-swatches"><span style="background:${th.p1}"></span><span style="background:${th.primary}"></span><span style="background:${th.p2}"></span></div><div class="val-theme-name">${th.name}</div><div class="val-theme-sub">${th.sub}</div>`;
-        card.addEventListener('click', () => {
-          sfLocal.theme    = th.id;
-          sfLocal.p1.color = th.p1;
-          sfLocal.p2.color = th.p2;
-          if ($('sf6-p1-color')) $('sf6-p1-color').value = th.p1;
-          if ($('sf6-p2-color')) $('sf6-p2-color').value = th.p2;
-          sendSf();
-        });
-        grid.appendChild(card);
-      });
-    }
-    buildSf6ThemeGrid();
-
-    // Casters SF6 (partagé avec castersState)
-    document.querySelectorAll('.sf6-casters-layout-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.querySelectorAll('.sf6-casters-layout-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        socket.emit('updateCasters', { layout: btn.dataset.layout });
-      });
-    });
-    const sf6CasVis = $('sf6-casters-visible');
-    if (sf6CasVis) sf6CasVis.addEventListener('change', () => socket.emit('updateCasters', { visible: sf6CasVis.checked }));
-    ['name','twitter','twitch','youtube'].forEach(f => {
-      [0,1].forEach(idx => {
-        const el = $(`sf6-c${idx+1}-${f}`);
-        if (!el) return;
-        el.addEventListener('input', () => {
-          _sfCastersLocal[idx][f] = el.value;
-          socket.emit('updateCasters', { casters: _sfCastersLocal });
-        });
-      });
-    });
-
-    function syncSfUI(s) {
-      if (!s) return;
-      if ($('sf6-event'))   $('sf6-event').value   = s.event       || '';
-      if ($('sf6-format'))  $('sf6-format').value  = s.matchFormat || 'Bo3';
-      if ($('sf6-round'))   $('sf6-round').value   = s.roundNum    || 1;
-      if ($('sf6-p1-name')) $('sf6-p1-name').value = s.p1?.name   || '';
-      if ($('sf6-p1-char')) $('sf6-p1-char').value = s.p1?.character || '';
-      if ($('sf6-p1-color'))$('sf6-p1-color').value= s.p1?.color  || '#3A8FFF';
-      if ($('sf6-p1-score-display')) $('sf6-p1-score-display').textContent = s.p1?.score ?? 0;
-      if ($('sf6-p2-name')) $('sf6-p2-name').value = s.p2?.name   || '';
-      if ($('sf6-p2-char')) $('sf6-p2-char').value = s.p2?.character || '';
-      if ($('sf6-p2-color'))$('sf6-p2-color').value= s.p2?.color  || '#FF5A3A';
-      if ($('sf6-p2-score-display')) $('sf6-p2-score-display').textContent = s.p2?.score ?? 0;
-      if (sfVisEl) sfVisEl.checked = s.visible !== false;
-    }
-
-    socket.on('sfMatchUpdate', s => {
-      if (!s) return;
-      sfLocal = { ...sfLocal, ...s };
-      if (s.p1) sfLocal.p1 = { ...sfLocal.p1, ...s.p1 };
-      if (s.p2) sfLocal.p2 = { ...sfLocal.p2, ...s.p2 };
-      syncSfUI(sfLocal);
-    });
-
-    fetch('/api/sf/match').then(r => r.json()).then(s => {
-      if (!s) return;
-      sfLocal = { ...sfLocal, ...s };
-      if (s.p1) sfLocal.p1 = { ...sfLocal.p1, ...s.p1 };
-      if (s.p2) sfLocal.p2 = { ...sfLocal.p2, ...s.p2 };
-      syncSfUI(sfLocal);
-    }).catch(() => {});
-  })();
-
-  // ══════════════════════════════════════════════════════════════════════
-  // ■ TEKKEN 8
-  // ══════════════════════════════════════════════════════════════════════
-  (() => {
-    const TEK8_THEMES = [
-      { id:'tek8-default', name:'Tekken 8',      sub:'Officiel',   primary:'#DC3232', p1:'#DC3232', p2:'#3A8FFF' },
-      { id:'tek8-dark',    name:'Dark Imposant', sub:'Dramatique', primary:'#FF0000', p1:'#FF0000', p2:'#FFFFFF' },
-      { id:'tek8-iron',    name:'Iron Fist',     sub:'Acier',      primary:'#AAAAAA', p1:'#DDDDDD', p2:'#888888' },
-      { id:'tek8-gold',    name:'Oro d\'Or',     sub:'Prestige',   primary:'#C9A84C', p1:'#C9A84C', p2:'#8A6A2C' },
-      { id:'tek8-neon',    name:'Néon Rage',     sub:'Lumineux',   primary:'#FF3EFF', p1:'#FF3EFF', p2:'#3EFFFF' },
-    ];
-
-    let tekLocal = {
-      visible: true, theme: 'tek8-default',
-      p1: { name:'', character:'', color:'#DC3232', score:0 },
-      p2: { name:'', character:'', color:'#3A8FFF', score:0 },
-      roundNum: 1, matchFormat: 'Bo3', event: 'Tekken World Tour',
-    };
-    let _tekCastersLocal = [
-      { name:'', twitter:'', twitch:'', youtube:'' },
-      { name:'', twitter:'', twitch:'', youtube:'' },
-    ];
-
-    let _dbTek = null;
-    const sendTek = () => { clearTimeout(_dbTek); _dbTek = setTimeout(() => socket.emit('updateTekMatch', tekLocal), 120); };
-
-    document.querySelectorAll('#tab-tek8 .match-subnav-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.querySelectorAll('#tab-tek8 .match-subnav-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        document.querySelectorAll('#tab-tek8 .match-panel').forEach(p => p.classList.remove('active'));
-        const panel = $(`${btn.dataset.panel}`);
-        if (panel) panel.classList.add('active');
-      });
-    });
-
-    fetch('/api/tek/chars').then(r => r.json()).then(chars => {
-      ['tek8-p1-char','tek8-p2-char'].forEach(id => {
-        const sel = $(id);
-        if (!sel) return;
-        chars.forEach(c => { const o = document.createElement('option'); o.value=c; o.textContent=c; sel.appendChild(o); });
-      });
-    }).catch(() => {});
-
-    [
-      { id:'tek8-event',    upd: v => { tekLocal.event = v; } },
-      { id:'tek8-format',   upd: v => { tekLocal.matchFormat = v; } },
-      { id:'tek8-round',    upd: v => { tekLocal.roundNum = parseInt(v)||1; } },
-      { id:'tek8-p1-name',  upd: v => { tekLocal.p1.name = v; } },
-      { id:'tek8-p1-char',  upd: v => { tekLocal.p1.character = v; } },
-      { id:'tek8-p1-color', upd: v => { tekLocal.p1.color = v; } },
-      { id:'tek8-p2-name',  upd: v => { tekLocal.p2.name = v; } },
-      { id:'tek8-p2-char',  upd: v => { tekLocal.p2.character = v; } },
-      { id:'tek8-p2-color', upd: v => { tekLocal.p2.color = v; } },
-    ].forEach(({ id, upd }) => {
-      const el = $(id);
-      if (el) el.addEventListener('input', () => { upd(el.value); sendTek(); });
-    });
-
-    document.querySelectorAll('.tek8-score-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const p   = btn.dataset.player;
-        const dir = parseInt(btn.dataset.dir);
-        tekLocal[p].score = Math.max(0, Math.min(9, (tekLocal[p].score||0)+dir));
-        const disp = $(`tek8-${p}-score-display`);
-        if (disp) disp.textContent = tekLocal[p].score;
-        sendTek();
-      });
-    });
-
-    const tekVisEl = $('tek8-sb-visible');
-    if (tekVisEl) tekVisEl.addEventListener('change', () => { tekLocal.visible = tekVisEl.checked; sendTek(); });
-
-    const tekResetBtn = $('tek8-reset-scores');
-    if (tekResetBtn) tekResetBtn.addEventListener('click', () => {
-      tekLocal.p1.score = 0; tekLocal.p2.score = 0;
-      if ($('tek8-p1-score-display')) $('tek8-p1-score-display').textContent = 0;
-      if ($('tek8-p2-score-display')) $('tek8-p2-score-display').textContent = 0;
-      sendTek();
-    });
-
-    function buildTek8ThemeGrid() {
-      const grid = $('tek8-theme-grid');
-      if (!grid) return;
-      grid.innerHTML = '';
-      TEK8_THEMES.forEach(th => {
-        const card = document.createElement('div');
-        card.className = 'val-theme-card';
-        card.innerHTML = `<div class="val-theme-swatches"><span style="background:${th.p1}"></span><span style="background:${th.primary}"></span><span style="background:${th.p2}"></span></div><div class="val-theme-name">${th.name}</div><div class="val-theme-sub">${th.sub}</div>`;
-        card.addEventListener('click', () => {
-          tekLocal.theme    = th.id;
-          tekLocal.p1.color = th.p1;
-          tekLocal.p2.color = th.p2;
-          if ($('tek8-p1-color')) $('tek8-p1-color').value = th.p1;
-          if ($('tek8-p2-color')) $('tek8-p2-color').value = th.p2;
-          sendTek();
-        });
-        grid.appendChild(card);
-      });
-    }
-    buildTek8ThemeGrid();
-
-    document.querySelectorAll('.tek8-casters-layout-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.querySelectorAll('.tek8-casters-layout-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        socket.emit('updateCasters', { layout: btn.dataset.layout });
-      });
-    });
-    const tek8CasVis = $('tek8-casters-visible');
-    if (tek8CasVis) tek8CasVis.addEventListener('change', () => socket.emit('updateCasters', { visible: tek8CasVis.checked }));
-    ['name','twitter','twitch','youtube'].forEach(f => {
-      [0,1].forEach(idx => {
-        const el = $(`tek8-c${idx+1}-${f}`);
-        if (!el) return;
-        el.addEventListener('input', () => {
-          _tekCastersLocal[idx][f] = el.value;
-          socket.emit('updateCasters', { casters: _tekCastersLocal });
-        });
-      });
-    });
-
-    function syncTekUI(s) {
-      if (!s) return;
-      if ($('tek8-event'))   $('tek8-event').value   = s.event       || '';
-      if ($('tek8-format'))  $('tek8-format').value  = s.matchFormat || 'Bo3';
-      if ($('tek8-round'))   $('tek8-round').value   = s.roundNum    || 1;
-      if ($('tek8-p1-name')) $('tek8-p1-name').value = s.p1?.name   || '';
-      if ($('tek8-p1-char')) $('tek8-p1-char').value = s.p1?.character || '';
-      if ($('tek8-p1-color'))$('tek8-p1-color').value= s.p1?.color  || '#DC3232';
-      if ($('tek8-p1-score-display')) $('tek8-p1-score-display').textContent = s.p1?.score ?? 0;
-      if ($('tek8-p2-name')) $('tek8-p2-name').value = s.p2?.name   || '';
-      if ($('tek8-p2-char')) $('tek8-p2-char').value = s.p2?.character || '';
-      if ($('tek8-p2-color'))$('tek8-p2-color').value= s.p2?.color  || '#3A8FFF';
-      if ($('tek8-p2-score-display')) $('tek8-p2-score-display').textContent = s.p2?.score ?? 0;
-      if (tekVisEl) tekVisEl.checked = s.visible !== false;
-    }
-
-    socket.on('tekMatchUpdate', s => {
-      if (!s) return;
-      tekLocal = { ...tekLocal, ...s };
-      if (s.p1) tekLocal.p1 = { ...tekLocal.p1, ...s.p1 };
-      if (s.p2) tekLocal.p2 = { ...tekLocal.p2, ...s.p2 };
-      syncTekUI(tekLocal);
-    });
-
-    fetch('/api/tek/match').then(r => r.json()).then(s => {
-      if (!s) return;
-      tekLocal = { ...tekLocal, ...s };
-      if (s.p1) tekLocal.p1 = { ...tekLocal.p1, ...s.p1 };
-      if (s.p2) tekLocal.p2 = { ...tekLocal.p2, ...s.p2 };
-      syncTekUI(tekLocal);
-    }).catch(() => {});
-  })();
-
-  // ══════════════════════════════════════════════════════════════════════
-  // ■ COUNTER-STRIKE 2
-  // ══════════════════════════════════════════════════════════════════════
-  (() => {
-    const CS2_THEMES = [
-      { id:'cs2-default',  name:'CS2 Default',   sub:'Officiel',   primary:'#FFA200', t:'#E8B400', ct:'#5B94EB' },
-      { id:'cs2-dark',     name:'Shadow Ops',     sub:'Sombre',     primary:'#CC8800', t:'#CC8800', ct:'#3A70CC' },
-      { id:'cs2-classic',  name:'Classique',      sub:'Nostalgique',primary:'#FFFFFF', t:'#FF8C00', ct:'#0080FF' },
-      { id:'cs2-neon',     name:'Néon Tactical',  sub:'Lumineux',   primary:'#00FF88', t:'#FFAA00', ct:'#00CCFF' },
-      { id:'cs2-military', name:'Militaire',      sub:'Authentique',primary:'#6B7B45', t:'#8FA050', ct:'#4A6080' },
-    ];
-
-    const CS2_MAPS_LIST = ['Mirage','Inferno','Overpass','Nuke','Ancient','Anubis','Dust2','Vertigo','Train'];
-
-    let cs2Local = {
-      visible: true, theme: 'cs2-default',
-      team1: { name:'', side:'T',  color:'#E8B400', logo:'', score:0 },
-      team2: { name:'', side:'CT', color:'#5B94EB', logo:'', score:0 },
-      mapName:'Mirage', roundNum:1, totalRounds:24, matchFormat:'Bo3', event:'IEM Katowice',
-    };
-    let cs2MvLocal = {
-      visible: false, phase:'MAP VETO',
-      team1: { name:'', color:'#E8B400', logo:'' },
-      team2: { name:'', color:'#5B94EB', logo:'' },
-      maps: CS2_MAPS_LIST.map(m => ({ name:m, status:'available', team:null })),
-    };
-    let _cs2CastersLocal = [
-      { name:'', twitter:'', twitch:'', youtube:'' },
-      { name:'', twitter:'', twitch:'', youtube:'' },
-    ];
-
-    let _dbCs2 = null, _dbCs2Mv = null;
-    const sendCs2   = () => { clearTimeout(_dbCs2);   _dbCs2   = setTimeout(() => socket.emit('updateCs2Match',   cs2Local),   120); };
-    const sendCs2Mv = () => { clearTimeout(_dbCs2Mv); _dbCs2Mv = setTimeout(() => socket.emit('updateCs2MapVeto', cs2MvLocal), 120); };
-
-    document.querySelectorAll('#tab-cs2 .match-subnav-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.querySelectorAll('#tab-cs2 .match-subnav-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        document.querySelectorAll('#tab-cs2 .match-panel').forEach(p => p.classList.remove('active'));
-        const panel = $(`${btn.dataset.panel}`);
-        if (panel) panel.classList.add('active');
-      });
-    });
-
-    // Champs match
-    [
-      { id:'cs2-event',        upd: v => { cs2Local.event       = v; cs2MvLocal.team1.name = cs2Local.team1.name; cs2MvLocal.team2.name = cs2Local.team2.name; } },
-      { id:'cs2-map',          upd: v => { cs2Local.mapName     = v; } },
-      { id:'cs2-format',       upd: v => { cs2Local.matchFormat = v; } },
-      { id:'cs2-round',        upd: v => { cs2Local.roundNum    = parseInt(v)||1; } },
-      { id:'cs2-total-rounds', upd: v => { cs2Local.totalRounds = parseInt(v)||24; } },
-      { id:'cs2-t1-name',      upd: v => { cs2Local.team1.name  = v; cs2MvLocal.team1.name = v; sendCs2Mv(); } },
-      { id:'cs2-t1-side',      upd: v => { cs2Local.team1.side  = v; } },
-      { id:'cs2-t1-color',     upd: v => { cs2Local.team1.color = v; cs2MvLocal.team1.color = v; sendCs2Mv(); } },
-      { id:'cs2-t1-logo',      upd: v => { cs2Local.team1.logo  = v; cs2MvLocal.team1.logo  = v; sendCs2Mv(); } },
-      { id:'cs2-t2-name',      upd: v => { cs2Local.team2.name  = v; cs2MvLocal.team2.name = v; sendCs2Mv(); } },
-      { id:'cs2-t2-side',      upd: v => { cs2Local.team2.side  = v; } },
-      { id:'cs2-t2-color',     upd: v => { cs2Local.team2.color = v; cs2MvLocal.team2.color = v; sendCs2Mv(); } },
-      { id:'cs2-t2-logo',      upd: v => { cs2Local.team2.logo  = v; cs2MvLocal.team2.logo  = v; sendCs2Mv(); } },
-    ].forEach(({ id, upd }) => {
-      const el = $(id);
-      if (el) el.addEventListener('input', () => { upd(el.value); sendCs2(); });
-    });
-
-    // Scores
-    document.querySelectorAll('.cs2-score-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const team = btn.dataset.team;
-        const dir  = parseInt(btn.dataset.dir);
-        cs2Local[team].score = Math.max(0, Math.min(30, (cs2Local[team].score||0)+dir));
-        const disp = $(`cs2-${team === 'team1' ? 't1' : 't2'}-score-display`);
-        if (disp) disp.textContent = cs2Local[team].score;
-        sendCs2();
-      });
-    });
-
-    const cs2VisEl = $('cs2-sb-visible');
-    if (cs2VisEl) cs2VisEl.addEventListener('change', () => { cs2Local.visible = cs2VisEl.checked; sendCs2(); });
-
-    const cs2ResetBtn = $('cs2-reset-scores');
-    if (cs2ResetBtn) cs2ResetBtn.addEventListener('click', () => {
-      cs2Local.team1.score = 0; cs2Local.team2.score = 0;
-      if ($('cs2-t1-score-display')) $('cs2-t1-score-display').textContent = 0;
-      if ($('cs2-t2-score-display')) $('cs2-t2-score-display').textContent = 0;
-      sendCs2();
-    });
-
-    const swapBtn = $('cs2-swap-sides');
-    if (swapBtn) swapBtn.addEventListener('click', () => {
-      const tmp = cs2Local.team1.side;
-      cs2Local.team1.side = cs2Local.team2.side;
-      cs2Local.team2.side = tmp;
-      const s1 = $('cs2-t1-side'); const s2 = $('cs2-t2-side');
-      if (s1) s1.value = cs2Local.team1.side;
-      if (s2) s2.value = cs2Local.team2.side;
-      sendCs2();
-    });
-
-    // Thèmes CS2
-    function buildCs2ThemeGrid() {
-      const grid = $('cs2-theme-grid');
-      if (!grid) return;
-      grid.innerHTML = '';
-      CS2_THEMES.forEach(th => {
-        const card = document.createElement('div');
-        card.className = 'val-theme-card';
-        card.innerHTML = `<div class="val-theme-swatches"><span style="background:${th.t}"></span><span style="background:${th.primary}"></span><span style="background:${th.ct}"></span></div><div class="val-theme-name">${th.name}</div><div class="val-theme-sub">${th.sub}</div>`;
-        card.addEventListener('click', () => {
-          cs2Local.theme       = th.id;
-          cs2Local.team1.color = th.t;
-          cs2Local.team2.color = th.ct;
-          cs2MvLocal.team1.color = th.t;
-          cs2MvLocal.team2.color = th.ct;
-          if ($('cs2-t1-color')) $('cs2-t1-color').value = th.t;
-          if ($('cs2-t2-color')) $('cs2-t2-color').value = th.ct;
-          sendCs2(); sendCs2Mv();
-        });
-        grid.appendChild(card);
-      });
-    }
-    buildCs2ThemeGrid();
-
-    // ── Map veto ──────────────────────────────────────────────────────
-    const CYCLE = ['available','picked-1','picked-2','banned-1','banned-2','decider'];
-    // Cycle: available → picked(T1) → picked(T2) → banned(T1) → banned(T2) → decider → available
-
-    function renderCs2MapVeto() {
-      const list = $('cs2-map-veto-list');
-      if (!list) return;
-      list.innerHTML = '';
-      cs2MvLocal.maps.forEach((m, i) => {
-        const el = document.createElement('div');
-        const cls = m.status === 'available' ? '' :
-                    m.status === 'picked'  && m.team === 1 ? 'picked-1' :
-                    m.status === 'picked'  && m.team === 2 ? 'picked-2' :
-                    m.status === 'banned'  && m.team === 1 ? 'banned' :
-                    m.status === 'banned'  && m.team === 2 ? 'banned' :
-                    m.status === 'decider' ? 'decider' : '';
-        el.className = `cs2-map-veto-item ${cls}`;
-        const label = m.status === 'available' ? '—' :
-                      m.status === 'picked'  ? (m.team === 1 ? 'PICK T1' : 'PICK T2') :
-                      m.status === 'banned'  ? (m.team === 1 ? 'BAN T1'  : 'BAN T2') :
-                      m.status === 'decider' ? 'DÉCIDER' : '';
-        el.innerHTML = `<div>${m.name.toUpperCase()}</div><div class="cs2-map-veto-status">${label}</div>`;
-        el.addEventListener('click', () => {
-          // Cycle: available → picked T1 → picked T2 → banned T1 → banned T2 → decider → available
-          const cur = m.status;
-          if (cur === 'available')                        { m.status = 'picked'; m.team = 1; }
-          else if (cur === 'picked'  && m.team === 1)    { m.status = 'picked'; m.team = 2; }
-          else if (cur === 'picked'  && m.team === 2)    { m.status = 'banned'; m.team = 1; }
-          else if (cur === 'banned'  && m.team === 1)    { m.status = 'banned'; m.team = 2; }
-          else if (cur === 'banned'  && m.team === 2)    { m.status = 'decider'; m.team = null; }
-          else                                           { m.status = 'available'; m.team = null; }
-          renderCs2MapVeto();
-          sendCs2Mv();
-        });
-        list.appendChild(el);
-      });
-    }
-
-    const mvVisBtn = $('cs2-mv-visible-btn');
-    if (mvVisBtn) mvVisBtn.addEventListener('click', () => {
-      cs2MvLocal.visible = !cs2MvLocal.visible;
-      mvVisBtn.textContent = cs2MvLocal.visible ? 'Masquer' : 'Afficher';
-      sendCs2Mv();
-    });
-
-    const mvResetBtn = $('cs2-mv-reset');
-    if (mvResetBtn) mvResetBtn.addEventListener('click', () => {
-      cs2MvLocal.maps = CS2_MAPS_LIST.map(m => ({ name:m, status:'available', team:null }));
-      renderCs2MapVeto();
-      sendCs2Mv();
-    });
-
-    const mvPhaseEl = $('cs2-mv-phase');
-    if (mvPhaseEl) mvPhaseEl.addEventListener('input', () => { cs2MvLocal.phase = mvPhaseEl.value; sendCs2Mv(); });
-
-    // Casters CS2 (partagé)
-    document.querySelectorAll('.cs2-casters-layout-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.querySelectorAll('.cs2-casters-layout-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        socket.emit('updateCasters', { layout: btn.dataset.layout });
-      });
-    });
-    const cs2CasVis = $('cs2-casters-visible');
-    if (cs2CasVis) cs2CasVis.addEventListener('change', () => socket.emit('updateCasters', { visible: cs2CasVis.checked }));
-    ['name','twitter','twitch','youtube'].forEach(f => {
-      [0,1].forEach(idx => {
-        const el = $(`cs2-c${idx+1}-${f}`);
-        if (!el) return;
-        el.addEventListener('input', () => {
-          _cs2CastersLocal[idx][f] = el.value;
-          socket.emit('updateCasters', { casters: _cs2CastersLocal });
-        });
-      });
-    });
-
-    function syncCs2UI(s) {
-      if (!s) return;
-      if ($('cs2-event'))       $('cs2-event').value       = s.event           || '';
-      if ($('cs2-map'))         $('cs2-map').value         = s.mapName         || 'Mirage';
-      if ($('cs2-format'))      $('cs2-format').value      = s.matchFormat     || 'Bo3';
-      if ($('cs2-round'))       $('cs2-round').value       = s.roundNum        || 1;
-      if ($('cs2-total-rounds'))$('cs2-total-rounds').value= s.totalRounds     || 24;
-      if ($('cs2-t1-name'))     $('cs2-t1-name').value     = s.team1?.name    || '';
-      if ($('cs2-t1-side'))     $('cs2-t1-side').value     = s.team1?.side    || 'T';
-      if ($('cs2-t1-color'))    $('cs2-t1-color').value    = s.team1?.color   || '#E8B400';
-      if ($('cs2-t1-logo'))     $('cs2-t1-logo').value     = s.team1?.logo    || '';
-      if ($('cs2-t1-score-display')) $('cs2-t1-score-display').textContent = s.team1?.score ?? 0;
-      if ($('cs2-t2-name'))     $('cs2-t2-name').value     = s.team2?.name    || '';
-      if ($('cs2-t2-side'))     $('cs2-t2-side').value     = s.team2?.side    || 'CT';
-      if ($('cs2-t2-color'))    $('cs2-t2-color').value    = s.team2?.color   || '#5B94EB';
-      if ($('cs2-t2-logo'))     $('cs2-t2-logo').value     = s.team2?.logo    || '';
-      if ($('cs2-t2-score-display')) $('cs2-t2-score-display').textContent = s.team2?.score ?? 0;
-      if (cs2VisEl) cs2VisEl.checked = s.visible !== false;
-    }
-
-    socket.on('cs2MatchUpdate', s => {
-      if (!s) return;
-      cs2Local = { ...cs2Local, ...s };
-      if (s.team1) cs2Local.team1 = { ...cs2Local.team1, ...s.team1 };
-      if (s.team2) cs2Local.team2 = { ...cs2Local.team2, ...s.team2 };
-      syncCs2UI(cs2Local);
-    });
-
-    socket.on('cs2MapVetoUpdate', s => {
-      if (!s) return;
-      cs2MvLocal = { ...cs2MvLocal, ...s };
-      if (s.team1) cs2MvLocal.team1 = { ...cs2MvLocal.team1, ...s.team1 };
-      if (s.team2) cs2MvLocal.team2 = { ...cs2MvLocal.team2, ...s.team2 };
-      if (s.maps)  cs2MvLocal.maps  = s.maps;
-      renderCs2MapVeto();
-    });
-
-    fetch('/api/cs2/match').then(r => r.json()).then(s => {
-      if (!s) return;
-      cs2Local = { ...cs2Local, ...s };
-      if (s.team1) cs2Local.team1 = { ...cs2Local.team1, ...s.team1 };
-      if (s.team2) cs2Local.team2 = { ...cs2Local.team2, ...s.team2 };
-      syncCs2UI(cs2Local);
-    }).catch(() => {});
-
-    fetch('/api/cs2/mapveto').then(r => r.json()).then(s => {
-      if (!s) return;
-      cs2MvLocal = { ...cs2MvLocal, ...s };
-      if (s.team1) cs2MvLocal.team1 = { ...cs2MvLocal.team1, ...s.team1 };
-      if (s.team2) cs2MvLocal.team2 = { ...cs2MvLocal.team2, ...s.team2 };
-      if (s.maps)  cs2MvLocal.maps  = s.maps;
-      renderCs2MapVeto();
-    }).catch(() => { renderCs2MapVeto(); });
-  })();
 
 })();

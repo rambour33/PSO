@@ -3,17 +3,22 @@
 <head>
   <meta charset="UTF-8" />
   <title>PSO – Super Overlay</title>
-  <link rel="stylesheet" href="super-overlay.css" />
+  <link rel="stylesheet" href="/super-overlay.css" />
 </head>
 <body>
 
-  <!-- Fond optionnel (couleur unie derrière tous les calques) -->
+  <!-- Fond couleur unie -->
   <div id="so-bg"></div>
+  <!-- Fond image / texture (layer séparé pour blend indépendant) -->
+  <div id="so-bg-img"></div>
+  <!-- Canvas particules thème -->
+  <canvas id="so-particle-canvas"></canvas>
 
   <!-- Conteneur des calques iframes -->
   <div id="so-root"></div>
 
 <script src="/socket.io/socket.io.js"></script>
-<script src="super-overlay.js"></script>
+<script src="/particle-engine.js"></script>
+<script src="/super-overlay.js"></script>
 </body>
 </html>
