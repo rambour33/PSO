@@ -162,11 +162,19 @@
     const digits = document.getElementById('timer-digits');
     if (!root || !digits) return;
 
-    const secs = getCurrentSeconds(_state);
+    let secs = getCurrentSeconds(_state);
+
+    if (_state.mode === 'countdown' && secs <= 0) {
+      digits.textContent = formatTime(0, _state.showMillis);
+      root.classList.remove('alert', 'running');
+      stopRaf();
+      return;
+    }
+
     digits.textContent = formatTime(secs, _state.showMillis);
 
     // Alert : countdown < alertAt
-    const isAlert = _state.mode === 'countdown' && secs <= (_state.alertAt || 60) && secs >= 0;
+    const isAlert = _state.mode === 'countdown' && secs <= (_state.alertAt || 60);
     root.classList.toggle('alert', isAlert);
   }
 

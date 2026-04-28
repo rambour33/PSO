@@ -395,6 +395,8 @@ let vetoState = makeVetoState();
 // ─── Routes ───────────────────────────────────────────────────────────────────
 
 app.get('/', (req, res) => res.redirect('/control'));
+app.get('/guide', (req, res) => res.sendFile(path.join(__dirname, 'public', 'guide.html')));
+app.get('/deck',  (req, res) => res.sendFile(path.join(__dirname, 'public', 'deck.html')));
 app.get('/overlay', (req, res) => res.sendFile(path.join(__dirname, 'public', 'overlay.html')));
 app.get('/overlay-slim', (req, res) => res.sendFile(path.join(__dirname, 'public', 'overlay-slim.html')));
 app.get('/h2h',          (req, res) => res.sendFile(path.join(__dirname, 'public', 'h2h.html')));
@@ -3631,6 +3633,80 @@ app.post('/api/transitions/:id/hide', (req, res) => {
   });
   io.emit('transitionsUpdate', transitionState);
   res.json({ ok: true });
+});
+
+// ─── Stream Deck ─────────────────────────────────────────────────────────────
+//
+// Endpoints GET sans auth — appelables directement depuis le Stream Deck.
+// Utilise le système de transitions (animIn/animOut/dur configurés dans le panneau).
+// URL exemple : http://localhost:3002/api/deck/cam/toggle
+
+const DECK_LABELS = {
+  'scoreboard':         'Scoreboard',
+  'scoreboard-slim':    'Scoreboard Slim',
+  'scoreboard-elements':'Éléments Scoreboard',
+  'casters':            'Commentateurs',
+  'stageveto':          'Stage Veto',
+  'ticker':             'Bandeau défilant',
+  'cam':                'Cam',
+  'frames':             'Cadres',
+  'stream-title':       'Titre du stream',
+  'h2h':                'Head-to-Head',
+  'player-stats':       'Stats Joueur',
+  'tournament-history': 'Historique',
+  'bracket':            'Bracket',
+  'top8':               'Top 8',
+  'timer':              'Minuteur',
+  'twitch-layout':      'Layout Twitch',
+  'twitch-chat':        'Chat Twitch',
+  'twitch-viewer':      'Viewers Twitch',
+  'youtube-chat':       'Chat YouTube',
+  'combined-chat':      'Chat Combiné',
+};
+
+app.get('/api/deck', (req, res) => {
+  const base = `http://${req.hostname}:${PORT}`;
+  const overlays = TRANSITION_IDS.map(id => ({
+    id,
+    label:   DECK_LABELS[id] || id,
+    visible: transitionState[id]?.visible ?? true,
+    animIn:  transitionState[id]?.animIn  || 'fade',
+    animOut: transitionState[id]?.animOut || 'fade',
+    dur:     transitionState[id]?.dur     ?? 500,
+    urls: {
+      show:   `${base}/api/deck/${id}/show`,
+      hide:   `${base}/api/deck/${id}/hide`,
+      toggle: `${base}/api/deck/${id}/toggle`,
+    },
+  }));
+  res.json({ overlays });
+});
+
+app.get('/api/deck/:overlay/:action', (req, res) => {
+  const { overlay, action } = req.params;
+  if (!['show', 'hide', 'toggle'].includes(action))
+    return res.status(400).json({ error: `Action invalide: ${action}` });
+  if (!transitionState[overlay])
+    return res.status(404).json({ error: `Overlay inconnu: ${overlay}`, available: TRANSITION_IDS });
+
+  const t = transitionState[overlay];
+  const doShow = action === 'toggle' ? !t.visible : action === 'show';
+  t.visible = doShow;
+  saveTransitionState(transitionState);
+
+  io.emit(doShow ? 'overlayShow' : 'overlayHide', {
+    id:     overlay,
+    animIn:  t.animIn,
+    animOut: t.animOut,
+    dur:     t.dur,
+  });
+  io.emit('transitionsUpdate', transitionState);
+
+  // Si appelé depuis un navigateur (Stream Deck "Website"), fermer l'onglet immédiatement
+  if (req.headers.accept && req.headers.accept.includes('text/html')) {
+    return res.send('<script>window.close();</script>');
+  }
+  res.json({ ok: true, overlay, action, visible: doShow });
 });
 
 // ─── Start ────────────────────────────────────────────────────────────────────

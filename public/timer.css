@@ -38,13 +38,14 @@ body {
 .timer-root {
   position: absolute;
   transform: translate(-50%, -50%);
-  transition: opacity 0.4s;
+  transition: opacity 0.35s ease, filter 0.35s ease;
   z-index: 2;
 }
 
 .timer-root.hidden {
   opacity: 0;
   pointer-events: none;
+  filter: blur(6px);
 }
 
 /* ── Wrapper interne ───────────────────────────────────────────── */

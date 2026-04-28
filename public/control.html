@@ -54,6 +54,8 @@
           <a href="/frames" target="_blank">Cadres</a>
           <a href="/timer" target="_blank">Timer</a>
           <a href="/super-overlay" target="_blank">Super Overlay</a>
+          <a href="/deck" target="_blank" style="color:#E8B830">🎮 Stream Deck URLs</a>
+          <a href="/guide" target="_blank" style="color:#A0C4D8">📖 Guide d'utilisation</a>
         </div>
       </div>
       <div class="overlay-group">
@@ -84,6 +86,7 @@
       <button id="btn-visibility" class="btn btn-primary">Masquer</button>
       <button id="btn-server-reload" class="btn btn-outline" title="Redémarre le serveur Node.js" style="border-color:#e05;color:#e05">↺ Serveur</button>
       <button id="btn-mobile-mode" class="btn btn-outline" title="Mode mobile/tablette">📱</button>
+      <a href="/guide" target="_blank" class="btn btn-outline" title="Guide d'utilisation" style="text-decoration:none">📖 Guide</a>
     </div>
   </header>
 
@@ -3139,6 +3142,76 @@
       <div class="custom-card" style="padding:14px 16px">
         <p class="hint" style="margin-bottom:14px">Contrôle les transitions visuelles de chaque overlay dans OBS. Cliquez Afficher / Masquer pour déclencher l'animation.</p>
         <div id="anim-grid" class="anim-grid"></div>
+      </div>
+    </section>
+
+    <!-- ── Tuto Stream Deck ────────────────────────────────────── -->
+    <section class="section">
+      <div class="section-header"><h2>Stream Deck</h2></div>
+      <div class="custom-card" style="padding:18px 20px">
+
+        <!-- En-tête -->
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px">
+          <div style="width:40px;height:40px;background:linear-gradient(135deg,#1C1C2E,#2A2A4A);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">🎮</div>
+          <div>
+            <div style="font-weight:700;font-size:14px;color:#F0EEF8">Contrôle les overlays depuis ton Stream Deck</div>
+            <div style="font-size:12px;color:#666;margin-top:2px">Aucun plugin requis — utilise l'action <strong style="color:#A0C4D8">Website</strong> native de Stream Deck</div>
+          </div>
+          <a href="/deck" target="_blank" style="margin-left:auto;background:#E8B830;color:#0E0E12;font-size:12px;font-weight:700;padding:7px 14px;border-radius:7px;text-decoration:none;flex-shrink:0;white-space:nowrap">Voir tous les URLs →</a>
+        </div>
+
+        <!-- Badge "sans plugin" -->
+        <div style="background:rgba(107,201,108,0.08);border:1px solid rgba(107,201,108,0.25);border-radius:8px;padding:10px 14px;margin-bottom:16px;display:flex;align-items:center;gap:10px">
+          <span style="font-size:18px">✅</span>
+          <span style="font-size:12px;color:#9EE09E;line-height:1.5">L'action <strong>Website</strong> est intégrée dans Stream Deck — elle ouvre l'URL dans un navigateur qui se ferme instantanément. Aucun plugin à installer.</span>
+        </div>
+
+        <!-- Étapes -->
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px;margin-bottom:18px">
+
+          <div style="background:#0E0E12;border:1px solid #2a2a3a;border-radius:8px;padding:14px">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+              <span style="background:#E8B830;color:#0E0E12;font-size:11px;font-weight:800;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0">1</span>
+              <span style="font-size:13px;font-weight:600;color:#F0EEF8">Ouvrir Stream Deck</span>
+            </div>
+            <p style="font-size:12px;color:#888;line-height:1.6">Lance le logiciel <strong style="color:#aaa">Elgato Stream Deck</strong> sur ton PC et sélectionne un bouton vide.</p>
+          </div>
+
+          <div style="background:#0E0E12;border:1px solid #2a2a3a;border-radius:8px;padding:14px">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+              <span style="background:#E8B830;color:#0E0E12;font-size:11px;font-weight:800;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0">2</span>
+              <span style="font-size:13px;font-weight:600;color:#F0EEF8">Ajouter "Website"</span>
+            </div>
+            <p style="font-size:12px;color:#888;line-height:1.6">Dans le panneau de droite, cherche <strong style="color:#A0C4D8">Website</strong> (catégorie <em>System</em>) et glisse-la sur le bouton.</p>
+          </div>
+
+          <div style="background:#0E0E12;border:1px solid #2a2a3a;border-radius:8px;padding:14px">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+              <span style="background:#E8B830;color:#0E0E12;font-size:11px;font-weight:800;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0">3</span>
+              <span style="font-size:13px;font-weight:600;color:#F0EEF8">Coller l'URL</span>
+            </div>
+            <p style="font-size:12px;color:#888;line-height:1.6">Copie une URL ci-dessous et colle-la dans le champ <strong style="color:#A0C4D8">URL</strong> du bouton. Le onglet se ferme seul après l'appui.</p>
+          </div>
+
+          <div style="background:#0E0E12;border:1px solid rgba(107,201,108,0.3);border-radius:8px;padding:14px">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+              <span style="background:#6BC96C;color:#0E0E12;font-size:11px;font-weight:800;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0">✓</span>
+              <span style="font-size:13px;font-weight:600;color:#F0EEF8">Appuyer</span>
+            </div>
+            <p style="font-size:12px;color:#888;line-height:1.6">L'overlay s'anime avec le type et la durée configurés ci-dessus. <strong style="color:#A0C4D8">/toggle</strong> bascule, <strong style="color:#A0C4D8">/show</strong> affiche, <strong style="color:#A0C4D8">/hide</strong> masque.</p>
+          </div>
+
+        </div>
+
+        <!-- Exemples d'URLs cliquables -->
+        <div style="background:#0E0E12;border:1px solid #2a2a3a;border-radius:8px;padding:12px 14px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+            <span style="font-size:11px;font-weight:700;color:#666;text-transform:uppercase;letter-spacing:1px">Exemples — cliquer pour copier</span>
+            <a href="/deck" target="_blank" style="font-size:11px;color:#E8B830;text-decoration:none">Tous les overlays →</a>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:5px" id="deck-examples"></div>
+        </div>
+
       </div>
     </section>
   </div><!-- /tab-custom -->

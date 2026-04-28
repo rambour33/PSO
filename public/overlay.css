@@ -42,12 +42,13 @@ body {
   align-items: center;
   gap: 1px;
   filter: drop-shadow(0 4px 32px rgba(0,0,0,0.8));
-  transition: opacity 0.4s;
+  transition: opacity 0.45s ease, filter 0.45s ease;
 }
 
 .scoreboard.hidden {
   opacity: 0;
   pointer-events: none;
+  filter: drop-shadow(0 4px 32px rgba(0,0,0,0.8)) blur(4px);
 }
 
 /* ── Event bar ───────────────────────────────────────────────── */

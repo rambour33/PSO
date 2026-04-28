@@ -38,6 +38,9 @@ body {
   pointer-events: none;
 }
 
+.ticker-root.position-bottom.hidden { transform: translateY(100%); }
+.ticker-root.position-top.hidden    { transform: translateY(-100%); }
+
 /* ── Lignes de bordure décoratives ────────────────────────────── */
 .ticker-border-top,
 .ticker-border-bottom {

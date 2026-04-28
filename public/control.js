@@ -10442,6 +10442,36 @@ socket.on('stateUpdate', (s) => {
       if (!document.querySelector('.anim-card')) renderGrid();
     });
   });
+
+  /* Exemples d'URLs Stream Deck */
+  (function () {
+    const el = document.getElementById('deck-examples');
+    if (!el) return;
+    const base = window.location.origin;
+    const EXAMPLES = [
+      { url: base + '/api/deck/cam/toggle',        label: 'Basculer la Cam' },
+      { url: base + '/api/deck/scoreboard/toggle', label: 'Basculer le Scoreboard' },
+      { url: base + '/api/deck/ticker/show',       label: 'Afficher le Bandeau' },
+      { url: base + '/api/deck/casters/hide',      label: 'Masquer les Commentateurs' },
+      { url: base + '/api/deck/timer/toggle',      label: 'Basculer le Minuteur' },
+    ];
+    EXAMPLES.forEach(({ url, label }) => {
+      const row = document.createElement('div');
+      row.style.cssText = 'display:flex;align-items:center;gap:8px';
+      row.innerHTML = `
+        <span style="font-size:11px;color:#666;width:200px;flex-shrink:0">${label}</span>
+        <code style="flex:1;background:#16161E;border:1px solid #2a2a3a;border-radius:4px;padding:4px 8px;font-size:11px;color:#A0C4D8;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" data-url="${url}" title="Cliquer pour copier">${url}</code>
+      `;
+      row.querySelector('code').addEventListener('click', function () {
+        navigator.clipboard.writeText(this.dataset.url).then(() => {
+          const prev = this.style.color;
+          this.style.color = '#6BC96C';
+          setTimeout(() => { this.style.color = prev; }, 500);
+        });
+      });
+      el.appendChild(row);
+    });
+  })();
 })();
 
 // ═══════════════════════════════════════════════════════════════
