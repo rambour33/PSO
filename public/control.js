@@ -10449,11 +10449,14 @@ socket.on('stateUpdate', (s) => {
     if (!el) return;
     const base = window.location.origin;
     const EXAMPLES = [
+      { url: base + '/api/deck/score/p1/inc',      label: '+1 Joueur 1' },
+      { url: base + '/api/deck/score/p1/dec',      label: '-1 Joueur 1' },
+      { url: base + '/api/deck/score/p2/inc',      label: '+1 Joueur 2' },
+      { url: base + '/api/deck/score/p2/dec',      label: '-1 Joueur 2' },
+      { url: base + '/api/deck/score/reset',       label: 'Reset scores (0 / 0)' },
       { url: base + '/api/deck/cam/toggle',        label: 'Basculer la Cam' },
       { url: base + '/api/deck/scoreboard/toggle', label: 'Basculer le Scoreboard' },
       { url: base + '/api/deck/ticker/show',       label: 'Afficher le Bandeau' },
-      { url: base + '/api/deck/casters/hide',      label: 'Masquer les Commentateurs' },
-      { url: base + '/api/deck/timer/toggle',      label: 'Basculer le Minuteur' },
     ];
     EXAMPLES.forEach(({ url, label }) => {
       const row = document.createElement('div');

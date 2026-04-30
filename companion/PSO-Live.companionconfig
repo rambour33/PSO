@@ -1,0 +1,266 @@
+{
+  "version": 4,
+  "type": "page",
+  "page": {
+    "name": "PSO — Live",
+    "controls": {
+
+      "0/0": {
+        "type": "button",
+        "style": { "text": "+1\nJ1", "size": "18", "color": 16777215, "bgcolor": 11141120, "png64": null, "alignment": "center:center", "pngalignment": "center:center", "show_topbar": "default" },
+        "feedbacks": [],
+        "steps": { "0": { "action_sets": { "down": [{ "id": "live-00", "instance": "HTTP", "action": "get", "options": { "url": "http://localhost:3002/api/deck/score/p1/inc", "headers": "[]" }, "delay": 0 }], "up": [], "rotate_left": [], "rotate_right": [] }, "options": { "runWhileHeld": [] } } },
+        "options": { "stepAutoProgress": true }
+      },
+
+      "0/1": {
+        "type": "button",
+        "style": { "text": "-1\nJ1", "size": "18", "color": 16777215, "bgcolor": 6684672, "png64": null, "alignment": "center:center", "pngalignment": "center:center", "show_topbar": "default" },
+        "feedbacks": [],
+        "steps": { "0": { "action_sets": { "down": [{ "id": "live-01", "instance": "HTTP", "action": "get", "options": { "url": "http://localhost:3002/api/deck/score/p1/dec", "headers": "[]" }, "delay": 0 }], "up": [], "rotate_left": [], "rotate_right": [] }, "options": { "runWhileHeld": [] } } },
+        "options": { "stepAutoProgress": true }
+      },
+
+      "0/2": {
+        "type": "button",
+        "style": { "text": "RESET\n0 / 0", "size": "14", "color": 16777215, "bgcolor": 8413696, "png64": null, "alignment": "center:center", "pngalignment": "center:center", "show_topbar": "default" },
+        "feedbacks": [],
+        "steps": { "0": { "action_sets": { "down": [{ "id": "live-02", "instance": "HTTP", "action": "get", "options": { "url": "http://localhost:3002/api/deck/score/reset", "headers": "[]" }, "delay": 0 }], "up": [], "rotate_left": [], "rotate_right": [] }, "options": { "runWhileHeld": [] } } },
+        "options": { "stepAutoProgress": true }
+      },
+
+      "0/3": {
+        "type": "button",
+        "style": { "text": "-1\nJ2", "size": "18", "color": 16777215, "bgcolor": 102, "png64": null, "alignment": "center:center", "pngalignment": "center:center", "show_topbar": "default" },
+        "feedbacks": [],
+        "steps": { "0": { "action_sets": { "down": [{ "id": "live-03", "instance": "HTTP", "action": "get", "options": { "url": "http://localhost:3002/api/deck/score/p2/dec", "headers": "[]" }, "delay": 0 }], "up": [], "rotate_left": [], "rotate_right": [] }, "options": { "runWhileHeld": [] } } },
+        "options": { "stepAutoProgress": true }
+      },
+
+      "0/4": {
+        "type": "button",
+        "style": { "text": "+1\nJ2", "size": "18", "color": 16777215, "bgcolor": 170, "png64": null, "alignment": "center:center", "pngalignment": "center:center", "show_topbar": "default" },
+        "feedbacks": [],
+        "steps": { "0": { "action_sets": { "down": [{ "id": "live-04", "instance": "HTTP", "action": "get", "options": { "url": "http://localhost:3002/api/deck/score/p2/inc", "headers": "[]" }, "delay": 0 }], "up": [], "rotate_left": [], "rotate_right": [] }, "options": { "runWhileHeld": [] } } },
+        "options": { "stepAutoProgress": true }
+      },
+
+      "0/5": {
+        "type": "button",
+        "style": { "text": "Chat\nCombiné", "size": "auto", "color": 16777215, "bgcolor": 1973806, "png64": null, "alignment": "center:center", "pngalignment": "center:center", "show_topbar": "default" },
+        "feedbacks": [],
+        "steps": { "0": { "action_sets": { "down": [{ "id": "live-05", "instance": "HTTP", "action": "get", "options": { "url": "http://localhost:3002/api/deck/combined-chat/toggle", "headers": "[]" }, "delay": 0 }], "up": [], "rotate_left": [], "rotate_right": [] }, "options": { "runWhileHeld": [] } } },
+        "options": { "stepAutoProgress": true }
+      },
+
+      "0/6": {
+        "type": "button",
+        "style": { "text": "Chat\nYouTube", "size": "auto", "color": 16777215, "bgcolor": 1973806, "png64": null, "alignment": "center:center", "pngalignment": "center:center", "show_topbar": "default" },
+        "feedbacks": [],
+        "steps": { "0": { "action_sets": { "down": [{ "id": "live-06", "instance": "HTTP", "action": "get", "options": { "url": "http://localhost:3002/api/deck/youtube-chat/toggle", "headers": "[]" }, "delay": 0 }], "up": [], "rotate_left": [], "rotate_right": [] }, "options": { "runWhileHeld": [] } } },
+        "options": { "stepAutoProgress": true }
+      },
+
+      "0/7": {
+        "type": "button",
+        "style": { "text": "TW\nViewer", "size": "auto", "color": 16777215, "bgcolor": 1973806, "png64": null, "alignment": "center:center", "pngalignment": "center:center", "show_topbar": "default" },
+        "feedbacks": [],
+        "steps": { "0": { "action_sets": { "down": [{ "id": "live-07", "instance": "HTTP", "action": "get", "options": { "url": "http://localhost:3002/api/deck/twitch-viewer/toggle", "headers": "[]" }, "delay": 0 }], "up": [], "rotate_left": [], "rotate_right": [] }, "options": { "runWhileHeld": [] } } },
+        "options": { "stepAutoProgress": true }
+      },
+
+      "1/0": {
+        "type": "button",
+        "style": { "text": "Scène 1", "size": "auto", "color": 16777215, "bgcolor": 13056, "png64": null, "alignment": "center:center", "pngalignment": "center:center", "show_topbar": "default" },
+        "feedbacks": [],
+        "steps": { "0": { "action_sets": { "down": [{ "id": "live-10", "instance": "HTTP", "action": "post", "options": { "url": "http://localhost:3002/api/super/scene/0", "body": "", "contenttype": "application/x-www-form-urlencoded", "headers": "[]" }, "delay": 0 }], "up": [], "rotate_left": [], "rotate_right": [] }, "options": { "runWhileHeld": [] } } },
+        "options": { "stepAutoProgress": true }
+      },
+
+      "1/1": {
+        "type": "button",
+        "style": { "text": "Scène 2", "size": "auto", "color": 16777215, "bgcolor": 13056, "png64": null, "alignment": "center:center", "pngalignment": "center:center", "show_topbar": "default" },
+        "feedbacks": [],
+        "steps": { "0": { "action_sets": { "down": [{ "id": "live-11", "instance": "HTTP", "action": "post", "options": { "url": "http://localhost:3002/api/super/scene/1", "body": "", "contenttype": "application/x-www-form-urlencoded", "headers": "[]" }, "delay": 0 }], "up": [], "rotate_left": [], "rotate_right": [] }, "options": { "runWhileHeld": [] } } },
+        "options": { "stepAutoProgress": true }
+      },
+
+      "1/2": {
+        "type": "button",
+        "style": { "text": "Scène 3", "size": "auto", "color": 16777215, "bgcolor": 13056, "png64": null, "alignment": "center:center", "pngalignment": "center:center", "show_topbar": "default" },
+        "feedbacks": [],
+        "steps": { "0": { "action_sets": { "down": [{ "id": "live-12", "instance": "HTTP", "action": "post", "options": { "url": "http://localhost:3002/api/super/scene/2", "body": "", "contenttype": "application/x-www-form-urlencoded", "headers": "[]" }, "delay": 0 }], "up": [], "rotate_left": [], "rotate_right": [] }, "options": { "runWhileHeld": [] } } },
+        "options": { "stepAutoProgress": true }
+      },
+
+      "1/3": {
+        "type": "button",
+        "style": { "text": "Scène 4", "size": "auto", "color": 16777215, "bgcolor": 13056, "png64": null, "alignment": "center:center", "pngalignment": "center:center", "show_topbar": "default" },
+        "feedbacks": [],
+        "steps": { "0": { "action_sets": { "down": [{ "id": "live-13", "instance": "HTTP", "action": "post", "options": { "url": "http://localhost:3002/api/super/scene/3", "body": "", "contenttype": "application/x-www-form-urlencoded", "headers": "[]" }, "delay": 0 }], "up": [], "rotate_left": [], "rotate_right": [] }, "options": { "runWhileHeld": [] } } },
+        "options": { "stepAutoProgress": true }
+      },
+
+      "1/4": {
+        "type": "button",
+        "style": { "text": "Scène 5", "size": "auto", "color": 16777215, "bgcolor": 13056, "png64": null, "alignment": "center:center", "pngalignment": "center:center", "show_topbar": "default" },
+        "feedbacks": [],
+        "steps": { "0": { "action_sets": { "down": [{ "id": "live-14", "instance": "HTTP", "action": "post", "options": { "url": "http://localhost:3002/api/super/scene/4", "body": "", "contenttype": "application/x-www-form-urlencoded", "headers": "[]" }, "delay": 0 }], "up": [], "rotate_left": [], "rotate_right": [] }, "options": { "runWhileHeld": [] } } },
+        "options": { "stepAutoProgress": true }
+      },
+
+      "1/5": {
+        "type": "button",
+        "style": { "text": "Scène 6", "size": "auto", "color": 16777215, "bgcolor": 13056, "png64": null, "alignment": "center:center", "pngalignment": "center:center", "show_topbar": "default" },
+        "feedbacks": [],
+        "steps": { "0": { "action_sets": { "down": [{ "id": "live-15", "instance": "HTTP", "action": "post", "options": { "url": "http://localhost:3002/api/super/scene/5", "body": "", "contenttype": "application/x-www-form-urlencoded", "headers": "[]" }, "delay": 0 }], "up": [], "rotate_left": [], "rotate_right": [] }, "options": { "runWhileHeld": [] } } },
+        "options": { "stepAutoProgress": true }
+      },
+
+      "1/6": {
+        "type": "button",
+        "style": { "text": "Scène 7", "size": "auto", "color": 16777215, "bgcolor": 13056, "png64": null, "alignment": "center:center", "pngalignment": "center:center", "show_topbar": "default" },
+        "feedbacks": [],
+        "steps": { "0": { "action_sets": { "down": [{ "id": "live-16", "instance": "HTTP", "action": "post", "options": { "url": "http://localhost:3002/api/super/scene/6", "body": "", "contenttype": "application/x-www-form-urlencoded", "headers": "[]" }, "delay": 0 }], "up": [], "rotate_left": [], "rotate_right": [] }, "options": { "runWhileHeld": [] } } },
+        "options": { "stepAutoProgress": true }
+      },
+
+      "1/7": {
+        "type": "button",
+        "style": { "text": "Scène 8", "size": "auto", "color": 16777215, "bgcolor": 13056, "png64": null, "alignment": "center:center", "pngalignment": "center:center", "show_topbar": "default" },
+        "feedbacks": [],
+        "steps": { "0": { "action_sets": { "down": [{ "id": "live-17", "instance": "HTTP", "action": "post", "options": { "url": "http://localhost:3002/api/super/scene/7", "body": "", "contenttype": "application/x-www-form-urlencoded", "headers": "[]" }, "delay": 0 }], "up": [], "rotate_left": [], "rotate_right": [] }, "options": { "runWhileHeld": [] } } },
+        "options": { "stepAutoProgress": true }
+      },
+
+      "2/0": {
+        "type": "button",
+        "style": { "text": "Score-\nboard", "size": "auto", "color": 16777215, "bgcolor": 1973806, "png64": null, "alignment": "center:center", "pngalignment": "center:center", "show_topbar": "default" },
+        "feedbacks": [],
+        "steps": { "0": { "action_sets": { "down": [{ "id": "live-20", "instance": "HTTP", "action": "get", "options": { "url": "http://localhost:3002/api/deck/scoreboard/toggle", "headers": "[]" }, "delay": 0 }], "up": [], "rotate_left": [], "rotate_right": [] }, "options": { "runWhileHeld": [] } } },
+        "options": { "stepAutoProgress": true }
+      },
+
+      "2/1": {
+        "type": "button",
+        "style": { "text": "SB\nSlim", "size": "auto", "color": 16777215, "bgcolor": 1973806, "png64": null, "alignment": "center:center", "pngalignment": "center:center", "show_topbar": "default" },
+        "feedbacks": [],
+        "steps": { "0": { "action_sets": { "down": [{ "id": "live-21", "instance": "HTTP", "action": "get", "options": { "url": "http://localhost:3002/api/deck/scoreboard-slim/toggle", "headers": "[]" }, "delay": 0 }], "up": [], "rotate_left": [], "rotate_right": [] }, "options": { "runWhileHeld": [] } } },
+        "options": { "stepAutoProgress": true }
+      },
+
+      "2/2": {
+        "type": "button",
+        "style": { "text": "Cam", "size": "auto", "color": 16777215, "bgcolor": 1973806, "png64": null, "alignment": "center:center", "pngalignment": "center:center", "show_topbar": "default" },
+        "feedbacks": [],
+        "steps": { "0": { "action_sets": { "down": [{ "id": "live-22", "instance": "HTTP", "action": "get", "options": { "url": "http://localhost:3002/api/deck/cam/toggle", "headers": "[]" }, "delay": 0 }], "up": [], "rotate_left": [], "rotate_right": [] }, "options": { "runWhileHeld": [] } } },
+        "options": { "stepAutoProgress": true }
+      },
+
+      "2/3": {
+        "type": "button",
+        "style": { "text": "Ticker", "size": "auto", "color": 16777215, "bgcolor": 1973806, "png64": null, "alignment": "center:center", "pngalignment": "center:center", "show_topbar": "default" },
+        "feedbacks": [],
+        "steps": { "0": { "action_sets": { "down": [{ "id": "live-23", "instance": "HTTP", "action": "get", "options": { "url": "http://localhost:3002/api/deck/ticker/toggle", "headers": "[]" }, "delay": 0 }], "up": [], "rotate_left": [], "rotate_right": [] }, "options": { "runWhileHeld": [] } } },
+        "options": { "stepAutoProgress": true }
+      },
+
+      "2/4": {
+        "type": "button",
+        "style": { "text": "Frames", "size": "auto", "color": 16777215, "bgcolor": 1973806, "png64": null, "alignment": "center:center", "pngalignment": "center:center", "show_topbar": "default" },
+        "feedbacks": [],
+        "steps": { "0": { "action_sets": { "down": [{ "id": "live-24", "instance": "HTTP", "action": "get", "options": { "url": "http://localhost:3002/api/deck/frames/toggle", "headers": "[]" }, "delay": 0 }], "up": [], "rotate_left": [], "rotate_right": [] }, "options": { "runWhileHeld": [] } } },
+        "options": { "stepAutoProgress": true }
+      },
+
+      "2/5": {
+        "type": "button",
+        "style": { "text": "Titre\nStream", "size": "auto", "color": 16777215, "bgcolor": 1973806, "png64": null, "alignment": "center:center", "pngalignment": "center:center", "show_topbar": "default" },
+        "feedbacks": [],
+        "steps": { "0": { "action_sets": { "down": [{ "id": "live-25", "instance": "HTTP", "action": "get", "options": { "url": "http://localhost:3002/api/deck/stream-title/toggle", "headers": "[]" }, "delay": 0 }], "up": [], "rotate_left": [], "rotate_right": [] }, "options": { "runWhileHeld": [] } } },
+        "options": { "stepAutoProgress": true }
+      },
+
+      "2/6": {
+        "type": "button",
+        "style": { "text": "Casters", "size": "auto", "color": 16777215, "bgcolor": 1973806, "png64": null, "alignment": "center:center", "pngalignment": "center:center", "show_topbar": "default" },
+        "feedbacks": [],
+        "steps": { "0": { "action_sets": { "down": [{ "id": "live-26", "instance": "HTTP", "action": "get", "options": { "url": "http://localhost:3002/api/deck/casters/toggle", "headers": "[]" }, "delay": 0 }], "up": [], "rotate_left": [], "rotate_right": [] }, "options": { "runWhileHeld": [] } } },
+        "options": { "stepAutoProgress": true }
+      },
+
+      "2/7": {
+        "type": "button",
+        "style": { "text": "Stage\nVeto", "size": "auto", "color": 16777215, "bgcolor": 1973806, "png64": null, "alignment": "center:center", "pngalignment": "center:center", "show_topbar": "default" },
+        "feedbacks": [],
+        "steps": { "0": { "action_sets": { "down": [{ "id": "live-27", "instance": "HTTP", "action": "get", "options": { "url": "http://localhost:3002/api/deck/stageveto/toggle", "headers": "[]" }, "delay": 0 }], "up": [], "rotate_left": [], "rotate_right": [] }, "options": { "runWhileHeld": [] } } },
+        "options": { "stepAutoProgress": true }
+      },
+
+      "3/0": {
+        "type": "button",
+        "style": { "text": "Head-to-\nHead", "size": "auto", "color": 16777215, "bgcolor": 1973806, "png64": null, "alignment": "center:center", "pngalignment": "center:center", "show_topbar": "default" },
+        "feedbacks": [],
+        "steps": { "0": { "action_sets": { "down": [{ "id": "live-30", "instance": "HTTP", "action": "get", "options": { "url": "http://localhost:3002/api/deck/h2h/toggle", "headers": "[]" }, "delay": 0 }], "up": [], "rotate_left": [], "rotate_right": [] }, "options": { "runWhileHeld": [] } } },
+        "options": { "stepAutoProgress": true }
+      },
+
+      "3/1": {
+        "type": "button",
+        "style": { "text": "Stats\nJoueur", "size": "auto", "color": 16777215, "bgcolor": 1973806, "png64": null, "alignment": "center:center", "pngalignment": "center:center", "show_topbar": "default" },
+        "feedbacks": [],
+        "steps": { "0": { "action_sets": { "down": [{ "id": "live-31", "instance": "HTTP", "action": "get", "options": { "url": "http://localhost:3002/api/deck/player-stats/toggle", "headers": "[]" }, "delay": 0 }], "up": [], "rotate_left": [], "rotate_right": [] }, "options": { "runWhileHeld": [] } } },
+        "options": { "stepAutoProgress": true }
+      },
+
+      "3/2": {
+        "type": "button",
+        "style": { "text": "Minuteur", "size": "auto", "color": 16777215, "bgcolor": 1973806, "png64": null, "alignment": "center:center", "pngalignment": "center:center", "show_topbar": "default" },
+        "feedbacks": [],
+        "steps": { "0": { "action_sets": { "down": [{ "id": "live-32", "instance": "HTTP", "action": "get", "options": { "url": "http://localhost:3002/api/deck/timer/toggle", "headers": "[]" }, "delay": 0 }], "up": [], "rotate_left": [], "rotate_right": [] }, "options": { "runWhileHeld": [] } } },
+        "options": { "stepAutoProgress": true }
+      },
+
+      "3/3": {
+        "type": "button",
+        "style": { "text": "Histori-\nque", "size": "auto", "color": 16777215, "bgcolor": 1973806, "png64": null, "alignment": "center:center", "pngalignment": "center:center", "show_topbar": "default" },
+        "feedbacks": [],
+        "steps": { "0": { "action_sets": { "down": [{ "id": "live-33", "instance": "HTTP", "action": "get", "options": { "url": "http://localhost:3002/api/deck/tournament-history/toggle", "headers": "[]" }, "delay": 0 }], "up": [], "rotate_left": [], "rotate_right": [] }, "options": { "runWhileHeld": [] } } },
+        "options": { "stepAutoProgress": true }
+      },
+
+      "3/4": {
+        "type": "button",
+        "style": { "text": "Bracket", "size": "auto", "color": 16777215, "bgcolor": 1973806, "png64": null, "alignment": "center:center", "pngalignment": "center:center", "show_topbar": "default" },
+        "feedbacks": [],
+        "steps": { "0": { "action_sets": { "down": [{ "id": "live-34", "instance": "HTTP", "action": "get", "options": { "url": "http://localhost:3002/api/deck/bracket/toggle", "headers": "[]" }, "delay": 0 }], "up": [], "rotate_left": [], "rotate_right": [] }, "options": { "runWhileHeld": [] } } },
+        "options": { "stepAutoProgress": true }
+      },
+
+      "3/5": {
+        "type": "button",
+        "style": { "text": "Top 8", "size": "auto", "color": 16777215, "bgcolor": 1973806, "png64": null, "alignment": "center:center", "pngalignment": "center:center", "show_topbar": "default" },
+        "feedbacks": [],
+        "steps": { "0": { "action_sets": { "down": [{ "id": "live-35", "instance": "HTTP", "action": "get", "options": { "url": "http://localhost:3002/api/deck/top8/toggle", "headers": "[]" }, "delay": 0 }], "up": [], "rotate_left": [], "rotate_right": [] }, "options": { "runWhileHeld": [] } } },
+        "options": { "stepAutoProgress": true }
+      },
+
+      "3/6": {
+        "type": "button",
+        "style": { "text": "Layout\nTwitch", "size": "auto", "color": 16777215, "bgcolor": 1973806, "png64": null, "alignment": "center:center", "pngalignment": "center:center", "show_topbar": "default" },
+        "feedbacks": [],
+        "steps": { "0": { "action_sets": { "down": [{ "id": "live-36", "instance": "HTTP", "action": "get", "options": { "url": "http://localhost:3002/api/deck/twitch-layout/toggle", "headers": "[]" }, "delay": 0 }], "up": [], "rotate_left": [], "rotate_right": [] }, "options": { "runWhileHeld": [] } } },
+        "options": { "stepAutoProgress": true }
+      },
+
+      "3/7": {
+        "type": "button",
+        "style": { "text": "Chat\nTwitch", "size": "auto", "color": 16777215, "bgcolor": 1973806, "png64": null, "alignment": "center:center", "pngalignment": "center:center", "show_topbar": "default" },
+        "feedbacks": [],
+        "steps": { "0": { "action_sets": { "down": [{ "id": "live-37", "instance": "HTTP", "action": "get", "options": { "url": "http://localhost:3002/api/deck/twitch-chat/toggle", "headers": "[]" }, "delay": 0 }], "up": [], "rotate_left": [], "rotate_right": [] }, "options": { "runWhileHeld": [] } } },
+        "options": { "stepAutoProgress": true }
+      }
+
+    }
+  }
+}

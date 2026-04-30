@@ -97,6 +97,7 @@ app.use((req, res, next) => {
 });
 
 app.use(express.static(path.join(__dirname, 'public')));
+app.use('/companion', express.static(path.join(__dirname, 'companion')));
 
 // ─── Auth routes ──────────────────────────────────────────────────────────────
 
@@ -397,6 +398,7 @@ let vetoState = makeVetoState();
 app.get('/', (req, res) => res.redirect('/control'));
 app.get('/guide', (req, res) => res.sendFile(path.join(__dirname, 'public', 'guide.html')));
 app.get('/deck',  (req, res) => res.sendFile(path.join(__dirname, 'public', 'deck.html')));
+app.get('/regie', (req, res) => res.sendFile(path.join(__dirname, 'public', 'regie.html')));
 app.get('/overlay', (req, res) => res.sendFile(path.join(__dirname, 'public', 'overlay.html')));
 app.get('/overlay-slim', (req, res) => res.sendFile(path.join(__dirname, 'public', 'overlay-slim.html')));
 app.get('/h2h',          (req, res) => res.sendFile(path.join(__dirname, 'public', 'h2h.html')));
@@ -3682,6 +3684,35 @@ app.get('/api/deck', (req, res) => {
   res.json({ overlays });
 });
 
+// ─── Stream Deck — Scores ─────────────────────────────────────────────────────
+// Ces routes doivent être définies AVANT /api/deck/:overlay/:action
+// pour éviter que /api/deck/score/reset soit intercepté par le handler générique.
+
+app.get('/api/deck/score/reset', (req, res) => {
+  matchState.player1.score = 0;
+  matchState.player2.score = 0;
+  io.emit('stateUpdate', matchState);
+
+  if (req.headers.accept?.includes('text/html')) return res.send('<script>window.close();</script>');
+  res.json({ ok: true, p1: 0, p2: 0 });
+});
+
+app.get('/api/deck/score/:player/:action', (req, res) => {
+  const { player, action } = req.params;
+  if (!['p1', 'p2'].includes(player))
+    return res.status(400).json({ error: 'Joueur invalide (p1 ou p2)' });
+  if (!['inc', 'dec'].includes(action))
+    return res.status(400).json({ error: 'Action invalide (inc ou dec)' });
+
+  const key = player === 'p1' ? 'player1' : 'player2';
+  const cur = matchState[key].score || 0;
+  matchState[key].score = action === 'inc' ? cur + 1 : Math.max(0, cur - 1);
+  io.emit('stateUpdate', matchState);
+
+  if (req.headers.accept?.includes('text/html')) return res.send('<script>window.close();</script>');
+  res.json({ ok: true, player, score: matchState[key].score });
+});
+
 app.get('/api/deck/:overlay/:action', (req, res) => {
   const { overlay, action } = req.params;
   if (!['show', 'hide', 'toggle'].includes(action))
@@ -3702,7 +3733,6 @@ app.get('/api/deck/:overlay/:action', (req, res) => {
   });
   io.emit('transitionsUpdate', transitionState);
 
-  // Si appelé depuis un navigateur (Stream Deck "Website"), fermer l'onglet immédiatement
   if (req.headers.accept && req.headers.accept.includes('text/html')) {
     return res.send('<script>window.close();</script>');
   }

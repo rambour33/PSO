@@ -1,0 +1,92 @@
+═══════════════════════════════════════════════════
+  PSO — Configuration Bitfocus Companion
+═══════════════════════════════════════════════════
+
+FICHIERS
+────────
+  PSO-Live.companionconfig      Page principale (32 boutons)
+  PSO-ShowHide.companionconfig  Afficher/Masquer précis (32 boutons)
+
+PRÉREQUIS
+─────────
+1. Bitfocus Companion v3.x installé
+2. PSO Server démarré sur le même PC (port 3002)
+
+ÉTAPE 1 — Ajouter la connexion HTTP
+────────────────────────────────────
+  Dans Companion → Connections → Add Connection
+  → Chercher "Generic HTTP Requests"
+  → Ajouter et nommer exactement : HTTP
+     (le label "HTTP" doit correspondre exactement à ce qui est
+      dans les fichiers .companionconfig)
+
+ÉTAPE 2 — Importer les pages
+──────────────────────────────
+  Dans Companion → Import / Export → Import page
+  → Sélectionner PSO-Live.companionconfig
+  → Choisir la page de destination (ex: Page 1)
+  → Répéter pour PSO-ShowHide.companionconfig (Page 2)
+
+MISE EN PAGE "PSO — Live" (4 lignes × 8 colonnes)
+───────────────────────────────────────────────────
+  Ligne 0 : [+1 J1] [-1 J1] [RESET] [-1 J2] [+1 J2] [Chat Comb.] [Chat YT] [TW Viewer]
+  Ligne 1 : [Scène 1] [Scène 2] [Scène 3] [Scène 4] [Scène 5] [Scène 6] [Scène 7] [Scène 8]
+  Ligne 2 : [Scoreboard] [SB Slim] [Cam] [Ticker] [Frames] [Titre] [Casters] [Stage Veto]
+  Ligne 3 : [H2H] [Stats] [Timer] [Historique] [Bracket] [Top 8] [Layout TW] [Chat TW]
+
+  Couleurs :
+    Rouge   = Scores J1 / Masquer overlays
+    Bleu    = Scores J2
+    Or      = Reset scores
+    Vert    = Scènes Studio
+    Violet  = Toggle overlays
+
+MISE EN PAGE "PSO — Show/Hide" (4 lignes × 8 colonnes)
+────────────────────────────────────────────────────────
+  Lignes 0-1 : ▶ AFFICHER chaque overlay (fond vert)
+  Lignes 2-3 : ■ MASQUER chaque overlay (fond rouge)
+
+ADRESSE SERVEUR
+───────────────
+  Si PSO tourne sur un autre PC, remplacer
+  "localhost:3002" par l'IP du serveur dans les URLs
+  (ex: 192.168.1.10:3002)
+
+  Via Companion → Edit button → modifier l'URL dans chaque action.
+
+LISTE COMPLÈTE DES URLS PSO DISPONIBLES
+─────────────────────────────────────────
+  Overlays (GET — toggle / show / hide) :
+    /api/deck/scoreboard/{toggle|show|hide}
+    /api/deck/scoreboard-slim/{toggle|show|hide}
+    /api/deck/scoreboard-elements/{toggle|show|hide}
+    /api/deck/casters/{toggle|show|hide}
+    /api/deck/stageveto/{toggle|show|hide}
+    /api/deck/ticker/{toggle|show|hide}
+    /api/deck/cam/{toggle|show|hide}
+    /api/deck/frames/{toggle|show|hide}
+    /api/deck/stream-title/{toggle|show|hide}
+    /api/deck/h2h/{toggle|show|hide}
+    /api/deck/player-stats/{toggle|show|hide}
+    /api/deck/tournament-history/{toggle|show|hide}
+    /api/deck/bracket/{toggle|show|hide}
+    /api/deck/top8/{toggle|show|hide}
+    /api/deck/timer/{toggle|show|hide}
+    /api/deck/twitch-layout/{toggle|show|hide}
+    /api/deck/twitch-chat/{toggle|show|hide}
+    /api/deck/twitch-viewer/{toggle|show|hide}
+    /api/deck/youtube-chat/{toggle|show|hide}
+    /api/deck/combined-chat/{toggle|show|hide}
+
+  Scores (GET) :
+    /api/deck/score/p1/inc     +1 J1
+    /api/deck/score/p1/dec     -1 J1
+    /api/deck/score/p2/inc     +1 J2
+    /api/deck/score/p2/dec     -1 J2
+    /api/deck/score/reset      Reset 0 / 0
+
+  Scènes Studio (POST) :
+    /api/super/scene/0   Scène 1
+    /api/super/scene/1   Scène 2
+    ...
+    /api/super/scene/8   Scène 9

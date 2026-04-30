@@ -103,11 +103,58 @@
     <div class="legend-item"><span class="badge toggle" style="width:auto;padding:2px 8px">toggle</span> — bascule visible/masqué</div>
   </div>
 
+  <!-- Scores -->
+  <div class="section-title">Scores</div>
+  <div class="grid" id="grid-scores">
+    <div class="card">
+      <div class="card-header"><span class="dot on"></span><h2>Joueur 1</h2><span class="anim-tag">score</span></div>
+      <div class="actions">
+        <div class="row"><span class="badge show">+1</span><div class="url-box" data-url="" id="url-p1-inc" title="Cliquer pour copier"></div></div>
+        <div class="row"><span class="badge hide">-1</span><div class="url-box" data-url="" id="url-p1-dec" title="Cliquer pour copier"></div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header"><span class="dot on"></span><h2>Joueur 2</h2><span class="anim-tag">score</span></div>
+      <div class="actions">
+        <div class="row"><span class="badge show">+1</span><div class="url-box" data-url="" id="url-p2-inc" title="Cliquer pour copier"></div></div>
+        <div class="row"><span class="badge hide">-1</span><div class="url-box" data-url="" id="url-p2-dec" title="Cliquer pour copier"></div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header"><span class="dot off"></span><h2>Reset scores</h2><span class="anim-tag">0 / 0</span></div>
+      <div class="actions">
+        <div class="row"><span class="badge toggle">reset</span><div class="url-box" data-url="" id="url-reset" title="Cliquer pour copier"></div></div>
+      </div>
+    </div>
+  </div>
+
   <!-- Grille -->
-  <div class="section-title">Tous les overlays</div>
+  <div class="section-title" style="margin-top:24px">Overlays</div>
   <div class="grid" id="grid"><div class="loading">Chargement…</div></div>
 
   <script>
+    const base = window.location.origin;
+
+    /* Scores */
+    [
+      ['url-p1-inc', base + '/api/deck/score/p1/inc'],
+      ['url-p1-dec', base + '/api/deck/score/p1/dec'],
+      ['url-p2-inc', base + '/api/deck/score/p2/inc'],
+      ['url-p2-dec', base + '/api/deck/score/p2/dec'],
+      ['url-reset',  base + '/api/deck/score/reset'],
+    ].forEach(([id, url]) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.textContent = url;
+      el.dataset.url = url;
+      el.addEventListener('click', () => {
+        navigator.clipboard.writeText(url).then(() => {
+          el.classList.add('flash');
+          setTimeout(() => el.classList.remove('flash'), 600);
+        });
+      });
+    });
+
     fetch('/api/deck')
       .then(r => r.json())
       .then(({ overlays }) => {

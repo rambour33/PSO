@@ -1,0 +1,266 @@
+{
+  "version": 4,
+  "type": "page",
+  "page": {
+    "name": "PSO — Show / Hide",
+    "controls": {
+
+      "0/0": {
+        "type": "button",
+        "style": { "text": "▶ Score-\nboard", "size": "auto", "color": 16777215, "bgcolor": 13056, "png64": null, "alignment": "center:center", "pngalignment": "center:center", "show_topbar": "default" },
+        "feedbacks": [],
+        "steps": { "0": { "action_sets": { "down": [{ "id": "sh-00", "instance": "HTTP", "action": "get", "options": { "url": "http://localhost:3002/api/deck/scoreboard/show", "headers": "[]" }, "delay": 0 }], "up": [], "rotate_left": [], "rotate_right": [] }, "options": { "runWhileHeld": [] } } },
+        "options": { "stepAutoProgress": true }
+      },
+
+      "0/1": {
+        "type": "button",
+        "style": { "text": "▶ Cam", "size": "auto", "color": 16777215, "bgcolor": 13056, "png64": null, "alignment": "center:center", "pngalignment": "center:center", "show_topbar": "default" },
+        "feedbacks": [],
+        "steps": { "0": { "action_sets": { "down": [{ "id": "sh-01", "instance": "HTTP", "action": "get", "options": { "url": "http://localhost:3002/api/deck/cam/show", "headers": "[]" }, "delay": 0 }], "up": [], "rotate_left": [], "rotate_right": [] }, "options": { "runWhileHeld": [] } } },
+        "options": { "stepAutoProgress": true }
+      },
+
+      "0/2": {
+        "type": "button",
+        "style": { "text": "▶ Ticker", "size": "auto", "color": 16777215, "bgcolor": 13056, "png64": null, "alignment": "center:center", "pngalignment": "center:center", "show_topbar": "default" },
+        "feedbacks": [],
+        "steps": { "0": { "action_sets": { "down": [{ "id": "sh-02", "instance": "HTTP", "action": "get", "options": { "url": "http://localhost:3002/api/deck/ticker/show", "headers": "[]" }, "delay": 0 }], "up": [], "rotate_left": [], "rotate_right": [] }, "options": { "runWhileHeld": [] } } },
+        "options": { "stepAutoProgress": true }
+      },
+
+      "0/3": {
+        "type": "button",
+        "style": { "text": "▶ Frames", "size": "auto", "color": 16777215, "bgcolor": 13056, "png64": null, "alignment": "center:center", "pngalignment": "center:center", "show_topbar": "default" },
+        "feedbacks": [],
+        "steps": { "0": { "action_sets": { "down": [{ "id": "sh-03", "instance": "HTTP", "action": "get", "options": { "url": "http://localhost:3002/api/deck/frames/show", "headers": "[]" }, "delay": 0 }], "up": [], "rotate_left": [], "rotate_right": [] }, "options": { "runWhileHeld": [] } } },
+        "options": { "stepAutoProgress": true }
+      },
+
+      "0/4": {
+        "type": "button",
+        "style": { "text": "▶ Titre", "size": "auto", "color": 16777215, "bgcolor": 13056, "png64": null, "alignment": "center:center", "pngalignment": "center:center", "show_topbar": "default" },
+        "feedbacks": [],
+        "steps": { "0": { "action_sets": { "down": [{ "id": "sh-04", "instance": "HTTP", "action": "get", "options": { "url": "http://localhost:3002/api/deck/stream-title/show", "headers": "[]" }, "delay": 0 }], "up": [], "rotate_left": [], "rotate_right": [] }, "options": { "runWhileHeld": [] } } },
+        "options": { "stepAutoProgress": true }
+      },
+
+      "0/5": {
+        "type": "button",
+        "style": { "text": "▶ Casters", "size": "auto", "color": 16777215, "bgcolor": 13056, "png64": null, "alignment": "center:center", "pngalignment": "center:center", "show_topbar": "default" },
+        "feedbacks": [],
+        "steps": { "0": { "action_sets": { "down": [{ "id": "sh-05", "instance": "HTTP", "action": "get", "options": { "url": "http://localhost:3002/api/deck/casters/show", "headers": "[]" }, "delay": 0 }], "up": [], "rotate_left": [], "rotate_right": [] }, "options": { "runWhileHeld": [] } } },
+        "options": { "stepAutoProgress": true }
+      },
+
+      "0/6": {
+        "type": "button",
+        "style": { "text": "▶ Veto", "size": "auto", "color": 16777215, "bgcolor": 13056, "png64": null, "alignment": "center:center", "pngalignment": "center:center", "show_topbar": "default" },
+        "feedbacks": [],
+        "steps": { "0": { "action_sets": { "down": [{ "id": "sh-06", "instance": "HTTP", "action": "get", "options": { "url": "http://localhost:3002/api/deck/stageveto/show", "headers": "[]" }, "delay": 0 }], "up": [], "rotate_left": [], "rotate_right": [] }, "options": { "runWhileHeld": [] } } },
+        "options": { "stepAutoProgress": true }
+      },
+
+      "0/7": {
+        "type": "button",
+        "style": { "text": "▶ Timer", "size": "auto", "color": 16777215, "bgcolor": 13056, "png64": null, "alignment": "center:center", "pngalignment": "center:center", "show_topbar": "default" },
+        "feedbacks": [],
+        "steps": { "0": { "action_sets": { "down": [{ "id": "sh-07", "instance": "HTTP", "action": "get", "options": { "url": "http://localhost:3002/api/deck/timer/show", "headers": "[]" }, "delay": 0 }], "up": [], "rotate_left": [], "rotate_right": [] }, "options": { "runWhileHeld": [] } } },
+        "options": { "stepAutoProgress": true }
+      },
+
+      "1/0": {
+        "type": "button",
+        "style": { "text": "▶ H2H", "size": "auto", "color": 16777215, "bgcolor": 13056, "png64": null, "alignment": "center:center", "pngalignment": "center:center", "show_topbar": "default" },
+        "feedbacks": [],
+        "steps": { "0": { "action_sets": { "down": [{ "id": "sh-10", "instance": "HTTP", "action": "get", "options": { "url": "http://localhost:3002/api/deck/h2h/show", "headers": "[]" }, "delay": 0 }], "up": [], "rotate_left": [], "rotate_right": [] }, "options": { "runWhileHeld": [] } } },
+        "options": { "stepAutoProgress": true }
+      },
+
+      "1/1": {
+        "type": "button",
+        "style": { "text": "▶ Stats", "size": "auto", "color": 16777215, "bgcolor": 13056, "png64": null, "alignment": "center:center", "pngalignment": "center:center", "show_topbar": "default" },
+        "feedbacks": [],
+        "steps": { "0": { "action_sets": { "down": [{ "id": "sh-11", "instance": "HTTP", "action": "get", "options": { "url": "http://localhost:3002/api/deck/player-stats/show", "headers": "[]" }, "delay": 0 }], "up": [], "rotate_left": [], "rotate_right": [] }, "options": { "runWhileHeld": [] } } },
+        "options": { "stepAutoProgress": true }
+      },
+
+      "1/2": {
+        "type": "button",
+        "style": { "text": "▶ Bracket", "size": "auto", "color": 16777215, "bgcolor": 13056, "png64": null, "alignment": "center:center", "pngalignment": "center:center", "show_topbar": "default" },
+        "feedbacks": [],
+        "steps": { "0": { "action_sets": { "down": [{ "id": "sh-12", "instance": "HTTP", "action": "get", "options": { "url": "http://localhost:3002/api/deck/bracket/show", "headers": "[]" }, "delay": 0 }], "up": [], "rotate_left": [], "rotate_right": [] }, "options": { "runWhileHeld": [] } } },
+        "options": { "stepAutoProgress": true }
+      },
+
+      "1/3": {
+        "type": "button",
+        "style": { "text": "▶ Top 8", "size": "auto", "color": 16777215, "bgcolor": 13056, "png64": null, "alignment": "center:center", "pngalignment": "center:center", "show_topbar": "default" },
+        "feedbacks": [],
+        "steps": { "0": { "action_sets": { "down": [{ "id": "sh-13", "instance": "HTTP", "action": "get", "options": { "url": "http://localhost:3002/api/deck/top8/show", "headers": "[]" }, "delay": 0 }], "up": [], "rotate_left": [], "rotate_right": [] }, "options": { "runWhileHeld": [] } } },
+        "options": { "stepAutoProgress": true }
+      },
+
+      "1/4": {
+        "type": "button",
+        "style": { "text": "▶ TW Chat", "size": "auto", "color": 16777215, "bgcolor": 13056, "png64": null, "alignment": "center:center", "pngalignment": "center:center", "show_topbar": "default" },
+        "feedbacks": [],
+        "steps": { "0": { "action_sets": { "down": [{ "id": "sh-14", "instance": "HTTP", "action": "get", "options": { "url": "http://localhost:3002/api/deck/twitch-chat/show", "headers": "[]" }, "delay": 0 }], "up": [], "rotate_left": [], "rotate_right": [] }, "options": { "runWhileHeld": [] } } },
+        "options": { "stepAutoProgress": true }
+      },
+
+      "1/5": {
+        "type": "button",
+        "style": { "text": "▶ TW\nViewer", "size": "auto", "color": 16777215, "bgcolor": 13056, "png64": null, "alignment": "center:center", "pngalignment": "center:center", "show_topbar": "default" },
+        "feedbacks": [],
+        "steps": { "0": { "action_sets": { "down": [{ "id": "sh-15", "instance": "HTTP", "action": "get", "options": { "url": "http://localhost:3002/api/deck/twitch-viewer/show", "headers": "[]" }, "delay": 0 }], "up": [], "rotate_left": [], "rotate_right": [] }, "options": { "runWhileHeld": [] } } },
+        "options": { "stepAutoProgress": true }
+      },
+
+      "1/6": {
+        "type": "button",
+        "style": { "text": "▶ YT\nChat", "size": "auto", "color": 16777215, "bgcolor": 13056, "png64": null, "alignment": "center:center", "pngalignment": "center:center", "show_topbar": "default" },
+        "feedbacks": [],
+        "steps": { "0": { "action_sets": { "down": [{ "id": "sh-16", "instance": "HTTP", "action": "get", "options": { "url": "http://localhost:3002/api/deck/youtube-chat/show", "headers": "[]" }, "delay": 0 }], "up": [], "rotate_left": [], "rotate_right": [] }, "options": { "runWhileHeld": [] } } },
+        "options": { "stepAutoProgress": true }
+      },
+
+      "1/7": {
+        "type": "button",
+        "style": { "text": "▶ Combined\nChat", "size": "auto", "color": 16777215, "bgcolor": 13056, "png64": null, "alignment": "center:center", "pngalignment": "center:center", "show_topbar": "default" },
+        "feedbacks": [],
+        "steps": { "0": { "action_sets": { "down": [{ "id": "sh-17", "instance": "HTTP", "action": "get", "options": { "url": "http://localhost:3002/api/deck/combined-chat/show", "headers": "[]" }, "delay": 0 }], "up": [], "rotate_left": [], "rotate_right": [] }, "options": { "runWhileHeld": [] } } },
+        "options": { "stepAutoProgress": true }
+      },
+
+      "2/0": {
+        "type": "button",
+        "style": { "text": "■ Score-\nboard", "size": "auto", "color": 16777215, "bgcolor": 11141120, "png64": null, "alignment": "center:center", "pngalignment": "center:center", "show_topbar": "default" },
+        "feedbacks": [],
+        "steps": { "0": { "action_sets": { "down": [{ "id": "sh-20", "instance": "HTTP", "action": "get", "options": { "url": "http://localhost:3002/api/deck/scoreboard/hide", "headers": "[]" }, "delay": 0 }], "up": [], "rotate_left": [], "rotate_right": [] }, "options": { "runWhileHeld": [] } } },
+        "options": { "stepAutoProgress": true }
+      },
+
+      "2/1": {
+        "type": "button",
+        "style": { "text": "■ Cam", "size": "auto", "color": 16777215, "bgcolor": 11141120, "png64": null, "alignment": "center:center", "pngalignment": "center:center", "show_topbar": "default" },
+        "feedbacks": [],
+        "steps": { "0": { "action_sets": { "down": [{ "id": "sh-21", "instance": "HTTP", "action": "get", "options": { "url": "http://localhost:3002/api/deck/cam/hide", "headers": "[]" }, "delay": 0 }], "up": [], "rotate_left": [], "rotate_right": [] }, "options": { "runWhileHeld": [] } } },
+        "options": { "stepAutoProgress": true }
+      },
+
+      "2/2": {
+        "type": "button",
+        "style": { "text": "■ Ticker", "size": "auto", "color": 16777215, "bgcolor": 11141120, "png64": null, "alignment": "center:center", "pngalignment": "center:center", "show_topbar": "default" },
+        "feedbacks": [],
+        "steps": { "0": { "action_sets": { "down": [{ "id": "sh-22", "instance": "HTTP", "action": "get", "options": { "url": "http://localhost:3002/api/deck/ticker/hide", "headers": "[]" }, "delay": 0 }], "up": [], "rotate_left": [], "rotate_right": [] }, "options": { "runWhileHeld": [] } } },
+        "options": { "stepAutoProgress": true }
+      },
+
+      "2/3": {
+        "type": "button",
+        "style": { "text": "■ Frames", "size": "auto", "color": 16777215, "bgcolor": 11141120, "png64": null, "alignment": "center:center", "pngalignment": "center:center", "show_topbar": "default" },
+        "feedbacks": [],
+        "steps": { "0": { "action_sets": { "down": [{ "id": "sh-23", "instance": "HTTP", "action": "get", "options": { "url": "http://localhost:3002/api/deck/frames/hide", "headers": "[]" }, "delay": 0 }], "up": [], "rotate_left": [], "rotate_right": [] }, "options": { "runWhileHeld": [] } } },
+        "options": { "stepAutoProgress": true }
+      },
+
+      "2/4": {
+        "type": "button",
+        "style": { "text": "■ Titre", "size": "auto", "color": 16777215, "bgcolor": 11141120, "png64": null, "alignment": "center:center", "pngalignment": "center:center", "show_topbar": "default" },
+        "feedbacks": [],
+        "steps": { "0": { "action_sets": { "down": [{ "id": "sh-24", "instance": "HTTP", "action": "get", "options": { "url": "http://localhost:3002/api/deck/stream-title/hide", "headers": "[]" }, "delay": 0 }], "up": [], "rotate_left": [], "rotate_right": [] }, "options": { "runWhileHeld": [] } } },
+        "options": { "stepAutoProgress": true }
+      },
+
+      "2/5": {
+        "type": "button",
+        "style": { "text": "■ Casters", "size": "auto", "color": 16777215, "bgcolor": 11141120, "png64": null, "alignment": "center:center", "pngalignment": "center:center", "show_topbar": "default" },
+        "feedbacks": [],
+        "steps": { "0": { "action_sets": { "down": [{ "id": "sh-25", "instance": "HTTP", "action": "get", "options": { "url": "http://localhost:3002/api/deck/casters/hide", "headers": "[]" }, "delay": 0 }], "up": [], "rotate_left": [], "rotate_right": [] }, "options": { "runWhileHeld": [] } } },
+        "options": { "stepAutoProgress": true }
+      },
+
+      "2/6": {
+        "type": "button",
+        "style": { "text": "■ Veto", "size": "auto", "color": 16777215, "bgcolor": 11141120, "png64": null, "alignment": "center:center", "pngalignment": "center:center", "show_topbar": "default" },
+        "feedbacks": [],
+        "steps": { "0": { "action_sets": { "down": [{ "id": "sh-26", "instance": "HTTP", "action": "get", "options": { "url": "http://localhost:3002/api/deck/stageveto/hide", "headers": "[]" }, "delay": 0 }], "up": [], "rotate_left": [], "rotate_right": [] }, "options": { "runWhileHeld": [] } } },
+        "options": { "stepAutoProgress": true }
+      },
+
+      "2/7": {
+        "type": "button",
+        "style": { "text": "■ Timer", "size": "auto", "color": 16777215, "bgcolor": 11141120, "png64": null, "alignment": "center:center", "pngalignment": "center:center", "show_topbar": "default" },
+        "feedbacks": [],
+        "steps": { "0": { "action_sets": { "down": [{ "id": "sh-27", "instance": "HTTP", "action": "get", "options": { "url": "http://localhost:3002/api/deck/timer/hide", "headers": "[]" }, "delay": 0 }], "up": [], "rotate_left": [], "rotate_right": [] }, "options": { "runWhileHeld": [] } } },
+        "options": { "stepAutoProgress": true }
+      },
+
+      "3/0": {
+        "type": "button",
+        "style": { "text": "■ H2H", "size": "auto", "color": 16777215, "bgcolor": 11141120, "png64": null, "alignment": "center:center", "pngalignment": "center:center", "show_topbar": "default" },
+        "feedbacks": [],
+        "steps": { "0": { "action_sets": { "down": [{ "id": "sh-30", "instance": "HTTP", "action": "get", "options": { "url": "http://localhost:3002/api/deck/h2h/hide", "headers": "[]" }, "delay": 0 }], "up": [], "rotate_left": [], "rotate_right": [] }, "options": { "runWhileHeld": [] } } },
+        "options": { "stepAutoProgress": true }
+      },
+
+      "3/1": {
+        "type": "button",
+        "style": { "text": "■ Stats", "size": "auto", "color": 16777215, "bgcolor": 11141120, "png64": null, "alignment": "center:center", "pngalignment": "center:center", "show_topbar": "default" },
+        "feedbacks": [],
+        "steps": { "0": { "action_sets": { "down": [{ "id": "sh-31", "instance": "HTTP", "action": "get", "options": { "url": "http://localhost:3002/api/deck/player-stats/hide", "headers": "[]" }, "delay": 0 }], "up": [], "rotate_left": [], "rotate_right": [] }, "options": { "runWhileHeld": [] } } },
+        "options": { "stepAutoProgress": true }
+      },
+
+      "3/2": {
+        "type": "button",
+        "style": { "text": "■ Bracket", "size": "auto", "color": 16777215, "bgcolor": 11141120, "png64": null, "alignment": "center:center", "pngalignment": "center:center", "show_topbar": "default" },
+        "feedbacks": [],
+        "steps": { "0": { "action_sets": { "down": [{ "id": "sh-32", "instance": "HTTP", "action": "get", "options": { "url": "http://localhost:3002/api/deck/bracket/hide", "headers": "[]" }, "delay": 0 }], "up": [], "rotate_left": [], "rotate_right": [] }, "options": { "runWhileHeld": [] } } },
+        "options": { "stepAutoProgress": true }
+      },
+
+      "3/3": {
+        "type": "button",
+        "style": { "text": "■ Top 8", "size": "auto", "color": 16777215, "bgcolor": 11141120, "png64": null, "alignment": "center:center", "pngalignment": "center:center", "show_topbar": "default" },
+        "feedbacks": [],
+        "steps": { "0": { "action_sets": { "down": [{ "id": "sh-33", "instance": "HTTP", "action": "get", "options": { "url": "http://localhost:3002/api/deck/top8/hide", "headers": "[]" }, "delay": 0 }], "up": [], "rotate_left": [], "rotate_right": [] }, "options": { "runWhileHeld": [] } } },
+        "options": { "stepAutoProgress": true }
+      },
+
+      "3/4": {
+        "type": "button",
+        "style": { "text": "■ TW Chat", "size": "auto", "color": 16777215, "bgcolor": 11141120, "png64": null, "alignment": "center:center", "pngalignment": "center:center", "show_topbar": "default" },
+        "feedbacks": [],
+        "steps": { "0": { "action_sets": { "down": [{ "id": "sh-34", "instance": "HTTP", "action": "get", "options": { "url": "http://localhost:3002/api/deck/twitch-chat/hide", "headers": "[]" }, "delay": 0 }], "up": [], "rotate_left": [], "rotate_right": [] }, "options": { "runWhileHeld": [] } } },
+        "options": { "stepAutoProgress": true }
+      },
+
+      "3/5": {
+        "type": "button",
+        "style": { "text": "■ TW\nViewer", "size": "auto", "color": 16777215, "bgcolor": 11141120, "png64": null, "alignment": "center:center", "pngalignment": "center:center", "show_topbar": "default" },
+        "feedbacks": [],
+        "steps": { "0": { "action_sets": { "down": [{ "id": "sh-35", "instance": "HTTP", "action": "get", "options": { "url": "http://localhost:3002/api/deck/twitch-viewer/hide", "headers": "[]" }, "delay": 0 }], "up": [], "rotate_left": [], "rotate_right": [] }, "options": { "runWhileHeld": [] } } },
+        "options": { "stepAutoProgress": true }
+      },
+
+      "3/6": {
+        "type": "button",
+        "style": { "text": "■ YT\nChat", "size": "auto", "color": 16777215, "bgcolor": 11141120, "png64": null, "alignment": "center:center", "pngalignment": "center:center", "show_topbar": "default" },
+        "feedbacks": [],
+        "steps": { "0": { "action_sets": { "down": [{ "id": "sh-36", "instance": "HTTP", "action": "get", "options": { "url": "http://localhost:3002/api/deck/youtube-chat/hide", "headers": "[]" }, "delay": 0 }], "up": [], "rotate_left": [], "rotate_right": [] }, "options": { "runWhileHeld": [] } } },
+        "options": { "stepAutoProgress": true }
+      },
+
+      "3/7": {
+        "type": "button",
+        "style": { "text": "■ Combined\nChat", "size": "auto", "color": 16777215, "bgcolor": 11141120, "png64": null, "alignment": "center:center", "pngalignment": "center:center", "show_topbar": "default" },
+        "feedbacks": [],
+        "steps": { "0": { "action_sets": { "down": [{ "id": "sh-37", "instance": "HTTP", "action": "get", "options": { "url": "http://localhost:3002/api/deck/combined-chat/hide", "headers": "[]" }, "delay": 0 }], "up": [], "rotate_left": [], "rotate_right": [] }, "options": { "runWhileHeld": [] } } },
+        "options": { "stepAutoProgress": true }
+      }
+
+    }
+  }
+}

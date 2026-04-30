@@ -86,6 +86,7 @@
       <button id="btn-visibility" class="btn btn-primary">Masquer</button>
       <button id="btn-server-reload" class="btn btn-outline" title="Redémarre le serveur Node.js" style="border-color:#e05;color:#e05">↺ Serveur</button>
       <button id="btn-mobile-mode" class="btn btn-outline" title="Mode mobile/tablette">📱</button>
+      <a href="/regie" target="_blank" class="btn btn-outline" title="Interface régie simplifiée" style="text-decoration:none">🎬 Régie</a>
       <a href="/guide" target="_blank" class="btn btn-outline" title="Guide d'utilisation" style="text-decoration:none">📖 Guide</a>
     </div>
   </header>
@@ -3214,6 +3215,170 @@
 
       </div>
     </section>
+
+    <!-- ── Bitfocus Companion ────────────────────────────────────── -->
+    <section class="section">
+      <div class="section-header"><h2>Bitfocus Companion</h2></div>
+      <div class="custom-card" style="padding:18px 20px">
+
+        <!-- En-tête -->
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px">
+          <div style="width:40px;height:40px;background:linear-gradient(135deg,#1C2230,#2A3A5A);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">🕹️</div>
+          <div>
+            <div style="font-weight:700;font-size:14px;color:#F0EEF8">Contrôle avancé via Bitfocus Companion</div>
+            <div style="font-size:12px;color:#666;margin-top:2px">Pour Stream Deck XL, Loupedeck, X-Keys, etc. — 64 boutons préconfigurés à télécharger</div>
+          </div>
+        </div>
+
+        <!-- Badge différence SD vs Companion -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px">
+          <div style="background:rgba(232,184,48,0.07);border:1px solid rgba(232,184,48,0.25);border-radius:8px;padding:12px 14px">
+            <div style="font-size:12px;font-weight:700;color:#E8B830;margin-bottom:6px">🎮 Stream Deck (natif)</div>
+            <ul style="font-size:11px;color:#888;line-height:1.8;list-style:none;padding:0">
+              <li>✔ Aucun logiciel tiers</li>
+              <li>✔ Action <strong style="color:#aaa">Website</strong> intégrée</li>
+              <li>✔ Simple, rapide à configurer</li>
+              <li>✘ Pas de retour visuel (LED)</li>
+              <li>✘ Pas de toggle automatique</li>
+            </ul>
+          </div>
+          <div style="background:rgba(107,201,108,0.07);border:1px solid rgba(107,201,108,0.25);border-radius:8px;padding:12px 14px">
+            <div style="font-size:12px;font-weight:700;color:#6BC96C;margin-bottom:6px">🕹️ Bitfocus Companion</div>
+            <ul style="font-size:11px;color:#888;line-height:1.8;list-style:none;padding:0">
+              <li>✔ Compatible tous contrôleurs</li>
+              <li>✔ Pages préconfigurées (64 boutons)</li>
+              <li>✔ Actions GET <em>et</em> POST (scènes)</li>
+              <li>✔ Facilement personnalisable</li>
+              <li>✘ Nécessite Companion installé</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Étapes de configuration -->
+        <div style="font-size:11px;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">Configuration en 3 étapes</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;margin-bottom:18px">
+
+          <div style="background:#0E0E12;border:1px solid #2a2a3a;border-radius:8px;padding:14px">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+              <span style="background:#E8B830;color:#0E0E12;font-size:11px;font-weight:800;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0">1</span>
+              <span style="font-size:13px;font-weight:600;color:#F0EEF8">Connexion HTTP</span>
+            </div>
+            <p style="font-size:12px;color:#888;line-height:1.6">Dans Companion → <strong style="color:#aaa">Connections</strong> → ajouter <strong style="color:#A0C4D8">Generic HTTP Requests</strong>. Nommer la connexion exactement <strong style="color:#E8B830">HTTP</strong>.</p>
+          </div>
+
+          <div style="background:#0E0E12;border:1px solid #2a2a3a;border-radius:8px;padding:14px">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+              <span style="background:#E8B830;color:#0E0E12;font-size:11px;font-weight:800;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0">2</span>
+              <span style="font-size:13px;font-weight:600;color:#F0EEF8">Importer les pages</span>
+            </div>
+            <p style="font-size:12px;color:#888;line-height:1.6">Companion → <strong style="color:#aaa">Import / Export</strong> → <strong style="color:#aaa">Import page</strong>. Importer <strong style="color:#A0C4D8">PSO-Live</strong> puis <strong style="color:#A0C4D8">PSO-ShowHide</strong>.</p>
+          </div>
+
+          <div style="background:#0E0E12;border:1px solid rgba(107,201,108,0.3);border-radius:8px;padding:14px">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+              <span style="background:#6BC96C;color:#0E0E12;font-size:11px;font-weight:800;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0">✓</span>
+              <span style="font-size:13px;font-weight:600;color:#F0EEF8">Prêt</span>
+            </div>
+            <p style="font-size:12px;color:#888;line-height:1.6">64 boutons actifs sur ton contrôleur. Les <strong style="color:#6BC96C">scènes Studio</strong> utilisent POST, les <strong style="color:#A0C4D8">overlays</strong> utilisent GET.</p>
+          </div>
+
+        </div>
+
+        <!-- Mise en page des boutons -->
+        <div style="background:#0E0E12;border:1px solid #2a2a3a;border-radius:8px;padding:14px;margin-bottom:14px">
+          <div style="font-size:11px;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px">Page 1 — PSO Live (4 × 8 = 32 boutons)</div>
+          <div style="display:grid;grid-template-columns:repeat(8,1fr);gap:3px;font-family:monospace;font-size:9px;text-align:center">
+            <div style="background:#AA0000;color:#fff;border-radius:3px;padding:4px 2px;line-height:1.3">+1<br>J1</div>
+            <div style="background:#660000;color:#fff;border-radius:3px;padding:4px 2px;line-height:1.3">-1<br>J1</div>
+            <div style="background:#806200;color:#fff;border-radius:3px;padding:4px 2px;line-height:1.3">RESET<br>0/0</div>
+            <div style="background:#000066;color:#fff;border-radius:3px;padding:4px 2px;line-height:1.3">-1<br>J2</div>
+            <div style="background:#0000AA;color:#fff;border-radius:3px;padding:4px 2px;line-height:1.3">+1<br>J2</div>
+            <div style="background:#1E1E2E;color:#aaa;border-radius:3px;padding:4px 2px;line-height:1.3;border:1px solid #2a2a3a">Chat<br>Comb.</div>
+            <div style="background:#1E1E2E;color:#aaa;border-radius:3px;padding:4px 2px;line-height:1.3;border:1px solid #2a2a3a">Chat<br>YT</div>
+            <div style="background:#1E1E2E;color:#aaa;border-radius:3px;padding:4px 2px;line-height:1.3;border:1px solid #2a2a3a">TW<br>View</div>
+            <div style="background:#003300;color:#6BC96C;border-radius:3px;padding:4px 2px;line-height:1.3">Sc.<br>1</div>
+            <div style="background:#003300;color:#6BC96C;border-radius:3px;padding:4px 2px;line-height:1.3">Sc.<br>2</div>
+            <div style="background:#003300;color:#6BC96C;border-radius:3px;padding:4px 2px;line-height:1.3">Sc.<br>3</div>
+            <div style="background:#003300;color:#6BC96C;border-radius:3px;padding:4px 2px;line-height:1.3">Sc.<br>4</div>
+            <div style="background:#003300;color:#6BC96C;border-radius:3px;padding:4px 2px;line-height:1.3">Sc.<br>5</div>
+            <div style="background:#003300;color:#6BC96C;border-radius:3px;padding:4px 2px;line-height:1.3">Sc.<br>6</div>
+            <div style="background:#003300;color:#6BC96C;border-radius:3px;padding:4px 2px;line-height:1.3">Sc.<br>7</div>
+            <div style="background:#003300;color:#6BC96C;border-radius:3px;padding:4px 2px;line-height:1.3">Sc.<br>8</div>
+            <div style="background:#1E1E2E;color:#aaa;border-radius:3px;padding:4px 2px;line-height:1.3;border:1px solid #2a2a3a">SB ↕</div>
+            <div style="background:#1E1E2E;color:#aaa;border-radius:3px;padding:4px 2px;line-height:1.3;border:1px solid #2a2a3a">Slim ↕</div>
+            <div style="background:#1E1E2E;color:#aaa;border-radius:3px;padding:4px 2px;line-height:1.3;border:1px solid #2a2a3a">Cam ↕</div>
+            <div style="background:#1E1E2E;color:#aaa;border-radius:3px;padding:4px 2px;line-height:1.3;border:1px solid #2a2a3a">Tick. ↕</div>
+            <div style="background:#1E1E2E;color:#aaa;border-radius:3px;padding:4px 2px;line-height:1.3;border:1px solid #2a2a3a">Frames ↕</div>
+            <div style="background:#1E1E2E;color:#aaa;border-radius:3px;padding:4px 2px;line-height:1.3;border:1px solid #2a2a3a">Titre ↕</div>
+            <div style="background:#1E1E2E;color:#aaa;border-radius:3px;padding:4px 2px;line-height:1.3;border:1px solid #2a2a3a">Cast. ↕</div>
+            <div style="background:#1E1E2E;color:#aaa;border-radius:3px;padding:4px 2px;line-height:1.3;border:1px solid #2a2a3a">Veto ↕</div>
+            <div style="background:#1E1E2E;color:#aaa;border-radius:3px;padding:4px 2px;line-height:1.3;border:1px solid #2a2a3a">H2H ↕</div>
+            <div style="background:#1E1E2E;color:#aaa;border-radius:3px;padding:4px 2px;line-height:1.3;border:1px solid #2a2a3a">Stats ↕</div>
+            <div style="background:#1E1E2E;color:#aaa;border-radius:3px;padding:4px 2px;line-height:1.3;border:1px solid #2a2a3a">Timer ↕</div>
+            <div style="background:#1E1E2E;color:#aaa;border-radius:3px;padding:4px 2px;line-height:1.3;border:1px solid #2a2a3a">Histo. ↕</div>
+            <div style="background:#1E1E2E;color:#aaa;border-radius:3px;padding:4px 2px;line-height:1.3;border:1px solid #2a2a3a">Brack. ↕</div>
+            <div style="background:#1E1E2E;color:#aaa;border-radius:3px;padding:4px 2px;line-height:1.3;border:1px solid #2a2a3a">Top8 ↕</div>
+            <div style="background:#1E1E2E;color:#aaa;border-radius:3px;padding:4px 2px;line-height:1.3;border:1px solid #2a2a3a">TW Lay. ↕</div>
+            <div style="background:#1E1E2E;color:#aaa;border-radius:3px;padding:4px 2px;line-height:1.3;border:1px solid #2a2a3a">TW Chat ↕</div>
+          </div>
+          <div style="display:flex;gap:14px;margin-top:10px;flex-wrap:wrap">
+            <span style="font-size:10px;color:#666;display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:2px;background:#AA0000;display:inline-block"></span> Scores J1</span>
+            <span style="font-size:10px;color:#666;display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:2px;background:#0000AA;display:inline-block"></span> Scores J2</span>
+            <span style="font-size:10px;color:#666;display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:2px;background:#806200;display:inline-block"></span> Reset</span>
+            <span style="font-size:10px;color:#666;display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:2px;background:#003300;display:inline-block"></span> Scènes Studio (POST)</span>
+            <span style="font-size:10px;color:#666;display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:2px;background:#1E1E2E;border:1px solid #2a2a3a;display:inline-block"></span> Overlays toggle (GET)</span>
+          </div>
+        </div>
+
+        <!-- Page 2 résumé -->
+        <div style="background:#0E0E12;border:1px solid #2a2a3a;border-radius:8px;padding:14px;margin-bottom:14px">
+          <div style="font-size:11px;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Page 2 — PSO Show/Hide (4 × 8 = 32 boutons)</div>
+          <div style="display:flex;gap:10px">
+            <div style="flex:1;background:#003300;border-radius:6px;padding:10px 12px">
+              <div style="font-size:11px;font-weight:700;color:#6BC96C;margin-bottom:4px">▶ Lignes 0-1 — AFFICHER</div>
+              <div style="font-size:11px;color:#888">Scoreboard · Cam · Ticker · Frames · Titre · Casters · Veto · Timer · H2H · Stats · Bracket · Top 8 · TW Chat · TW Viewer · YT Chat · Chat Combiné</div>
+            </div>
+            <div style="flex:1;background:#330000;border-radius:6px;padding:10px 12px">
+              <div style="font-size:11px;font-weight:700;color:#E05252;margin-bottom:4px">■ Lignes 2-3 — MASQUER</div>
+              <div style="font-size:11px;color:#888">Mêmes overlays, action hide — pour forcer la disparition sans toggle.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Téléchargements -->
+        <div style="font-size:11px;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">Fichiers à télécharger</div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <a href="/companion/PSO-Live.companionconfig" download style="display:flex;align-items:center;gap:10px;background:#0E0E12;border:1px solid #2a2a3a;border-radius:7px;padding:10px 14px;text-decoration:none;transition:border-color .15s" onmouseover="this.style.borderColor='#E8B830'" onmouseout="this.style.borderColor='#2a2a3a'">
+            <span style="font-size:20px">📥</span>
+            <div>
+              <div style="font-size:13px;font-weight:700;color:#F0EEF8">PSO-Live.companionconfig</div>
+              <div style="font-size:11px;color:#666">Scores J1/J2 · Reset · Scènes 1-8 · 19 overlays toggle — 32 boutons</div>
+            </div>
+          </a>
+          <a href="/companion/PSO-ShowHide.companionconfig" download style="display:flex;align-items:center;gap:10px;background:#0E0E12;border:1px solid #2a2a3a;border-radius:7px;padding:10px 14px;text-decoration:none;transition:border-color .15s" onmouseover="this.style.borderColor='#6BC96C'" onmouseout="this.style.borderColor='#2a2a3a'">
+            <span style="font-size:20px">📥</span>
+            <div>
+              <div style="font-size:13px;font-weight:700;color:#F0EEF8">PSO-ShowHide.companionconfig</div>
+              <div style="font-size:11px;color:#666">▶ Afficher + ■ Masquer pour chaque overlay — 32 boutons</div>
+            </div>
+          </a>
+          <a href="/companion/SETUP.txt" download style="display:flex;align-items:center;gap:10px;background:#0E0E12;border:1px solid #2a2a3a;border-radius:7px;padding:10px 14px;text-decoration:none;transition:border-color .15s" onmouseover="this.style.borderColor='#A0C4D8'" onmouseout="this.style.borderColor='#2a2a3a'">
+            <span style="font-size:20px">📄</span>
+            <div>
+              <div style="font-size:13px;font-weight:700;color:#F0EEF8">SETUP.txt</div>
+              <div style="font-size:11px;color:#666">Instructions complètes + liste de toutes les URLs disponibles</div>
+            </div>
+          </a>
+        </div>
+
+        <!-- Note réseau -->
+        <div style="background:rgba(160,196,216,0.07);border:1px solid rgba(160,196,216,0.2);border-radius:7px;padding:10px 14px;margin-top:14px;font-size:11px;color:#A0C4D8;line-height:1.6">
+          💡 <strong>Companion sur un autre PC ?</strong> Remplacer <code style="background:#0E0E12;padding:1px 5px;border-radius:3px">localhost:3002</code> par l'IP du serveur PSO dans chaque action Companion (ex: <code style="background:#0E0E12;padding:1px 5px;border-radius:3px">192.168.1.10:3002</code>).
+        </div>
+
+      </div>
+    </section>
+
   </div><!-- /tab-custom -->
 
   <!-- ═══════════════════════════════════════════════════════════ -->

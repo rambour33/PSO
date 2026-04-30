@@ -5,3 +5,6 @@ retravailler les pick et ban
 generer une image de ruleset a partir du ruleset crée 
 pouvoir renommer les scenes custom sans qu'il y ai de ... quand c'est trop long
 simplifier l'interface nottament celle de cam overlay avec la tcheckbox
+
+
+pour la version street permet de choisir le side avec un mini jeu 
