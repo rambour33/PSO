@@ -2,30 +2,25 @@
   PSO — Configuration Bitfocus Companion
 ═══════════════════════════════════════════════════
 
-FICHIERS
-────────
-  PSO-Live.companionconfig      Page principale (32 boutons)
-  PSO-ShowHide.companionconfig  Afficher/Masquer précis (32 boutons)
+FICHIER
+───────
+  PSO-Companion.companionconfig  Config complète (2 pages + connexion HTTP)
+  → Téléchargeable depuis : http://localhost:3002/companion/PSO-Companion.companionconfig
 
 PRÉREQUIS
 ─────────
-1. Bitfocus Companion v3.x installé
+1. Bitfocus Companion v4.3 ou supérieur installé
 2. PSO Server démarré sur le même PC (port 3002)
 
-ÉTAPE 1 — Ajouter la connexion HTTP
-────────────────────────────────────
-  Dans Companion → Connections → Add Connection
-  → Chercher "Generic HTTP Requests"
-  → Ajouter et nommer exactement : HTTP
-     (le label "HTTP" doit correspondre exactement à ce qui est
-      dans les fichiers .companionconfig)
+ÉTAPE UNIQUE — Importer la config complète
+───────────────────────────────────────────
+  Dans Companion → Import / Export → onglet "Import"
+  → Sélectionner PSO-Companion.companionconfig
+  → Cliquer "Import full config"
 
-ÉTAPE 2 — Importer les pages
-──────────────────────────────
-  Dans Companion → Import / Export → Import page
-  → Sélectionner PSO-Live.companionconfig
-  → Choisir la page de destination (ex: Page 1)
-  → Répéter pour PSO-ShowHide.companionconfig (Page 2)
+  ⚠ Cela remplace toute la configuration Companion existante.
+     La connexion HTTP (http://localhost:3002) est incluse dans le fichier,
+     il n'y a rien d'autre à configurer.
 
 MISE EN PAGE "PSO — Live" (4 lignes × 8 colonnes)
 ───────────────────────────────────────────────────

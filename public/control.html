@@ -3254,24 +3254,24 @@
           </div>
         </div>
 
-        <!-- Étapes de configuration -->
-        <div style="font-size:11px;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">Configuration en 3 étapes</div>
+        <!-- Étape unique -->
+        <div style="font-size:11px;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">Configuration en 1 étape</div>
         <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;margin-bottom:18px">
 
           <div style="background:#0E0E12;border:1px solid #2a2a3a;border-radius:8px;padding:14px">
             <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
               <span style="background:#E8B830;color:#0E0E12;font-size:11px;font-weight:800;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0">1</span>
-              <span style="font-size:13px;font-weight:600;color:#F0EEF8">Connexion HTTP</span>
+              <span style="font-size:13px;font-weight:600;color:#F0EEF8">Télécharger le fichier</span>
             </div>
-            <p style="font-size:12px;color:#888;line-height:1.6">Dans Companion → <strong style="color:#aaa">Connections</strong> → ajouter <strong style="color:#A0C4D8">Generic HTTP Requests</strong>. Nommer la connexion exactement <strong style="color:#E8B830">HTTP</strong>.</p>
+            <p style="font-size:12px;color:#888;line-height:1.6">Télécharge <strong style="color:#A0C4D8">PSO-Companion.companionconfig</strong> ci-dessous. Il contient déjà les 2 pages et la connexion HTTP préconfigurée.</p>
           </div>
 
           <div style="background:#0E0E12;border:1px solid #2a2a3a;border-radius:8px;padding:14px">
             <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
               <span style="background:#E8B830;color:#0E0E12;font-size:11px;font-weight:800;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0">2</span>
-              <span style="font-size:13px;font-weight:600;color:#F0EEF8">Importer les pages</span>
+              <span style="font-size:13px;font-weight:600;color:#F0EEF8">Importer dans Companion</span>
             </div>
-            <p style="font-size:12px;color:#888;line-height:1.6">Companion → <strong style="color:#aaa">Import / Export</strong> → <strong style="color:#aaa">Import page</strong>. Importer <strong style="color:#A0C4D8">PSO-Live</strong> puis <strong style="color:#A0C4D8">PSO-ShowHide</strong>.</p>
+            <p style="font-size:12px;color:#888;line-height:1.6">Companion → <strong style="color:#aaa">Import / Export</strong> → onglet <strong style="color:#aaa">Import</strong> → sélectionner le fichier → <strong style="color:#E8B830">Import full config</strong>.</p>
           </div>
 
           <div style="background:#0E0E12;border:1px solid rgba(107,201,108,0.3);border-radius:8px;padding:14px">
@@ -3346,20 +3346,13 @@
         </div>
 
         <!-- Téléchargements -->
-        <div style="font-size:11px;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">Fichiers à télécharger</div>
+        <div style="font-size:11px;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">Fichier à télécharger</div>
         <div style="display:flex;flex-direction:column;gap:6px">
-          <a href="/companion/PSO-Live.companionconfig" download style="display:flex;align-items:center;gap:10px;background:#0E0E12;border:1px solid #2a2a3a;border-radius:7px;padding:10px 14px;text-decoration:none;transition:border-color .15s" onmouseover="this.style.borderColor='#E8B830'" onmouseout="this.style.borderColor='#2a2a3a'">
+          <a href="/companion/PSO-Companion.companionconfig" download style="display:flex;align-items:center;gap:10px;background:#0E0E12;border:1px solid #2a2a3a;border-radius:7px;padding:10px 14px;text-decoration:none;transition:border-color .15s" onmouseover="this.style.borderColor='#E8B830'" onmouseout="this.style.borderColor='#2a2a3a'">
             <span style="font-size:20px">📥</span>
             <div>
-              <div style="font-size:13px;font-weight:700;color:#F0EEF8">PSO-Live.companionconfig</div>
-              <div style="font-size:11px;color:#666">Scores J1/J2 · Reset · Scènes 1-8 · 19 overlays toggle — 32 boutons</div>
-            </div>
-          </a>
-          <a href="/companion/PSO-ShowHide.companionconfig" download style="display:flex;align-items:center;gap:10px;background:#0E0E12;border:1px solid #2a2a3a;border-radius:7px;padding:10px 14px;text-decoration:none;transition:border-color .15s" onmouseover="this.style.borderColor='#6BC96C'" onmouseout="this.style.borderColor='#2a2a3a'">
-            <span style="font-size:20px">📥</span>
-            <div>
-              <div style="font-size:13px;font-weight:700;color:#F0EEF8">PSO-ShowHide.companionconfig</div>
-              <div style="font-size:11px;color:#666">▶ Afficher + ■ Masquer pour chaque overlay — 32 boutons</div>
+              <div style="font-size:13px;font-weight:700;color:#F0EEF8">PSO-Companion.companionconfig</div>
+              <div style="font-size:11px;color:#666">Config complète — 2 pages · 64 boutons · connexion HTTP incluse</div>
             </div>
           </a>
           <a href="/companion/SETUP.txt" download style="display:flex;align-items:center;gap:10px;background:#0E0E12;border:1px solid #2a2a3a;border-radius:7px;padding:10px 14px;text-decoration:none;transition:border-color .15s" onmouseover="this.style.borderColor='#A0C4D8'" onmouseout="this.style.borderColor='#2a2a3a'">
