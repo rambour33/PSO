@@ -652,11 +652,10 @@ document.getElementById('btn-swap').addEventListener('click', () => {
   setStatus(`Joueurs inversés`);
 });
 
-document.getElementById('btn-vs-trigger').addEventListener('click', () => {
+document.getElementById('btn-vs-trigger')?.addEventListener('click', () => {
   socket.emit('triggerVsScreen');
   const btn = document.getElementById('btn-vs-trigger');
-  btn.textContent = '✓ Envoyé';
-  setTimeout(() => { btn.textContent = '⚔ VS Anim'; }, 1200);
+  if (btn) { btn.textContent = '✓ Envoyé'; setTimeout(() => { btn.textContent = '⚔ VS Anim'; }, 1200); }
 });
 
 document.getElementById('btn-visibility').addEventListener('click', () => {
@@ -2293,6 +2292,83 @@ document.getElementById('casters-bg-opacity').addEventListener('input', (e) => {
     });
   });
 }
+
+// ── Roster casters ────────────────────────────────────────────
+
+const ROSTER_KEY = 'pso_caster_roster';
+
+function rosterLoad() {
+  try { return JSON.parse(localStorage.getItem(ROSTER_KEY)) || []; } catch { return []; }
+}
+
+function rosterSave(list) {
+  localStorage.setItem(ROSTER_KEY, JSON.stringify(list));
+}
+
+function rosterRender() {
+  const list = rosterLoad();
+  const el = document.getElementById('caster-roster-list');
+  if (!list.length) {
+    el.innerHTML = '<div class="caster-roster-empty">Aucun caster sauvegardé</div>';
+    return;
+  }
+  el.innerHTML = list.map((c, i) => {
+    const socials = [c.twitter, c.twitch, c.youtube].filter(Boolean).join(' · ');
+    return `<div class="caster-roster-entry">
+      <div class="caster-roster-info">
+        <div class="caster-roster-name">${c.name || '(sans nom)'}</div>
+        ${socials ? `<div class="caster-roster-socials">${socials}</div>` : ''}
+      </div>
+      <div class="caster-roster-actions">
+        <button class="caster-roster-btn" onclick="rosterApply(${i},1)">→ C1</button>
+        <button class="caster-roster-btn" onclick="rosterApply(${i},2)">→ C2</button>
+        <button class="caster-roster-btn del" onclick="rosterDelete(${i})">✕</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function rosterAddFromSlot(slot) {
+  const fields = ['name', 'twitter', 'twitch', 'youtube'];
+  const c = {};
+  fields.forEach(f => { c[f] = (document.getElementById(`c${slot}-${f}`)?.value || '').trim(); });
+  if (!c.name) { alert('Le champ Nom est vide.'); return; }
+  const list = rosterLoad();
+  const exists = list.findIndex(x => x.name.toLowerCase() === c.name.toLowerCase());
+  if (exists >= 0) {
+    if (!confirm(`"${c.name}" existe déjà dans le roster. Mettre à jour ?`)) return;
+    list[exists] = c;
+  } else {
+    list.push(c);
+  }
+  rosterSave(list);
+  rosterRender();
+}
+
+function rosterApply(idx, slot) {
+  const list = rosterLoad();
+  const c = list[idx];
+  if (!c) return;
+  const fields = ['name', 'twitter', 'twitch', 'youtube'];
+  fields.forEach(f => {
+    const el = document.getElementById(`c${slot}-${f}`);
+    if (el) el.value = c[f] || '';
+  });
+  castersState = buildCastersFromForm();
+  socket.emit('updateCasters', castersState);
+}
+
+function rosterDelete(idx) {
+  const list = rosterLoad();
+  list.splice(idx, 1);
+  rosterSave(list);
+  rosterRender();
+}
+
+document.getElementById('btn-save-roster-1').addEventListener('click', () => rosterAddFromSlot(1));
+document.getElementById('btn-save-roster-2').addEventListener('click', () => rosterAddFromSlot(2));
+
+rosterRender();
 
 // ── Thèmes ────────────────────────────────────────────────────
 

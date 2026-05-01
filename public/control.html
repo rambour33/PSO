@@ -81,8 +81,6 @@
           <a href="/combined-chat" target="_blank">Twitch + YouTube</a>
         </div>
       </div>
-      <button id="btn-vs-trigger" class="btn btn-primary" title="Déclenche l'animation d'entrée sur la VS Screen">⚔ VS Anim</button>
-      <button id="btn-vs-hide" class="btn btn-outline" title="Masque la VS Screen">✕ VS</button>
       <button id="btn-visibility" class="btn btn-primary">Masquer</button>
       <button id="btn-server-reload" class="btn btn-outline" title="Redémarre le serveur Node.js" style="border-color:#e05;color:#e05">↺ Serveur</button>
       <button id="btn-mobile-mode" class="btn btn-outline" title="Mode mobile/tablette">📱</button>
@@ -891,14 +889,20 @@
       </div>
       <div class="casters-grid">
         <div class="caster-form-card">
-          <h3>Caster 1</h3>
+          <div class="caster-card-header">
+            <h3>Caster 1</h3>
+            <button class="btn btn-outline btn-sm" id="btn-save-roster-1" title="Sauvegarder dans le roster">💾 Sauvegarder</button>
+          </div>
           <div class="form-group"><label>Nom</label><input type="text" id="c1-name" placeholder="Pseudo du caster" /></div>
           <div class="form-group"><label>Twitter / X</label><input type="text" id="c1-twitter" placeholder="@handle" /></div>
           <div class="form-group"><label>Twitch</label><input type="text" id="c1-twitch" placeholder="/channel" /></div>
           <div class="form-group"><label>YouTube</label><input type="text" id="c1-youtube" placeholder="@channel" /></div>
         </div>
         <div class="caster-form-card">
-          <h3>Caster 2</h3>
+          <div class="caster-card-header">
+            <h3>Caster 2</h3>
+            <button class="btn btn-outline btn-sm" id="btn-save-roster-2" title="Sauvegarder dans le roster">💾 Sauvegarder</button>
+          </div>
           <div class="form-group"><label>Nom</label><input type="text" id="c2-name" placeholder="Pseudo du caster" /></div>
           <div class="form-group"><label>Twitter / X</label><input type="text" id="c2-twitter" placeholder="@handle" /></div>
           <div class="form-group"><label>Twitch</label><input type="text" id="c2-twitch" placeholder="/channel" /></div>
@@ -907,6 +911,17 @@
       </div>
       <div class="casters-footer">
         <button id="btn-apply-casters" class="btn btn-primary" style="align-self:flex-end">Appliquer</button>
+      </div>
+
+      <!-- ROSTER -->
+      <div class="caster-roster-section">
+        <div class="caster-roster-header">
+          <span class="caster-roster-title">Roster</span>
+          <span class="caster-roster-hint">Cliquer pour assigner à un slot</span>
+        </div>
+        <div id="caster-roster-list" class="caster-roster-list">
+          <div class="caster-roster-empty">Aucun caster sauvegardé</div>
+        </div>
       </div>
     </section>
 
