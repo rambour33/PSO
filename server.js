@@ -124,10 +124,20 @@ app.get('/logout', (req, res) => {
   res.redirect('/login');
 });
 
-// ─── Server info ──────────────────────────────────────────────────────────────
+// ─── Server info (baseUrl + réseau) ──────────────────────────────────────────
+
+function getLocalIPs() {
+  const result = [];
+  for (const iface of Object.values(os.networkInterfaces())) {
+    for (const addr of iface) {
+      if (addr.family === 'IPv4' && !addr.internal) result.push(addr.address);
+    }
+  }
+  return result;
+}
 
 app.get('/api/server-info', (req, res) => {
-  res.json({ baseUrl: BASE_URL });
+  res.json({ baseUrl: BASE_URL, port: PORT, ips: getLocalIPs() });
 });
 
 // ─── State ────────────────────────────────────────────────────────────────────
@@ -400,7 +410,6 @@ app.get('/guide', (req, res) => res.sendFile(path.join(__dirname, 'public', 'gui
 app.get('/deck',  (req, res) => res.sendFile(path.join(__dirname, 'public', 'deck.html')));
 app.get('/regie', (req, res) => res.sendFile(path.join(__dirname, 'public', 'regie.html')));
 app.get('/overlay', (req, res) => res.sendFile(path.join(__dirname, 'public', 'overlay.html')));
-app.get('/overlay-slim', (req, res) => res.sendFile(path.join(__dirname, 'public', 'overlay-slim.html')));
 app.get('/h2h',          (req, res) => res.sendFile(path.join(__dirname, 'public', 'h2h.html')));
 app.get('/youtube-chat', (req, res) => res.sendFile(path.join(__dirname, 'public', 'youtube-chat.html')));
 app.get('/twitch-alerts',(req, res) => res.sendFile(path.join(__dirname, 'public', 'twitch-alerts.html')));
@@ -409,7 +418,7 @@ app.get('/casters', (req, res) => res.sendFile(path.join(__dirname, 'public', 'c
 app.get('/control', (req, res) => res.sendFile(path.join(__dirname, 'public', 'control.html')));
 app.get('/vs-screen', (req, res) => res.sendFile(path.join(__dirname, 'public', 'vs-screen.html')));
 app.get('/player-stats', (req, res) => res.sendFile(path.join(__dirname, 'public', 'player-stats.html')));
-app.get('/twitch-layout', (req, res) => res.sendFile(path.join(__dirname, 'public', 'twitch-layout.html')));
+app.get('/nextmatch',    (req, res) => res.sendFile(path.join(__dirname, 'public', 'nextmatch.html')));
 app.get('/twitch-viewer',   (req, res) => res.sendFile(path.join(__dirname, 'public', 'twitch-viewer.html')));
 app.get('/youtube-viewer',  (req, res) => res.sendFile(path.join(__dirname, 'public', 'youtube-viewer.html')));
 app.get('/youtube-alerts',  (req, res) => res.sendFile(path.join(__dirname, 'public', 'youtube-alerts.html')));
@@ -434,7 +443,6 @@ app.get('/api/obs-collection', (req, res) => {
   const OVERLAYS = [
     // ── Smash / Général ──────────────────────────────────────────────────────
     { scene: 'PSO – Scoreboard',          source: 'PSO Scoreboard',          path: '/overlay' },
-    { scene: 'PSO – Scoreboard Slim',     source: 'PSO Scoreboard Slim',     path: '/overlay-slim' },
     { scene: 'PSO – VS Screen',           source: 'PSO VS Screen',           path: '/vs-screen' },
     { scene: 'PSO – Casters',             source: 'PSO Casters',             path: '/casters' },
     { scene: 'PSO – Head to Head',        source: 'PSO Head to Head',        path: '/h2h' },
@@ -454,7 +462,7 @@ app.get('/api/obs-collection', (req, res) => {
       path:   `/super-overlay/${i + 1}`,
     })),
     // ── Twitch ───────────────────────────────────────────────────────────────
-    { scene: 'PSO – Twitch Layout',       source: 'PSO Twitch Layout',       path: '/twitch-layout' },
+    { scene: 'PSO – Next Match',           source: 'PSO Next Match',           path: '/nextmatch' },
     { scene: 'PSO – Twitch Viewers',      source: 'PSO Twitch Viewers',      path: '/twitch-viewer' },
     { scene: 'PSO – Twitch Chat',         source: 'PSO Twitch Chat',         path: '/twitch-chat' },
   ];
@@ -613,22 +621,6 @@ let titleState = {
   align:       'left',    // left, center, right
 };
 
-// ─── Réseau / Multi-PC ────────────────────────────────────────────────────────
-
-function getLocalIPs() {
-  const result = [];
-  for (const iface of Object.values(os.networkInterfaces())) {
-    for (const addr of iface) {
-      if (addr.family === 'IPv4' && !addr.internal) result.push(addr.address);
-    }
-  }
-  return result;
-}
-
-app.get('/api/server-info', (req, res) => {
-  res.json({ port: PORT, ips: getLocalIPs() });
-});
-
 // ─── Title ────────────────────────────────────────────────────────────────────
 
 app.get('/api/title', (req, res) => res.json(titleState));
@@ -649,7 +641,6 @@ app.post('/api/title', (req, res) => {
 const SUPER_LAYER_DEFS = [
   // Scoreboard
   { id: 'overlay',            label: 'Overlay principal',   url: '/overlay',            category: 'Scoreboard'          },
-  { id: 'overlay-slim',       label: 'Overlay Slim',        url: '/overlay-slim',       category: 'Scoreboard'          },
   { id: 'scoreboard-elements',label: 'Éléments scoreboard', url: '/scoreboard-elements',category: 'Scoreboard'          },
   // Casters
   { id: 'casters',            label: 'Casters',             url: '/casters',            category: 'Casters'             },
@@ -669,7 +660,8 @@ const SUPER_LAYER_DEFS = [
   { id: 'top8',               label: 'Top 8',               url: '/top8',               category: 'Overlays génériques' },
   { id: 'timer',              label: 'Minuteur',            url: '/timer',              category: 'Overlays génériques' },
   // Twitch
-  { id: 'twitch-layout',      label: 'Twitch Layout',       url: '/twitch-layout',      category: 'Twitch'              },
+  { id: 'nextmatch',          label: 'Next Match',          url: '/nextmatch',          category: 'Twitch'              },
+  { id: 'upcoming',           label: 'Prochains matchs',    url: '/upcoming',           category: 'Twitch'              },
   { id: 'twitch-viewer',      label: 'Viewers Twitch',      url: '/twitch-viewer',      category: 'Twitch'              },
   { id: 'twitch-chat',        label: 'Chat Twitch',         url: '/twitch-chat',        category: 'Twitch'              },
   { id: 'twitch-alerts',      label: 'Alertes Twitch',      url: '/twitch-alerts',      category: 'Twitch'              },
@@ -3555,9 +3547,9 @@ app.get('/casters-custom', (req, res) => {
 // ─── Transitions / Animations overlays ───────────────────────────────────────
 
 const TRANSITION_IDS = [
-  'scoreboard', 'scoreboard-slim', 'scoreboard-elements', 'casters', 'stageveto',
+  'scoreboard', 'scoreboard-elements', 'casters', 'stageveto',
   'ticker', 'cam', 'frames', 'stream-title', 'h2h', 'player-stats',
-  'tournament-history', 'bracket', 'top8', 'timer', 'twitch-layout',
+  'tournament-history', 'bracket', 'top8', 'timer', 'nextmatch', 'upcoming',
   'twitch-chat', 'twitch-viewer', 'youtube-chat', 'combined-chat',
 ];
 
@@ -3645,7 +3637,6 @@ app.post('/api/transitions/:id/hide', (req, res) => {
 
 const DECK_LABELS = {
   'scoreboard':         'Scoreboard',
-  'scoreboard-slim':    'Scoreboard Slim',
   'scoreboard-elements':'Éléments Scoreboard',
   'casters':            'Commentateurs',
   'stageveto':          'Stage Veto',
@@ -3659,7 +3650,8 @@ const DECK_LABELS = {
   'bracket':            'Bracket',
   'top8':               'Top 8',
   'timer':              'Minuteur',
-  'twitch-layout':      'Layout Twitch',
+  'nextmatch':          'Next Match',
+  'upcoming':           'Prochains matchs',
   'twitch-chat':        'Chat Twitch',
   'twitch-viewer':      'Viewers Twitch',
   'youtube-chat':       'Chat YouTube',
@@ -3737,6 +3729,285 @@ app.get('/api/deck/:overlay/:action', (req, res) => {
     return res.send('<script>window.close();</script>');
   }
   res.json({ ok: true, overlay, action, visible: doShow });
+});
+
+// ── Notes internes ───────────────────────────────────────────────────────────
+let notesState = [];
+let _notesIdSeq = 1;
+
+app.get('/notes', (req, res) => res.sendFile(path.join(__dirname, 'public', 'notes.html')));
+
+app.get('/api/notes', (req, res) => res.json(notesState));
+
+app.post('/api/notes', (req, res) => {
+  const { author = 'Régie', text, tag = 'info' } = req.body;
+  if (!text?.trim()) return res.status(400).json({ error: 'Texte requis' });
+  const note = {
+    id:     _notesIdSeq++,
+    author: String(author).trim().slice(0, 40),
+    text:   String(text).trim().slice(0, 500),
+    tag:    ['info', 'warn', 'urgent'].includes(tag) ? tag : 'info',
+    ts:     Date.now(),
+  };
+  notesState.unshift(note);
+  if (notesState.length > 100) notesState = notesState.slice(0, 100);
+  io.emit('notesUpdate', notesState);
+  res.json(note);
+});
+
+app.delete('/api/notes/all', (req, res) => {
+  notesState = [];
+  io.emit('notesUpdate', notesState);
+  res.json({ ok: true });
+});
+
+app.delete('/api/notes/:id', (req, res) => {
+  const id = parseInt(req.params.id, 10);
+  notesState = notesState.filter(n => n.id !== id);
+  io.emit('notesUpdate', notesState);
+  res.json({ ok: true });
+});
+
+// ─── Configuration Tournoi ───────────────────────────────────────────────────
+
+function getTournamentConfig() {
+  const cfg = getConfig();
+  return {
+    name:      cfg.tournamentName      || '',
+    slug:      cfg.tournamentSlug      || '',
+    logoUrl:   cfg.tournamentLogoUrl   || '',
+    bannerUrl: cfg.tournamentBannerUrl || '',
+    id:        cfg.tournamentId        || null,
+  };
+}
+
+app.get('/api/tournament-config', (req, res) => res.json(getTournamentConfig()));
+
+app.post('/api/tournament-config', (req, res) => {
+  const cfg = getConfig();
+  if (req.body.name      !== undefined) cfg.tournamentName      = String(req.body.name).trim();
+  if (req.body.slug      !== undefined) cfg.tournamentSlug      = String(req.body.slug).trim();
+  if (req.body.logoUrl   !== undefined) cfg.tournamentLogoUrl   = String(req.body.logoUrl).trim();
+  if (req.body.bannerUrl !== undefined) cfg.tournamentBannerUrl = String(req.body.bannerUrl).trim();
+  if (req.body.id        !== undefined) cfg.tournamentId        = req.body.id;
+  if (req.body.apiKey    !== undefined && req.body.apiKey) cfg.startggApiKey = String(req.body.apiKey).trim();
+  saveConfig(cfg);
+  const tc = getTournamentConfig();
+  io.emit('tournamentConfigUpdate', tc);
+  io.emit('stingerConfig', stingerPayload());
+  res.json(tc);
+});
+
+/* Récupère le nom + logo depuis l'API Start.gg pour préremplir le formulaire */
+app.post('/api/tournament-config/fetch', async (req, res) => {
+  const { slug, apiKey } = req.body;
+  if (!slug) return res.status(400).json({ error: 'Slug manquant' });
+
+  const cfg = getConfig();
+  if (apiKey && apiKey !== cfg.startggApiKey) {
+    cfg.startggApiKey = apiKey;
+    saveConfig(cfg);
+  }
+
+  try {
+    const data = await startggQuery(`
+      query TournamentSetup($slug: String!) {
+        tournament(slug: $slug) {
+          id name slug
+          images { url type ratio width height }
+        }
+      }
+    `, { slug });
+
+    if (!data?.tournament) throw new Error('Tournoi introuvable — vérifiez le slug et la clé API');
+
+    const t    = data.tournament;
+    const imgs = t.images || [];
+    const logoImg  = imgs.find(i => i.type === 'profile')
+                  || imgs.find(i => Math.abs((i.ratio || 1) - 1) < 0.25)
+                  || imgs[0];
+    const bannerImg = imgs.find(i => i.type === 'banner')
+                   || imgs.find(i => (i.ratio || 1) > 1.4);
+
+    res.json({
+      id:        t.id,
+      name:      t.name,
+      slug:      t.slug,
+      logoUrl:   logoImg?.url   || '',
+      bannerUrl: bannerImg?.url || '',
+    });
+  } catch (e) {
+    res.status(400).json({ error: e.message });
+  }
+});
+
+// ─── Stinger ──────────────────────────────────────────────────────────────────
+
+let stingerConfig = (() => {
+  const cfg = getConfig();
+  return Object.assign({ bars: 8, speed: 'normal', style: 'bars-h', logoUrl: '', logoOverride: false, logoSize: 200 }, cfg.stinger || {});
+})();
+
+function saveStingerConfig() {
+  const cfg = getConfig();
+  cfg.stinger = stingerConfig;
+  saveConfig(cfg);
+}
+
+function getEffectiveStingerLogo() {
+  if (stingerConfig.logoOverride && stingerConfig.logoUrl) return stingerConfig.logoUrl;
+  return getTournamentConfig().logoUrl || '';
+}
+
+function stingerPayload() {
+  return { ...stingerConfig, effectiveLogoUrl: getEffectiveStingerLogo() };
+}
+
+app.get('/stinger', (req, res) => res.sendFile(path.join(__dirname, 'public', 'stinger.html')));
+
+app.get('/api/stinger', (req, res) => res.json(stingerPayload()));
+
+app.post('/api/stinger', (req, res) => {
+  const VALID_STYLES = ['bars-h', 'bars-v', 'flash'];
+  const VALID_SPEEDS = ['slow', 'normal', 'fast'];
+  if (req.body.bars         !== undefined) stingerConfig.bars         = Math.min(20, Math.max(2, parseInt(req.body.bars, 10)));
+  if (req.body.speed        !== undefined && VALID_SPEEDS.includes(req.body.speed)) stingerConfig.speed = req.body.speed;
+  if (req.body.style        !== undefined && VALID_STYLES.includes(req.body.style)) stingerConfig.style = req.body.style;
+  if (req.body.logoUrl      !== undefined) stingerConfig.logoUrl      = String(req.body.logoUrl).slice(0, 500);
+  if (req.body.logoOverride !== undefined) stingerConfig.logoOverride = !!req.body.logoOverride;
+  if (req.body.logoSize     !== undefined) stingerConfig.logoSize     = Math.min(600, Math.max(40, parseInt(req.body.logoSize, 10)));
+  saveStingerConfig();
+  const payload = stingerPayload();
+  io.emit('stingerConfig', payload);
+  res.json(payload);
+});
+
+app.post('/api/stinger/trigger', (req, res) => {
+  io.emit('stingerTrigger', stingerPayload());
+  res.json({ ok: true });
+});
+
+// ─── Prochains matchs (stream queue overlay) ──────────────────────────────────
+
+let upcomingState = (() => {
+  const cfg = getConfig();
+  return {
+    sets:         [],
+    slug:         cfg.upcomingSlug         || '',
+    streamFilter: cfg.upcomingStreamFilter || '',
+    maxSets:      cfg.upcomingMaxSets      || 6,
+    lastUpdate:   null,
+    error:        null,
+    visible:      true,
+  };
+})();
+
+function saveUpcomingConfig() {
+  const cfg = getConfig();
+  cfg.upcomingSlug         = upcomingState.slug;
+  cfg.upcomingStreamFilter = upcomingState.streamFilter;
+  cfg.upcomingMaxSets      = upcomingState.maxSets;
+  saveConfig(cfg);
+}
+
+function processUpcomingSlot(slot) {
+  const ent = slot?.entrant;
+  if (!ent) return { tag: '?', prefix: '', seed: null };
+  const p = ent.participants?.[0];
+  return {
+    tag:    p?.gamerTag || ent.name || '?',
+    prefix: p?.prefix   || '',
+    seed:   ent.initialSeedNum || null,
+    score:  slot?.standing?.stats?.score?.value ?? null,
+  };
+}
+
+async function refreshUpcoming() {
+  const { slug, streamFilter, maxSets } = upcomingState;
+  if (!slug) return;
+  try {
+    const data = await startggQuery(`
+      query StreamQueue($slug: String!) {
+        tournament(slug: $slug) {
+          streamQueue {
+            stream { streamName }
+            sets {
+              id fullRoundText totalGames
+              phaseGroup { displayIdentifier phase { name } }
+              slots {
+                entrant { id name initialSeedNum participants { gamerTag prefix } }
+                standing { stats { score { value } } }
+              }
+            }
+          }
+        }
+      }
+    `, { slug });
+
+    const rawQueue = data?.tournament?.streamQueue || [];
+    const allItems = [];
+    for (const entry of rawQueue) {
+      const sName = entry.stream?.streamName || '';
+      if (streamFilter && !sName.toLowerCase().includes(streamFilter.toLowerCase())) continue;
+      for (const s of (entry.sets || [])) allItems.push({ s, sName });
+    }
+
+    upcomingState.sets = allItems.slice(0, maxSets).map(({ s, sName }, idx) => ({
+      id:         s.id,
+      position:   idx + 1,
+      roundName:  s.fullRoundText || '',
+      phase:      s.phaseGroup?.phase?.name || '',
+      group:      s.phaseGroup?.displayIdentifier || '',
+      p1:         processUpcomingSlot(s.slots?.[0]),
+      p2:         processUpcomingSlot(s.slots?.[1]),
+      totalGames: s.totalGames || null,
+      streamName: sName,
+    }));
+    upcomingState.lastUpdate = Date.now();
+    upcomingState.error      = null;
+  } catch (e) {
+    upcomingState.error = e.message;
+  }
+  io.emit('upcomingUpdate', upcomingState);
+}
+
+let _upcomingTimer = null;
+function scheduleUpcomingRefresh() {
+  clearTimeout(_upcomingTimer);
+  const interval = (getConfig().upcomingRefreshInterval || 60) * 1000;
+  if (interval > 0 && upcomingState.slug) {
+    _upcomingTimer = setTimeout(async () => {
+      await refreshUpcoming();
+      scheduleUpcomingRefresh();
+    }, interval);
+  }
+}
+
+app.get('/upcoming', (req, res) => res.sendFile(path.join(__dirname, 'public', 'upcoming.html')));
+
+app.get('/api/upcoming', (req, res) => res.json(upcomingState));
+
+app.post('/api/upcoming/config', (req, res) => {
+  if (req.body.slug         !== undefined) upcomingState.slug         = String(req.body.slug).trim();
+  if (req.body.streamFilter !== undefined) upcomingState.streamFilter = String(req.body.streamFilter).trim();
+  if (req.body.maxSets      !== undefined) upcomingState.maxSets      = Math.min(10, Math.max(1, parseInt(req.body.maxSets, 10)));
+  if (req.body.refreshInterval !== undefined) {
+    const cfg = getConfig(); cfg.upcomingRefreshInterval = parseInt(req.body.refreshInterval, 10); saveConfig(cfg);
+  }
+  saveUpcomingConfig();
+  scheduleUpcomingRefresh();
+  res.json({ ok: true });
+});
+
+app.post('/api/upcoming/refresh', async (req, res) => {
+  if (req.body.slug         !== undefined) upcomingState.slug         = String(req.body.slug).trim();
+  if (req.body.streamFilter !== undefined) upcomingState.streamFilter = String(req.body.streamFilter).trim();
+  if (req.body.maxSets      !== undefined) upcomingState.maxSets      = Math.min(10, Math.max(1, parseInt(req.body.maxSets, 10)));
+  saveUpcomingConfig();
+  if (!upcomingState.slug) return res.status(400).json({ error: 'Aucun slug configuré' });
+  await refreshUpcoming();
+  scheduleUpcomingRefresh();
+  res.json(upcomingState);
 });
 
 // ─── Start ────────────────────────────────────────────────────────────────────

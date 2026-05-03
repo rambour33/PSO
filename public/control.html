@@ -10,11 +10,106 @@
   <link rel="stylesheet" href="control.css" />
 </head>
 <body>
+<!-- ══════════════════════════════════════════════════════════ -->
+<!--  SETUP MODAL — configuration initiale du tournoi          -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<div id="setup-modal" class="setup-overlay" style="display:none">
+  <div class="setup-card">
+
+    <div class="setup-card-header">
+      <div class="setup-pso-mark">PSO</div>
+      <h2 class="setup-title">Configuration du tournoi</h2>
+      <p class="setup-sub">Renseignez les informations ci-dessous — elles seront partagées avec tous les overlays.</p>
+    </div>
+
+    <div class="setup-card-body">
+
+      <!-- ── Connexion Start.gg ──────────────────────────── -->
+      <div class="setup-section">
+        <div class="setup-section-title">
+          <span class="setup-section-dot"></span>
+          Connexion Start.gg
+        </div>
+
+        <!-- État : clé déjà enregistrée -->
+        <div id="setup-key-connected" class="setup-key-connected" style="display:none">
+          <span class="setup-key-dot"></span>
+          <span class="setup-key-label">Clé API start.gg enregistrée</span>
+          <button class="btn btn-outline btn-sm" id="setup-key-change">Modifier</button>
+        </div>
+
+        <!-- État : saisie de la clé -->
+        <div id="setup-key-form" class="setup-field">
+          <label class="setup-label">Clé API (token Bearer)</label>
+          <div class="setup-row">
+            <input type="password" id="setup-apikey" class="setup-input"
+                   placeholder="Votre clé API start.gg" autocomplete="new-password" />
+            <button class="btn btn-outline" id="setup-key-save" style="white-space:nowrap">Enregistrer</button>
+          </div>
+          <div id="setup-key-status" style="font-size:11px;color:var(--text-muted);min-height:16px;margin-top:2px"></div>
+        </div>
+
+        <div class="setup-field">
+          <label class="setup-label">URL ou slug du tournoi</label>
+          <div class="setup-row">
+            <input type="text" id="setup-slug-input" class="setup-input"
+                   placeholder="start.gg/tournament/mon-tournoi" />
+            <button class="btn btn-outline" id="setup-verify-btn">🔍 Vérifier</button>
+          </div>
+        </div>
+
+        <div class="setup-verify-status" id="setup-verify-status"></div>
+      </div>
+
+      <!-- ── Informations tournoi ────────────────────────── -->
+      <div class="setup-section">
+        <div class="setup-section-title">
+          <span class="setup-section-dot"></span>
+          Informations du tournoi
+        </div>
+
+        <div class="setup-info-row">
+          <div class="setup-field" style="flex:1;min-width:0">
+            <label class="setup-label">Nom du tournoi</label>
+            <input type="text" id="setup-name" class="setup-input"
+                   placeholder="PSO Winter Cup" />
+          </div>
+          <div class="setup-logo-preview-box" id="setup-logo-preview-box">
+            <img id="setup-logo-preview-img" src="" alt="" style="display:none" />
+            <span class="setup-logo-placeholder-text" id="setup-logo-placeholder">Logo</span>
+          </div>
+        </div>
+
+        <div class="setup-field">
+          <label class="setup-label">URL du logo (auto-rempli depuis Start.gg)</label>
+          <input type="url" id="setup-logo-input" class="setup-input"
+                 placeholder="https://images.start.gg/…" />
+        </div>
+      </div>
+
+    </div><!-- /setup-card-body -->
+
+    <div class="setup-card-footer">
+      <button class="btn setup-skip-btn" id="setup-skip-btn">Ignorer</button>
+      <button class="btn btn-primary setup-save-btn" id="setup-save-btn">✓ Commencer</button>
+    </div>
+
+  </div><!-- /setup-card -->
+</div><!-- /setup-modal -->
+
 <div class="app">
 
   <!-- HEADER -->
   <header class="header">
     <div class="header-left">
+      <button class="tournament-btn" id="tournament-indicator" title="Configuration du tournoi">
+        <img class="tournament-btn-logo" id="ti-logo" src="" alt="" style="display:none" />
+        <span class="tournament-btn-name" id="ti-name">Configurer le tournoi</span>
+        <svg class="tournament-btn-arrow" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+      <div class="header-sep"></div>
       <h1>PSO</h1>
     </div>
     <div class="header-right">
@@ -27,7 +122,6 @@
         <button class="btn btn-outline overlay-group-btn">Scoreboard ▾</button>
         <div class="overlay-group-menu">
           <a href="/overlay" target="_blank">Scoreboard</a>
-          <a href="/overlay-slim" target="_blank">Slim</a>
           <a href="/scoreboard-elements" target="_blank">Éléments libres</a>
           <a href="/vs-screen" target="_blank">VS Screen</a>
           <a href="/cam" target="_blank">Cam</a>
@@ -61,7 +155,7 @@
       <div class="overlay-group">
         <button class="btn btn-outline overlay-group-btn" style="border-color:#9147FF55;color:#C9AAFF">Twitch ▾</button>
         <div class="overlay-group-menu">
-          <a href="/twitch-layout" target="_blank">Layout</a>
+          <a href="/nextmatch" target="_blank">Layout</a>
           <a href="/twitch-viewer" target="_blank">Viewers</a>
           <a href="/twitch-alerts" target="_blank">Alertes</a>
           <a href="/twitch-chat" target="_blank">Chat</a>
@@ -84,10 +178,16 @@
       <button id="btn-visibility" class="btn btn-primary">Masquer</button>
       <button id="btn-server-reload" class="btn btn-outline" title="Redémarre le serveur Node.js" style="border-color:#e05;color:#e05">↺ Serveur</button>
       <button id="btn-mobile-mode" class="btn btn-outline" title="Mode mobile/tablette">📱</button>
-      <a href="/regie" target="_blank" class="btn btn-outline" title="Interface régie simplifiée" style="text-decoration:none">🎬 Régie</a>
+      <button id="btn-toggle-regie" class="btn btn-outline" title="Basculer entre Mode Régie et Mode Config">🎬 Mode Régie</button>
       <a href="/guide" target="_blank" class="btn btn-outline" title="Guide d'utilisation" style="text-decoration:none">📖 Guide</a>
     </div>
   </header>
+
+  <!-- BARRE OVERLAYS RÉGIE (visible uniquement en mode régie) -->
+  <div id="regie-overlay-bar" style="display:none">
+    <span class="regie-bar-label">OVERLAYS</span>
+    <div id="regie-bar-btns" class="regie-bar-btns"></div>
+  </div>
 
   <!-- TAB NAV (desktop) -->
   <nav class="tab-nav" id="tab-nav-desktop">
@@ -100,6 +200,8 @@
     <button class="tab-btn" data-tab="studio">Créateur de scènes</button>
     <button class="tab-btn" data-tab="diffusions">Overlays plateformes de stream</button>
     <button class="tab-btn" data-tab="overlayip">PSO multi-PC</button>
+    <button class="tab-btn" data-tab="notes">📋 Notes</button>
+    <button class="tab-btn" data-tab="stinger">🎬 Stinger</button>
   </nav>
 
   <!-- TAB SELECT (mobile) -->
@@ -121,23 +223,37 @@
   <!-- ═══════════════════════════════════════════════════════════ -->
   <div class="tab-content active" id="tab-match">
 
-    <!-- SUB-NAV MATCH -->
+    <!-- SUB-NAV MATCH (nav plate) -->
     <div class="match-subnav">
-      <button class="match-subnav-btn active" data-panel="match-panel-scoreboard">Scoreboard</button>
-      <button class="match-subnav-btn" data-panel="match-panel-casters">Casters</button>
-      <button class="match-subnav-btn" data-panel="match-panel-veto">Veto</button>
-      <button class="match-subnav-btn" data-panel="match-panel-vsscreen">VS Screen</button>
-      <button class="match-subnav-btn" data-panel="match-panel-nextmatch">Next Match</button>
-    </div>
-
-    <!-- PANEL : SCOREBOARD -->
-    <div class="match-panel active" id="match-panel-scoreboard">
-      <div class="match-subpanel-nav">
-        <button class="match-subpanel-btn active" data-subpanel="sb-sub-match">Scoreboard</button>
+      <div class="match-nav-group active">
+        <button class="match-subpanel-btn match-nav-section active" data-subpanel="sb-sub-match">Scoreboard</button>
         <button class="match-subpanel-btn" data-subpanel="sb-sub-custom">Customisation</button>
         <button class="match-subpanel-btn" data-subpanel="sb-sub-preview">Preview</button>
         <button class="match-subpanel-btn" data-subpanel="sb-sub-builder">Builder</button>
       </div>
+      <span class="match-nav-sep"></span>
+      <div class="match-nav-group">
+        <button class="match-subpanel-btn match-nav-section" data-subpanel="casters-sub-match">Casters</button>
+        <button class="match-subpanel-btn" data-subpanel="casters-sub-builder">Builder</button>
+        <button class="match-subpanel-btn" data-subpanel="casters-sub-custom">Customisation</button>
+        <button class="match-subpanel-btn" data-subpanel="casters-sub-preview">Preview</button>
+      </div>
+      <span class="match-nav-sep"></span>
+      <div class="match-nav-group">
+        <button class="match-subpanel-btn match-nav-section" data-subpanel="veto-sub-match">Veto</button>
+        <button class="match-subpanel-btn" data-subpanel="veto-sub-custom">Ruleset</button>
+        <button class="match-subpanel-btn" data-subpanel="veto-sub-preview">Preview</button>
+      </div>
+      <span class="match-nav-sep"></span>
+      <div class="match-nav-group">
+        <button class="match-subpanel-btn match-nav-section" data-subpanel="vsscreen-sub-match">VS Screen</button>
+      </div>
+      <span class="match-nav-sep"></span>
+      <div class="match-nav-group">
+        <button class="match-subpanel-btn match-nav-section" data-subpanel="nm-sub-match">Next Match</button>
+      </div>
+    </div>
+
       <div class="match-subpanel active" id="sb-sub-match">
 
     <!-- SCOREBOARD SECTION -->
@@ -324,6 +440,11 @@
       </div>
     </section>
 
+      </div><!-- /sb-sub-match -->
+
+      <div class="match-subpanel" id="sb-sub-custom">
+
+        <!-- ── Logo central / Drapeaux / Texture de fond ──────────── -->
         <section class="section">
           <div style="display:flex;gap:8px;align-items:flex-start">
 
@@ -448,9 +569,6 @@
           </div>
         </section>
 
-      </div><!-- /sb-sub-match -->
-
-      <div class="match-subpanel" id="sb-sub-custom">
         <section class="section">
           <div style="display:flex;gap:8px;align-items:flex-start">
 
@@ -865,17 +983,7 @@
     </section>
       </div><!-- /sb-sub-builder -->
 
-    </div><!-- /match-panel-scoreboard -->
-
-    <!-- PANEL : CASTERS -->
-    <div class="match-panel" id="match-panel-casters">
-      <div class="match-subpanel-nav">
-        <button class="match-subpanel-btn active" data-subpanel="casters-sub-match">Casters</button>
-        <button class="match-subpanel-btn" data-subpanel="casters-sub-builder">Builder</button>
-        <button class="match-subpanel-btn" data-subpanel="casters-sub-custom">Customisation</button>
-        <button class="match-subpanel-btn" data-subpanel="casters-sub-preview">Preview</button>
-      </div>
-      <div class="match-subpanel active" id="casters-sub-match">
+      <div class="match-subpanel" id="casters-sub-match">
 
     <!-- CASTERS SECTION -->
     <section class="section casters-section">
@@ -1117,16 +1225,7 @@
         </div>
       </div><!-- /casters-sub-preview -->
 
-    </div><!-- /match-panel-casters -->
-
-    <!-- PANEL : VETO -->
-    <div class="match-panel" id="match-panel-veto">
-      <div class="match-subpanel-nav">
-        <button class="match-subpanel-btn active" data-subpanel="veto-sub-match">Veto</button>
-        <button class="match-subpanel-btn" data-subpanel="veto-sub-custom">Ruleset</button>
-        <button class="match-subpanel-btn" data-subpanel="veto-sub-preview">Preview</button>
-      </div>
-      <div class="match-subpanel active" id="veto-sub-match">
+      <div class="match-subpanel" id="veto-sub-match">
     <section class="section veto-section">
       <div class="section-header">
         <div class="veto-title-row">
@@ -1230,11 +1329,7 @@
         </div>
       </div><!-- /veto-sub-preview -->
 
-    </div><!-- /match-panel-veto -->
-
-    <!-- PANEL : RULESET -->
-    <!-- PANEL : VS SCREEN -->
-    <div class="match-panel" id="match-panel-vsscreen">
+      <div class="match-subpanel" id="vsscreen-sub-match">
       <section class="section">
         <div class="section-header">
           <h2>VS Screen</h2>
@@ -1494,112 +1589,111 @@
         </div>
 
       </section>
-    </div><!-- /match-panel-vsscreen -->
+      </div><!-- /vsscreen-sub-match -->
 
-    <!-- PANEL : NEXT MATCH -->
-    <div class="match-panel" id="match-panel-nextmatch">
-      <div class="match-subpanel-nav">
-        <button class="match-subpanel-btn active" data-subpanel="nm-sub-match">Next Match</button>
-        <button class="match-subpanel-btn" data-subpanel="nm-sub-preview">Preview</button>
-      </div>
-
-      <div class="match-subpanel active" id="nm-sub-match">
+      <div class="match-subpanel" id="nm-sub-match">
         <section class="section">
           <div class="section-header">
             <h2>Next Match</h2>
-            <a href="/twitch-layout" target="_blank" class="btn btn-outline btn-sm">Ouvrir l'overlay ↗</a>
+            <a href="/nextmatch" target="_blank" class="btn btn-outline btn-sm">Ouvrir l'overlay ↗</a>
           </div>
 
-          <!-- Aperçu miniature de l'overlay -->
-          <div class="custom-card" style="padding:0;overflow:hidden;border-radius:8px;">
-            <div style="background:#111;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;">
-              <span style="font-size:12px;font-weight:600;color:var(--text-muted);letter-spacing:1px;text-transform:uppercase;">Aperçu – s'adapte au thème actif</span>
-              <span style="font-size:11px;color:var(--text-muted)">1920 × 1080</span>
-            </div>
-            <div style="position:relative;width:100%;padding-bottom:56.25%;background:#0a0a0f;overflow:hidden;">
-              <iframe
-                src="/twitch-layout"
-                style="position:absolute;top:0;left:0;width:100%;height:100%;border:none;transform-origin:top left;pointer-events:none;"
-                scrolling="no"
-                id="twitch-layout-preview"
-              ></iframe>
-            </div>
-          </div>
+          <!-- Layout preview + options côte à côte -->
+          <div style="display:flex;gap:16px;align-items:flex-start;">
 
-          <!-- Infos d'utilisation OBS -->
-          <div class="custom-card">
-            <h3>Utilisation dans OBS</h3>
-            <p style="font-size:13px;color:var(--text-muted);margin-bottom:12px;line-height:1.6;">
-              Ajoute une <strong>Source Navigateur</strong> dans OBS avec l'URL ci-dessous.<br>
-              Résolution : <strong>1920 × 1080</strong> · Actualiser toutes les scènes.
-            </p>
-            <div class="name-row" style="gap:8px;">
-              <input type="text" id="twitch-layout-url" readonly
-                style="flex:1;font-size:12px;background:var(--surface2);border:1px solid var(--border);color:var(--text-muted);cursor:text;"
-                value="http://localhost:3002/twitch-layout" />
-              <button class="btn btn-primary btn-sm" id="btn-copy-twitch-url">Copier</button>
-            </div>
-          </div>
-
-          <!-- Options du cadre -->
-          <div class="custom-card">
-            <h3>Options du cadre</h3>
-
-            <div class="form-group" style="margin-bottom:14px;">
-              <label>Taille des coins <span class="hint">px</span></label>
-              <div class="logo-particles-row">
-                <input type="range" id="tw-corner-size" min="20" max="120" value="48" />
-                <input type="number" id="tw-corner-size-num" min="20" max="120" value="48" style="width:60px;" />
+            <!-- Aperçu miniature de l'overlay -->
+            <div class="custom-card" style="padding:0;overflow:hidden;border-radius:8px;flex:0 0 50%;min-width:0;">
+              <div style="background:#111;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;">
+                <span style="font-size:12px;font-weight:600;color:var(--text-muted);letter-spacing:1px;text-transform:uppercase;">Aperçu – s'adapte au thème actif</span>
+                <span style="font-size:11px;color:var(--text-muted)">1920 × 1080</span>
+              </div>
+              <div style="position:relative;width:100%;padding-bottom:56.25%;background:#0a0a0f;overflow:hidden;">
+                <iframe
+                  src="/nextmatch"
+                  style="position:absolute;top:0;left:0;width:100%;height:100%;border:none;transform-origin:top left;pointer-events:none;"
+                  scrolling="no"
+                  id="twitch-layout-preview"
+                ></iframe>
               </div>
             </div>
 
-            <div class="form-group" style="margin-bottom:14px;">
-              <label>Épaisseur du cadre <span class="hint">px</span></label>
-              <div class="logo-particles-row">
-                <input type="range" id="tw-corner-thick" min="1" max="8" value="3" step="1" />
-                <input type="number" id="tw-corner-thick-num" min="1" max="8" value="3" style="width:60px;" />
-              </div>
-            </div>
+            <!-- Options à droite -->
+            <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:12px;">
 
-            <div class="form-group">
-              <label>Opacité du fond de la barre <span class="hint">0 – 100 %</span></label>
-              <div class="logo-particles-row">
-                <input type="range" id="tw-bg-opacity" min="0" max="100" value="88" />
-                <input type="number" id="tw-bg-opacity-num" min="0" max="100" value="88" style="width:60px;" />
+              <!-- Infos d'utilisation OBS -->
+              <div class="custom-card" style="margin:0;">
+                <h3>Utilisation dans OBS</h3>
+                <p style="font-size:13px;color:var(--text-muted);margin-bottom:12px;line-height:1.6;">
+                  Ajoute une <strong>Source Navigateur</strong> dans OBS avec l'URL ci-dessous.<br>
+                  Résolution : <strong>1920 × 1080</strong> · Actualiser toutes les scènes.
+                </p>
+                <div class="name-row" style="gap:8px;">
+                  <input type="text" id="twitch-layout-url" readonly
+                    style="flex:1;font-size:12px;background:var(--surface2);border:1px solid var(--border);color:var(--text-muted);cursor:text;"
+                    value="http://localhost:3002/nextmatch" />
+                  <button class="btn btn-primary btn-sm" id="btn-copy-twitch-url">Copier</button>
+                </div>
               </div>
-            </div>
-          </div>
 
-          <!-- Éléments visibles -->
-          <div class="custom-card">
-            <h3>Éléments affichés</h3>
-            <div style="display:flex;flex-direction:column;gap:10px;">
-              <label class="checkbox-row">
-                <input type="checkbox" id="tw-show-corners" checked />
-                <span>Coins décoratifs</span>
-              </label>
-              <label class="checkbox-row">
-                <input type="checkbox" id="tw-show-scanline" checked />
-                <span>Ligne de scan animée</span>
-              </label>
-              <label class="checkbox-row">
-                <input type="checkbox" id="tw-show-sidelines" checked />
-                <span>Lignes latérales</span>
-              </label>
-              <label class="checkbox-row">
-                <input type="checkbox" id="tw-show-glow" checked />
-                <span>Lueur ambiante</span>
-              </label>
-              <label class="checkbox-row">
-                <input type="checkbox" id="tw-show-chars" checked />
-                <span>Personnages dans la barre joueurs</span>
-              </label>
-              <label class="checkbox-row">
-                <input type="checkbox" id="tw-show-vs" checked />
-                <span>Barre joueurs (joueur 1 · VS · joueur 2)</span>
-              </label>
-            </div>
-          </div>
+              <!-- Options du cadre -->
+              <div class="custom-card" style="margin:0;">
+                <h3>Options du cadre</h3>
+                <div class="form-group" style="margin-bottom:14px;">
+                  <label>Taille des coins <span class="hint">px</span></label>
+                  <div class="logo-particles-row">
+                    <input type="range" id="tw-corner-size" min="20" max="120" value="48" />
+                    <input type="number" id="tw-corner-size-num" min="20" max="120" value="48" style="width:60px;" />
+                  </div>
+                </div>
+                <div class="form-group" style="margin-bottom:14px;">
+                  <label>Épaisseur du cadre <span class="hint">px</span></label>
+                  <div class="logo-particles-row">
+                    <input type="range" id="tw-corner-thick" min="1" max="8" value="3" step="1" />
+                    <input type="number" id="tw-corner-thick-num" min="1" max="8" value="3" style="width:60px;" />
+                  </div>
+                </div>
+                <div class="form-group" style="margin:0;">
+                  <label>Opacité du fond de la barre <span class="hint">0 – 100 %</span></label>
+                  <div class="logo-particles-row">
+                    <input type="range" id="tw-bg-opacity" min="0" max="100" value="88" />
+                    <input type="number" id="tw-bg-opacity-num" min="0" max="100" value="88" style="width:60px;" />
+                  </div>
+                </div>
+              </div>
+
+              <!-- Éléments affichés -->
+              <div class="custom-card" style="margin:0;">
+                <h3>Éléments affichés</h3>
+                <div style="display:flex;flex-direction:column;gap:10px;">
+                  <label class="checkbox-row">
+                    <input type="checkbox" id="tw-show-corners" checked />
+                    <span>Coins décoratifs</span>
+                  </label>
+                  <label class="checkbox-row">
+                    <input type="checkbox" id="tw-show-scanline" checked />
+                    <span>Ligne de scan animée</span>
+                  </label>
+                  <label class="checkbox-row">
+                    <input type="checkbox" id="tw-show-sidelines" checked />
+                    <span>Lignes latérales</span>
+                  </label>
+                  <label class="checkbox-row">
+                    <input type="checkbox" id="tw-show-glow" checked />
+                    <span>Lueur ambiante</span>
+                  </label>
+                  <label class="checkbox-row">
+                    <input type="checkbox" id="tw-show-chars" checked />
+                    <span>Personnages dans la barre joueurs</span>
+                  </label>
+                  <label class="checkbox-row">
+                    <input type="checkbox" id="tw-show-vs" checked />
+                    <span>Barre joueurs (joueur 1 · VS · joueur 2)</span>
+                  </label>
+                </div>
+              </div>
+
+            </div><!-- /options -->
+          </div><!-- /layout -->
 
         </section>
       </div><!-- /nm-sub-match -->
@@ -1607,29 +1701,13 @@
       <div class="match-subpanel" id="nm-sub-preview">
         <div class="overlay-preview-container">
           <div class="overlay-preview-wrap">
-            <iframe class="overlay-preview-frame" src="/twitch-layout"></iframe>
+            <iframe class="overlay-preview-frame" src="/nextmatch"></iframe>
           </div>
         </div>
       </div><!-- /nm-sub-preview -->
 
-    </div><!-- /match-panel-nextmatch -->
-
     <!-- CONNEXION START.GG (toujours visible, masquée quand les participants sont chargés) -->
     <section class="section" id="match-sgg-connect-section">
-      <div class="section-header">
-        <h2 style="display:flex;align-items:center;gap:8px">
-          <svg style="width:16px;height:16px;color:#17B978;flex-shrink:0" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>
-          Connexion start.gg
-        </h2>
-      </div>
-      <div class="form-group">
-        <label>Clé API personnelle</label>
-        <div class="name-row">
-          <input type="password" id="match-sgg-api-key" placeholder="Colle ta Personal Key ici" style="flex:1" />
-          <button class="btn btn-primary btn-sm" id="match-sgg-save-key">Enregistrer</button>
-        </div>
-        <p class="hint" id="match-sgg-key-status">Chargement…</p>
-      </div>
       <div class="form-group">
         <label>Slug ou URL start.gg</label>
         <div class="name-row">
@@ -3112,7 +3190,6 @@
             <div class="obs-url-col">
               <div class="obs-url-col-header">Scoreboard</div>
               <div class="obs-url-item"><span>Scoreboard</span><code>localhost:3002/overlay</code><button class="btn-copy" data-url="http://localhost:3002/overlay">📋</button></div>
-              <div class="obs-url-item"><span>Scoreboard Slim</span><code>localhost:3002/overlay-slim</code><button class="btn-copy" data-url="http://localhost:3002/overlay-slim">📋</button></div>
               <div class="obs-url-item"><span>Éléments libres</span><code>localhost:3002/scoreboard-elements</code><button class="btn-copy" data-url="http://localhost:3002/scoreboard-elements">📋</button></div>
               <div class="obs-url-item"><span>VS Screen</span><code>localhost:3002/vs-screen</code><button class="btn-copy" data-url="http://localhost:3002/vs-screen">📋</button></div>
               <div class="obs-url-item"><span>Casters</span><code>localhost:3002/casters</code><button class="btn-copy" data-url="http://localhost:3002/casters">📋</button></div>
@@ -3137,7 +3214,7 @@
             </div>
             <div class="obs-url-col">
               <div class="obs-url-col-header obs-url-col-header--twitch">Twitch</div>
-              <div class="obs-url-item"><span>Layout</span><code>localhost:3002/twitch-layout</code><button class="btn-copy" data-url="http://localhost:3002/twitch-layout">📋</button></div>
+              <div class="obs-url-item"><span>Layout</span><code>localhost:3002/nextmatch</code><button class="btn-copy" data-url="http://localhost:3002/nextmatch">📋</button></div>
               <div class="obs-url-item"><span>Viewers</span><code>localhost:3002/twitch-viewer</code><button class="btn-copy" data-url="http://localhost:3002/twitch-viewer">📋</button></div>
               <div class="obs-url-item"><span>Alertes</span><code>localhost:3002/twitch-alerts</code><button class="btn-copy" data-url="http://localhost:3002/twitch-alerts">📋</button></div>
               <div class="obs-url-item"><span>Chat</span><code>localhost:3002/twitch-chat</code><button class="btn-copy" data-url="http://localhost:3002/twitch-chat">📋</button></div>
@@ -3428,89 +3505,6 @@
     <!-- Bloc config (connexion + recherche tournoi) — masqué après chargement -->
     <div id="sgg-setup-wrap">
 
-      <!-- Connexion start.gg -->
-      <section class="section">
-        <div class="section-header">
-          <h2 style="display:flex;align-items:center;gap:10px">
-            <svg style="width:20px;height:20px;color:#17B978;flex-shrink:0" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm0 2c4.418 0 8 3.582 8 8s-3.582 8-8 8-8-3.582-8-8 3.582-8 8-8zm-1 4v4H7l5 6 5-6h-4V8h-2z"/></svg>
-            Connexion start.gg
-          </h2>
-        </div>
-        <div id="conn-startgg-connected" class="custom-card" style="display:none;border-color:rgba(23,185,120,0.3);background:rgba(23,185,120,0.05)">
-          <div style="display:flex;align-items:center;gap:14px">
-            <svg style="width:36px;height:36px;color:#17B978;flex-shrink:0" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>
-            <div style="flex:1">
-              <div style="font-weight:700;font-size:15px;color:#5DEAB9">Clé API start.gg enregistrée</div>
-              <div style="display:flex;align-items:center;gap:6px;margin-top:5px">
-                <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#6BC96C"></span>
-                <span style="font-size:11px;font-weight:700;letter-spacing:1px;color:#6BC96C;text-transform:uppercase">Connecté</span>
-              </div>
-            </div>
-            <button class="btn btn-outline btn-sm" id="conn-startgg-remove" style="border-color:var(--danger);color:var(--danger);flex-shrink:0">Supprimer la clé</button>
-          </div>
-        </div>
-        <div id="conn-startgg-form">
-          <div class="custom-card" style="margin-bottom:0">
-            <h3 style="margin-bottom:14px;display:flex;align-items:center;gap:8px">
-              <span style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:#17B978;font-size:11px;font-weight:700;color:#fff;flex-shrink:0">?</span>
-              Comment créer une clé API start.gg
-            </h3>
-            <div class="conn-steps">
-              <div class="conn-step">
-                <div class="conn-step-num" style="background:#17B978">1</div>
-                <div class="conn-step-body">
-                  <div class="conn-step-title">Se connecter à start.gg</div>
-                  <p class="conn-step-desc">Va sur <a href="https://start.gg" target="_blank" class="conn-link" style="color:#17B978">start.gg ↗</a> et connecte-toi à ton compte (ou crée-en un gratuitement).</p>
-                </div>
-              </div>
-              <div class="conn-step">
-                <div class="conn-step-num" style="background:#17B978">2</div>
-                <div class="conn-step-body">
-                  <div class="conn-step-title">Ouvrir les paramètres développeur</div>
-                  <p class="conn-step-desc">Clique sur ton avatar → <strong>"Developer Settings"</strong>.<br>
-                  Accès direct : <a href="https://start.gg/admin/profile/developer" target="_blank" class="conn-link" style="color:#17B978">start.gg/admin/profile/developer ↗</a></p>
-                </div>
-              </div>
-              <div class="conn-step">
-                <div class="conn-step-num" style="background:#17B978">3</div>
-                <div class="conn-step-body">
-                  <div class="conn-step-title">Créer un token personnel</div>
-                  <p class="conn-step-desc">Dans <strong>"Personal Access Tokens"</strong>, clique <strong>"Create token"</strong>.</p>
-                  <div class="conn-tip conn-tip-warn"><span class="conn-tip-icon">⚠️</span> Le token n'est affiché <strong>qu'une seule fois</strong>. Copie-le immédiatement.</div>
-                </div>
-              </div>
-              <div class="conn-step">
-                <div class="conn-step-num" style="background:#17B978">4</div>
-                <div class="conn-step-body">
-                  <div class="conn-step-title">Coller le token ci-dessous</div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="custom-card" style="margin-top:12px">
-            <h3 style="margin-bottom:12px">Clé API (Personal Access Token)</h3>
-            <div class="form-group" style="margin-bottom:0">
-              <div style="display:flex;gap:8px">
-                <input type="password" id="conn-startgg-key" placeholder="••••••••••••••••••••••••••••••••" autocomplete="new-password" style="flex:1" />
-                <button class="btn btn-primary btn-sm" id="conn-startgg-save" style="background:#17B978;border-color:#17B978;white-space:nowrap">Enregistrer</button>
-              </div>
-              <p id="conn-startgg-status" style="font-size:11px;color:var(--text-muted);margin-top:8px;min-height:16px"></p>
-            </div>
-          </div>
-          <div class="conn-unlocks" style="border-color:rgba(23,185,120,0.2);background:rgba(23,185,120,0.04)">
-            <div class="conn-unlocks-title" style="color:#17B978">Ce que la connexion start.gg débloque</div>
-            <div class="conn-unlocks-grid">
-              <div class="conn-unlock-item"><span class="conn-unlock-icon">🏆</span><span>Recherche de tournois</span></div>
-              <div class="conn-unlock-item"><span class="conn-unlock-icon">👥</span><span>Liste des participants</span></div>
-              <div class="conn-unlock-item"><span class="conn-unlock-icon">🎮</span><span>Sets en cours</span></div>
-              <div class="conn-unlock-item"><span class="conn-unlock-icon">📊</span><span>Stats et historique joueur</span></div>
-              <div class="conn-unlock-item"><span class="conn-unlock-icon">🥇</span><span>Standings Top 8</span></div>
-              <div class="conn-unlock-item"><span class="conn-unlock-icon">📺</span><span>Bracket en overlay</span></div>
-            </div>
-          </div>
-        </div>
-      </section>
-
       <!-- Recherche tournoi -->
       <section class="section">
         <div class="section-header"><h2>Tournoi</h2></div>
@@ -3793,6 +3787,40 @@
             <button class="btn btn-primary" id="h2h-show-btn" style="flex:1" disabled>Afficher</button>
             <button class="btn btn-outline" id="h2h-hide-btn" style="flex:1">Masquer</button>
           </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ── Prochains matchs ────────────────────────────────── -->
+    <section class="section" style="margin-top:20px">
+      <div class="section-header">
+        <h2>Prochains matchs · Overlay stream queue</h2>
+      </div>
+      <div class="custom-card" style="display:flex;flex-direction:column;gap:12px">
+
+        <div class="ctrl-row" style="gap:10px;flex-wrap:wrap">
+          <label class="ctrl-label" style="white-space:nowrap">Slug tournoi</label>
+          <input type="text" id="upcoming-slug" class="input-name"
+                 placeholder="tournament/example" style="flex:1;min-width:180px" />
+          <label class="ctrl-label" style="white-space:nowrap">Filtre stream</label>
+          <input type="text" id="upcoming-stream" class="input-name"
+                 placeholder="Nom du stream (optionnel)" style="width:180px" />
+        </div>
+
+        <div class="ctrl-row" style="gap:10px;align-items:center">
+          <label class="ctrl-label" style="white-space:nowrap">Matchs affichés</label>
+          <input type="range" id="upcoming-max" min="1" max="10" value="6" style="flex:1" />
+          <span id="upcoming-max-val" class="num-display" style="min-width:24px">6</span>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <button class="btn btn-primary" id="upcoming-refresh-btn">↻ Actualiser</button>
+          <span id="upcoming-status" style="font-size:11px;color:var(--text-muted)"></span>
+          <span style="flex:1"></span>
+          <span style="font-size:11px;color:var(--text-muted)">URL OBS :</span>
+          <code style="font-size:11px;background:var(--surface-2);padding:2px 8px;border-radius:3px">localhost:3002/upcoming</code>
+          <button class="btn-copy btn" data-url="http://localhost:3002/upcoming">📋</button>
         </div>
 
       </div>
@@ -5677,6 +5705,142 @@
 
     </section>
   </div><!-- /tab-overlayip -->
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- TAB : NOTES INTERNES                                        -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <div class="tab-content" id="tab-notes">
+    <div class="notes-panel">
+
+      <!-- Rédaction -->
+      <div class="notes-compose-bar">
+        <div class="notes-meta-row">
+          <input id="notes-author" class="notes-author-input" placeholder="Votre nom…" maxlength="40">
+          <select id="notes-tag" class="notes-tag-select">
+            <option value="info">ℹ Info</option>
+            <option value="warn">⚠ Attention</option>
+            <option value="urgent">🔴 Urgent</option>
+          </select>
+        </div>
+        <div class="notes-input-row">
+          <textarea id="notes-input" class="notes-textarea" placeholder="Écrire une note… (Ctrl+Entrée pour envoyer)" rows="3" maxlength="500"></textarea>
+          <button id="notes-send-btn" class="btn btn-primary notes-send-btn">Envoyer</button>
+        </div>
+      </div>
+
+      <!-- Barre d'outils -->
+      <div class="notes-toolbar">
+        <span class="notes-count"><span id="notes-count">0</span> note(s)</span>
+        <a href="/notes" target="_blank" class="btn btn-outline btn-sm">🔗 Ouvrir page casteurs</a>
+        <button id="notes-clear-btn" class="btn btn-danger btn-sm">Tout effacer</button>
+      </div>
+
+      <!-- Liste -->
+      <div id="notes-list" class="notes-list"></div>
+
+    </div>
+  </div><!-- /tab-notes -->
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!--  STINGER                                                   -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <div class="tab-content" id="tab-stinger">
+    <div class="section-title">Transition Stinger</div>
+    <div class="stinger-layout">
+
+      <!-- Prévisualisation -->
+      <div class="stinger-preview-col">
+        <div class="stinger-preview-label">Prévisualisation</div>
+        <div class="stinger-preview-wrap" id="stinger-preview-wrap">
+          <iframe id="stinger-preview-iframe"
+                  src="/stinger?preview=1"
+                  scrolling="no"
+                  frameborder="0"></iframe>
+        </div>
+        <div class="stinger-url-row">
+          <span>URL OBS :</span>
+          <code>localhost:3002/stinger</code>
+          <button class="btn-copy btn" data-url="http://localhost:3002/stinger">📋</button>
+        </div>
+      </div>
+
+      <!-- Configuration -->
+      <div class="stinger-config-col">
+
+        <div class="tile">
+          <div class="tile-title">Style</div>
+          <div class="radio-group" id="stinger-style-group">
+            <label class="radio-opt">
+              <input type="radio" name="stinger-style" value="bars-h" checked />
+              Barres horizontales
+            </label>
+            <label class="radio-opt">
+              <input type="radio" name="stinger-style" value="bars-v" />
+              Barres verticales
+            </label>
+            <label class="radio-opt">
+              <input type="radio" name="stinger-style" value="flash" />
+              Flash
+            </label>
+          </div>
+        </div>
+
+        <div class="tile" id="stinger-bars-tile">
+          <div class="tile-title">Nombre de barres</div>
+          <div class="ctrl-row-inline">
+            <input type="range" id="stinger-bars" min="2" max="16" value="8" />
+            <span id="stinger-bars-val" class="num-display">8</span>
+          </div>
+        </div>
+
+        <div class="tile">
+          <div class="tile-title">Vitesse</div>
+          <div class="radio-group" id="stinger-speed-group">
+            <label class="radio-opt">
+              <input type="radio" name="stinger-speed" value="slow" />
+              Lent
+            </label>
+            <label class="radio-opt">
+              <input type="radio" name="stinger-speed" value="normal" checked />
+              Normal
+            </label>
+            <label class="radio-opt">
+              <input type="radio" name="stinger-speed" value="fast" />
+              Rapide
+            </label>
+          </div>
+        </div>
+
+        <div class="tile">
+          <div class="tile-title">Logo (découpé par les lames)</div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div class="stinger-logo-default-row" id="stinger-logo-default-row">
+              <span style="font-size:11px;color:var(--text-muted)">Logo du tournoi :</span>
+              <span id="stinger-logo-tournament-name" style="font-size:11px;color:var(--gold);font-weight:600">Aucun</span>
+            </div>
+            <label class="checkbox-label" style="font-size:12px;cursor:pointer;display:flex;align-items:center;gap:6px">
+              <input type="checkbox" id="stinger-logo-override" style="accent-color:var(--accent);cursor:pointer" />
+              Ignorer le logo de base
+            </label>
+            <div id="stinger-logo-custom-row" style="display:none;flex-direction:column;gap:6px">
+              <input type="url" id="stinger-logo-url" class="input-name"
+                     placeholder="URL d'un autre logo (PNG transparent)" />
+            </div>
+            <div class="ctrl-row-inline" id="stinger-logo-size-row">
+              <label style="font-size:11px;color:var(--text-muted);white-space:nowrap;flex-shrink:0">Hauteur</label>
+              <input type="range" id="stinger-logo-size" min="40" max="600" value="200" step="10" style="flex:1" />
+              <span id="stinger-logo-size-val" class="num-display" style="min-width:42px">200 px</span>
+            </div>
+          </div>
+        </div>
+
+        <button id="stinger-trigger-btn" class="btn btn-primary stinger-trigger-btn">
+          🎬 Déclencher
+        </button>
+
+      </div>
+    </div>
+  </div><!-- /tab-stinger -->
 
 
   <footer class="footer">

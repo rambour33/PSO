@@ -34,34 +34,6 @@
     return raw;
   }
 
-  // ── API Key ──────────────────────────────────────────────────────────────────
-
-  async function loadKeyStatus() {
-    const res = await fetch('/api/startgg/config');
-    const data = await res.json();
-    ['sgg-key-status', 'match-sgg-key-status'].forEach(id => {
-      const hint = document.getElementById(id);
-      if (!hint) return;
-      if (data.hasKey) { hint.textContent = '✓ Clé API enregistrée'; hint.style.color = '#4caf50'; }
-      else             { hint.textContent = 'Aucune clé API enregistrée.'; hint.style.color = '#e05050'; }
-    });
-  }
-
-  async function saveApiKey(inputId) {
-    const key = document.getElementById(inputId)?.value.trim();
-    if (!key) return;
-    await fetch('/api/startgg/config', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ apiKey: key })
-    });
-    document.getElementById(inputId).value = '';
-    await loadKeyStatus();
-    showStatus('Clé API start.gg enregistrée');
-  }
-
-  document.getElementById('sgg-save-key')?.addEventListener('click', () => saveApiKey('sgg-api-key'));
-  document.getElementById('match-sgg-save-key')?.addEventListener('click', () => saveApiKey('match-sgg-api-key'));
-
   // ── Tournament Search ─────────────────────────────────────────────────────────
 
   async function searchTournament(slugInputId, infoId, nameId, selectId) {
@@ -846,8 +818,6 @@
   }
 
   // ── Init ──────────────────────────────────────────────────────────────────────
-
-  loadKeyStatus();
 
   // Exposer le eventId courant pour le bracket
   window.onStartggEventLoaded = function(evId) {

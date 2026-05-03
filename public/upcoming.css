@@ -1,0 +1,250 @@
+@import url('https://fonts.googleapis.com/css2?family=Russo+One&family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  --uc-primary: #E8B830;
+  --uc-glow:    rgba(232,184,48,0.40);
+  --uc-bg:      rgba(14,14,18,0.90);
+  --uc-accent:  #D4001A;
+  --uc-text:    #F0EEF8;
+  --uc-muted:   #5A5A7A;
+  --uc-border:  rgba(255,255,255,0.07);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: transparent;
+  width: 1920px;
+  height: 1080px;
+  overflow: hidden;
+  font-family: 'Inter', sans-serif;
+}
+
+/* ── Conteneur ───────────────────────────────────────────── */
+#upcoming-root {
+  position: absolute;
+  bottom: 22px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 1440px;
+  background: var(--uc-bg);
+  border: 1px solid var(--uc-border);
+  border-top: 2px solid var(--uc-primary);
+  box-shadow:
+    0 0 40px rgba(0,0,0,0.6),
+    0 -4px 28px var(--uc-glow),
+    inset 0 0 60px rgba(0,0,0,0.2);
+  overflow: hidden;
+  transition: opacity 0.4s, border-color 0.5s, box-shadow 0.5s;
+  clip-path: polygon(8px 0%, calc(100% - 8px) 0%, 100% 8px, 100% 100%, 0% 100%, 0% 8px);
+}
+
+#upcoming-root.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ── En-tête ─────────────────────────────────────────────── */
+.uc-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 7px 18px;
+  background: linear-gradient(90deg, rgba(255,255,255,0.04) 0%, transparent 100%);
+  border-bottom: 1px solid var(--uc-border);
+}
+
+.uc-title {
+  font-family: 'Russo One', sans-serif;
+  font-size: 10px;
+  letter-spacing: 3.5px;
+  color: var(--uc-primary);
+  text-shadow: 0 0 10px var(--uc-glow);
+  text-transform: uppercase;
+  transition: color 0.5s, text-shadow 0.5s;
+}
+
+.uc-count {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  color: var(--uc-muted);
+  text-transform: uppercase;
+}
+
+/* ── État vide ───────────────────────────────────────────── */
+.uc-empty {
+  padding: 16px 18px;
+  font-size: 12px;
+  color: var(--uc-muted);
+  text-align: center;
+}
+
+/* ── Liste ───────────────────────────────────────────────── */
+.uc-list {
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Ligne match ─────────────────────────────────────────── */
+.uc-row {
+  display: grid;
+  /* index | round | [p1-seed p1-tag] | vs | [p2-tag p2-seed] | bo */
+  grid-template-columns: 36px 180px 1fr 52px 1fr 52px;
+  align-items: stretch;
+  min-height: 54px;
+  border-bottom: 1px solid var(--uc-border);
+  transition: background 0.3s;
+}
+
+.uc-row:last-child { border-bottom: none; }
+
+.uc-row.next-up {
+  background: linear-gradient(90deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 100%);
+}
+
+/* Cellule : index (n° de position) */
+.uc-index {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Russo One', sans-serif;
+  font-size: 13px;
+  color: var(--uc-muted);
+  background: rgba(255,255,255,0.03);
+  border-right: 1px solid var(--uc-border);
+  transition: background 0.3s, color 0.3s;
+}
+
+.uc-row.next-up .uc-index {
+  background: var(--uc-primary);
+  color: #0A0A0E;
+}
+
+/* Cellule : round */
+.uc-round {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0 14px;
+  border-right: 1px solid var(--uc-border);
+  min-width: 0;
+}
+
+.uc-round-name {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--uc-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: color 0.3s;
+}
+
+.uc-row.next-up .uc-round-name { color: var(--uc-primary); }
+
+.uc-phase-name {
+  font-size: 9px;
+  color: var(--uc-muted);
+  opacity: 0.7;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 2px;
+}
+
+.uc-phase-name:empty { display: none; }
+
+/* Cellule : joueur */
+.uc-player {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 8px 16px;
+  min-width: 0;
+  gap: 2px;
+}
+
+.uc-player-right {
+  align-items: flex-end;
+  text-align: right;
+}
+
+.uc-player-top {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.uc-player-right .uc-player-top { flex-direction: row-reverse; }
+
+.uc-tag {
+  font-family: 'Russo One', sans-serif;
+  font-size: 16px;
+  color: rgba(240,238,248,0.75);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  letter-spacing: 0.5px;
+  transition: color 0.3s;
+}
+
+.uc-row.next-up .uc-tag { color: var(--uc-text); }
+
+.uc-seed {
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--uc-muted);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.uc-seed:empty { display: none; }
+
+.uc-prefix {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--uc-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.uc-prefix:empty { display: none; }
+
+/* Cellule : VS */
+.uc-vs {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Russo One', sans-serif;
+  font-size: 14px;
+  color: var(--uc-primary);
+  text-shadow: 0 0 10px var(--uc-glow);
+  transition: color 0.5s, text-shadow 0.5s;
+  border-left: 1px solid var(--uc-border);
+  border-right: 1px solid var(--uc-border);
+}
+
+/* Cellule : BO */
+.uc-bo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--uc-muted);
+  letter-spacing: 0.5px;
+  border-left: 1px solid var(--uc-border);
+  padding: 0 6px;
+}
+
+.uc-bo:empty { display: none; }
+
+/* ── Lueur ambiante (next-up row) ────────────────────────── */
+.uc-row.next-up .uc-vs {
+  color: var(--uc-accent);
+  text-shadow: 0 0 12px var(--uc-accent);
+}

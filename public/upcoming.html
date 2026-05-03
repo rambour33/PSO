@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PSO – Prochains Matchs</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Russo+One&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="upcoming.css" />
+  <link rel="stylesheet" href="/pso-transition.css" />
+</head>
+<body>
+
+<div id="upcoming-root" class="pso-surface">
+
+  <div class="uc-header">
+    <span class="uc-title">PROCHAINS MATCHS</span>
+    <span class="uc-count" id="uc-count"></span>
+  </div>
+
+  <div id="uc-list" class="uc-list">
+    <div class="uc-empty" id="uc-empty">Aucun match en attente</div>
+  </div>
+
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="upcoming.js"></script>
+<script>window.PSO_T = { id: 'upcoming', root: '#upcoming-root' };</script>
+<script src="/pso-transition.js"></script>
+</body>
+</html>

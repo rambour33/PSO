@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Notes Régie — PSO</title>
+  <link rel="stylesheet" href="notes.css">
+</head>
+<body>
+
+  <header class="n-header">
+    <span class="n-title">📋 Notes Régie</span>
+    <div class="n-status">
+      <span id="conn-dot" class="conn-dot"></span>
+      <span id="conn-label">Connexion…</span>
+    </div>
+  </header>
+
+  <div class="n-compose">
+    <div class="n-meta-row">
+      <input id="notes-author" class="n-author-input" placeholder="Votre nom…" maxlength="40" autocomplete="off">
+      <select id="notes-tag" class="n-tag-select">
+        <option value="info">ℹ Info</option>
+        <option value="warn">⚠ Attention</option>
+        <option value="urgent">🔴 Urgent</option>
+      </select>
+    </div>
+    <div class="n-input-row">
+      <textarea id="notes-input" class="n-textarea" placeholder="Écrire une note… (Ctrl+Entrée pour envoyer)" rows="3" maxlength="500"></textarea>
+      <button id="notes-send-btn" class="n-send-btn">Envoyer</button>
+    </div>
+  </div>
+
+  <div class="n-toolbar">
+    <span class="n-count"><span id="notes-count">0</span> note(s)</span>
+    <a href="/control" class="n-link">⬅ Panneau régie</a>
+  </div>
+
+  <div id="notes-list" class="n-list"></div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="notes.js"></script>
+</body>
+</html>

@@ -1,0 +1,112 @@
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --st-primary: #E8B830;
+  --st-glow:    rgba(232,184,48,0.55);
+  --st-accent:  #D4001A;
+  --st-bg:      rgba(14,14,18,0.95);
+}
+
+body {
+  background: transparent;
+  width: 1920px;
+  height: 1080px;
+  overflow: hidden;
+}
+
+#stinger-root {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* ── Barres ───────────────────────────────────────────────────── */
+#stinger-bars {
+  position: absolute;
+  inset: 0;
+}
+
+.st-bar {
+  position: absolute;
+  left: -8%;
+  right: -8%;
+  background: var(--st-primary);
+  box-shadow:
+    inset 0  1px 0 rgba(255,255,255,0.18),
+    inset 0 -1px 0 rgba(0,0,0,0.20),
+    inset -40px 0 60px rgba(0,0,0,0.15);
+  will-change: transform;
+}
+
+/* Séparateur entre barres */
+.st-bar::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: rgba(255,255,255,0.12);
+}
+
+/* Bande accent sur le bord avant (droit pour sweep gauche→droite) */
+.st-bar::after {
+  content: '';
+  position: absolute;
+  right: 6%;
+  top: 0; bottom: 0;
+  width: 5px;
+  background: var(--st-accent);
+  box-shadow: 0 0 18px var(--st-accent), 0 0 40px var(--st-accent);
+  opacity: 0.95;
+}
+
+/* ── Flash ────────────────────────────────────────────────────── */
+#stinger-flash {
+  position: absolute;
+  inset: 0;
+  background: var(--st-primary);
+  opacity: 0;
+  will-change: opacity;
+}
+
+/* ── Thèmes spéciaux ──────────────────────────────────────────── */
+
+/* Cyberpunk : scanlines sur les barres */
+#stinger-root.theme-cyberpunk .st-bar::before {
+  height: 100%;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent 0px, transparent 3px,
+    rgba(0,245,255,0.08) 3px, rgba(0,245,255,0.08) 4px
+  );
+  z-index: 1;
+}
+
+/* Synthwave : lueur pulsante */
+@keyframes sw-sting-pulse {
+  0%, 100% { box-shadow: inset 0 1px 0 rgba(255,255,255,0.18), inset 0 -1px 0 rgba(0,0,0,0.2), inset -40px 0 60px rgba(0,0,0,0.15); }
+  50%       { box-shadow: inset 0 1px 0 rgba(255,255,255,0.25), inset 0 -1px 0 rgba(0,0,0,0.2), inset -40px 0 80px var(--st-glow); }
+}
+#stinger-root.theme-synthwave .st-bar {
+  animation: sw-sting-pulse 0.6s ease-in-out infinite;
+}
+
+/* Fire : dégradé flamme */
+#stinger-root.theme-fire .st-bar {
+  background: linear-gradient(90deg, #FFD700 0%, #FF6B00 50%, #CC2200 100%);
+}
+
+/* Water : reflet liquide */
+#stinger-root.theme-water .st-bar {
+  background: linear-gradient(90deg, #0288D1 0%, #29B6F6 50%, #81D4FA 100%);
+}
+
+/* Eco : vert feuille */
+#stinger-root.theme-eco .st-bar {
+  background: linear-gradient(90deg, #2E7D32 0%, #6BC96C 50%, #A5D6A7 100%);
+}
+
+/* Midnight : bleu nuit avec reflet */
+#stinger-root.theme-midnight .st-bar {
+  background: linear-gradient(90deg, #1A237E 0%, #4488FF 60%, #90CAF9 100%);
+}

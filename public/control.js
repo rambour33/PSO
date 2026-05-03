@@ -1644,12 +1644,27 @@ document.getElementById('tab-select-mobile')?.addEventListener('change', functio
 
 // ── Sous-navigation Match ──────────────────────────────────────
 
-document.querySelectorAll('.match-subnav-btn').forEach(btn => {
+// Nav SSBU Overlays : groupes repliables + navigation sous-panneaux
+document.querySelectorAll('.match-subnav .match-subpanel-btn').forEach(btn => {
   btn.addEventListener('click', () => {
-    document.querySelectorAll('.match-subnav-btn').forEach(b => b.classList.remove('active'));
-    document.querySelectorAll('.match-panel').forEach(p => p.classList.remove('active'));
+    const isSection = btn.classList.contains('match-nav-section');
+
+    if (isSection) {
+      // Activer ce groupe, fermer les autres
+      document.querySelectorAll('.match-subnav .match-nav-group').forEach(g => g.classList.remove('active'));
+      btn.closest('.match-nav-group').classList.add('active');
+    }
+
+    // Mettre à jour le sous-panneau affiché
+    document.querySelectorAll('.match-subnav .match-subpanel-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('#tab-match .match-subpanel').forEach(p => p.classList.remove('active'));
     btn.classList.add('active');
-    document.getElementById(btn.dataset.panel)?.classList.add('active');
+    const target = document.getElementById(btn.dataset.subpanel);
+    if (target) {
+      target.classList.add('active');
+      // scalePreviewWrap est dans un scope interne — on déclenche resize pour recalculer
+      setTimeout(() => window.dispatchEvent(new Event('resize')), 0);
+    }
   });
 });
 
@@ -2073,14 +2088,15 @@ document.getElementById('btn-vs-hide')?.addEventListener('click', () => {
   scaleAllPreviews();
   window.addEventListener('resize', scaleAllPreviews);
 
-  // Sous-panneaux match (Scoreboard/Casters/Veto/Ruleset)
-  document.querySelectorAll('.match-subpanel-btn').forEach(btn => {
+  // Sous-panneaux dans les autres onglets (ex: Diffusions)
+  document.querySelectorAll('.match-subpanel-nav .match-subpanel-btn').forEach(btn => {
     btn.addEventListener('click', () => {
-      const panel = btn.closest('.match-panel, .tab-content');
-      panel.querySelectorAll('.match-subpanel-btn').forEach(b => b.classList.remove('active'));
-      panel.querySelectorAll('.match-subpanel').forEach(p => p.classList.remove('active'));
+      const nav = btn.closest('.match-subpanel-nav');
+      const container = nav.parentElement;
+      nav.querySelectorAll('.match-subpanel-btn').forEach(b => b.classList.remove('active'));
+      container.querySelectorAll('.match-subpanel').forEach(p => p.classList.remove('active'));
       btn.classList.add('active');
-      const target = panel.querySelector('#' + btn.dataset.subpanel);
+      const target = container.querySelector('#' + btn.dataset.subpanel);
       if (target) {
         target.classList.add('active');
         target.querySelectorAll('.overlay-preview-wrap').forEach(scalePreviewWrap);
@@ -4253,7 +4269,7 @@ document.getElementById('btn-copy-twitch-url')?.addEventListener('click', () => 
 // Mettre à jour l'URL avec le bon host/port au chargement
 (function () {
   const input = document.getElementById('twitch-layout-url');
-  if (input) input.value = window.location.origin + '/twitch-layout';
+  if (input) input.value = window.location.origin + '/nextmatch';
 })();
 
 // Sliders du cadre (coin size, épaisseur, opacité bg) → injectés via postMessage dans l'iframe
@@ -5448,7 +5464,6 @@ document.getElementById('btn-copy-cam-url')?.addEventListener('click', () => {
 const LAYER_COLORS = {
   // Scoreboard
   'overlay':             '#E8B830',
-  'overlay-slim':        '#F0C840',
   'scoreboard-elements': '#C8A020',
   // Casters
   'casters':             '#FF6EC7',
@@ -5468,7 +5483,7 @@ const LAYER_COLORS = {
   'top8':                '#8A2BE2',
   'timer':               '#00CED1',
   // Twitch
-  'twitch-layout':       '#FF8C00',
+  'nextmatch':           '#FF8C00',
   'twitch-viewer':       '#9B59D0',
   'twitch-chat':         '#B065E8',
   'twitch-alerts':       '#FF6347',
@@ -7280,51 +7295,7 @@ document.getElementById('btn-youtube-disconnect')?.addEventListener('click', () 
     .catch(() => {});
 });
 
-// ── start.gg clé API ─────────────────────────────────────────────────────────
-
-function applyStartggKeyStatus({ hasKey }) {
-  const connected = document.getElementById('conn-startgg-connected');
-  const form      = document.getElementById('conn-startgg-form');
-  if (!connected || !form) return;
-  connected.style.display = hasKey ? '' : 'none';
-  form.style.display      = hasKey ? 'none' : '';
-}
-
-fetch('/api/startgg/config').then(r => r.json()).then(applyStartggKeyStatus).catch(() => {});
-
-document.getElementById('conn-startgg-save')?.addEventListener('click', () => {
-  const key    = document.getElementById('conn-startgg-key')?.value.trim();
-  const status = document.getElementById('conn-startgg-status');
-  if (!key) return;
-  fetch('/api/startgg/config', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ apiKey: key })
-  })
-    .then(r => r.json())
-    .then(() => {
-      document.getElementById('conn-startgg-key').value = '';
-      applyStartggKeyStatus({ hasKey: true });
-      // Sync avec l'onglet start.gg
-      const sggStatus = document.getElementById('sgg-key-status');
-      if (sggStatus) { sggStatus.textContent = '✓ Clé API enregistrée'; sggStatus.style.color = '#4caf50'; }
-    })
-    .catch(() => { if (status) status.textContent = 'Erreur lors de l\'enregistrement.'; });
-});
-
-document.getElementById('conn-startgg-remove')?.addEventListener('click', () => {
-  fetch('/api/startgg/config', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ apiKey: '' })
-  })
-    .then(() => {
-      applyStartggKeyStatus({ hasKey: false });
-      const sggStatus = document.getElementById('sgg-key-status');
-      if (sggStatus) { sggStatus.textContent = 'Aucune clé API enregistrée.'; sggStatus.style.color = '#e05050'; }
-    })
-    .catch(() => {});
-});
+function applyStartggKeyStatus() {} // conservé pour compatibilité avec le setup modal
 
 // Boutons "Copier" dans les tutos
 document.querySelectorAll('.conn-copy-btn').forEach(btn => {
@@ -10379,7 +10350,6 @@ socket.on('stateUpdate', (s) => {
 (function () {
   const ANIM_OVERLAYS = [
     { id: 'scoreboard',          label: 'Scoreboard'         },
-    { id: 'scoreboard-slim',     label: 'Scoreboard Slim'    },
     { id: 'scoreboard-elements', label: 'Éléments Scoreboard'},
     { id: 'casters',             label: 'Commentateurs'      },
     { id: 'stageveto',           label: 'Stage Veto'         },
@@ -10393,7 +10363,7 @@ socket.on('stateUpdate', (s) => {
     { id: 'bracket',             label: 'Bracket'            },
     { id: 'top8',                label: 'Top 8'              },
     { id: 'timer',               label: 'Minuteur'           },
-    { id: 'twitch-layout',       label: 'Next Match'         },
+    { id: 'nextmatch',           label: 'Next Match'         },
     { id: 'twitch-chat',         label: 'Chat Twitch'        },
     { id: 'twitch-viewer',       label: 'Viewers Twitch'     },
     { id: 'youtube-chat',        label: 'Chat YouTube'       },
@@ -10915,4 +10885,561 @@ socket.on('stateUpdate', (s) => {
   })();
 
 
+})();
+
+
+// ══════════════════════════════════════════════════════════════
+// MODE RÉGIE
+// ══════════════════════════════════════════════════════════════
+
+(function () {
+  const KEY = 'pso_regie_mode';
+
+  // Onglets visibles en mode régie
+  const REGIE_TABS    = ['match', 'startgg', 'studio'];
+  // Sous-panneaux à masquer (config/builder/preview)
+  const HIDE_SUBPANEL = ['-custom', '-builder', '-preview'];
+
+  const toggleBtn = document.getElementById('btn-toggle-regie');
+
+  // ── Overlay bar ───────────────────────────────────────────────
+  const OVERLAYS = [
+    { id: 'scoreboard',      label: 'Scoreboard'  },
+    { id: 'cam',             label: 'Cam'         },
+    { id: 'ticker',          label: 'Ticker'      },
+    { id: 'casters',         label: 'Casters'     },
+    { id: 'h2h',             label: 'H2H'         },
+    { id: 'stageveto',       label: 'Veto'        },
+    { id: 'timer',           label: 'Timer'       },
+    { id: 'frames',          label: 'Frames'      },
+    { id: 'stream-title',    label: 'Titre'       },
+    { id: 'bracket',         label: 'Bracket'     },
+    { id: 'top8',            label: 'Top 8'       },
+    { id: 'player-stats',    label: 'Stats'       },
+    { id: 'tournament-history', label: 'Historique' },
+    { id: 'twitch-chat',     label: 'TW Chat'     },
+    { id: 'twitch-viewer',   label: 'TW Viewers'  },
+    { id: 'youtube-chat',    label: 'YT Chat'     },
+    { id: 'combined-chat',   label: 'Chat Comb.'  },
+  ];
+  let ovState = {};
+
+  function buildOverlayBar() {
+    const wrap = document.getElementById('regie-bar-btns');
+    if (!wrap || wrap.dataset.built) return;
+    wrap.dataset.built = '1';
+    wrap.innerHTML = OVERLAYS.map(o =>
+      `<button class="regie-ov-btn" data-ov="${o.id}">${o.label}</button>`
+    ).join('');
+    wrap.querySelectorAll('.regie-ov-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        fetch(`/api/deck/${btn.dataset.ov}/toggle`).catch(() => {});
+      });
+    });
+    fetch('/api/deck').then(r => r.json()).then(d => {
+      d.overlays.forEach(o => { ovState[o.id] = o.visible; });
+      refreshOverlayBar();
+    }).catch(() => {});
+  }
+
+  function refreshOverlayBar() {
+    document.querySelectorAll('#regie-bar-btns .regie-ov-btn').forEach(btn => {
+      btn.classList.toggle('on', !!ovState[btn.dataset.ov]);
+    });
+  }
+
+  // ── Appliquer le mode ─────────────────────────────────────────
+  function setRegieMode(active) {
+    localStorage.setItem(KEY, active ? '1' : '0');
+    document.body.classList.toggle('regie-mode', active);
+    toggleBtn.textContent = active ? '⚙ Mode Config' : '🎬 Mode Régie';
+    toggleBtn.classList.toggle('regie-active', active);
+    const bar = document.getElementById('regie-overlay-bar');
+    if (bar) bar.style.display = active ? 'flex' : 'none';
+
+    if (active) {
+      buildOverlayBar();
+      // Forcer l'onglet match actif
+      if (!document.querySelector('.tab-btn.active[data-tab=match]') &&
+          !document.querySelector('.tab-btn.active[data-tab=startgg]') &&
+          !document.querySelector('.tab-btn.active[data-tab=studio]')) {
+        document.querySelector('.tab-btn[data-tab=match]')?.click();
+      }
+      // Si un sous-panneau config est actif, revenir au premier visible
+      const activeSubBtn = document.querySelector('.match-subnav .match-subpanel-btn.active');
+      if (activeSubBtn && HIDE_SUBPANEL.some(s => activeSubBtn.dataset.subpanel?.includes(s))) {
+        document.querySelector('.match-subnav .match-subpanel-btn:not([style*="display: none"])')?.click();
+      }
+    }
+  }
+
+  toggleBtn?.addEventListener('click', () => {
+    setRegieMode(localStorage.getItem(KEY) !== '1');
+  });
+
+  // ── Socket — mise à jour états overlays ───────────────────────
+  socket.on('transitionsUpdate', data => {
+    Object.keys(data).forEach(k => { ovState[k] = data[k].visible; });
+    refreshOverlayBar();
+  });
+  socket.on('overlayShow', ({ id }) => { ovState[id] = true;  refreshOverlayBar(); });
+  socket.on('overlayHide', ({ id }) => { ovState[id] = false; refreshOverlayBar(); });
+
+  // ── Init ──────────────────────────────────────────────────────
+  if (localStorage.getItem(KEY) === '1') setRegieMode(true);
+
+})();
+
+// ── NOTES INTERNES ────────────────────────────────────────────────────────────
+(function () {
+  const AUTHOR_KEY = 'pso_notes_author';
+
+  const authorInput = document.getElementById('notes-author');
+  const tagSelect   = document.getElementById('notes-tag');
+  const textarea    = document.getElementById('notes-input');
+  const sendBtn     = document.getElementById('notes-send-btn');
+  const clearBtn    = document.getElementById('notes-clear-btn');
+  const listEl      = document.getElementById('notes-list');
+  const countEl     = document.getElementById('notes-count');
+  if (!authorInput) return;
+
+  authorInput.value = localStorage.getItem(AUTHOR_KEY) || '';
+  authorInput.addEventListener('change', () => {
+    localStorage.setItem(AUTHOR_KEY, authorInput.value.trim());
+  });
+
+  function fmt(ts) {
+    return new Date(ts).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  }
+
+  function renderNotes(notes) {
+    if (countEl) countEl.textContent = notes.length;
+    listEl.innerHTML = notes.map(n => `
+      <div class="note-item note-${n.tag}">
+        <div class="note-header">
+          <span class="note-author">${n.author}</span>
+          <span class="note-time">${fmt(n.ts)}</span>
+          <button class="note-del-btn" data-id="${n.id}" title="Supprimer">✕</button>
+        </div>
+        <div class="note-text">${n.text.replace(/</g, '&lt;').replace(/\n/g, '<br>')}</div>
+      </div>`).join('');
+    listEl.querySelectorAll('.note-del-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        fetch('/api/notes/' + btn.dataset.id, { method: 'DELETE' }).catch(() => {});
+      });
+    });
+  }
+
+  function sendNote() {
+    const text = textarea.value.trim();
+    if (!text) return;
+    const author = authorInput.value.trim() || 'Régie';
+    localStorage.setItem(AUTHOR_KEY, author);
+    authorInput.value = author;
+    fetch('/api/notes', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ author, text, tag: tagSelect.value }),
+    }).then(() => { textarea.value = ''; textarea.focus(); }).catch(() => {});
+  }
+
+  sendBtn.addEventListener('click', sendNote);
+  textarea.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); sendNote(); }
+  });
+  clearBtn.addEventListener('click', () => {
+    if (confirm('Effacer toutes les notes ?'))
+      fetch('/api/notes/all', { method: 'DELETE' }).catch(() => {});
+  });
+
+  fetch('/api/notes').then(r => r.json()).then(renderNotes).catch(() => {});
+  socket.on('notesUpdate', renderNotes);
+})();
+
+// ═══════════════════════════════════════════════════════════════
+// STINGER
+// ═══════════════════════════════════════════════════════════════
+(function () {
+  const triggerBtn         = document.getElementById('stinger-trigger-btn');
+  if (!triggerBtn) return;
+
+  const barsSlider         = document.getElementById('stinger-bars');
+  const barsVal            = document.getElementById('stinger-bars-val');
+  const barsTile           = document.getElementById('stinger-bars-tile');
+  const styleGroup         = document.getElementById('stinger-style-group');
+  const speedGroup         = document.getElementById('stinger-speed-group');
+  const logoOverrideChk    = document.getElementById('stinger-logo-override');
+  const logoCustomRow      = document.getElementById('stinger-logo-custom-row');
+  const logoUrlInput       = document.getElementById('stinger-logo-url');
+  const logoTournamentName = document.getElementById('stinger-logo-tournament-name');
+  const logoSizeSlider     = document.getElementById('stinger-logo-size');
+  const logoSizeVal        = document.getElementById('stinger-logo-size-val');
+  const previewWrap        = document.getElementById('stinger-preview-wrap');
+  const previewIframe      = document.getElementById('stinger-preview-iframe');
+
+  /* ── Échelle iframe preview ── */
+  function scalePreview() {
+    if (!previewWrap || !previewIframe) return;
+    const scale = previewWrap.offsetWidth / 1920;
+    previewIframe.style.transform = `scale(${scale})`;
+    previewWrap.style.height = (1080 * scale) + 'px';
+  }
+  window.addEventListener('resize', scalePreview);
+  if (previewWrap) new ResizeObserver(scalePreview).observe(previewWrap);
+  scalePreview();
+
+  /* ── Helpers ── */
+  function getStyleVal() {
+    const checked = styleGroup.querySelector('input[name="stinger-style"]:checked');
+    return checked ? checked.value : 'bars-h';
+  }
+  function getSpeedVal() {
+    const checked = speedGroup.querySelector('input[name="stinger-speed"]:checked');
+    return checked ? checked.value : 'normal';
+  }
+  function toggleBarsTile() {
+    if (barsTile) barsTile.style.display = getStyleVal() === 'flash' ? 'none' : '';
+  }
+
+  function updateLogoUI(tournamentLogoUrl) {
+    const override = logoOverrideChk ? logoOverrideChk.checked : false;
+    if (logoCustomRow) logoCustomRow.style.display = override ? 'flex' : 'none';
+    if (logoTournamentName) {
+      const url = tournamentLogoUrl || _tournamentLogoUrl;
+      if (url) {
+        const short = url.split('/').pop().split('?')[0].slice(0, 30);
+        logoTournamentName.textContent = short || 'Chargé';
+      } else {
+        logoTournamentName.textContent = 'Aucun';
+      }
+    }
+  }
+
+  let _tournamentLogoUrl = '';
+
+  /* ── Sauvegarde config ── */
+  let _debounce = null;
+  function saveConfig() {
+    clearTimeout(_debounce);
+    _debounce = setTimeout(() => {
+      fetch('/api/stinger', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          bars:         parseInt(barsSlider.value, 10),
+          speed:        getSpeedVal(),
+          style:        getStyleVal(),
+          logoOverride: logoOverrideChk ? logoOverrideChk.checked : false,
+          logoUrl:      logoUrlInput    ? logoUrlInput.value.trim() : '',
+          logoSize:     logoSizeSlider  ? parseInt(logoSizeSlider.value, 10) : 200,
+        }),
+      }).catch(() => {});
+    }, 120);
+  }
+
+  barsSlider.addEventListener('input', () => { barsVal.textContent = barsSlider.value; saveConfig(); });
+  styleGroup.querySelectorAll('input').forEach(r => r.addEventListener('change', () => { toggleBarsTile(); saveConfig(); }));
+  speedGroup.querySelectorAll('input').forEach(r => r.addEventListener('change', saveConfig));
+
+  if (logoOverrideChk) {
+    logoOverrideChk.addEventListener('change', () => { updateLogoUI(); saveConfig(); });
+  }
+  if (logoUrlInput) {
+    logoUrlInput.addEventListener('change', saveConfig);
+    logoUrlInput.addEventListener('blur',   saveConfig);
+  }
+  if (logoSizeSlider) {
+    logoSizeSlider.addEventListener('input', () => {
+      if (logoSizeVal) logoSizeVal.textContent = logoSizeSlider.value + ' px';
+      saveConfig();
+    });
+  }
+
+  /* ── Déclencheur ── */
+  let cooldown = false;
+  triggerBtn.addEventListener('click', () => {
+    if (cooldown) return;
+    cooldown = true;
+    triggerBtn.disabled = true;
+    triggerBtn.textContent = '⏳ …';
+    fetch('/api/stinger/trigger', { method: 'POST' }).catch(() => {});
+    setTimeout(() => { cooldown = false; triggerBtn.disabled = false; triggerBtn.textContent = '🎬 Déclencher'; }, 2200);
+  });
+
+  /* ── Mise à jour quand le logo du tournoi change ── */
+  socket.on('tournamentConfigUpdate', tc => {
+    _tournamentLogoUrl = tc.logoUrl || '';
+    updateLogoUI();
+  });
+
+  /* ── Chargement config initiale ── */
+  fetch('/api/stinger').then(r => r.json()).then(cfg => {
+    if (cfg.bars  !== undefined) { barsSlider.value = cfg.bars; barsVal.textContent = cfg.bars; }
+    if (cfg.speed !== undefined) { const r = speedGroup.querySelector(`input[value="${cfg.speed}"]`); if (r) r.checked = true; }
+    if (cfg.style !== undefined) { const r = styleGroup.querySelector(`input[value="${cfg.style}"]`); if (r) r.checked = true; }
+    if (cfg.logoOverride !== undefined && logoOverrideChk) logoOverrideChk.checked = cfg.logoOverride;
+    if (cfg.logoUrl !== undefined && logoUrlInput) logoUrlInput.value = cfg.logoUrl;
+    if (cfg.logoSize !== undefined && logoSizeSlider) {
+      logoSizeSlider.value = cfg.logoSize;
+      if (logoSizeVal) logoSizeVal.textContent = cfg.logoSize + ' px';
+    }
+    _tournamentLogoUrl = cfg.effectiveLogoUrl || '';
+    toggleBarsTile();
+    updateLogoUI();
+    scalePreview();
+  }).catch(() => {});
+})();
+
+// ═══════════════════════════════════════════════════════════════
+// PROCHAINS MATCHS (stream queue)
+// ═══════════════════════════════════════════════════════════════
+(function () {
+  const slugInput    = document.getElementById('upcoming-slug');
+  if (!slugInput) return;
+
+  const streamInput  = document.getElementById('upcoming-stream');
+  const maxSlider    = document.getElementById('upcoming-max');
+  const maxVal       = document.getElementById('upcoming-max-val');
+  const refreshBtn   = document.getElementById('upcoming-refresh-btn');
+  const statusEl     = document.getElementById('upcoming-status');
+
+  if (maxSlider) {
+    maxSlider.addEventListener('input', () => {
+      if (maxVal) maxVal.textContent = maxSlider.value;
+    });
+  }
+
+  function setStatus(msg, color) {
+    if (statusEl) { statusEl.textContent = msg; statusEl.style.color = color || 'var(--text-muted)'; }
+  }
+
+  if (refreshBtn) {
+    refreshBtn.addEventListener('click', () => {
+      const slug = slugInput.value.trim();
+      if (!slug) { setStatus('⚠ Entrez un slug tournoi', 'var(--error)'); return; }
+      refreshBtn.disabled = true;
+      setStatus('⏳ Chargement…');
+      fetch('/api/upcoming/refresh', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          slug,
+          streamFilter: streamInput ? streamInput.value.trim() : '',
+          maxSets: maxSlider ? parseInt(maxSlider.value, 10) : 6,
+        }),
+      })
+      .then(r => r.json())
+      .then(data => {
+        if (data.error) { setStatus('❌ ' + data.error, 'var(--error)'); return; }
+        const n = data.sets?.length || 0;
+        setStatus(`✓ ${n} match${n !== 1 ? 's' : ''} en queue`, '#17B978');
+      })
+      .catch(() => setStatus('❌ Erreur réseau', 'var(--error)'))
+      .finally(() => { refreshBtn.disabled = false; });
+    });
+  }
+
+  fetch('/api/upcoming').then(r => r.json()).then(s => {
+    if (s.slug)         slugInput.value  = s.slug;
+    if (s.streamFilter && streamInput) streamInput.value = s.streamFilter;
+    if (s.maxSets && maxSlider) { maxSlider.value = s.maxSets; if (maxVal) maxVal.textContent = s.maxSets; }
+    const n = s.sets?.length;
+    if (n) setStatus(`✓ ${n} match${n !== 1 ? 's' : ''} en queue`, '#17B978');
+  }).catch(() => {});
+})();
+
+/* ══════════════════════════════════════════════════════════════
+   SETUP / TOURNAMENT CONFIG
+   ══════════════════════════════════════════════════════════════ */
+(function () {
+  'use strict';
+
+  const modal          = document.getElementById('setup-modal');
+  const keyConnected   = document.getElementById('setup-key-connected');
+  const keyForm        = document.getElementById('setup-key-form');
+  const apikeyInput    = document.getElementById('setup-apikey');
+  const keySaveBtn     = document.getElementById('setup-key-save');
+  const keyStatus      = document.getElementById('setup-key-status');
+  const keyChangeBtn   = document.getElementById('setup-key-change');
+  const slugInput      = document.getElementById('setup-slug-input');
+  const verifyBtn      = document.getElementById('setup-verify-btn');
+  const verifyStatus   = document.getElementById('setup-verify-status');
+  const nameInput      = document.getElementById('setup-name');
+  const logoInput      = document.getElementById('setup-logo-input');
+  const logoPreview    = document.getElementById('setup-logo-preview-img');
+  const logoPH         = document.getElementById('setup-logo-placeholder');
+  const skipBtn        = document.getElementById('setup-skip-btn');
+  const saveBtn        = document.getElementById('setup-save-btn');
+  const indicator      = document.getElementById('tournament-indicator');
+  const tiLogo         = document.getElementById('ti-logo');
+  const tiName         = document.getElementById('ti-name');
+
+  if (!modal) return;
+
+  let _hasKey = false;
+
+  /* ── Helpers ───────────────────────────────────────────────── */
+
+  function extractSlug(raw) {
+    if (!raw) return '';
+    const m = raw.match(/(?:start\.gg\/tournament\/)([\w-]+)/i);
+    if (m) return m[1];
+    return raw.trim().replace(/^\/|\/$/g, '');
+  }
+
+  function setVerifyStatus(msg, cls) {
+    verifyStatus.textContent = msg;
+    verifyStatus.className = 'setup-verify-status' + (cls ? ' ' + cls : '');
+  }
+
+  function applyKeyState(hasKey) {
+    _hasKey = hasKey;
+    keyConnected.style.display = hasKey ? 'flex' : 'none';
+    keyForm.style.display      = hasKey ? 'none' : '';
+    if (hasKey) apikeyInput.value = '';
+  }
+
+  function updateLogoPreview(url) {
+    if (url) {
+      logoPreview.src = url;
+      logoPreview.style.display = '';
+      if (logoPH) logoPH.style.display = 'none';
+    } else {
+      logoPreview.src = '';
+      logoPreview.style.display = 'none';
+      if (logoPH) logoPH.style.display = '';
+    }
+  }
+
+  function updateIndicator(cfg) {
+    if (cfg && cfg.name) {
+      tiName.textContent = cfg.name;
+      indicator.classList.add('configured');
+      if (cfg.logoUrl) {
+        tiLogo.src = cfg.logoUrl;
+        tiLogo.style.display = '';
+      } else {
+        tiLogo.style.display = 'none';
+      }
+    } else {
+      tiName.textContent = 'Configurer le tournoi';
+      indicator.classList.remove('configured');
+      tiLogo.style.display = 'none';
+    }
+  }
+
+  function openModal() { modal.style.display = 'flex'; }
+  function closeModal() { modal.style.display = 'none'; }
+
+  /* ── Enregistrer la clé API (même endpoint que partout) ────── */
+
+  keySaveBtn.addEventListener('click', () => {
+    const key = apikeyInput.value.trim();
+    if (!key) { keyStatus.textContent = 'Veuillez saisir une clé.'; return; }
+    keySaveBtn.disabled = true;
+    keyStatus.textContent = 'Enregistrement…';
+    fetch('/api/startgg/config', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ apiKey: key }),
+    })
+    .then(r => r.json())
+    .then(() => { applyKeyState(true); })
+    .catch(() => { keyStatus.textContent = 'Erreur réseau.'; })
+    .finally(() => { keySaveBtn.disabled = false; });
+  });
+
+  /* ── Modifier la clé ───────────────────────────────────────── */
+
+  keyChangeBtn.addEventListener('click', () => applyKeyState(false));
+
+  /* ── Vérifier le slug (utilise la clé déjà stockée côté serveur) */
+
+  verifyBtn.addEventListener('click', () => {
+    const slug = extractSlug(slugInput.value);
+    if (!slug) { setVerifyStatus('URL/slug requis', 'err'); return; }
+    if (!_hasKey) { setVerifyStatus('Enregistrez d\'abord la clé API', 'err'); return; }
+
+    setVerifyStatus('Recherche en cours…', 'busy');
+    verifyBtn.disabled = true;
+
+    fetch('/api/tournament-config/fetch', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ slug }),
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (data.error) { setVerifyStatus('❌ ' + data.error, 'err'); return; }
+      setVerifyStatus('✓ Tournoi trouvé : ' + data.name, 'ok');
+      if (data.name && !nameInput.value) nameInput.value = data.name;
+      if (data.logoUrl) { logoInput.value = data.logoUrl; updateLogoPreview(data.logoUrl); }
+    })
+    .catch(() => setVerifyStatus('❌ Erreur réseau', 'err'))
+    .finally(() => { verifyBtn.disabled = false; });
+  });
+
+  /* ── Logo URL input ────────────────────────────────────────── */
+
+  logoInput.addEventListener('input', () => updateLogoPreview(logoInput.value.trim()));
+
+  /* ── Sauvegarder la config tournoi (sans la clé API) ───────── */
+
+  saveBtn.addEventListener('click', () => {
+    const payload = {
+      slug:    extractSlug(slugInput.value),
+      name:    nameInput.value.trim(),
+      logoUrl: logoInput.value.trim(),
+    };
+    saveBtn.disabled = true;
+    fetch('/api/tournament-config', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (data.error) { alert('Erreur : ' + data.error); return; }
+      localStorage.setItem('pso_setup_dismissed', '1');
+      updateIndicator(payload);
+      closeModal();
+    })
+    .catch(() => alert('Erreur réseau'))
+    .finally(() => { saveBtn.disabled = false; });
+  });
+
+  /* ── Ignorer ───────────────────────────────────────────────── */
+
+  skipBtn.addEventListener('click', () => {
+    localStorage.setItem('pso_setup_dismissed', '1');
+    closeModal();
+  });
+
+  /* ── Indicateur header (rouvrir le modal) ──────────────────── */
+
+  indicator.addEventListener('click', () => {
+    localStorage.removeItem('pso_setup_dismissed');
+    openModal();
+  });
+
+  /* ── Socket.IO sync ────────────────────────────────────────── */
+
+  socket.on('tournamentConfigUpdate', cfg => updateIndicator(cfg));
+
+  /* ── Chargement initial ────────────────────────────────────── */
+
+  Promise.all([
+    fetch('/api/startgg/config').then(r => r.json()).catch(() => ({ hasKey: false })),
+    fetch('/api/tournament-config').then(r => r.json()).catch(() => ({})),
+  ]).then(([keyData, cfg]) => {
+    applyKeyState(!!keyData.hasKey);
+    if (cfg.slug)    slugInput.value = cfg.slug;
+    if (cfg.name)    nameInput.value = cfg.name;
+    if (cfg.logoUrl) { logoInput.value = cfg.logoUrl; updateLogoPreview(cfg.logoUrl); }
+    updateIndicator(cfg);
+
+    const configured = !!(cfg.name || cfg.slug);
+    const dismissed  = !!localStorage.getItem('pso_setup_dismissed');
+    if (!configured && !dismissed) openModal();
+  });
 })();
