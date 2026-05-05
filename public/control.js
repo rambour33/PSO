@@ -11194,23 +11194,51 @@ socket.on('stateUpdate', (s) => {
 // PROCHAINS MATCHS (stream queue)
 // ═══════════════════════════════════════════════════════════════
 (function () {
-  const slugInput    = document.getElementById('upcoming-slug');
+  const slugInput        = document.getElementById('upcoming-slug');
   if (!slugInput) return;
 
-  const streamInput  = document.getElementById('upcoming-stream');
-  const maxSlider    = document.getElementById('upcoming-max');
-  const maxVal       = document.getElementById('upcoming-max-val');
-  const refreshBtn   = document.getElementById('upcoming-refresh-btn');
-  const statusEl     = document.getElementById('upcoming-status');
-
-  if (maxSlider) {
-    maxSlider.addEventListener('input', () => {
-      if (maxVal) maxVal.textContent = maxSlider.value;
-    });
-  }
+  const streamInput      = document.getElementById('upcoming-stream');
+  const maxSlider        = document.getElementById('upcoming-max');
+  const maxVal           = document.getElementById('upcoming-max-val');
+  const frameWidthSlider = document.getElementById('upcoming-frame-width');
+  const frameWidthVal    = document.getElementById('upcoming-frame-width-val');
+  const frameRatioSel    = document.getElementById('upcoming-frame-ratio');
+  const refreshBtn       = document.getElementById('upcoming-refresh-btn');
+  const statusEl         = document.getElementById('upcoming-status');
 
   function setStatus(msg, color) {
     if (statusEl) { statusEl.textContent = msg; statusEl.style.color = color || 'var(--text-muted)'; }
+  }
+
+  /* Sauvegarde immédiate des paramètres de cadre (pas besoin de refresh) */
+  let _frameDebounce = null;
+  function saveFrameConfig() {
+    clearTimeout(_frameDebounce);
+    _frameDebounce = setTimeout(() => {
+      fetch('/api/upcoming/config', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          frameWidthPct: frameWidthSlider ? parseInt(frameWidthSlider.value, 10) : 30,
+          frameRatio:    frameRatioSel    ? frameRatioSel.value : '16:9',
+        }),
+      }).catch(() => {});
+    }, 150);
+  }
+
+  if (maxSlider) {
+    maxSlider.addEventListener('input', () => { if (maxVal) maxVal.textContent = maxSlider.value; });
+  }
+
+  if (frameWidthSlider) {
+    frameWidthSlider.addEventListener('input', () => {
+      if (frameWidthVal) frameWidthVal.textContent = frameWidthSlider.value + '%';
+      saveFrameConfig();
+    });
+  }
+
+  if (frameRatioSel) {
+    frameRatioSel.addEventListener('change', saveFrameConfig);
   }
 
   if (refreshBtn) {
@@ -11225,7 +11253,7 @@ socket.on('stateUpdate', (s) => {
         body: JSON.stringify({
           slug,
           streamFilter: streamInput ? streamInput.value.trim() : '',
-          maxSets: maxSlider ? parseInt(maxSlider.value, 10) : 6,
+          maxSets:      maxSlider   ? parseInt(maxSlider.value, 10) : 16,
         }),
       })
       .then(r => r.json())
@@ -11240,9 +11268,14 @@ socket.on('stateUpdate', (s) => {
   }
 
   fetch('/api/upcoming').then(r => r.json()).then(s => {
-    if (s.slug)         slugInput.value  = s.slug;
-    if (s.streamFilter && streamInput) streamInput.value = s.streamFilter;
-    if (s.maxSets && maxSlider) { maxSlider.value = s.maxSets; if (maxVal) maxVal.textContent = s.maxSets; }
+    if (s.slug)            slugInput.value    = s.slug;
+    if (s.streamFilter && streamInput)         streamInput.value = s.streamFilter;
+    if (s.maxSets && maxSlider)    { maxSlider.value = s.maxSets; if (maxVal) maxVal.textContent = s.maxSets; }
+    if (s.frameWidthPct && frameWidthSlider) {
+      frameWidthSlider.value = s.frameWidthPct;
+      if (frameWidthVal) frameWidthVal.textContent = s.frameWidthPct + '%';
+    }
+    if (s.frameRatio && frameRatioSel) frameRatioSel.value = s.frameRatio;
     const n = s.sets?.length;
     if (n) setStatus(`✓ ${n} match${n !== 1 ? 's' : ''} en queue`, '#17B978');
   }).catch(() => {});

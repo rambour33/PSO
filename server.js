@@ -3892,21 +3892,25 @@ app.post('/api/stinger/trigger', (req, res) => {
 let upcomingState = (() => {
   const cfg = getConfig();
   return {
-    sets:         [],
-    slug:         cfg.upcomingSlug         || '',
-    streamFilter: cfg.upcomingStreamFilter || '',
-    maxSets:      cfg.upcomingMaxSets      || 6,
-    lastUpdate:   null,
-    error:        null,
-    visible:      true,
+    sets:           [],
+    slug:           cfg.upcomingSlug           || '',
+    streamFilter:   cfg.upcomingStreamFilter   || '',
+    maxSets:        cfg.upcomingMaxSets        || 16,
+    frameWidthPct:  cfg.upcomingFrameWidthPct  || 30,
+    frameRatio:     cfg.upcomingFrameRatio     || '16:9',
+    lastUpdate:     null,
+    error:          null,
+    visible:        true,
   };
 })();
 
 function saveUpcomingConfig() {
   const cfg = getConfig();
-  cfg.upcomingSlug         = upcomingState.slug;
-  cfg.upcomingStreamFilter = upcomingState.streamFilter;
-  cfg.upcomingMaxSets      = upcomingState.maxSets;
+  cfg.upcomingSlug          = upcomingState.slug;
+  cfg.upcomingStreamFilter  = upcomingState.streamFilter;
+  cfg.upcomingMaxSets       = upcomingState.maxSets;
+  cfg.upcomingFrameWidthPct = upcomingState.frameWidthPct;
+  cfg.upcomingFrameRatio    = upcomingState.frameRatio;
   saveConfig(cfg);
 }
 
@@ -3988,13 +3992,16 @@ app.get('/upcoming', (req, res) => res.sendFile(path.join(__dirname, 'public', '
 app.get('/api/upcoming', (req, res) => res.json(upcomingState));
 
 app.post('/api/upcoming/config', (req, res) => {
-  if (req.body.slug         !== undefined) upcomingState.slug         = String(req.body.slug).trim();
-  if (req.body.streamFilter !== undefined) upcomingState.streamFilter = String(req.body.streamFilter).trim();
-  if (req.body.maxSets      !== undefined) upcomingState.maxSets      = Math.min(10, Math.max(1, parseInt(req.body.maxSets, 10)));
+  if (req.body.slug           !== undefined) upcomingState.slug           = String(req.body.slug).trim();
+  if (req.body.streamFilter   !== undefined) upcomingState.streamFilter   = String(req.body.streamFilter).trim();
+  if (req.body.maxSets        !== undefined) upcomingState.maxSets        = Math.min(20, Math.max(1, parseInt(req.body.maxSets, 10)));
+  if (req.body.frameWidthPct  !== undefined) upcomingState.frameWidthPct  = Math.min(40, Math.max(20, parseInt(req.body.frameWidthPct, 10)));
+  if (req.body.frameRatio     !== undefined) upcomingState.frameRatio     = ['16:9','4:3'].includes(req.body.frameRatio) ? req.body.frameRatio : '16:9';
   if (req.body.refreshInterval !== undefined) {
     const cfg = getConfig(); cfg.upcomingRefreshInterval = parseInt(req.body.refreshInterval, 10); saveConfig(cfg);
   }
   saveUpcomingConfig();
+  io.emit('upcomingUpdate', upcomingState);
   scheduleUpcomingRefresh();
   res.json({ ok: true });
 });
@@ -4002,7 +4009,7 @@ app.post('/api/upcoming/config', (req, res) => {
 app.post('/api/upcoming/refresh', async (req, res) => {
   if (req.body.slug         !== undefined) upcomingState.slug         = String(req.body.slug).trim();
   if (req.body.streamFilter !== undefined) upcomingState.streamFilter = String(req.body.streamFilter).trim();
-  if (req.body.maxSets      !== undefined) upcomingState.maxSets      = Math.min(10, Math.max(1, parseInt(req.body.maxSets, 10)));
+  if (req.body.maxSets      !== undefined) upcomingState.maxSets      = Math.min(20, Math.max(1, parseInt(req.body.maxSets, 10)));
   saveUpcomingConfig();
   if (!upcomingState.slug) return res.status(400).json({ error: 'Aucun slug configuré' });
   await refreshUpcoming();

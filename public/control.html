@@ -3809,9 +3809,22 @@
         </div>
 
         <div class="ctrl-row" style="gap:10px;align-items:center">
-          <label class="ctrl-label" style="white-space:nowrap">Matchs affichés</label>
-          <input type="range" id="upcoming-max" min="1" max="10" value="6" style="flex:1" />
-          <span id="upcoming-max-val" class="num-display" style="min-width:24px">6</span>
+          <label class="ctrl-label" style="white-space:nowrap">Matchs récupérés</label>
+          <input type="range" id="upcoming-max" min="1" max="20" value="16" style="flex:1" />
+          <span id="upcoming-max-val" class="num-display" style="min-width:24px">16</span>
+        </div>
+
+        <div style="height:1px;background:var(--border);margin:2px 0"></div>
+
+        <div class="ctrl-row" style="gap:10px;align-items:center">
+          <label class="ctrl-label" style="white-space:nowrap">Cadre gauche</label>
+          <input type="range" id="upcoming-frame-width" min="20" max="40" value="30" style="flex:1" />
+          <span id="upcoming-frame-width-val" class="num-display" style="min-width:36px">30%</span>
+          <label class="ctrl-label" style="white-space:nowrap;margin-left:8px">Ratio</label>
+          <select id="upcoming-frame-ratio" class="input-name" style="width:74px">
+            <option value="16:9">16:9</option>
+            <option value="4:3">4:3</option>
+          </select>
         </div>
 
         <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">

@@ -2,7 +2,7 @@
   'use strict';
 
   const THEME_COLORS = {
-    default:     { primary: '#E8B830', glow: 'rgba(232,184,48,0.40)',   bg: 'rgba(14,14,18,0.90)',  accent: '#D4001A' },
+    default:     { primary: '#E8B830', glow: 'rgba(232,184,48,0.40)',   bg: 'rgba(14,14,18,0.92)',  accent: '#D4001A' },
     cyberpunk:   { primary: '#00F5FF', glow: 'rgba(0,245,255,0.45)',    bg: 'rgba(5,0,20,0.92)',    accent: '#FF2D78' },
     synthwave:   { primary: '#FF6EC7', glow: 'rgba(255,110,199,0.45)',  bg: 'rgba(13,0,48,0.92)',   accent: '#C77DFF' },
     midnight:    { primary: '#4488FF', glow: 'rgba(68,136,255,0.40)',   bg: 'rgba(5,10,30,0.92)',   accent: '#88AAFF' },
@@ -43,9 +43,17 @@
     transparent: { primary: '#E8B830', glow: 'rgba(232,184,48,0.25)', bg: 'rgba(14,14,18,0.10)',  accent: '#D4001A' },
   };
 
+  const PAGE_SIZE     = 8;
+  const PAGE_INTERVAL = 7000;
+
+  let _page  = 0;
+  let _pages = [];
+  let _timer = null;
+
+  /* ── Thème ────────────────────────────────────────── */
   function applyTheme(theme) {
     const c = THEME_COLORS[theme] || THEME_COLORS.default;
-    const root = document.getElementById('upcoming-root');
+    const root = document.getElementById('uc-root');
     if (!root) return;
     root.style.setProperty('--uc-primary', c.primary);
     root.style.setProperty('--uc-glow',    c.glow);
@@ -53,60 +61,159 @@
     root.style.setProperty('--uc-accent',  c.accent);
   }
 
-  function esc(str) {
-    return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  /* ── Layout cadre ─────────────────────────────────── */
+  function applyLayout(state) {
+    const root = document.getElementById('uc-root');
+    if (!root) return;
+    const pct   = state.frameWidthPct || 30;
+    const ratio = state.frameRatio    || '16:9';
+    const fw    = Math.round(1920 * pct / 100);
+    const innerW = fw - 72; // 36px padding de chaque côté
+    const [rw, rh] = ratio === '4:3' ? [4, 3] : [16, 9];
+    const fh = Math.round(innerW * rh / rw);
+    root.style.setProperty('--uc-fw', fw + 'px');
+    root.style.setProperty('--uc-fh', fh + 'px');
   }
 
-  function renderRow(s) {
+  /* ── Helpers HTML ─────────────────────────────────── */
+  function esc(s) {
+    return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
+  function renderCard(s) {
     const isNext = s.position === 1;
-    const bo = s.totalGames ? `BO${s.totalGames}` : '';
+    const bo     = s.totalGames ? `BO${s.totalGames}` : '';
     const p1seed = s.p1.seed != null ? `<span class="uc-seed">#${s.p1.seed}</span>` : '';
     const p2seed = s.p2.seed != null ? `<span class="uc-seed">#${s.p2.seed}</span>` : '';
-    const p1pref = s.p1.prefix ? `<div class="uc-prefix">${esc(s.p1.prefix)}</div>` : '';
-    const p2pref = s.p2.prefix ? `<div class="uc-prefix">${esc(s.p2.prefix)}</div>` : '';
-    const phaseLine = s.phase && s.phase !== s.roundName
-      ? `<div class="uc-phase-name">${esc(s.phase)}${s.group ? ' · ' + esc(s.group) : ''}</div>` : '';
+    const p1pref = s.p1.prefix ? `<span class="uc-prefix">${esc(s.p1.prefix)}</span>` : '';
+    const p2pref = s.p2.prefix ? `<span class="uc-prefix">${esc(s.p2.prefix)}</span>` : '';
+    const phaseMini = s.phase && s.phase !== s.roundName
+      ? `<div class="uc-phase-mini">${esc(s.phase)}${s.group ? ' · ' + esc(s.group) : ''}</div>` : '';
 
-    return `
-      <div class="uc-row${isNext ? ' next-up' : ''}">
-        <div class="uc-index">${s.position}</div>
-        <div class="uc-round">
-          <div class="uc-round-name">${esc(s.roundName)}</div>
-          ${phaseLine}
-        </div>
-        <div class="uc-player">
-          <div class="uc-player-top">${p1pref}<span class="uc-tag">${esc(s.p1.tag)}</span>${p1seed}</div>
-        </div>
-        <div class="uc-vs">VS</div>
-        <div class="uc-player uc-player-right">
-          <div class="uc-player-top">${p2seed}<span class="uc-tag">${esc(s.p2.tag)}</span>${p2pref}</div>
-        </div>
-        <div class="uc-bo">${bo}</div>
-      </div>`;
+    return `<div class="uc-card${isNext ? ' next-up' : ''}">
+      <div class="uc-num">${s.position}</div>
+      <div class="uc-player">
+        <div class="uc-player-top">${p1pref}<span class="uc-tag">${esc(s.p1.tag)}</span>${p1seed}</div>
+      </div>
+      <div class="uc-vs">
+        <span class="uc-vs-text">VS</span>
+        ${bo ? `<span class="uc-bo">${esc(bo)}</span>` : ''}
+      </div>
+      <div class="uc-player right">
+        <div class="uc-player-top">${p2seed}<span class="uc-tag">${esc(s.p2.tag)}</span>${p2pref}</div>
+      </div>
+      <div class="uc-round">
+        <div class="uc-round-name">${esc(s.roundName)}</div>
+        ${phaseMini}
+      </div>
+    </div>`;
   }
 
+  /* ── Carousel ─────────────────────────────────────── */
+  function showPage(idx, animate) {
+    const viewport = document.getElementById('uc-viewport');
+    if (!viewport) return;
+    const pages = viewport.querySelectorAll('.uc-page');
+    if (!pages.length) return;
+    idx = ((idx % pages.length) + pages.length) % pages.length;
+
+    pages.forEach((p, i) => {
+      if (i === idx) {
+        if (animate && !p.classList.contains('active')) {
+          p.style.transition = 'none';
+          p.style.opacity    = '0';
+          p.style.transform  = 'translateY(18px)';
+          p.offsetHeight;
+          p.style.transition = '';
+        }
+        p.classList.add('active');
+      } else {
+        p.classList.remove('active');
+      }
+    });
+
+    document.querySelectorAll('.uc-dot').forEach((d, i) => {
+      d.classList.toggle('active', i === idx);
+    });
+
+    _page = idx;
+  }
+
+  function startCarousel(pageCount) {
+    clearInterval(_timer);
+    _timer = null;
+    if (pageCount <= 1) return;
+    _timer = setInterval(() => showPage((_page + 1) % pageCount, true), PAGE_INTERVAL);
+  }
+
+  /* ── Rendu principal ──────────────────────────────── */
   function render(state) {
-    const root    = document.getElementById('upcoming-root');
-    const list    = document.getElementById('uc-list');
-    const countEl = document.getElementById('uc-count');
-    if (!root || !list) return;
+    const root       = document.getElementById('uc-root');
+    const viewport   = document.getElementById('uc-viewport');
+    const phaseLabel = document.getElementById('uc-phase-label');
+    const countLabel = document.getElementById('uc-count-label');
+    const nav        = document.getElementById('uc-nav');
+    if (!root || !viewport) return;
 
     root.classList.toggle('hidden', state.visible === false);
+    applyLayout(state);
 
     const sets = state.sets || [];
+
+    /* Phase du premier match en header */
+    if (phaseLabel) {
+      phaseLabel.textContent = sets[0]?.phase || 'PROCHAINS MATCHS';
+    }
+
+    /* Compteur */
+    if (countLabel) {
+      countLabel.textContent = sets.length
+        ? sets.length + ' match' + (sets.length > 1 ? 's' : '') + ' en queue'
+        : '';
+    }
+
+    clearInterval(_timer);
+
+    /* État vide */
     if (!sets.length) {
-      list.innerHTML = '<div class="uc-empty" id="uc-empty">Aucun match en attente</div>';
-      if (countEl) countEl.textContent = '';
+      viewport.innerHTML = '<div class="uc-page active"><div class="uc-empty">Aucun match en attente</div></div>';
+      if (nav) { nav.innerHTML = ''; nav.classList.remove('visible'); }
       return;
     }
 
-    if (countEl) {
-      const n = sets.length;
-      countEl.textContent = n + ' match' + (n > 1 ? 's' : '') + ' en queue';
+    /* Découpage en pages de PAGE_SIZE */
+    _pages = [];
+    for (let i = 0; i < sets.length; i += PAGE_SIZE) _pages.push(sets.slice(i, i + PAGE_SIZE));
+
+    viewport.innerHTML = _pages.map((page, pi) =>
+      `<div class="uc-page${pi === 0 ? ' active' : ''}">${page.map(renderCard).join('')}</div>`
+    ).join('');
+
+    /* Dots de navigation */
+    if (nav) {
+      if (_pages.length > 1) {
+        nav.innerHTML = _pages.map((_, i) =>
+          `<span class="uc-dot${i === 0 ? ' active' : ''}" data-page="${i}"></span>`
+        ).join('');
+        nav.classList.add('visible');
+        nav.querySelectorAll('.uc-dot').forEach(dot => {
+          dot.addEventListener('click', () => {
+            clearInterval(_timer);
+            showPage(parseInt(dot.dataset.page, 10), true);
+            startCarousel(_pages.length);
+          });
+        });
+      } else {
+        nav.innerHTML = '';
+        nav.classList.remove('visible');
+      }
     }
-    list.innerHTML = sets.map(renderRow).join('');
+
+    _page = 0;
+    startCarousel(_pages.length);
   }
 
+  /* ── Réseau ───────────────────────────────────────── */
   const socket = io();
 
   fetch('/api/state').then(r => r.json()).then(s => applyTheme(s.overlayTheme || 'default')).catch(() => {});
@@ -114,5 +221,4 @@
 
   socket.on('stateUpdate',    s => applyTheme(s.overlayTheme || 'default'));
   socket.on('upcomingUpdate', render);
-
 })();
