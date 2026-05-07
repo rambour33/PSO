@@ -1,33 +1,38 @@
 @import url('https://fonts.googleapis.com/css2?family=Russo+One&family=Inter:wght@400;500;600;700&display=swap');
 
 :root {
-  --uc-primary: #E8B830;
-  --uc-glow:    rgba(232,184,48,0.40);
-  --uc-bg:      rgba(14,14,18,0.92);
-  --uc-accent:  #D4001A;
-  --uc-text:    #F0EEF8;
-  --uc-muted:   #5A5A7A;
-  --uc-border:  rgba(255,255,255,0.07);
+  --uc-primary:       #E8B830;
+  --uc-text:          #0A0A10;
+  --uc-muted:         rgba(10,10,16,0.42);
+  --uc-border:        rgba(10,10,16,0.12);
+  --uc-panel-border:  rgba(10,10,16,0.35);
   --uc-fw: 576px;
   --uc-fh: 324px;
+  --uc-gw: 96px;
+  --uc-rm: 38px;
+  --uc-pw: 1210px;
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
-  background: transparent;
+  background: transparent; /* OBS voit les pixels alpha=0 comme transparents */
   width: 1920px;
   height: 1080px;
   overflow: hidden;
+  position: relative;
   font-family: 'Inter', sans-serif;
 }
 
-/* ── Layout racine ──────────────────────────────────── */
+/* ── Racine ─────────────────────────────────────────── */
 #uc-root {
   position: absolute;
-  inset: 0;
+  top: 0;
+  left: 0;
+  width: 1920px;
+  height: 1080px;
   display: flex;
-  overflow: hidden;
+  align-items: center;
   transition: opacity 0.4s;
 }
 
@@ -36,95 +41,112 @@ body {
   pointer-events: none;
 }
 
-/* ── Zone cadre gauche (transparent, pour OBS) ──────── */
+/* ── Zone cadre gauche ──────────────────────────────── */
 #uc-frame-zone {
   width: var(--uc-fw);
   flex-shrink: 0;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 0 36px;
+  padding: 40px;
+  gap: 16px;
 }
 
+/* Le label est au-dessus du cadre, doit être visible par-dessus le box-shadow */
+#uc-frame-label {
+  position: relative;
+  z-index: 2;
+  align-self: stretch;
+  font-family: 'Russo One', sans-serif;
+  font-size: 15px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--uc-text);
+  opacity: 0.6;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: center;
+}
+
+/*
+ * Le cadre est transparent.
+ * La box-shadow (2000px de spread) remplit tout autour avec la couleur primaire,
+ * créant l'effet "fond coloré avec un trou transparent".
+ * Les pixels dans le cadre restent alpha=0 → OBS voit à travers.
+ */
 #uc-frame-box {
   width: 100%;
   height: var(--uc-fh);
   position: relative;
-  border: 1px solid rgba(255,255,255,0.06);
-  transition: border-color 0.5s;
+  background: transparent;
+  box-shadow: 0 0 0 2000px var(--uc-primary);
+  transition: box-shadow 0.5s;
+  z-index: 1;
 }
 
-/* Coins décoratifs */
+/* Coins décoratifs — z-index > cadre pour être visibles */
 .uc-corner {
   position: absolute;
-  width: 24px;
-  height: 24px;
-  border-color: var(--uc-primary);
+  z-index: 3;
+  width: 20px;
+  height: 20px;
+  border-color: var(--uc-text);
   border-style: solid;
-  opacity: 0.5;
-  transition: border-color 0.5s;
+  opacity: 0.35;
 }
 .uc-corner--tl { top: -1px;    left: -1px;  border-width: 2px 0 0 2px; }
 .uc-corner--tr { top: -1px;    right: -1px; border-width: 2px 2px 0 0; }
 .uc-corner--bl { bottom: -1px; left: -1px;  border-width: 0 0 2px 2px; }
 .uc-corner--br { bottom: -1px; right: -1px; border-width: 0 2px 2px 0; }
 
-/* ── Panel droit ────────────────────────────────────── */
-#uc-panel {
-  flex: 1;
-  min-width: 0;
-  height: 100%;
-  background: var(--uc-bg);
-  border-left: 2px solid var(--uc-primary);
-  box-shadow: -6px 0 36px var(--uc-glow);
+/* ── Wrapper panel droit (titre + cadre) ─────────────── */
+#uc-panel-wrap {
   display: flex;
   flex-direction: column;
-  overflow: hidden;
-  transition: border-color 0.5s, box-shadow 0.5s, background 0.5s;
-}
-
-/* Header */
-#uc-panel-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 24px;
-  height: 56px;
+  margin-left: var(--uc-gw);
+  margin-right: var(--uc-rm);
+  width: var(--uc-pw);
   flex-shrink: 0;
-  border-bottom: 1px solid var(--uc-border);
-  background: linear-gradient(90deg, rgba(255,255,255,0.04) 0%, transparent 70%);
+  position: relative;
+  z-index: 2;
 }
 
-#uc-phase-wrap {
+/* Titre au-dessus du cadre */
+#uc-panel-top {
+  flex-shrink: 0;
+  padding: 0 0 10px 4px;
   display: flex;
-  align-items: center;
-  gap: 10px;
+  flex-direction: column;
+  gap: 4px;
 }
 
-.uc-phase-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
+/* ── Cadre des matchs ────────────────────────────────── */
+#uc-panel {
+  width: 100%;
+  height: var(--uc-fh);
+  flex-shrink: 0;
   background: var(--uc-primary);
-  box-shadow: 0 0 8px var(--uc-glow);
-  flex-shrink: 0;
-  transition: background 0.5s, box-shadow 0.5s;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  border: 2px solid var(--uc-panel-border);
+  transition: background 0.5s, border-color 0.5s;
 }
 
 #uc-phase-label {
   font-family: 'Russo One', sans-serif;
-  font-size: 12px;
-  letter-spacing: 3.5px;
-  color: var(--uc-primary);
-  text-shadow: 0 0 10px var(--uc-glow);
+  font-size: 42px;
+  line-height: 1.05;
+  color: var(--uc-text);
   text-transform: uppercase;
-  transition: color 0.5s, text-shadow 0.5s;
 }
 
 #uc-count-label {
   font-size: 10px;
   font-weight: 600;
-  letter-spacing: 1.5px;
+  letter-spacing: 2px;
   color: var(--uc-muted);
   text-transform: uppercase;
 }
@@ -140,10 +162,12 @@ body {
 .uc-page {
   position: absolute;
   inset: 0;
+  padding: 0 56px 0 44px;
   display: flex;
   flex-direction: column;
+  justify-content: flex-start;
   opacity: 0;
-  transform: translateY(18px);
+  transform: translateY(10px);
   transition: opacity 0.55s ease, transform 0.55s ease;
   pointer-events: none;
 }
@@ -156,208 +180,92 @@ body {
 
 /* État vide */
 .uc-empty {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 13px;
-  color: var(--uc-muted);
+  padding: 24px 0;
+  font-size: 11px;
   letter-spacing: 2px;
   text-transform: uppercase;
+  color: var(--uc-muted);
 }
 
-/* ── Carte match ────────────────────────────────────── */
+/* ── Ligne match ────────────────────────────────────── */
 .uc-card {
-  flex: 1;
-  display: grid;
-  grid-template-columns: 54px 1fr 72px 1fr 150px;
-  align-items: stretch;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 9px 0;
   border-bottom: 1px solid var(--uc-border);
+  opacity: 0.5;
+  transition: opacity 0.3s;
   min-height: 0;
-  transition: background 0.3s;
+  flex-shrink: 0;
 }
 
 .uc-card:last-child { border-bottom: none; }
-
-.uc-card.next-up {
-  background: linear-gradient(90deg, rgba(255,255,255,0.055) 0%, rgba(255,255,255,0.012) 100%);
-}
-
-/* Numéro */
-.uc-num {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: 'Russo One', sans-serif;
-  font-size: 15px;
-  color: var(--uc-muted);
-  background: rgba(255,255,255,0.02);
-  border-right: 1px solid var(--uc-border);
-  flex-shrink: 0;
-  transition: background 0.3s, color 0.3s, font-size 0.2s;
-}
-
-.uc-card.next-up .uc-num {
-  background: var(--uc-primary);
-  color: #08080E;
-  font-size: 18px;
-}
-
-/* Joueur (P1 gauche / P2 droite) */
-.uc-player {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  padding: 10px 20px;
-  min-width: 0;
-  gap: 3px;
-}
-
-.uc-player.right {
-  align-items: flex-end;
-  text-align: right;
-}
-
-.uc-player-top {
-  display: flex;
-  align-items: baseline;
-  gap: 6px;
-  min-width: 0;
-}
-
-.uc-player.right .uc-player-top { flex-direction: row-reverse; }
+.uc-card.next-up    { opacity: 1; }
 
 .uc-tag {
   font-family: 'Russo One', sans-serif;
-  font-size: 20px;
-  color: rgba(240,238,248,0.62);
+  font-size: 16px;
+  color: var(--uc-text);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  letter-spacing: 0.3px;
-  transition: color 0.3s;
-  min-width: 0;
-}
-
-.uc-card.next-up .uc-tag { color: var(--uc-text); }
-
-.uc-seed {
-  font-size: 10px;
-  font-weight: 700;
-  color: var(--uc-muted);
-  white-space: nowrap;
-  flex-shrink: 0;
+  line-height: 1.1;
 }
 
 .uc-prefix {
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 600;
   color: var(--uc-muted);
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 100%;
-  flex-shrink: 0;
-}
-
-/* VS + BO */
-.uc-vs {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 5px;
-  border-left: 1px solid var(--uc-border);
-  border-right: 1px solid var(--uc-border);
   flex-shrink: 0;
 }
 
 .uc-vs-text {
   font-family: 'Russo One', sans-serif;
-  font-size: 15px;
-  color: var(--uc-primary);
-  text-shadow: 0 0 10px var(--uc-glow);
-  transition: color 0.5s, text-shadow 0.5s;
-  line-height: 1;
+  font-size: 10px;
+  color: var(--uc-muted);
+  flex-shrink: 0;
+  line-height: 1.1;
 }
 
-.uc-card.next-up .uc-vs-text {
-  color: var(--uc-accent);
-  text-shadow: 0 0 12px var(--uc-accent);
-}
-
-.uc-bo {
+.uc-round-text {
   font-size: 9px;
   font-weight: 700;
-  color: var(--uc-muted);
-  letter-spacing: 0.5px;
-  line-height: 1;
-}
-
-/* Colonne round / phase (droite) */
-.uc-round {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: flex-end;
-  padding: 10px 18px;
-  border-left: 1px solid var(--uc-border);
-  gap: 4px;
-  min-width: 0;
-}
-
-.uc-round-name {
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.8px;
   text-transform: uppercase;
   color: var(--uc-muted);
-  text-align: right;
+  flex-shrink: 0;
+  margin-left: auto;
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 100%;
-  transition: color 0.3s;
-}
-
-.uc-card.next-up .uc-round-name { color: var(--uc-primary); }
-
-.uc-phase-mini {
-  font-size: 9px;
-  color: var(--uc-muted);
-  opacity: 0.55;
-  text-align: right;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 100%;
+  line-height: 1.1;
 }
 
 /* ── Navigation (dots) ──────────────────────────────── */
 #uc-nav {
-  height: 36px;
+  height: 22px;
   flex-shrink: 0;
   display: none;
   align-items: center;
-  justify-content: center;
-  gap: 10px;
-  border-top: 1px solid var(--uc-border);
+  gap: 7px;
+  padding: 0 44px;
+  margin-top: 2px;
 }
 
 #uc-nav.visible { display: flex; }
 
 .uc-dot {
-  width: 7px;
-  height: 7px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
   background: var(--uc-muted);
-  opacity: 0.3;
+  opacity: 0.5;
   cursor: pointer;
   transition: opacity 0.3s, background 0.3s, transform 0.25s;
 }
 
 .uc-dot.active {
-  background: var(--uc-primary);
-  opacity: 1;
-  transform: scale(1.35);
+  background: var(--uc-text);
+  opacity: 0.7;
+  transform: scale(1.4);
 }

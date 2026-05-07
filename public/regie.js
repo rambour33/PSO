@@ -167,6 +167,9 @@ function highlightChar(player, charId) {
 // ─── Socket sync ──────────────────────────────────────────────────────────────
 socket.on('stateUpdate', s => { syncToForm(s); });
 socket.on('superStateUpdate', s => { superState = s; renderScenes(); });
+socket.on('tournamentConfigUpdate', cfg => {
+  if (cfg.slug) document.getElementById('sgg-slug').value = cfg.slug;
+});
 
 // ─── Load initial state ───────────────────────────────────────────────────────
 async function loadState() {
@@ -264,11 +267,17 @@ let sggEventId   = null;
 let sggEventName = '';
 
 function initStartgg() {
-  const savedKey  = localStorage.getItem(LS_KEY)  || '';
-  const savedSlug = localStorage.getItem(LS_SLUG) || '';
+  const savedKey = localStorage.getItem(LS_KEY) || '';
   document.getElementById('sgg-apikey').value = savedKey;
-  document.getElementById('sgg-slug').value   = savedSlug;
   if (savedKey) checkSggKey();
+  /* Slug depuis la config tournoi en priorité */
+  fetch('/api/tournament-config').then(r => r.json()).then(cfg => {
+    const slug = cfg.slug || localStorage.getItem(LS_SLUG) || '';
+    document.getElementById('sgg-slug').value = slug;
+  }).catch(() => {
+    const slug = localStorage.getItem(LS_SLUG) || '';
+    document.getElementById('sgg-slug').value = slug;
+  });
 }
 
 async function checkSggKey() {

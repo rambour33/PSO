@@ -11194,15 +11194,15 @@ socket.on('stateUpdate', (s) => {
 // PROCHAINS MATCHS (stream queue)
 // ═══════════════════════════════════════════════════════════════
 (function () {
-  const slugInput        = document.getElementById('upcoming-slug');
-  if (!slugInput) return;
-
   const streamInput      = document.getElementById('upcoming-stream');
   const maxSlider        = document.getElementById('upcoming-max');
   const maxVal           = document.getElementById('upcoming-max-val');
   const frameWidthSlider = document.getElementById('upcoming-frame-width');
   const frameWidthVal    = document.getElementById('upcoming-frame-width-val');
   const frameRatioSel    = document.getElementById('upcoming-frame-ratio');
+  const frameLabelInput  = document.getElementById('upcoming-frame-label');
+  const textColorInput   = document.getElementById('upcoming-text-color');
+  const textColorReset   = document.getElementById('upcoming-text-color-reset');
   const refreshBtn       = document.getElementById('upcoming-refresh-btn');
   const statusEl         = document.getElementById('upcoming-status');
 
@@ -11221,6 +11221,8 @@ socket.on('stateUpdate', (s) => {
         body: JSON.stringify({
           frameWidthPct: frameWidthSlider ? parseInt(frameWidthSlider.value, 10) : 30,
           frameRatio:    frameRatioSel    ? frameRatioSel.value : '16:9',
+          frameLabel:    frameLabelInput  ? frameLabelInput.value : '',
+          textColor:     textColorInput   ? textColorInput.dataset.active === 'true' ? textColorInput.value : '' : '',
         }),
       }).catch(() => {});
     }, 150);
@@ -11241,17 +11243,33 @@ socket.on('stateUpdate', (s) => {
     frameRatioSel.addEventListener('change', saveFrameConfig);
   }
 
+  if (frameLabelInput) {
+    frameLabelInput.addEventListener('input', saveFrameConfig);
+  }
+
+  if (textColorInput) {
+    textColorInput.dataset.active = 'false';
+    textColorInput.addEventListener('input', () => {
+      textColorInput.dataset.active = 'true';
+      saveFrameConfig();
+    });
+  }
+
+  if (textColorReset) {
+    textColorReset.addEventListener('click', () => {
+      if (textColorInput) { textColorInput.dataset.active = 'false'; textColorInput.value = '#0a0a10'; }
+      saveFrameConfig();
+    });
+  }
+
   if (refreshBtn) {
     refreshBtn.addEventListener('click', () => {
-      const slug = slugInput.value.trim();
-      if (!slug) { setStatus('⚠ Entrez un slug tournoi', 'var(--error)'); return; }
       refreshBtn.disabled = true;
       setStatus('⏳ Chargement…');
       fetch('/api/upcoming/refresh', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          slug,
           streamFilter: streamInput ? streamInput.value.trim() : '',
           maxSets:      maxSlider   ? parseInt(maxSlider.value, 10) : 16,
         }),
@@ -11268,14 +11286,15 @@ socket.on('stateUpdate', (s) => {
   }
 
   fetch('/api/upcoming').then(r => r.json()).then(s => {
-    if (s.slug)            slugInput.value    = s.slug;
-    if (s.streamFilter && streamInput)         streamInput.value = s.streamFilter;
-    if (s.maxSets && maxSlider)    { maxSlider.value = s.maxSets; if (maxVal) maxVal.textContent = s.maxSets; }
+    if (s.streamFilter && streamInput)  streamInput.value = s.streamFilter;
+    if (s.maxSets && maxSlider)         { maxSlider.value = s.maxSets; if (maxVal) maxVal.textContent = s.maxSets; }
     if (s.frameWidthPct && frameWidthSlider) {
       frameWidthSlider.value = s.frameWidthPct;
       if (frameWidthVal) frameWidthVal.textContent = s.frameWidthPct + '%';
     }
-    if (s.frameRatio && frameRatioSel) frameRatioSel.value = s.frameRatio;
+    if (s.frameRatio && frameRatioSel)  frameRatioSel.value = s.frameRatio;
+    if (s.frameLabel !== undefined && frameLabelInput) frameLabelInput.value = s.frameLabel;
+    if (s.textColor && textColorInput) { textColorInput.value = s.textColor; textColorInput.dataset.active = 'true'; }
     const n = s.sets?.length;
     if (n) setStatus(`✓ ${n} match${n !== 1 ? 's' : ''} en queue`, '#17B978');
   }).catch(() => {});
@@ -11287,21 +11306,25 @@ socket.on('stateUpdate', (s) => {
 (function () {
   'use strict';
 
-  const modal          = document.getElementById('setup-modal');
-  const keyConnected   = document.getElementById('setup-key-connected');
-  const keyForm        = document.getElementById('setup-key-form');
-  const apikeyInput    = document.getElementById('setup-apikey');
-  const keySaveBtn     = document.getElementById('setup-key-save');
-  const keyStatus      = document.getElementById('setup-key-status');
-  const keyChangeBtn   = document.getElementById('setup-key-change');
-  const slugInput      = document.getElementById('setup-slug-input');
-  const verifyBtn      = document.getElementById('setup-verify-btn');
-  const verifyStatus   = document.getElementById('setup-verify-status');
-  const nameInput      = document.getElementById('setup-name');
-  const logoInput      = document.getElementById('setup-logo-input');
-  const logoPreview    = document.getElementById('setup-logo-preview-img');
-  const logoPH         = document.getElementById('setup-logo-placeholder');
-  const skipBtn        = document.getElementById('setup-skip-btn');
+  const modal            = document.getElementById('setup-modal');
+  const keyConnected     = document.getElementById('setup-key-connected');
+  const keyForm          = document.getElementById('setup-key-form');
+  const apikeyInput      = document.getElementById('setup-apikey');
+  const keySaveBtn       = document.getElementById('setup-key-save');
+  const keyStatus        = document.getElementById('setup-key-status');
+  const keyChangeBtn     = document.getElementById('setup-key-change');
+  const slugInput        = document.getElementById('setup-slug-input');
+  const verifyBtn        = document.getElementById('setup-verify-btn');
+  const verifyStatus     = document.getElementById('setup-verify-status');
+  const eventSection     = document.getElementById('setup-event-section');
+  const eventSelect      = document.getElementById('setup-event-select');
+  const phaseSection     = document.getElementById('setup-phase-section');
+  const phaseSelect      = document.getElementById('setup-phase-select');
+  const nameInput        = document.getElementById('setup-name');
+  const logoInput        = document.getElementById('setup-logo-input');
+  const logoPreview      = document.getElementById('setup-logo-preview-img');
+  const logoPH           = document.getElementById('setup-logo-placeholder');
+  const skipBtn          = document.getElementById('setup-skip-btn');
   const saveBtn        = document.getElementById('setup-save-btn');
   const indicator      = document.getElementById('tournament-indicator');
   const tiLogo         = document.getElementById('ti-logo');
@@ -11388,6 +11411,52 @@ socket.on('stateUpdate', (s) => {
 
   /* ── Vérifier le slug (utilise la clé déjà stockée côté serveur) */
 
+  function populateEventSelect(events, selectedId) {
+    if (!eventSelect) return;
+    eventSelect.innerHTML = '<option value="">— Sélectionner un bracket —</option>';
+    (events || []).forEach(ev => {
+      const opt = document.createElement('option');
+      opt.value = ev.id;
+      opt.textContent = ev.name + (ev.numEntrants ? ` (${ev.numEntrants})` : '');
+      if (String(ev.id) === String(selectedId)) opt.selected = true;
+      eventSelect.appendChild(opt);
+    });
+    if (eventSection) eventSection.style.display = '';
+    if (eventSelect.value) loadPhases(eventSelect.value);
+  }
+
+  function populatePhaseSelect(phases, selectedId) {
+    if (!phaseSelect) return;
+    phaseSelect.innerHTML = '<option value="">— Toutes les phases —</option>';
+    (phases || []).forEach(ph => {
+      const opt = document.createElement('option');
+      opt.value = ph.id;
+      opt.textContent = ph.name;
+      if (String(ph.id) === String(selectedId)) opt.selected = true;
+      phaseSelect.appendChild(opt);
+    });
+    if (phaseSection) phaseSection.style.display = phases.length > 1 ? '' : 'none';
+  }
+
+  function loadPhases(eventId, selectedPhaseId) {
+    if (!eventId || !phaseSection) return;
+    fetch(`/api/startgg/event/${eventId}/phases`)
+      .then(r => r.json())
+      .then(data => {
+        const phases = data.phases || [];
+        populatePhaseSelect(phases, selectedPhaseId || phaseSelect?.dataset.savedId);
+      })
+      .catch(() => { if (phaseSection) phaseSection.style.display = 'none'; });
+  }
+
+  if (eventSelect) {
+    eventSelect.addEventListener('change', () => {
+      if (phaseSection) phaseSection.style.display = 'none';
+      if (phaseSelect) phaseSelect.innerHTML = '<option value="">— Toutes les phases —</option>';
+      if (eventSelect.value) loadPhases(eventSelect.value);
+    });
+  }
+
   verifyBtn.addEventListener('click', () => {
     const slug = extractSlug(slugInput.value);
     if (!slug) { setVerifyStatus('URL/slug requis', 'err'); return; }
@@ -11395,6 +11464,7 @@ socket.on('stateUpdate', (s) => {
 
     setVerifyStatus('Recherche en cours…', 'busy');
     verifyBtn.disabled = true;
+    if (eventSection) eventSection.style.display = 'none';
 
     fetch('/api/tournament-config/fetch', {
       method: 'POST',
@@ -11407,6 +11477,7 @@ socket.on('stateUpdate', (s) => {
       setVerifyStatus('✓ Tournoi trouvé : ' + data.name, 'ok');
       if (data.name && !nameInput.value) nameInput.value = data.name;
       if (data.logoUrl) { logoInput.value = data.logoUrl; updateLogoPreview(data.logoUrl); }
+      if (data.events?.length) populateEventSelect(data.events, eventSelect?.dataset.savedId);
     })
     .catch(() => setVerifyStatus('❌ Erreur réseau', 'err'))
     .finally(() => { verifyBtn.disabled = false; });
@@ -11419,10 +11490,18 @@ socket.on('stateUpdate', (s) => {
   /* ── Sauvegarder la config tournoi (sans la clé API) ───────── */
 
   saveBtn.addEventListener('click', () => {
+    const selectedEventId   = eventSelect?.value ? parseInt(eventSelect.value, 10) : null;
+    const selectedEventName = eventSelect?.selectedOptions?.[0]?.textContent?.replace(/\s*\(\d+\)$/, '').trim() || '';
+    const selectedPhaseId   = phaseSelect?.value ? parseInt(phaseSelect.value, 10) : null;
+    const selectedPhaseName = phaseSelect?.selectedOptions?.[0]?.textContent?.trim() || '';
     const payload = {
-      slug:    extractSlug(slugInput.value),
-      name:    nameInput.value.trim(),
-      logoUrl: logoInput.value.trim(),
+      slug:      extractSlug(slugInput.value),
+      name:      nameInput.value.trim(),
+      logoUrl:   logoInput.value.trim(),
+      eventId:   selectedEventId,
+      eventName: selectedEventName,
+      phaseId:   selectedPhaseId,
+      phaseName: selectedPhaseId ? selectedPhaseName : '',
     };
     saveBtn.disabled = true;
     fetch('/api/tournament-config', {
@@ -11455,9 +11534,37 @@ socket.on('stateUpdate', (s) => {
     openModal();
   });
 
+  /* ── Sync slug inputs depuis la config du tournoi ─────────── */
+
+  function applySlugsFromConfig(cfg) {
+    const s = cfg.slug || '';
+    const label = cfg.name ? `🏆 ${cfg.name}` : (s ? s : 'Aucun tournoi configuré');
+
+    const sggSlug = document.getElementById('sgg-slug');
+    const sggLabel = document.getElementById('sgg-config-name');
+    if (sggSlug)  sggSlug.value       = s;
+    if (sggLabel) sggLabel.textContent = label;
+
+    const matchSlug  = document.getElementById('match-sgg-slug');
+    const matchLabel = document.getElementById('match-sgg-config-name');
+    if (matchSlug)  matchSlug.value        = s;
+    if (matchLabel) matchLabel.textContent = label;
+
+    const upcomingLabel = document.getElementById('upcoming-tournament-name');
+    if (upcomingLabel) upcomingLabel.textContent = cfg.name || s || '—';
+  }
+
+  /* ── Lien "Configuration du tournoi" dans l'onglet Start.gg ── */
+  document.querySelectorAll('.open-setup-link').forEach(el => {
+    el.addEventListener('click', e => { e.preventDefault(); openModal(); });
+  });
+
   /* ── Socket.IO sync ────────────────────────────────────────── */
 
-  socket.on('tournamentConfigUpdate', cfg => updateIndicator(cfg));
+  socket.on('tournamentConfigUpdate', cfg => {
+    updateIndicator(cfg);
+    applySlugsFromConfig(cfg);
+  });
 
   /* ── Chargement initial ────────────────────────────────────── */
 
@@ -11470,6 +11577,38 @@ socket.on('stateUpdate', (s) => {
     if (cfg.name)    nameInput.value = cfg.name;
     if (cfg.logoUrl) { logoInput.value = cfg.logoUrl; updateLogoPreview(cfg.logoUrl); }
     updateIndicator(cfg);
+    applySlugsFromConfig(cfg);
+
+    /* Si un slug est déjà configuré et qu'on a la clé, pré-charger les events */
+    if (cfg.slug && keyData.hasKey) {
+      if (eventSelect) eventSelect.dataset.savedId = cfg.eventId || '';
+      if (phaseSelect) phaseSelect.dataset.savedId = cfg.phaseId || '';
+      fetch('/api/tournament-config/fetch', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ slug: cfg.slug }),
+      }).then(r => r.json()).then(data => {
+        if (data.events?.length) populateEventSelect(data.events, cfg.eventId);
+      }).catch(() => {});
+    } else if (cfg.eventId && cfg.eventName && eventSelect) {
+      /* Afficher au moins l'événement sauvegardé si on ne peut pas recharger */
+      const opt = document.createElement('option');
+      opt.value = cfg.eventId;
+      opt.textContent = cfg.eventName;
+      opt.selected = true;
+      eventSelect.innerHTML = '<option value="">— Sélectionner un bracket —</option>';
+      eventSelect.appendChild(opt);
+      if (eventSection) eventSection.style.display = '';
+      if (cfg.phaseId && cfg.phaseName && phaseSelect) {
+        const pOpt = document.createElement('option');
+        pOpt.value = cfg.phaseId;
+        pOpt.textContent = cfg.phaseName;
+        pOpt.selected = true;
+        phaseSelect.innerHTML = '<option value="">— Toutes les phases —</option>';
+        phaseSelect.appendChild(pOpt);
+        if (phaseSection) phaseSection.style.display = '';
+      }
+    }
 
     const configured = !!(cfg.name || cfg.slug);
     const dismissed  = !!localStorage.getItem('pso_setup_dismissed');

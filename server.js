@@ -3778,6 +3778,10 @@ function getTournamentConfig() {
     logoUrl:   cfg.tournamentLogoUrl   || '',
     bannerUrl: cfg.tournamentBannerUrl || '',
     id:        cfg.tournamentId        || null,
+    eventId:   cfg.tournamentEventId   || null,
+    eventName: cfg.tournamentEventName || '',
+    phaseId:   cfg.tournamentPhaseId   || null,
+    phaseName: cfg.tournamentPhaseName || '',
   };
 }
 
@@ -3790,8 +3794,21 @@ app.post('/api/tournament-config', (req, res) => {
   if (req.body.logoUrl   !== undefined) cfg.tournamentLogoUrl   = String(req.body.logoUrl).trim();
   if (req.body.bannerUrl !== undefined) cfg.tournamentBannerUrl = String(req.body.bannerUrl).trim();
   if (req.body.id        !== undefined) cfg.tournamentId        = req.body.id;
+  if (req.body.eventId   !== undefined) cfg.tournamentEventId   = req.body.eventId || null;
+  if (req.body.eventName !== undefined) cfg.tournamentEventName = String(req.body.eventName || '').trim();
+  if (req.body.phaseId   !== undefined) cfg.tournamentPhaseId   = req.body.phaseId   || null;
+  if (req.body.phaseName !== undefined) cfg.tournamentPhaseName = String(req.body.phaseName || '').trim();
   if (req.body.apiKey    !== undefined && req.body.apiKey) cfg.startggApiKey = String(req.body.apiKey).trim();
   saveConfig(cfg);
+  /* Sync upcoming slug + eventId */
+  const slugChanged    = req.body.slug    !== undefined && cfg.tournamentSlug   !== upcomingState.slug;
+  const eventChanged   = req.body.eventId !== undefined && cfg.tournamentEventId !== upcomingState.eventId;
+  upcomingState.slug    = cfg.tournamentSlug    || '';
+  upcomingState.eventId = cfg.tournamentEventId || null;
+  upcomingState.phaseId = cfg.tournamentPhaseId || null;
+  if ((slugChanged || eventChanged) && upcomingState.eventId) {
+    refreshUpcoming().catch(() => {});
+  }
   const tc = getTournamentConfig();
   io.emit('tournamentConfigUpdate', tc);
   io.emit('stingerConfig', stingerPayload());
@@ -3815,6 +3832,7 @@ app.post('/api/tournament-config/fetch', async (req, res) => {
         tournament(slug: $slug) {
           id name slug
           images { url type ratio width height }
+          events { id name numEntrants }
         }
       }
     `, { slug });
@@ -3835,6 +3853,7 @@ app.post('/api/tournament-config/fetch', async (req, res) => {
       slug:      t.slug,
       logoUrl:   logoImg?.url   || '',
       bannerUrl: bannerImg?.url || '',
+      events:    (t.events || []).map(e => ({ id: e.id, name: e.name, numEntrants: e.numEntrants })),
     });
   } catch (e) {
     res.status(400).json({ error: e.message });
@@ -3893,11 +3912,15 @@ let upcomingState = (() => {
   const cfg = getConfig();
   return {
     sets:           [],
-    slug:           cfg.upcomingSlug           || '',
+    slug:           cfg.upcomingSlug || cfg.tournamentSlug || '',
+    eventId:        cfg.tournamentEventId  || null,
+    phaseId:        cfg.tournamentPhaseId  || null,
     streamFilter:   cfg.upcomingStreamFilter   || '',
     maxSets:        cfg.upcomingMaxSets        || 16,
     frameWidthPct:  cfg.upcomingFrameWidthPct  || 30,
     frameRatio:     cfg.upcomingFrameRatio     || '16:9',
+    frameLabel:     cfg.upcomingFrameLabel     || '',
+    textColor:      cfg.upcomingTextColor      || '',
     lastUpdate:     null,
     error:          null,
     visible:        true,
@@ -3906,11 +3929,12 @@ let upcomingState = (() => {
 
 function saveUpcomingConfig() {
   const cfg = getConfig();
-  cfg.upcomingSlug          = upcomingState.slug;
   cfg.upcomingStreamFilter  = upcomingState.streamFilter;
   cfg.upcomingMaxSets       = upcomingState.maxSets;
   cfg.upcomingFrameWidthPct = upcomingState.frameWidthPct;
   cfg.upcomingFrameRatio    = upcomingState.frameRatio;
+  cfg.upcomingFrameLabel    = upcomingState.frameLabel;
+  cfg.upcomingTextColor     = upcomingState.textColor;
   saveConfig(cfg);
 }
 
@@ -3927,15 +3951,15 @@ function processUpcomingSlot(slot) {
 }
 
 async function refreshUpcoming() {
-  const { slug, streamFilter, maxSets } = upcomingState;
-  if (!slug) return;
+  const { eventId, phaseId, maxSets } = upcomingState;
+  if (!eventId) { upcomingState.error = 'Aucun bracket sélectionné'; io.emit('upcomingUpdate', upcomingState); return; }
   try {
+    const phaseFilter = phaseId ? `, phaseIds: [${phaseId}]` : '';
     const data = await startggQuery(`
-      query StreamQueue($slug: String!) {
-        tournament(slug: $slug) {
-          streamQueue {
-            stream { streamName }
-            sets {
+      query UpcomingSets($eventId: ID!) {
+        event(id: $eventId) {
+          sets(page: 1, perPage: 64, sortType: MAGIC, filters: { state: [1, 2, 4, 6]${phaseFilter} }) {
+            nodes {
               id fullRoundText totalGames
               phaseGroup { displayIdentifier phase { name } }
               slots {
@@ -3946,17 +3970,13 @@ async function refreshUpcoming() {
           }
         }
       }
-    `, { slug });
+    `, { eventId });
 
-    const rawQueue = data?.tournament?.streamQueue || [];
-    const allItems = [];
-    for (const entry of rawQueue) {
-      const sName = entry.stream?.streamName || '';
-      if (streamFilter && !sName.toLowerCase().includes(streamFilter.toLowerCase())) continue;
-      for (const s of (entry.sets || [])) allItems.push({ s, sName });
-    }
+    const nodes = data?.event?.sets?.nodes || [];
+    /* Exclure les BYEs (un slot sans entrant) */
+    const valid = nodes.filter(s => s.slots?.[0]?.entrant && s.slots?.[1]?.entrant);
 
-    upcomingState.sets = allItems.slice(0, maxSets).map(({ s, sName }, idx) => ({
+    upcomingState.sets = valid.slice(0, maxSets).map((s, idx) => ({
       id:         s.id,
       position:   idx + 1,
       roundName:  s.fullRoundText || '',
@@ -3965,7 +3985,6 @@ async function refreshUpcoming() {
       p1:         processUpcomingSlot(s.slots?.[0]),
       p2:         processUpcomingSlot(s.slots?.[1]),
       totalGames: s.totalGames || null,
-      streamName: sName,
     }));
     upcomingState.lastUpdate = Date.now();
     upcomingState.error      = null;
@@ -3979,7 +3998,7 @@ let _upcomingTimer = null;
 function scheduleUpcomingRefresh() {
   clearTimeout(_upcomingTimer);
   const interval = (getConfig().upcomingRefreshInterval || 60) * 1000;
-  if (interval > 0 && upcomingState.slug) {
+  if (interval > 0 && upcomingState.eventId) {
     _upcomingTimer = setTimeout(async () => {
       await refreshUpcoming();
       scheduleUpcomingRefresh();
@@ -3992,11 +4011,12 @@ app.get('/upcoming', (req, res) => res.sendFile(path.join(__dirname, 'public', '
 app.get('/api/upcoming', (req, res) => res.json(upcomingState));
 
 app.post('/api/upcoming/config', (req, res) => {
-  if (req.body.slug           !== undefined) upcomingState.slug           = String(req.body.slug).trim();
   if (req.body.streamFilter   !== undefined) upcomingState.streamFilter   = String(req.body.streamFilter).trim();
   if (req.body.maxSets        !== undefined) upcomingState.maxSets        = Math.min(20, Math.max(1, parseInt(req.body.maxSets, 10)));
-  if (req.body.frameWidthPct  !== undefined) upcomingState.frameWidthPct  = Math.min(40, Math.max(20, parseInt(req.body.frameWidthPct, 10)));
+  if (req.body.frameWidthPct  !== undefined) upcomingState.frameWidthPct  = Math.min(70, Math.max(10, parseInt(req.body.frameWidthPct, 10)));
   if (req.body.frameRatio     !== undefined) upcomingState.frameRatio     = ['16:9','4:3'].includes(req.body.frameRatio) ? req.body.frameRatio : '16:9';
+  if (req.body.frameLabel     !== undefined) upcomingState.frameLabel     = String(req.body.frameLabel);
+  if (req.body.textColor      !== undefined) upcomingState.textColor      = /^#[0-9A-Fa-f]{6}$/.test(req.body.textColor) ? req.body.textColor : '';
   if (req.body.refreshInterval !== undefined) {
     const cfg = getConfig(); cfg.upcomingRefreshInterval = parseInt(req.body.refreshInterval, 10); saveConfig(cfg);
   }
@@ -4007,11 +4027,9 @@ app.post('/api/upcoming/config', (req, res) => {
 });
 
 app.post('/api/upcoming/refresh', async (req, res) => {
-  if (req.body.slug         !== undefined) upcomingState.slug         = String(req.body.slug).trim();
-  if (req.body.streamFilter !== undefined) upcomingState.streamFilter = String(req.body.streamFilter).trim();
-  if (req.body.maxSets      !== undefined) upcomingState.maxSets      = Math.min(20, Math.max(1, parseInt(req.body.maxSets, 10)));
+  if (req.body.maxSets !== undefined) upcomingState.maxSets = Math.min(20, Math.max(1, parseInt(req.body.maxSets, 10)));
   saveUpcomingConfig();
-  if (!upcomingState.slug) return res.status(400).json({ error: 'Aucun slug configuré' });
+  if (!upcomingState.eventId) return res.status(400).json({ error: 'Aucun bracket sélectionné — configurez le tournoi depuis le menu en haut' });
   await refreshUpcoming();
   scheduleUpcomingRefresh();
   res.json(upcomingState);

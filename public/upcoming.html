@@ -14,8 +14,9 @@
 
 <div id="uc-root">
 
-  <!-- Zone gauche : cadre transparent pour source OBS -->
+  <!-- Zone gauche : label + cadre transparent pour OBS -->
   <div id="uc-frame-zone">
+    <span id="uc-frame-label"></span>
     <div id="uc-frame-box">
       <span class="uc-corner uc-corner--tl"></span>
       <span class="uc-corner uc-corner--tr"></span>
@@ -24,22 +25,22 @@
     </div>
   </div>
 
-  <!-- Panel droit : liste des matchs -->
-  <div id="uc-panel">
-
-    <div id="uc-panel-header">
-      <div id="uc-phase-wrap">
-        <span class="uc-phase-dot"></span>
-        <span id="uc-phase-label">PROCHAINS MATCHS</span>
-      </div>
+  <!-- Panel droit : titre au-dessus + cadre avec les matchs -->
+  <div id="uc-panel-wrap">
+    <div id="uc-panel-top">
+      <span id="uc-phase-label">PROCHAINS MATCHS</span>
       <span id="uc-count-label"></span>
     </div>
-
-    <div id="uc-viewport"></div>
-
-    <div id="uc-nav"></div>
-
+    <div id="uc-panel">
+      <span class="uc-corner uc-corner--tl"></span>
+      <span class="uc-corner uc-corner--tr"></span>
+      <span class="uc-corner uc-corner--bl"></span>
+      <span class="uc-corner uc-corner--br"></span>
+      <div id="uc-viewport"></div>
+      <div id="uc-nav"></div>
+    </div>
   </div>
+
 </div>
 
 <script src="/socket.io/socket.io.js"></script>

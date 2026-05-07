@@ -59,6 +59,41 @@
         </div>
 
         <div class="setup-verify-status" id="setup-verify-status"></div>
+
+        <!-- Sélection de l'évènement — affiché après vérification -->
+        <div class="setup-field" id="setup-event-section" style="display:none">
+          <label class="setup-label">Bracket</label>
+          <select id="setup-event-select" class="setup-input" style="cursor:pointer">
+            <option value="">— Sélectionner un bracket —</option>
+          </select>
+        </div>
+
+        <!-- Sélection de la phase — affiché après sélection de bracket -->
+        <div class="setup-field" id="setup-phase-section" style="display:none">
+          <label class="setup-label">Phase <span style="font-weight:400;opacity:0.6">(optionnel)</span></label>
+          <select id="setup-phase-select" class="setup-input" style="cursor:pointer">
+            <option value="">— Toutes les phases —</option>
+          </select>
+          <div style="font-size:10px;color:var(--text-muted);margin-top:4px">
+            Filtrer les prochains matchs par phase. Laisser vide pour afficher toutes les phases.
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Collection OBS ─────────────────────────────────── -->
+      <div class="setup-section">
+        <div class="setup-section-title">
+          <span class="setup-section-dot"></span>
+          Collection OBS
+        </div>
+        <div class="setup-field">
+          <p style="font-size:12px;color:var(--text-muted);margin-bottom:10px">
+            Téléchargez et importez cette collection dans OBS Studio pour ajouter tous les overlays PSO en une seule opération.
+          </p>
+          <a class="btn btn-outline" href="/api/obs-collection" download="PSO-collection.json" style="display:inline-flex;align-items:center;gap:6px;text-decoration:none">
+            ↓ Télécharger la collection OBS
+          </a>
+        </div>
       </div>
 
       <!-- ── Informations tournoi ────────────────────────── -->
@@ -1709,12 +1744,11 @@
     <!-- CONNEXION START.GG (toujours visible, masquée quand les participants sont chargés) -->
     <section class="section" id="match-sgg-connect-section">
       <div class="form-group">
-        <label>Slug ou URL start.gg</label>
-        <div class="name-row">
-          <input type="text" id="match-sgg-slug" placeholder="ex: tournament/combo-breaker-2024" style="flex:1" />
-          <button class="btn btn-primary btn-sm" id="match-sgg-search-btn">Chercher</button>
+        <div style="display:flex;align-items:center;gap:10px;padding:4px 0 8px">
+          <span id="match-sgg-config-name" style="font-size:13px;color:var(--text-muted)">Aucun tournoi configuré</span>
+          <button class="btn btn-primary btn-sm" id="match-sgg-search-btn" style="margin-left:auto">Chercher</button>
         </div>
-        <p class="hint">Format attendu : <code>tournament/nom-du-tournoi</code></p>
+        <input type="hidden" id="match-sgg-slug" />
       </div>
       <div id="match-sgg-tournament-info" style="display:none">
         <p class="hint" id="match-sgg-tournament-name"></p>
@@ -3505,17 +3539,15 @@
     <!-- Bloc config (connexion + recherche tournoi) — masqué après chargement -->
     <div id="sgg-setup-wrap">
 
-      <!-- Recherche tournoi -->
+      <!-- Tournoi actif (depuis la configuration du tournoi) -->
       <section class="section">
         <div class="section-header"><h2>Tournoi</h2></div>
-        <div class="form-group">
-          <label>Slug ou URL start.gg</label>
-          <div class="name-row">
-            <input type="text" id="sgg-slug" placeholder="ex: tournament/combo-breaker-2024" style="flex:1" />
-            <button class="btn btn-primary btn-sm" id="sgg-search-btn">Chercher</button>
-          </div>
-          <p class="hint">Format attendu : <code>tournament/nom-du-tournoi</code></p>
+        <div id="sgg-tournament-from-config" style="display:flex;align-items:center;gap:10px;padding:8px 0">
+          <span id="sgg-config-name" style="font-size:13px;color:var(--text-muted)">Aucun tournoi configuré</span>
+          <button class="btn btn-outline btn-sm" id="sgg-search-btn" style="margin-left:auto">Rechercher</button>
         </div>
+        <input type="hidden" id="sgg-slug" />
+        <p class="hint">Le tournoi est défini dans <a href="#" class="open-setup-link" style="color:var(--accent)">Configuration du tournoi</a></p>
       </section>
 
     </div><!-- /sgg-setup-wrap -->
@@ -3800,9 +3832,8 @@
       <div class="custom-card" style="display:flex;flex-direction:column;gap:12px">
 
         <div class="ctrl-row" style="gap:10px;flex-wrap:wrap">
-          <label class="ctrl-label" style="white-space:nowrap">Slug tournoi</label>
-          <input type="text" id="upcoming-slug" class="input-name"
-                 placeholder="tournament/example" style="flex:1;min-width:180px" />
+          <label class="ctrl-label" style="white-space:nowrap">Tournoi</label>
+          <span id="upcoming-tournament-name" style="font-size:12px;color:var(--text-muted);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">—</span>
           <label class="ctrl-label" style="white-space:nowrap">Filtre stream</label>
           <input type="text" id="upcoming-stream" class="input-name"
                  placeholder="Nom du stream (optionnel)" style="width:180px" />
@@ -3817,8 +3848,20 @@
         <div style="height:1px;background:var(--border);margin:2px 0"></div>
 
         <div class="ctrl-row" style="gap:10px;align-items:center">
-          <label class="ctrl-label" style="white-space:nowrap">Cadre gauche</label>
-          <input type="range" id="upcoming-frame-width" min="20" max="40" value="30" style="flex:1" />
+          <label class="ctrl-label" style="white-space:nowrap">Label cadre</label>
+          <input type="text" id="upcoming-frame-label" class="input-name"
+                 placeholder="ex: CADRE CAMÉRA" style="flex:1" />
+        </div>
+
+        <div class="ctrl-row" style="gap:10px;align-items:center">
+          <label class="ctrl-label" style="white-space:nowrap">Couleur texte</label>
+          <input type="color" id="upcoming-text-color" value="#0a0a10" style="width:40px;height:28px;padding:2px;border:1px solid var(--border);border-radius:4px;background:none;cursor:pointer" />
+          <button class="btn" id="upcoming-text-color-reset" style="font-size:11px;padding:3px 8px">Par défaut (thème)</button>
+        </div>
+
+        <div class="ctrl-row" style="gap:10px;align-items:center">
+          <label class="ctrl-label" style="white-space:nowrap">Largeur cadre</label>
+          <input type="range" id="upcoming-frame-width" min="10" max="70" value="30" style="flex:1" />
           <span id="upcoming-frame-width-val" class="num-display" style="min-width:36px">30%</span>
           <label class="ctrl-label" style="white-space:nowrap;margin-left:8px">Ratio</label>
           <select id="upcoming-frame-ratio" class="input-name" style="width:74px">
