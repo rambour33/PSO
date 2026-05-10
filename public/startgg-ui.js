@@ -17,6 +17,52 @@
   let _countdownTimer     = null;
   let _countdownSec       = 0;
 
+  // ── Personnages SSBU ─────────────────────────────────────────────────────────
+
+  const SSBU_CHAR_LABELS = {
+    banjo_kazooie:'Banjo & Kazooie', bayonetta:'Bayonetta', bowser:'Bowser',
+    bowser_jr:'Bowser Jr.', byleth:'Byleth', captain_falcon:'Captain Falcon',
+    chrom:'Chrom', cloud:'Cloud', corrin:'Corrin', dark_pit:'Dark Pit',
+    dark_samus:'Dark Samus', daisy:'Daisy', diddy_kong:'Diddy Kong',
+    donkey_kong:'Donkey Kong', dr_mario:'Dr. Mario', duck_hunt:'Duck Hunt',
+    falco:'Falco', fox:'Fox', ganondorf:'Ganondorf', greninja:'Greninja',
+    hero:'Hero', ice_climbers:'Ice Climbers', ike:'Ike', incineroar:'Incineroar',
+    inkling:'Inkling', isabelle:'Isabelle', joker:'Joker', jigglypuff:'Jigglypuff',
+    kazuya:'Kazuya', ken:'Ken', king_dedede:'King Dedede', king_k_rool:'King K. Rool',
+    kirby:'Kirby', link:'Link', little_mac:'Little Mac', lucas:'Lucas',
+    lucario:'Lucario', lucina:'Lucina', luigi:'Luigi', mario:'Mario', marth:'Marth',
+    mega_man:'Mega Man', meta_knight:'Meta Knight', mewtwo:'Mewtwo',
+    mii_brawler:'Mii Brawler', mii_gunner:'Mii Gunner', mii_swordfighter:'Mii Swordfighter',
+    min_min:'Min Min', mr_game_watch:'Mr. Game & Watch', ness:'Ness', olimar:'Olimar',
+    pac_man:'Pac-Man', palutena:'Palutena', peach:'Peach', pichu:'Pichu',
+    pikachu:'Pikachu', piranha_plant:'Piranha Plant', pit:'Pit',
+    pokemon_trainer:'Pokémon Trainer', pyra_mythra:'Pyra/Mythra', ridley:'Ridley',
+    richter:'Richter', rob:'R.O.B.', robin:'Robin', rosalina:'Rosalina & Luma',
+    roy:'Roy', ryu:'Ryu', samus:'Samus', sephiroth:'Sephiroth', sheik:'Sheik',
+    shulk:'Shulk', simon:'Simon', snake:'Snake', sonic:'Sonic', sora:'Sora',
+    steve:'Steve', toon_link:'Toon Link', terry:'Terry', villager:'Villager',
+    wario:'Wario', wii_fit_trainer:'Wii Fit Trainer', wolf:'Wolf', yoshi:'Yoshi',
+    young_link:'Young Link', zelda:'Zelda', zero_suit_samus:'Zero Suit Samus',
+  };
+  const SSBU_CHARS_SORTED = Object.entries(SSBU_CHAR_LABELS)
+    .sort((a, b) => a[1].localeCompare(b[1]));
+
+  function buildCharSelect(cls) {
+    const sel = document.createElement('select');
+    sel.className = cls || 'sgg-char-select';
+    const def = document.createElement('option');
+    def.value = '';
+    def.textContent = '— Personnage —';
+    sel.appendChild(def);
+    SSBU_CHARS_SORTED.forEach(([id, label]) => {
+      const opt = document.createElement('option');
+      opt.value = id;
+      opt.textContent = label;
+      sel.appendChild(opt);
+    });
+    return sel;
+  }
+
   // ── Helpers ──────────────────────────────────────────────────────────────────
 
   function showStatus(msg, isError = false) {
@@ -81,8 +127,6 @@
     showStatus('Tournoi chargé : ' + data.name);
   }
 
-  document.getElementById('sgg-search-btn')?.addEventListener('click', () =>
-    searchTournament('sgg-slug', 'sgg-tournament-info', 'sgg-tournament-name', 'sgg-event-select'));
   document.getElementById('match-sgg-search-btn')?.addEventListener('click', () =>
     searchTournament('match-sgg-slug', 'match-sgg-tournament-info', 'match-sgg-tournament-name', 'match-sgg-event-select'));
 
@@ -278,6 +322,7 @@
           </div>
           <span class="sgg-report-name sgg-report-name-right">${p2Tag ? '['+p2Tag+'] ':'' }${p2Name}</span>
         </div>
+        <div class="sgg-report-chars"></div>
         <div class="sgg-report-actions">
           <span class="sgg-report-status hint"></span>
           <button class="btn btn-outline btn-sm sgg-report-btn"
@@ -288,6 +333,16 @@
           </button>
         </div>
       `;
+      // Ajouter les selects de personnages
+      const charsRow = reportPanel.querySelector('.sgg-report-chars');
+      const charSel1 = buildCharSelect('sgg-char-select sgg-char-p1');
+      const charSel2 = buildCharSelect('sgg-char-select sgg-char-p2');
+      charsRow.appendChild(charSel1);
+      const vsSpan = document.createElement('span');
+      vsSpan.className = 'sgg-report-sep';
+      vsSpan.textContent = 'vs';
+      charsRow.appendChild(vsSpan);
+      charsRow.appendChild(charSel2);
 
       // Toggle affichage
       if (toggleBtn) {
@@ -322,6 +377,8 @@
         this.disabled = true;
         statusEl.textContent = 'Envoi…';
         statusEl.style.color = '';
+        const p1Char = reportPanel.querySelector('.sgg-char-p1')?.value || null;
+        const p2Char = reportPanel.querySelector('.sgg-char-p2')?.value || null;
         try {
           const res = await fetch(`/api/startgg/set/${s.id}/report`, {
             method: 'POST',
@@ -329,6 +386,8 @@
             body: JSON.stringify({
               p1EntrantId: e1Id, p2EntrantId: e2Id,
               p1Score: sc1, p2Score: sc2,
+              p1Character: p1Char || null,
+              p2Character: p2Char || null,
             }),
           });
           const data = await res.json();
@@ -522,40 +581,6 @@
       container.appendChild(setList);
     });
 
-    // Délégation des clics set
-    container.querySelectorAll('.sgg-apply-set').forEach(btn => {
-      btn.addEventListener('click', () => {
-        applySet(
-          btn.dataset.p1tag, btn.dataset.p1name,
-          btn.dataset.p2tag, btn.dataset.p2name,
-          parseInt(btn.dataset.p1score), parseInt(btn.dataset.p2score),
-          btn.dataset.round,
-          btn.dataset.p1seed !== '' ? parseInt(btn.dataset.p1seed) : null,
-          btn.dataset.p2seed !== '' ? parseInt(btn.dataset.p2seed) : null,
-          btn.dataset.p1pronouns, btn.dataset.p2pronouns,
-          btn.dataset.setid, btn.dataset.p1entrantid, btn.dataset.p2entrantid,
-          btn.dataset.p1playerid, btn.dataset.p2playerid
-        );
-      });
-    });
-
-    container.querySelectorAll('.sgg-start-set').forEach(btn => {
-      btn.addEventListener('click', async () => {
-        btn.disabled = true;
-        btn.textContent = '…';
-        try {
-          const res = await fetch(`/api/startgg/set/${btn.dataset.setid}/start`, { method: 'POST' });
-          const data = await res.json();
-          if (data.error) { showStatus('Erreur : ' + data.error, true); btn.disabled = false; btn.textContent = '▶ Démarrer'; return; }
-          showStatus('Set démarré !');
-          await refreshSets();
-        } catch (e) {
-          showStatus('Erreur réseau', true);
-          btn.disabled = false;
-          btn.textContent = '▶ Démarrer';
-        }
-      });
-    });
   }
 
   function applySet(p1tag, p1name, p2tag, p2name, p1score, p2score, round, p1seed, p2seed, p1pronouns, p2pronouns, setId, p1EntrantId, p2EntrantId, p1PlayerId, p2PlayerId) {
@@ -816,6 +841,82 @@
       }
     });
   }
+
+  // ── Délégation globale pour les boutons de sets (stream queue + sets list) ───
+
+  document.addEventListener('click', async e => {
+    const applyBtn = e.target.closest('.sgg-apply-set');
+    if (applyBtn) {
+      applySet(
+        applyBtn.dataset.p1tag, applyBtn.dataset.p1name,
+        applyBtn.dataset.p2tag, applyBtn.dataset.p2name,
+        parseInt(applyBtn.dataset.p1score), parseInt(applyBtn.dataset.p2score),
+        applyBtn.dataset.round,
+        applyBtn.dataset.p1seed !== '' ? parseInt(applyBtn.dataset.p1seed) : null,
+        applyBtn.dataset.p2seed !== '' ? parseInt(applyBtn.dataset.p2seed) : null,
+        applyBtn.dataset.p1pronouns, applyBtn.dataset.p2pronouns,
+        applyBtn.dataset.setid, applyBtn.dataset.p1entrantid, applyBtn.dataset.p2entrantid,
+        applyBtn.dataset.p1playerid, applyBtn.dataset.p2playerid
+      );
+      return;
+    }
+
+    const startBtn = e.target.closest('.sgg-start-set');
+    if (startBtn && !startBtn.disabled) {
+      startBtn.disabled = true;
+      startBtn.textContent = '…';
+      try {
+        const res  = await fetch(`/api/startgg/set/${startBtn.dataset.setid}/start`, { method: 'POST' });
+        const data = await res.json();
+        if (data.error) { showStatus('Erreur : ' + data.error, true); startBtn.disabled = false; startBtn.textContent = '▶ Démarrer'; return; }
+        showStatus('Set démarré !');
+        await refreshSets();
+      } catch (_) {
+        showStatus('Erreur réseau', true);
+        startBtn.disabled = false;
+        startBtn.textContent = '▶ Démarrer';
+      }
+    }
+  });
+
+  // ── Auto-load depuis la configuration du tournoi ─────────────────────────────
+
+  async function autoLoadFromConfig() {
+    try {
+      const cfg = await fetch('/api/tournament-config').then(r => r.json());
+      if (!cfg.slug || !cfg.eventId) return;
+
+      currentTournamentSlug = cfg.slug;
+      tournamentName = cfg.name || '';
+
+      // Remplir le sélecteur d'événements avec l'event sauvegardé
+      ['sgg-event-select', 'match-sgg-event-select'].forEach(selId => {
+        const sel = document.getElementById(selId);
+        if (!sel) return;
+        sel.innerHTML = '';
+        const opt = document.createElement('option');
+        opt.value = cfg.eventId;
+        opt.textContent = cfg.eventName || 'Bracket';
+        opt.selected = true;
+        sel.appendChild(opt);
+      });
+
+      // Afficher la barre compacte avec le nom du tournoi
+      const nameEl = document.getElementById('sgg-tournament-name');
+      if (nameEl) nameEl.textContent = '🏆 ' + (cfg.name || cfg.slug);
+      const info = document.getElementById('sgg-tournament-info');
+      if (info) info.style.display = '';
+      const bar = document.getElementById('sgg-active-bar');
+      if (bar) bar.style.display = '';
+
+      await loadEvent('sgg-event-select');
+    } catch (e) {
+      console.warn('[startgg] autoLoadFromConfig failed:', e);
+    }
+  }
+
+  window.sggAutoLoad = autoLoadFromConfig;
+  autoLoadFromConfig();
 
   // ── Init ──────────────────────────────────────────────────────────────────────
 

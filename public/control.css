@@ -2876,6 +2876,24 @@ kbd {
   padding: 0 2px;
 }
 
+.sgg-report-chars {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sgg-char-select {
+  flex: 1;
+  min-width: 0;
+  font-size: 11px;
+  padding: 3px 5px;
+  height: 28px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text);
+}
+
 .sgg-report-actions {
   display: flex;
   align-items: center;

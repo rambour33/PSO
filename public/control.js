@@ -481,8 +481,8 @@ document.getElementById('btn-send-startgg').addEventListener('click', async func
         p2EntrantId,
         p1Score,
         p2Score,
-        p1Character: state.player1.character || null,
-        p2Character: state.player2.character || null,
+        p1Character: state.player1.character?.id || null,
+        p2Character: state.player2.character?.id || null,
       }),
     });
     const data = await res.json();
@@ -11564,6 +11564,8 @@ socket.on('stateUpdate', (s) => {
   socket.on('tournamentConfigUpdate', cfg => {
     updateIndicator(cfg);
     applySlugsFromConfig(cfg);
+    // Recharger les données start.gg si le tournoi configuré change
+    if (cfg.eventId) window.sggAutoLoad?.();
   });
 
   /* ── Chargement initial ────────────────────────────────────── */
