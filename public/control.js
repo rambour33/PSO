@@ -11887,29 +11887,37 @@ socket.on('stateUpdate', (s) => {
   });
 })();
 
-// ── Victory scroll-nav ────────────────────────────────────────────
-{
-  const scrollArea = document.getElementById('vic-scroll-area');
-  if (scrollArea) {
-    const SECTS  = ['vic-sect-obs','vic-sect-fond','vic-sect-effects','vic-sect-particles','vic-sect-anim'];
-    const titles = document.querySelectorAll('#vic-nav-titles .vic-nav-title');
+// ── Scroll-nav générique (Victory, VS Screen, Next Match, Veto, Casters) ──────
+function initScrollNav(scrollAreaId, navTitlesId, sects) {
+  const scrollArea = document.getElementById(scrollAreaId);
+  if (!scrollArea) return;
+  const titles = document.querySelectorAll('#' + navTitlesId + ' .vic-nav-title');
 
-    function vicUpdateActive() {
-      let current = SECTS[0];
-      for (const id of SECTS) {
+  function updateActive() {
+    const atBottom = scrollArea.scrollTop + scrollArea.clientHeight >= scrollArea.scrollHeight - 2;
+    let current = sects[0];
+    if (atBottom) {
+      current = sects[sects.length - 1];
+    } else {
+      for (const id of sects) {
         const el = document.getElementById(id);
         if (el && el.offsetTop - scrollArea.scrollTop <= scrollArea.clientHeight * 0.4) current = id;
       }
-      titles.forEach(t => t.classList.toggle('active', t.dataset.target === current));
     }
-
-    scrollArea.addEventListener('scroll', vicUpdateActive, { passive: true });
-
-    titles.forEach(t => {
-      t.addEventListener('click', () => {
-        const target = document.getElementById(t.dataset.target);
-        if (target) scrollArea.scrollTo({ top: target.offsetTop, behavior: 'smooth' });
-      });
-    });
+    titles.forEach(t => t.classList.toggle('active', t.dataset.target === current));
   }
+
+  scrollArea.addEventListener('scroll', updateActive, { passive: true });
+  titles.forEach(t => {
+    t.addEventListener('click', () => {
+      const target = document.getElementById(t.dataset.target);
+      if (target) scrollArea.scrollTo({ top: target.offsetTop, behavior: 'smooth' });
+    });
+  });
 }
+
+initScrollNav('vic-scroll-area',     'vic-nav-titles',     ['vic-sect-obs','vic-sect-fond','vic-sect-effects','vic-sect-particles','vic-sect-anim']);
+initScrollNav('vs-scroll-area',      'vs-nav-titles',      ['vs-sect-obs','vs-sect-fond','vs-sect-effects','vs-sect-particles','vs-sect-anim']);
+initScrollNav('nm-scroll-area',      'nm-nav-titles',      ['nm-sect-obs','nm-sect-cadre','nm-sect-elements']);
+initScrollNav('veto-scroll-area',    'veto-nav-titles',    ['veto-sect-action','veto-sect-ruleset']);
+initScrollNav('casters-scroll-area', 'casters-nav-titles', ['casters-sect-form','casters-sect-config']);

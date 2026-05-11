@@ -5170,6 +5170,62 @@ body.regie-mode [data-subpanel$="-preview"] {
   padding: 8px 22px;
 }
 
+/* ── Footer réseaux sociaux ─────────────────────────────────────── */
+#pso-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 20px;
+  background: var(--surface2);
+  border-top: 1px solid var(--border);
+  margin-top: 24px;
+  flex-shrink: 0;
+}
+.pso-footer-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  letter-spacing: 0.08em;
+}
+.pso-footer-links {
+  display: flex;
+  gap: 16px;
+}
+.pso-footer-link {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: none;
+  padding: 4px 10px;
+  border-radius: 5px;
+  transition: background 0.15s, color 0.15s;
+}
+.pso-footer-x {
+  color: var(--text);
+  background: rgba(255,255,255,0.06);
+}
+.pso-footer-x:hover {
+  background: rgba(255,255,255,0.12);
+  color: #fff;
+}
+.pso-footer-yt {
+  color: #ff4444;
+  background: rgba(255,68,68,0.08);
+}
+.pso-footer-yt:hover {
+  background: rgba(255,68,68,0.18);
+  color: #ff6666;
+}
+.pso-footer-twitch {
+  color: #a970ff;
+  background: rgba(169,112,255,0.08);
+}
+.pso-footer-twitch:hover {
+  background: rgba(169,112,255,0.18);
+  color: #bf94ff;
+}
+
 /* ── Masquage start.gg sur VS Screen / Victory ──────────────────── */
 #tab-match.hide-sgg #match-sgg-connect-section,
 #tab-match.hide-sgg #match-sgg-sets-section { display: none !important; }
@@ -5189,6 +5245,6 @@ body.regie-mode [data-subpanel$="-preview"] {
   user-select: none;
 }
 .vic-nav-title.active { color: #e05050; }
-#vic-scroll-area { scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
-#vic-scroll-area::-webkit-scrollbar { width: 4px; }
-#vic-scroll-area::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+#vic-scroll-area, #vs-scroll-area, #nm-scroll-area, #veto-scroll-area, #casters-scroll-area { scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
+#vic-scroll-area::-webkit-scrollbar, #vs-scroll-area::-webkit-scrollbar, #nm-scroll-area::-webkit-scrollbar, #veto-scroll-area::-webkit-scrollbar, #casters-scroll-area::-webkit-scrollbar { width: 4px; }
+#vic-scroll-area::-webkit-scrollbar-thumb, #vs-scroll-area::-webkit-scrollbar-thumb, #nm-scroll-area::-webkit-scrollbar-thumb, #veto-scroll-area::-webkit-scrollbar-thumb, #casters-scroll-area::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
