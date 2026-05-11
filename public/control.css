@@ -5169,3 +5169,26 @@ body.regie-mode [data-subpanel$="-preview"] {
   font-size: 13px;
   padding: 8px 22px;
 }
+
+/* ── Masquage start.gg sur VS Screen / Victory ──────────────────── */
+#tab-match.hide-sgg #match-sgg-connect-section,
+#tab-match.hide-sgg #match-sgg-sets-section { display: none !important; }
+
+/* ── Victory scroll-nav ─────────────────────────────────────────── */
+.vic-nav-title {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: color 0.25s;
+  white-space: nowrap;
+  user-select: none;
+}
+.vic-nav-title.active { color: #e05050; }
+#vic-scroll-area { scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
+#vic-scroll-area::-webkit-scrollbar { width: 4px; }
+#vic-scroll-area::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }

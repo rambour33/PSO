@@ -1695,6 +1695,10 @@ document.querySelectorAll('.match-subnav .match-subpanel-btn').forEach(btn => {
       // scalePreviewWrap est dans un scope interne — on déclenche resize pour recalculer
       setTimeout(() => window.dispatchEvent(new Event('resize')), 0);
     }
+
+    // Masquer les sections start.gg pour VS Screen et Victory
+    const hideSgg = ['vs-sub-main', 'vic-sub-main'].includes(btn.dataset.subpanel);
+    document.getElementById('tab-match')?.classList.toggle('hide-sgg', hideSgg);
   });
 });
 
@@ -11876,3 +11880,30 @@ socket.on('stateUpdate', (s) => {
     if (!configured && !dismissed) openModal();
   });
 })();
+
+// ── Victory scroll-nav ────────────────────────────────────────────
+{
+  const scrollArea = document.getElementById('vic-scroll-area');
+  if (scrollArea) {
+    const SECTS  = ['vic-sect-obs','vic-sect-fond','vic-sect-effects','vic-sect-particles','vic-sect-anim'];
+    const titles = document.querySelectorAll('#vic-nav-titles .vic-nav-title');
+
+    function vicUpdateActive() {
+      let current = SECTS[0];
+      for (const id of SECTS) {
+        const el = document.getElementById(id);
+        if (el && el.offsetTop - scrollArea.scrollTop <= scrollArea.clientHeight * 0.4) current = id;
+      }
+      titles.forEach(t => t.classList.toggle('active', t.dataset.target === current));
+    }
+
+    scrollArea.addEventListener('scroll', vicUpdateActive, { passive: true });
+
+    titles.forEach(t => {
+      t.addEventListener('click', () => {
+        const target = document.getElementById(t.dataset.target);
+        if (target) scrollArea.scrollTo({ top: target.offsetTop, behavior: 'smooth' });
+      });
+    });
+  }
+}
