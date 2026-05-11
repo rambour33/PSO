@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Victoire – PSO</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Russo+One&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="victory.css">
+</head>
+<body>
+
+  <!-- Couche background -->
+  <div id="vic-bg-layer">
+    <div id="vic-bg"></div>
+    <div id="vic-vignette"></div>
+    <div id="vic-scanlines"></div>
+  </div>
+
+  <!-- Canvas particules personnage -->
+  <canvas id="vic-canvas-particles"></canvas>
+
+  <!-- Canvas confetti (couche du dessus) -->
+  <canvas id="confetti-canvas"></canvas>
+
+  <!-- Overlay principal -->
+  <div id="vic-root">
+
+    <!-- Teinte configurable -->
+    <div id="vic-tint"></div>
+
+    <!-- Flash d'entrée -->
+    <div id="vic-flash"></div>
+
+    <!-- Lueur derrière le personnage -->
+    <div id="vic-glow"></div>
+
+    <!-- Splash art -->
+    <div id="vic-char-wrap">
+      <img id="vic-char-img" src="" alt="">
+    </div>
+
+    <!-- Panneau info -->
+    <div id="vic-panel">
+      <div id="vic-label">VICTOIRE</div>
+      <div id="vic-sep"></div>
+      <div id="vic-score-wrap">
+        <span id="vic-score-p1">0</span>
+        <span id="vic-score-sep">–</span>
+        <span id="vic-score-p2">0</span>
+      </div>
+      <div id="vic-player-wrap">
+        <span id="vic-tag"></span>
+        <span id="vic-name"></span>
+      </div>
+      <div id="vic-meta"></div>
+    </div>
+
+    <!-- Ligne d'accent bas de page -->
+    <div id="vic-accent-line"></div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="ps-engine.js"></script>
+  <script src="victory.js"></script>
+</body>
+</html>

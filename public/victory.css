@@ -1,0 +1,406 @@
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  width: 1920px;
+  height: 1080px;
+  overflow: hidden;
+  background: transparent;
+  font-family: 'Inter', sans-serif;
+}
+
+/* ── Background layer ──────────────────────────────── */
+#vic-bg-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  opacity: 0;
+  transition: none;
+}
+
+#vic-bg-layer.vic-bg-in {
+  opacity: 1;
+  transition: opacity 0.9s ease, transform 0.9s cubic-bezier(0.22,1,0.36,1);
+}
+#vic-bg-layer.vic-bg-out {
+  opacity: 0 !important;
+  transition: opacity 0.55s ease-in, transform 0.55s ease-in;
+}
+
+#vic-root[data-entry="zoom"] #vic-bg-layer:not(.vic-bg-in) { transform: scale(1.1); }
+#vic-root[data-entry="zoom"] #vic-bg-layer.vic-bg-in       { transform: scale(1) !important; }
+#vic-root[data-entry="drop"] #vic-bg-layer:not(.vic-bg-in) { transform: translateY(-30px); }
+#vic-root[data-entry="drop"] #vic-bg-layer.vic-bg-in        { transform: translateY(0) !important; }
+#vic-root[data-exit="zoom-out"] #vic-bg-layer.vic-bg-out   { transform: scale(0.92) !important; }
+#vic-root[data-exit="slide"]    #vic-bg-layer.vic-bg-out   { transform: translateY(18px) !important; }
+
+#vic-bg {
+  position: absolute; inset: 0;
+  background-size: cover;
+  background-position: center;
+  filter: blur(18px) brightness(0.3) saturate(1.4);
+  transform: scale(1.08);
+  transition: background-image 0.6s ease;
+}
+
+#vic-vignette {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse 70% 70% at 50% 50%, transparent 30%, rgba(4,4,12,0.85) 100%),
+    linear-gradient(to bottom, rgba(4,4,12,0.5) 0%, transparent 18%, transparent 82%, rgba(4,4,12,0.7) 100%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+#vic-scanlines {
+  position: absolute; inset: 0;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0px, transparent 2px,
+    rgba(0,0,0,0.08) 2px, rgba(0,0,0,0.08) 4px
+  );
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* ── Particle canvas ───────────────────────────────── */
+#vic-canvas-particles {
+  position: absolute;
+  top: 0; left: 0;
+  width: 960px; height: 1080px;
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* ── Confetti canvas ───────────────────────────────── */
+#confetti-canvas {
+  position: fixed;
+  top: 0; left: 0;
+  width: 1920px;
+  height: 1080px;
+  z-index: 100;
+  pointer-events: none;
+}
+
+/* ── Tint ──────────────────────────────────────────── */
+#vic-tint {
+  position: absolute; inset: 0;
+  pointer-events: none;
+  z-index: 3;
+  display: none;
+}
+
+/* ── Flash ─────────────────────────────────────────── */
+#vic-flash {
+  position: absolute; inset: 0;
+  background: white;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 200;
+}
+#vic-flash.vic-flash-anim {
+  animation: vicFlash 0.55s ease-out forwards;
+}
+@keyframes vicFlash {
+  0%   { opacity: 0; }
+  15%  { opacity: 0.9; }
+  100% { opacity: 0; }
+}
+
+/* ── Root overlay ──────────────────────────────────── */
+#vic-root {
+  position: fixed;
+  top: 0; left: 0;
+  width: 1920px;
+  height: 1080px;
+  background: transparent;
+  --wc: #e6c84a;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 5;
+}
+
+/* Entry animations */
+#vic-root.vic-visible {
+  animation: vic-fadein 0.4s ease forwards;
+}
+#vic-root[data-entry="zoom"].vic-visible {
+  animation: vic-zoom-in 0.6s cubic-bezier(0.22,1,0.36,1) forwards;
+}
+#vic-root[data-entry="drop"].vic-visible {
+  animation: vic-drop-in 0.55s cubic-bezier(0.22,1,0.36,1) forwards;
+}
+#vic-root[data-entry="slide"].vic-visible {
+  animation: vic-slide-in 0.55s cubic-bezier(0.22,1,0.36,1) forwards;
+}
+#vic-root[data-entry="bounce"].vic-visible {
+  animation: vic-bounce-in 0.7s cubic-bezier(0.34,1.56,0.64,1) forwards;
+}
+
+/* Exit animations */
+#vic-root.vic-hidden {
+  animation: vic-fadeout 0.5s ease forwards;
+}
+#vic-root[data-exit="zoom-out"].vic-hidden {
+  animation: vic-zoom-out 0.5s ease-in forwards;
+}
+#vic-root[data-exit="slide"].vic-hidden {
+  animation: vic-slide-out 0.45s ease-in forwards;
+}
+
+@keyframes vic-fadein   { from { opacity: 0; } to { opacity: 1; } }
+@keyframes vic-fadeout  { from { opacity: 1; } to { opacity: 0; } }
+@keyframes vic-zoom-in  { from { opacity: 0; transform: scale(0.92); } to { opacity: 1; transform: scale(1); } }
+@keyframes vic-zoom-out { from { opacity: 1; transform: scale(1);    } to { opacity: 0; transform: scale(0.92); } }
+@keyframes vic-drop-in  { from { opacity: 0; transform: translateY(-40px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes vic-slide-in { from { opacity: 0; transform: translateX(60px); } to { opacity: 1; transform: translateX(0); } }
+@keyframes vic-bounce-in{ from { opacity: 0; transform: scale(0.85); } to { opacity: 1; transform: scale(1); } }
+@keyframes vic-slide-out{ from { opacity: 1; transform: translateX(0); } to { opacity: 0; transform: translateX(60px); } }
+
+/* ── Glow behind character ─────────────────────────── */
+#vic-glow {
+  position: absolute;
+  bottom: -80px;
+  width: 720px;
+  height: 960px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center, var(--wc) 0%, transparent 68%);
+  opacity: 0.16;
+  z-index: 1;
+  transition: left 0.1s, right 0.1s;
+}
+
+#vic-root:not(.vic-right) #vic-glow { left: -60px; }
+#vic-root.vic-right         #vic-glow { right: -60px; left: auto; }
+
+/* ── Character ─────────────────────────────────────── */
+#vic-char-wrap {
+  position: absolute;
+  bottom: 0;
+  width: 960px;
+  height: 1080px;
+  z-index: 5;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  overflow: hidden;
+}
+
+#vic-root:not(.vic-right) #vic-char-wrap {
+  left: 0;
+  mask-image: linear-gradient(to right, rgba(0,0,0,1) 65%, rgba(0,0,0,0.25) 88%, rgba(0,0,0,0) 100%);
+  -webkit-mask-image: linear-gradient(to right, rgba(0,0,0,1) 65%, rgba(0,0,0,0.25) 88%, rgba(0,0,0,0) 100%);
+}
+#vic-root.vic-right #vic-char-wrap {
+  right: 0; left: auto;
+  mask-image: linear-gradient(to left, rgba(0,0,0,1) 65%, rgba(0,0,0,0.25) 88%, rgba(0,0,0,0) 100%);
+  -webkit-mask-image: linear-gradient(to left, rgba(0,0,0,1) 65%, rgba(0,0,0,0.25) 88%, rgba(0,0,0,0) 100%);
+}
+
+#vic-char-img {
+  align-self: flex-end;
+  width: 960px;
+  height: 1080px;
+  max-width: none;
+  max-height: none;
+  object-fit: contain;
+  object-position: bottom center;
+  display: block;
+  filter: drop-shadow(0 0 60px rgba(0,0,0,0.55));
+  opacity: 0;
+  transform: translateX(-130px);
+}
+
+#vic-root.vic-right #vic-char-img {
+  transform: translateX(130px);
+}
+
+#vic-root.vic-visible:not(.vic-right) #vic-char-img {
+  animation: char-in-left 0.65s cubic-bezier(0.34, 1.56, 0.64, 1) 0.15s forwards;
+}
+#vic-root.vic-visible.vic-right #vic-char-img {
+  animation: char-in-right 0.65s cubic-bezier(0.34, 1.56, 0.64, 1) 0.15s forwards;
+}
+
+@keyframes char-in-left  {
+  from { opacity: 0; transform: translateX(-130px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes char-in-right {
+  from { opacity: 0; transform: translateX(130px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+/* ── Info panel ────────────────────────────────────── */
+#vic-panel {
+  position: absolute;
+  top: 0;
+  width: 960px;
+  height: 1080px;
+  z-index: 6;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0 90px;
+  gap: 0;
+}
+
+#vic-root:not(.vic-right) #vic-panel {
+  right: 0;
+  background: linear-gradient(to right, transparent 0%, rgba(7,6,15,0.88) 28%, #07060f 65%);
+}
+#vic-root.vic-right #vic-panel {
+  left: 0;
+  background: linear-gradient(to left, transparent 0%, rgba(7,6,15,0.88) 28%, #07060f 65%);
+}
+
+/* ── VICTOIRE label ────────────────────────────────── */
+#vic-label {
+  font-family: 'Russo One', sans-serif;
+  font-size: 92px;
+  letter-spacing: 0.06em;
+  color: var(--wc);
+  text-shadow:
+    0 0 32px var(--wc),
+    0 0 64px var(--wc),
+    0 4px 0 rgba(0,0,0,0.6);
+  line-height: 1;
+  opacity: 0;
+  transform: scale(0.72);
+}
+
+#vic-root.vic-visible #vic-label {
+  animation: label-pop 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s forwards;
+}
+
+@keyframes label-pop {
+  from { opacity: 0; transform: scale(0.72); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+/* ── Separator ─────────────────────────────────────── */
+#vic-sep {
+  height: 3px;
+  width: 0;
+  background: linear-gradient(to right, var(--wc), transparent);
+  margin: 22px 0;
+  border-radius: 2px;
+}
+
+#vic-root.vic-right #vic-sep {
+  background: linear-gradient(to left, var(--wc), transparent);
+}
+
+#vic-root.vic-visible #vic-sep {
+  animation: sep-expand 0.45s ease 0.6s forwards;
+}
+
+@keyframes sep-expand {
+  from { width: 0; }
+  to   { width: 300px; }
+}
+
+/* ── Score ─────────────────────────────────────────── */
+#vic-score-wrap {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  opacity: 0;
+  transform: translateY(22px);
+}
+
+#vic-root.vic-visible #vic-score-wrap {
+  animation: fade-up 0.4s ease 0.75s forwards;
+}
+
+#vic-score-p1, #vic-score-p2 {
+  font-family: 'Russo One', sans-serif;
+  font-size: 72px;
+  color: rgba(255,255,255,0.55);
+  transition: color 0.3s;
+}
+
+#vic-score-sep {
+  font-family: 'Russo One', sans-serif;
+  font-size: 48px;
+  color: rgba(255,255,255,0.3);
+}
+
+/* ── Player info ───────────────────────────────────── */
+#vic-player-wrap {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 14px;
+  opacity: 0;
+  transform: translateY(22px);
+  margin-top: 6px;
+}
+
+#vic-root.vic-visible #vic-player-wrap {
+  animation: fade-up 0.4s ease 0.92s forwards;
+}
+
+#vic-tag {
+  font-family: 'Russo One', sans-serif;
+  font-size: 54px;
+  color: #ffffff;
+  text-shadow: 0 2px 20px rgba(0,0,0,0.6);
+  word-break: break-all;
+}
+
+#vic-name {
+  font-family: 'Inter', sans-serif;
+  font-size: 22px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.45);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+/* ── Meta ──────────────────────────────────────────── */
+#vic-meta {
+  font-family: 'Inter', sans-serif;
+  font-size: 18px;
+  font-weight: 400;
+  color: rgba(255,255,255,0.3);
+  margin-top: 14px;
+  opacity: 0;
+  transform: translateY(22px);
+  letter-spacing: 0.04em;
+}
+
+#vic-root.vic-visible #vic-meta {
+  animation: fade-up 0.4s ease 1.08s forwards;
+}
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(22px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Accent line ───────────────────────────────────── */
+#vic-accent-line {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 5px;
+  background: linear-gradient(to right, var(--wc) 0%, rgba(255,255,255,0.15) 50%, transparent 100%);
+  z-index: 7;
+  transform: scaleX(0);
+  transform-origin: left center;
+}
+
+#vic-root.vic-right #vic-accent-line {
+  background: linear-gradient(to left, var(--wc) 0%, rgba(255,255,255,0.15) 50%, transparent 100%);
+  transform-origin: right center;
+}
+
+#vic-root.vic-visible #vic-accent-line {
+  animation: accent-grow 0.5s ease 0.5s forwards;
+}
+
+@keyframes accent-grow {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}

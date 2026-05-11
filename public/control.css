@@ -2006,6 +2006,20 @@ kbd {
 .tab-content { display: none; }
 .tab-content.active { display: block; }
 
+/* ── VS / Victoire tab layout ────────────────────────────────── */
+
+.vswin-layout {
+  display: flex;
+  flex-direction: column;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 0 32px;
+}
+
+.vswin-layout .section + .section {
+  border-top: 1px solid var(--border);
+}
+
 /* ── Thèmes ──────────────────────────────────────────────────── */
 
 .themes-grid {

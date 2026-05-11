@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr" data-theme="dark">
 <head>
   <meta charset="UTF-8" />
@@ -281,11 +281,15 @@
       </div>
       <span class="match-nav-sep"></span>
       <div class="match-nav-group">
-        <button class="match-subpanel-btn match-nav-section" data-subpanel="vsscreen-sub-match">VS Screen</button>
+        <button class="match-subpanel-btn match-nav-section" data-subpanel="nm-sub-match">Next Match</button>
       </div>
       <span class="match-nav-sep"></span>
       <div class="match-nav-group">
-        <button class="match-subpanel-btn match-nav-section" data-subpanel="nm-sub-match">Next Match</button>
+        <button class="match-subpanel-btn match-nav-section" data-subpanel="vs-sub-main">VS Screen</button>
+      </div>
+      <span class="match-nav-sep"></span>
+      <div class="match-nav-group">
+        <button class="match-subpanel-btn match-nav-section" data-subpanel="vic-sub-main">Victory</button>
       </div>
     </div>
 
@@ -393,7 +397,9 @@
             <button id="btn-reset-score" class="btn btn-danger btn-full">Reset scores</button>
             <button id="btn-swap" class="btn btn-outline btn-full">⇄ Inverser joueurs</button>
             <button id="btn-hide-player-colors" class="btn btn-outline btn-full">🎨 Couleurs joueurs : ON</button>
+            <button id="btn-char-display-mode" class="btn btn-outline btn-full">🖼 Personnages : Normal</button>
             <button id="btn-send-startgg" class="btn btn-outline btn-full" style="display:none">▲ Envoyer le score sur start.gg</button>
+            <button id="btn-victory-toggle" class="btn btn-outline btn-full">🏆 Victoire : Masqué</button>
           </div>
           <input type="hidden" id="sgg-current-set-id" value="" />
           <input type="hidden" id="sgg-p1-entrant-id" value="" />
@@ -1364,11 +1370,164 @@
         </div>
       </div><!-- /veto-sub-preview -->
 
-      <div class="match-subpanel" id="vsscreen-sub-match">
+      <!-- VS Screen déplacé → onglet ⚔ VS / Victoire -->
+
+      <div class="match-subpanel" id="nm-sub-match">
+        <section class="section">
+          <div class="section-header">
+            <h2>Next Match</h2>
+            <a href="/nextmatch" target="_blank" class="btn btn-outline btn-sm">Ouvrir l'overlay ↗</a>
+          </div>
+
+          <!-- Layout preview + options côte à côte -->
+          <div style="display:flex;gap:16px;align-items:flex-start;">
+
+            <!-- Aperçu miniature de l'overlay -->
+            <div class="custom-card" style="padding:0;overflow:hidden;border-radius:8px;flex:0 0 50%;min-width:0;">
+              <div style="background:#111;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;">
+                <span style="font-size:12px;font-weight:600;color:var(--text-muted);letter-spacing:1px;text-transform:uppercase;">Aperçu – s'adapte au thème actif</span>
+                <span style="font-size:11px;color:var(--text-muted)">1920 × 1080</span>
+              </div>
+              <div style="position:relative;width:100%;padding-bottom:56.25%;background:#0a0a0f;overflow:hidden;">
+                <iframe
+                  src="/nextmatch"
+                  style="position:absolute;top:0;left:0;width:100%;height:100%;border:none;transform-origin:top left;pointer-events:none;"
+                  scrolling="no"
+                  id="twitch-layout-preview"
+                ></iframe>
+              </div>
+            </div>
+
+            <!-- Options à droite -->
+            <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:12px;">
+
+              <!-- Infos d'utilisation OBS -->
+              <div class="custom-card" style="margin:0;">
+                <h3>Utilisation dans OBS</h3>
+                <p style="font-size:13px;color:var(--text-muted);margin-bottom:12px;line-height:1.6;">
+                  Ajoute une <strong>Source Navigateur</strong> dans OBS avec l'URL ci-dessous.<br>
+                  Résolution : <strong>1920 × 1080</strong> · Actualiser toutes les scènes.
+                </p>
+                <div class="name-row" style="gap:8px;">
+                  <input type="text" id="twitch-layout-url" readonly
+                    style="flex:1;font-size:12px;background:var(--surface2);border:1px solid var(--border);color:var(--text-muted);cursor:text;"
+                    value="http://localhost:3002/nextmatch" />
+                  <button class="btn btn-primary btn-sm" id="btn-copy-twitch-url">Copier</button>
+                </div>
+              </div>
+
+              <!-- Options du cadre -->
+              <div class="custom-card" style="margin:0;">
+                <h3>Options du cadre</h3>
+                <div class="form-group" style="margin-bottom:14px;">
+                  <label>Taille des coins <span class="hint">px</span></label>
+                  <div class="logo-particles-row">
+                    <input type="range" id="tw-corner-size" min="20" max="120" value="48" />
+                    <input type="number" id="tw-corner-size-num" min="20" max="120" value="48" style="width:60px;" />
+                  </div>
+                </div>
+                <div class="form-group" style="margin-bottom:14px;">
+                  <label>Épaisseur du cadre <span class="hint">px</span></label>
+                  <div class="logo-particles-row">
+                    <input type="range" id="tw-corner-thick" min="1" max="8" value="3" step="1" />
+                    <input type="number" id="tw-corner-thick-num" min="1" max="8" value="3" style="width:60px;" />
+                  </div>
+                </div>
+                <div class="form-group" style="margin:0;">
+                  <label>Opacité du fond de la barre <span class="hint">0 – 100 %</span></label>
+                  <div class="logo-particles-row">
+                    <input type="range" id="tw-bg-opacity" min="0" max="100" value="88" />
+                    <input type="number" id="tw-bg-opacity-num" min="0" max="100" value="88" style="width:60px;" />
+                  </div>
+                </div>
+              </div>
+
+              <!-- Éléments affichés -->
+              <div class="custom-card" style="margin:0;">
+                <h3>Éléments affichés</h3>
+                <div style="display:flex;flex-direction:column;gap:10px;">
+                  <label class="checkbox-row">
+                    <input type="checkbox" id="tw-show-corners" checked />
+                    <span>Coins décoratifs</span>
+                  </label>
+                  <label class="checkbox-row">
+                    <input type="checkbox" id="tw-show-scanline" checked />
+                    <span>Ligne de scan animée</span>
+                  </label>
+                  <label class="checkbox-row">
+                    <input type="checkbox" id="tw-show-sidelines" checked />
+                    <span>Lignes latérales</span>
+                  </label>
+                  <label class="checkbox-row">
+                    <input type="checkbox" id="tw-show-glow" checked />
+                    <span>Lueur ambiante</span>
+                  </label>
+                  <label class="checkbox-row">
+                    <input type="checkbox" id="tw-show-chars" checked />
+                    <span>Personnages dans la barre joueurs</span>
+                  </label>
+                  <label class="checkbox-row">
+                    <input type="checkbox" id="tw-show-vs" checked />
+                    <span>Barre joueurs (joueur 1 · VS · joueur 2)</span>
+                  </label>
+                </div>
+              </div>
+
+            </div><!-- /options -->
+          </div><!-- /layout -->
+
+        </section>
+      </div><!-- /nm-sub-match -->
+
+      <div class="match-subpanel" id="nm-sub-preview">
+        <div class="overlay-preview-container">
+          <div class="overlay-preview-wrap">
+            <iframe class="overlay-preview-frame" src="/nextmatch"></iframe>
+          </div>
+        </div>
+      </div><!-- /nm-sub-preview -->
+
+    <!-- CONNEXION START.GG (toujours visible, masquée quand les participants sont chargés) -->
+    <section class="section" id="match-sgg-connect-section">
+      <div class="form-group">
+        <div style="display:flex;align-items:center;gap:10px;padding:4px 0 8px">
+          <span id="match-sgg-config-name" style="font-size:13px;color:var(--text-muted)">Aucun tournoi configuré</span>
+          <button class="btn btn-primary btn-sm" id="match-sgg-search-btn" style="margin-left:auto">Chercher</button>
+        </div>
+        <input type="hidden" id="match-sgg-slug" />
+      </div>
+      <div id="match-sgg-tournament-info" style="display:none">
+        <p class="hint" id="match-sgg-tournament-name"></p>
+        <div class="form-group">
+          <label>Évènement</label>
+          <select id="match-sgg-event-select" class="input-name" style="width:100%"></select>
+          <button class="btn btn-outline btn-sm" id="match-sgg-load-event" style="margin-top:6px">Charger les participants</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- SETS START.GG (affiché seulement quand des sets sont chargés) -->
+    <section class="section" id="match-sgg-sets-section" style="display:none">
+      <div class="section-header">
+        <h2 style="display:flex;align-items:center;gap:8px">
+          <svg style="width:16px;height:16px;color:#17B978;flex-shrink:0" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>
+          Sets start.gg
+        </h2>
+        <span style="font-size:11px;color:var(--text-muted,#666);font-weight:400">La stream queue est gérée sur start.gg</span>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span id="match-sgg-refresh-countdown" class="hint"></span>
+          <button class="btn btn-outline btn-sm" id="match-sgg-refresh-sets" title="Actualiser les sets">↺ Actualiser</button>
+        </div>
+      </div>
+      <div id="match-sgg-stream-queue" class="sgg-stream-queue" style="display:none"></div>
+      <div id="match-sgg-sets-list" class="sgg-sets-list"></div>
+    </section>
+
+      <div class="match-subpanel" id="vs-sub-main">
       <section class="section">
         <div class="section-header">
           <h2>VS Screen</h2>
-          <p class="hint" style="margin:0">Utilisez ⚔ VS Anim dans la barre en haut pour déclencher</p>
+          <a href="/vs-screen" target="_blank" class="btn btn-outline btn-sm">Ouvrir l'overlay ↗</a>
         </div>
 
         <div class="vs-obs-guide">
@@ -1624,160 +1783,276 @@
         </div>
 
       </section>
-      </div><!-- /vsscreen-sub-match -->
+      </div><!-- /vs-sub-main -->
 
-      <div class="match-subpanel" id="nm-sub-match">
-        <section class="section">
-          <div class="section-header">
-            <h2>Next Match</h2>
-            <a href="/nextmatch" target="_blank" class="btn btn-outline btn-sm">Ouvrir l'overlay ↗</a>
-          </div>
+      <div class="match-subpanel" id="vic-sub-main">
+      <section class="section">
+        <div class="section-header">
+          <h2>Overlay Victoire</h2>
+          <a href="/victory" target="_blank" class="btn btn-outline btn-sm">Ouvrir l'overlay ↗</a>
+        </div>
 
-          <!-- Layout preview + options côte à côte -->
-          <div style="display:flex;gap:16px;align-items:flex-start;">
+        <div class="vs-obs-guide">
+          <div class="vs-obs-guide-title">📺 Intégration OBS</div>
+          <ol class="vs-obs-guide-steps">
+            <li>Dans OBS, ajouter une source <strong>Navigateur</strong></li>
+            <li>URL : <code>http://localhost:3002/victory</code> <button class="btn-copy-inline" data-url="http://localhost:3002/victory">📋</button></li>
+            <li>Résolution : <strong>1920 × 1080</strong>, fond transparent activé</li>
+            <li>L'overlay apparaît <strong>automatiquement</strong> quand un joueur remporte le set</li>
+            <li>Il disparaît automatiquement quand le score est remis à zéro</li>
+          </ol>
+        </div>
 
-            <!-- Aperçu miniature de l'overlay -->
-            <div class="custom-card" style="padding:0;overflow:hidden;border-radius:8px;flex:0 0 50%;min-width:0;">
-              <div style="background:#111;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;">
-                <span style="font-size:12px;font-weight:600;color:var(--text-muted);letter-spacing:1px;text-transform:uppercase;">Aperçu – s'adapte au thème actif</span>
-                <span style="font-size:11px;color:var(--text-muted)">1920 × 1080</span>
-              </div>
-              <div style="position:relative;width:100%;padding-bottom:56.25%;background:#0a0a0f;overflow:hidden;">
-                <iframe
-                  src="/nextmatch"
-                  style="position:absolute;top:0;left:0;width:100%;height:100%;border:none;transform-origin:top left;pointer-events:none;"
-                  scrolling="no"
-                  id="twitch-layout-preview"
-                ></iframe>
+        <div style="display:flex;gap:10px;padding:0 16px 8px">
+          <button id="btn-victory-test" class="btn btn-outline" style="flex:1">▶ Tester (état actuel)</button>
+          <button id="btn-victory-hide" class="btn btn-outline" style="flex:1;color:var(--text-muted)">✕ Masquer</button>
+        </div>
+
+        <div class="vs-subtab-nav" id="vic-subtab-nav">
+          <button class="vs-subtab-btn active" data-vicpanel="vic-panel-bg">Fond</button>
+          <button class="vs-subtab-btn" data-vicpanel="vic-panel-effects">Effets</button>
+          <button class="vs-subtab-btn" data-vicpanel="vic-panel-particles">Particules</button>
+          <button class="vs-subtab-btn" data-vicpanel="vic-panel-anim">Animation</button>
+          <button class="vs-subtab-btn" data-vicpanel="vic-panel-preview">Preview</button>
+        </div>
+
+        <!-- ── Panel : Fond ── -->
+        <div class="vs-subtab-panel active" id="vic-panel-bg">
+          <div class="custom-grid">
+            <div class="custom-card">
+              <h3>Image de fond</h3>
+              <p class="hint" style="margin-bottom:10px">PNG, JPG ou WebP — 1920×1080.</p>
+              <div style="display:flex;flex-direction:column;gap:10px">
+                <label class="btn btn-outline" style="cursor:pointer;text-align:center">
+                  Choisir une image
+                  <input type="file" id="vic-bg-file" accept="image/png,image/jpeg,image/webp" style="display:none" />
+                </label>
+                <div id="vic-bg-preview-wrap" style="display:none;position:relative">
+                  <img id="vic-bg-preview" style="width:100%;border-radius:6px;border:1px solid var(--border);display:block" alt="aperçu" />
+                  <button id="btn-vic-bg-clear" class="btn btn-sm" style="margin-top:6px;width:100%;background:rgba(220,50,50,0.15);color:#e05050;border:1px solid rgba(220,50,50,0.3)">Supprimer</button>
+                </div>
+                <p id="vic-bg-status" class="hint" style="text-align:center"></p>
               </div>
             </div>
-
-            <!-- Options à droite -->
-            <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:12px;">
-
-              <!-- Infos d'utilisation OBS -->
-              <div class="custom-card" style="margin:0;">
-                <h3>Utilisation dans OBS</h3>
-                <p style="font-size:13px;color:var(--text-muted);margin-bottom:12px;line-height:1.6;">
-                  Ajoute une <strong>Source Navigateur</strong> dans OBS avec l'URL ci-dessous.<br>
-                  Résolution : <strong>1920 × 1080</strong> · Actualiser toutes les scènes.
-                </p>
-                <div class="name-row" style="gap:8px;">
-                  <input type="text" id="twitch-layout-url" readonly
-                    style="flex:1;font-size:12px;background:var(--surface2);border:1px solid var(--border);color:var(--text-muted);cursor:text;"
-                    value="http://localhost:3002/nextmatch" />
-                  <button class="btn btn-primary btn-sm" id="btn-copy-twitch-url">Copier</button>
-                </div>
+            <div class="custom-card">
+              <h3>Filtres du fond de scène</h3>
+              <div class="form-group">
+                <label>Flou <span id="vic-bg-blur-val" class="hint">18px</span></label>
+                <input type="range" id="vic-bg-blur" min="0" max="60" value="18" />
               </div>
-
-              <!-- Options du cadre -->
-              <div class="custom-card" style="margin:0;">
-                <h3>Options du cadre</h3>
-                <div class="form-group" style="margin-bottom:14px;">
-                  <label>Taille des coins <span class="hint">px</span></label>
-                  <div class="logo-particles-row">
-                    <input type="range" id="tw-corner-size" min="20" max="120" value="48" />
-                    <input type="number" id="tw-corner-size-num" min="20" max="120" value="48" style="width:60px;" />
-                  </div>
-                </div>
-                <div class="form-group" style="margin-bottom:14px;">
-                  <label>Épaisseur du cadre <span class="hint">px</span></label>
-                  <div class="logo-particles-row">
-                    <input type="range" id="tw-corner-thick" min="1" max="8" value="3" step="1" />
-                    <input type="number" id="tw-corner-thick-num" min="1" max="8" value="3" style="width:60px;" />
-                  </div>
-                </div>
-                <div class="form-group" style="margin:0;">
-                  <label>Opacité du fond de la barre <span class="hint">0 – 100 %</span></label>
-                  <div class="logo-particles-row">
-                    <input type="range" id="tw-bg-opacity" min="0" max="100" value="88" />
-                    <input type="number" id="tw-bg-opacity-num" min="0" max="100" value="88" style="width:60px;" />
-                  </div>
-                </div>
+              <div class="form-group">
+                <label>Luminosité <span id="vic-bg-brightness-val" class="hint">30%</span></label>
+                <input type="range" id="vic-bg-brightness" min="0" max="120" value="30" />
               </div>
-
-              <!-- Éléments affichés -->
-              <div class="custom-card" style="margin:0;">
-                <h3>Éléments affichés</h3>
-                <div style="display:flex;flex-direction:column;gap:10px;">
-                  <label class="checkbox-row">
-                    <input type="checkbox" id="tw-show-corners" checked />
-                    <span>Coins décoratifs</span>
-                  </label>
-                  <label class="checkbox-row">
-                    <input type="checkbox" id="tw-show-scanline" checked />
-                    <span>Ligne de scan animée</span>
-                  </label>
-                  <label class="checkbox-row">
-                    <input type="checkbox" id="tw-show-sidelines" checked />
-                    <span>Lignes latérales</span>
-                  </label>
-                  <label class="checkbox-row">
-                    <input type="checkbox" id="tw-show-glow" checked />
-                    <span>Lueur ambiante</span>
-                  </label>
-                  <label class="checkbox-row">
-                    <input type="checkbox" id="tw-show-chars" checked />
-                    <span>Personnages dans la barre joueurs</span>
-                  </label>
-                  <label class="checkbox-row">
-                    <input type="checkbox" id="tw-show-vs" checked />
-                    <span>Barre joueurs (joueur 1 · VS · joueur 2)</span>
-                  </label>
-                </div>
+              <div class="form-group">
+                <label>Saturation <span id="vic-bg-saturation-val" class="hint">140%</span></label>
+                <input type="range" id="vic-bg-saturation" min="0" max="300" value="140" />
               </div>
-
-            </div><!-- /options -->
-          </div><!-- /layout -->
-
-        </section>
-      </div><!-- /nm-sub-match -->
-
-      <div class="match-subpanel" id="nm-sub-preview">
-        <div class="overlay-preview-container">
-          <div class="overlay-preview-wrap">
-            <iframe class="overlay-preview-frame" src="/nextmatch"></iframe>
+              <div class="form-group">
+                <label>Opacité fond <span id="vic-bg-opacity-val" class="hint">100%</span></label>
+                <input type="range" id="vic-bg-opacity" min="0" max="100" value="100" />
+              </div>
+            </div>
           </div>
         </div>
-      </div><!-- /nm-sub-preview -->
 
-    <!-- CONNEXION START.GG (toujours visible, masquée quand les participants sont chargés) -->
-    <section class="section" id="match-sgg-connect-section">
-      <div class="form-group">
-        <div style="display:flex;align-items:center;gap:10px;padding:4px 0 8px">
-          <span id="match-sgg-config-name" style="font-size:13px;color:var(--text-muted)">Aucun tournoi configuré</span>
-          <button class="btn btn-primary btn-sm" id="match-sgg-search-btn" style="margin-left:auto">Chercher</button>
+        <!-- ── Panel : Effets ── -->
+        <div class="vs-subtab-panel" id="vic-panel-effects">
+          <div class="custom-grid">
+            <div class="custom-card">
+              <h3>Vignette</h3>
+              <div class="form-group">
+                <label>Intensité <span id="vic-vignette-val" class="hint">100%</span></label>
+                <input type="range" id="vic-vignette-intensity" min="0" max="100" value="100" />
+              </div>
+            </div>
+            <div class="custom-card">
+              <h3>Scanlines</h3>
+              <div class="form-group">
+                <label class="checkbox-row">
+                  <input type="checkbox" id="vic-scanlines-visible" checked />
+                  <span>Visibles</span>
+                </label>
+              </div>
+              <div class="form-group">
+                <label>Opacité <span id="vic-scanlines-opacity-val" class="hint">8%</span></label>
+                <input type="range" id="vic-scanlines-opacity" min="0" max="50" value="8" />
+              </div>
+            </div>
+            <div class="custom-card">
+              <h3>Teinte de couleur</h3>
+              <div class="form-group">
+                <label class="checkbox-row">
+                  <input type="checkbox" id="vic-tint-visible" />
+                  <span>Activer la teinte</span>
+                </label>
+              </div>
+              <div class="form-group">
+                <label>Couleur</label>
+                <input type="color" id="vic-tint-color" value="#000000" />
+              </div>
+              <div class="form-group">
+                <label>Opacité <span id="vic-tint-opacity-val" class="hint">0%</span></label>
+                <input type="range" id="vic-tint-opacity" min="0" max="80" value="0" />
+              </div>
+            </div>
+          </div>
         </div>
-        <input type="hidden" id="match-sgg-slug" />
-      </div>
-      <div id="match-sgg-tournament-info" style="display:none">
-        <p class="hint" id="match-sgg-tournament-name"></p>
-        <div class="form-group">
-          <label>Évènement</label>
-          <select id="match-sgg-event-select" class="input-name" style="width:100%"></select>
-          <button class="btn btn-outline btn-sm" id="match-sgg-load-event" style="margin-top:6px">Charger les participants</button>
-        </div>
-      </div>
-    </section>
 
-    <!-- SETS START.GG (affiché seulement quand des sets sont chargés) -->
-    <section class="section" id="match-sgg-sets-section" style="display:none">
-      <div class="section-header">
-        <h2 style="display:flex;align-items:center;gap:8px">
-          <svg style="width:16px;height:16px;color:#17B978;flex-shrink:0" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>
-          Sets start.gg
-        </h2>
-        <span style="font-size:11px;color:var(--text-muted,#666);font-weight:400">La stream queue est gérée sur start.gg</span>
-        <div style="display:flex;align-items:center;gap:8px">
-          <span id="match-sgg-refresh-countdown" class="hint"></span>
-          <button class="btn btn-outline btn-sm" id="match-sgg-refresh-sets" title="Actualiser les sets">↺ Actualiser</button>
+        <!-- ── Panel : Particules ── -->
+        <div class="vs-subtab-panel" id="vic-panel-particles">
+          <div class="custom-grid">
+            <div class="custom-card">
+              <h3>Override Joueur 1</h3>
+              <div class="form-group">
+                <select id="vic-p1-particle" class="select-input" style="width:100%">
+                  <option value="auto">Auto (selon personnage)</option>
+                  <option value="none">Aucune</option>
+                  <optgroup label="Atmosphère">
+                    <option value="snow">Neige</option>
+                    <option value="rain">Pluie</option>
+                    <option value="leaf">Feuilles</option>
+                    <option value="sand">Sable</option>
+                    <option value="smoke">Fumée</option>
+                    <option value="petal">Pétales</option>
+                    <option value="bubble">Bulles</option>
+                  </optgroup>
+                  <optgroup label="Énergie">
+                    <option value="fire">Feu</option>
+                    <option value="flame">Flammes</option>
+                    <option value="bolt">Éclairs</option>
+                    <option value="sparkle">Étincelles</option>
+                    <option value="aura">Aura</option>
+                    <option value="pixel">Pixels</option>
+                    <option value="data">Data</option>
+                  </optgroup>
+                  <optgroup label="Objets">
+                    <option value="star">Étoiles</option>
+                    <option value="heart">Cœurs</option>
+                    <option value="ghost">Fantômes</option>
+                    <option value="note">Notes</option>
+                    <option value="coin">Pièces</option>
+                    <option value="ring">Anneaux</option>
+                    <option value="feather">Plumes</option>
+                    <option value="rune">Runes</option>
+                  </optgroup>
+                </select>
+              </div>
+            </div>
+            <div class="custom-card">
+              <h3>Override Joueur 2</h3>
+              <div class="form-group">
+                <select id="vic-p2-particle" class="select-input" style="width:100%">
+                  <option value="auto">Auto (selon personnage)</option>
+                  <option value="none">Aucune</option>
+                  <optgroup label="Atmosphère">
+                    <option value="snow">Neige</option>
+                    <option value="rain">Pluie</option>
+                    <option value="leaf">Feuilles</option>
+                    <option value="sand">Sable</option>
+                    <option value="smoke">Fumée</option>
+                    <option value="petal">Pétales</option>
+                    <option value="bubble">Bulles</option>
+                  </optgroup>
+                  <optgroup label="Énergie">
+                    <option value="fire">Feu</option>
+                    <option value="flame">Flammes</option>
+                    <option value="bolt">Éclairs</option>
+                    <option value="sparkle">Étincelles</option>
+                    <option value="aura">Aura</option>
+                    <option value="pixel">Pixels</option>
+                    <option value="data">Data</option>
+                  </optgroup>
+                  <optgroup label="Objets">
+                    <option value="star">Étoiles</option>
+                    <option value="heart">Cœurs</option>
+                    <option value="ghost">Fantômes</option>
+                    <option value="note">Notes</option>
+                    <option value="coin">Pièces</option>
+                    <option value="ring">Anneaux</option>
+                    <option value="feather">Plumes</option>
+                    <option value="rune">Runes</option>
+                  </optgroup>
+                </select>
+              </div>
+            </div>
+            <div class="custom-card" style="grid-column:1/-1">
+              <h3>Global</h3>
+              <div class="form-group">
+                <label>Densité <span id="vic-particle-density-val" class="hint">100%</span></label>
+                <input type="range" id="vic-particle-density" min="0" max="200" value="100" />
+              </div>
+              <div class="form-group">
+                <label>Opacité <span id="vic-particle-opacity-val" class="hint">100%</span></label>
+                <input type="range" id="vic-particle-opacity" min="0" max="100" value="100" />
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
-      <div id="match-sgg-stream-queue" class="sgg-stream-queue" style="display:none"></div>
-      <div id="match-sgg-sets-list" class="sgg-sets-list"></div>
-    </section>
+
+        <!-- ── Panel : Animation ── -->
+        <div class="vs-subtab-panel" id="vic-panel-anim">
+          <div class="custom-grid">
+            <div class="custom-card">
+              <h3>Entrée</h3>
+              <div class="form-group">
+                <label>Type d'animation</label>
+                <div class="vs-anim-grid" id="vic-entry-grid">
+                  <button class="vs-anim-btn" data-vicentry="slide">↔ Glissement</button>
+                  <button class="vs-anim-btn" data-vicentry="zoom">⊕ Zoom</button>
+                  <button class="vs-anim-btn active" data-vicentry="fade">◎ Fondu</button>
+                  <button class="vs-anim-btn" data-vicentry="drop">↓ Chute</button>
+                  <button class="vs-anim-btn" data-vicentry="bounce">⇌ Rebond</button>
+                </div>
+              </div>
+              <div class="form-group">
+                <label>Durée <span id="vic-anim-duration-val" class="hint">700ms</span></label>
+                <input type="range" id="vic-anim-duration" min="200" max="2000" step="50" value="700" />
+              </div>
+              <div class="form-group">
+                <label class="checkbox-row">
+                  <input type="checkbox" id="vic-flash-enabled" checked />
+                  <span>Flash d'entrée</span>
+                </label>
+              </div>
+            </div>
+            <div class="custom-card">
+              <h3>Sortie</h3>
+              <div class="form-group">
+                <label>Type de sortie</label>
+                <div class="vs-anim-grid" id="vic-exit-grid">
+                  <button class="vs-anim-btn active" data-vicexit="fade">◎ Fondu</button>
+                  <button class="vs-anim-btn" data-vicexit="slide">↔ Glissement</button>
+                  <button class="vs-anim-btn" data-vicexit="zoom-out">⊖ Zoom arrière</button>
+                </div>
+              </div>
+            </div>
+            <div class="custom-card" style="grid-column:1/-1">
+              <h3>Minuterie auto-masquage</h3>
+              <p class="hint" style="margin-bottom:10px">Masque automatiquement l'overlay victoire après l'animation d'entrée. <strong>0 = désactivé.</strong></p>
+              <div style="display:flex;align-items:center;gap:12px">
+                <input type="range" id="vic-autohide-range" min="0" max="30" value="0" style="flex:1" />
+                <input type="number" id="vic-autohide-num" min="0" max="30" value="0" style="width:60px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:13px;padding:4px 6px;text-align:center" />
+                <span class="hint">sec</span>
+              </div>
+              <p id="vic-autohide-preview" class="hint" style="margin-top:6px;text-align:center"></p>
+            </div>
+          </div>
+        </div>
+
+        <div class="vs-subtab-panel" id="vic-panel-preview">
+          <div class="overlay-preview-container">
+            <div class="overlay-preview-wrap" id="preview-wrap-victory">
+              <iframe src="/victory" class="overlay-preview-frame" id="preview-frame-victory"></iframe>
+            </div>
+          </div>
+        </div>
+
+      </section>
+      </div><!-- /vic-sub-main -->
 
   </div><!-- /tab-match -->
+
 
   <!-- ═══════════════════════════════════════════════════════════ -->
   <!-- TAB : STAGE VETO                                            -->
@@ -3226,6 +3501,7 @@
               <div class="obs-url-item"><span>Scoreboard</span><code>localhost:3002/overlay</code><button class="btn-copy" data-url="http://localhost:3002/overlay">📋</button></div>
               <div class="obs-url-item"><span>Éléments libres</span><code>localhost:3002/scoreboard-elements</code><button class="btn-copy" data-url="http://localhost:3002/scoreboard-elements">📋</button></div>
               <div class="obs-url-item"><span>VS Screen</span><code>localhost:3002/vs-screen</code><button class="btn-copy" data-url="http://localhost:3002/vs-screen">📋</button></div>
+              <div class="obs-url-item"><span>Victoire</span><code>localhost:3002/victory</code><button class="btn-copy" data-url="http://localhost:3002/victory">📋</button></div>
               <div class="obs-url-item"><span>Casters</span><code>localhost:3002/casters</code><button class="btn-copy" data-url="http://localhost:3002/casters">📋</button></div>
               <div class="obs-url-item"><span>Cam</span><code>localhost:3002/cam</code><button class="btn-copy" data-url="http://localhost:3002/cam">📋</button></div>
             </div>

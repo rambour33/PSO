@@ -601,15 +601,18 @@ function update(s) {
   const p1Img = document.getElementById('p1-char-img');
   const p1Ph  = document.getElementById('p1-char-placeholder');
   if (s.player1.character) {
-    const c1 = String(s.player1.stockColor ?? 0).padStart(2, '0');
-    const n1 = s.player1.character.name.replace(/\s*\/\s*/g, '-');
-    p1Img.src = `/full/chara_1_${n1}_${c1}.png`;
+    const n1     = s.player1.character.name.replace(/\s*\/\s*/g, '-');
+    const mural  = s.charDisplayMode === 'mural';
+    p1Img.src    = mural ? `/murals/chara_1_${n1}_mural.png`
+                         : `/full/chara_1_${n1}_${String(s.player1.stockColor ?? 0).padStart(2,'0')}.png`;
     p1Img.style.display = 'block';
     p1Ph.style.display = 'none';
-    p1Img.onerror = () => {
-      p1Img.src = `/full/chara_1_${n1}_00.png`;
-      p1Img.onerror = () => { p1Img.style.display = 'none'; p1Ph.style.display = 'flex'; p1Ph.textContent = n1.charAt(0); };
-    };
+    p1Img.onerror = mural
+      ? () => { p1Img.style.display = 'none'; p1Ph.style.display = 'flex'; p1Ph.textContent = n1.charAt(0); }
+      : () => {
+          p1Img.src = `/full/chara_1_${n1}_00.png`;
+          p1Img.onerror = () => { p1Img.style.display = 'none'; p1Ph.style.display = 'flex'; p1Ph.textContent = n1.charAt(0); };
+        };
   } else {
     p1Img.style.display = 'none';
     p1Ph.style.display = 'flex';
@@ -635,15 +638,18 @@ function update(s) {
   const p2Img = document.getElementById('p2-char-img');
   const p2Ph  = document.getElementById('p2-char-placeholder');
   if (s.player2.character) {
-    const c2 = String(s.player2.stockColor ?? 0).padStart(2, '0');
-    const n2 = s.player2.character.name.replace(/\s*\/\s*/g, '-');
-    p2Img.src = `/full/chara_1_${n2}_${c2}.png`;
+    const n2     = s.player2.character.name.replace(/\s*\/\s*/g, '-');
+    const mural2 = s.charDisplayMode === 'mural';
+    p2Img.src    = mural2 ? `/murals/chara_1_${n2}_mural.png`
+                          : `/full/chara_1_${n2}_${String(s.player2.stockColor ?? 0).padStart(2,'0')}.png`;
     p2Img.style.display = 'block';
     p2Ph.style.display = 'none';
-    p2Img.onerror = () => {
-      p2Img.src = `/full/chara_1_${n2}_00.png`;
-      p2Img.onerror = () => { p2Img.style.display = 'none'; p2Ph.style.display = 'flex'; p2Ph.textContent = n2.charAt(0); };
-    };
+    p2Img.onerror = mural2
+      ? () => { p2Img.style.display = 'none'; p2Ph.style.display = 'flex'; p2Ph.textContent = n2.charAt(0); }
+      : () => {
+          p2Img.src = `/full/chara_1_${n2}_00.png`;
+          p2Img.onerror = () => { p2Img.style.display = 'none'; p2Ph.style.display = 'flex'; p2Ph.textContent = n2.charAt(0); };
+        };
   } else {
     p2Img.style.display = 'none';
     p2Ph.style.display = 'flex';

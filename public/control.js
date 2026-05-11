@@ -26,6 +26,7 @@ fetch('/api/server-info').then(r => r.json()).then(info => {
 let state = {
   player1: { name: 'PLAYER 1', score: 0, character: null, color: '#E83030' },
   player2: { name: 'PLAYER 2', score: 0, character: null, color: '#3070E8' },
+  charDisplayMode: 'normal',
   format: 'Bo3',
   customWins: 2,
   event: 'TOURNAMENT',
@@ -101,6 +102,8 @@ function syncFromState(s) {
   document.getElementById('particle-count-num').value   = pCt;
   updateParticlesToggle(s.particlesEnabled !== false);
   updateHidePlayerColorsBtn(s.hidePlayerColors === true);
+  updateCharDisplayModeBtn(s.charDisplayMode || 'normal');
+  if (s.charDisplayMode) state.charDisplayMode = s.charDisplayMode;
   updateLogoPreview();
 
   // Format buttons
@@ -650,6 +653,33 @@ document.getElementById('btn-swap').addEventListener('click', () => {
   emitState(ns);
   document.getElementById('btn-swap').classList.toggle('active', ns.swapped);
   setStatus(`Joueurs inversés`);
+});
+
+document.getElementById('btn-victory-test')?.addEventListener('click', () => {
+  fetch('/api/victory/test', { method: 'POST' });
+});
+document.getElementById('btn-victory-hide')?.addEventListener('click', () => {
+  fetch('/api/victory/hide', { method: 'POST' });
+});
+
+let _victoryVisible = false;
+function updateVictoryToggleBtn(visible) {
+  _victoryVisible = visible;
+  const btn = document.getElementById('btn-victory-toggle');
+  if (btn) {
+    btn.textContent = visible ? '🏆 Victoire : Affiché' : '🏆 Victoire : Masqué';
+    btn.style.color = visible ? 'var(--gold)' : '';
+    btn.style.borderColor = visible ? 'var(--gold)' : '';
+  }
+}
+document.getElementById('btn-victory-toggle')?.addEventListener('click', () => {
+  if (_victoryVisible) {
+    fetch('/api/victory/hide', { method: 'POST' });
+    updateVictoryToggleBtn(false);
+  } else {
+    fetch('/api/victory/test', { method: 'POST' });
+    updateVictoryToggleBtn(true);
+  }
 });
 
 document.getElementById('btn-vs-trigger')?.addEventListener('click', () => {
@@ -1811,6 +1841,22 @@ document.getElementById('btn-hide-player-colors').addEventListener('click', () =
   setStatus(state.hidePlayerColors ? 'Couleurs joueurs masquées' : 'Couleurs joueurs visibles');
 });
 
+function updateCharDisplayModeBtn(mode) {
+  const btn = document.getElementById('btn-char-display-mode');
+  if (!btn) return;
+  const isMural = mode === 'mural';
+  btn.textContent = isMural ? '🖼 Personnages : Mural' : '🖼 Personnages : Normal';
+  btn.classList.toggle('btn-warning', isMural);
+  btn.classList.toggle('btn-outline', !isMural);
+}
+
+document.getElementById('btn-char-display-mode').addEventListener('click', () => {
+  state.charDisplayMode = state.charDisplayMode === 'mural' ? 'normal' : 'mural';
+  updateCharDisplayModeBtn(state.charDisplayMode);
+  emitState(buildStateFromForm());
+  setStatus(state.charDisplayMode === 'mural' ? 'Affichage mural activé' : 'Affichage normal activé');
+});
+
 // Particules — opacité & quantité — sync slider ↔ number
 ['particle-opacity', 'particle-count'].forEach(id => {
   document.getElementById(id + '-range').addEventListener('input', function () {
@@ -2169,6 +2215,213 @@ document.getElementById('btn-vs-hide')?.addEventListener('click', () => {
         s('vs-autohide-range').value = cfg.animation.autoHide;
         s('vs-autohide-num').value   = cfg.animation.autoHide;
         updateAutoHidePreview();
+      }
+    }
+  }).catch(() => {});
+})();
+
+// ── Victory Screen background ──────────────────────────────────────────────
+
+(function () {
+  const fileInput   = document.getElementById('vic-bg-file');
+  const previewWrap = document.getElementById('vic-bg-preview-wrap');
+  const previewImg  = document.getElementById('vic-bg-preview');
+  const clearBtn    = document.getElementById('btn-vic-bg-clear');
+  const statusEl    = document.getElementById('vic-bg-status');
+  if (!fileInput) return;
+
+  function showPreview(url) { previewImg.src = url; previewWrap.style.display = 'block'; }
+  function hidePreview()    { previewWrap.style.display = 'none'; previewImg.src = ''; }
+
+  fetch('/api/victory-background').then(r => r.json()).then(({ url }) => {
+    if (url) showPreview(url + '?t=' + Date.now());
+  });
+
+  fileInput.addEventListener('change', () => {
+    const file = fileInput.files[0];
+    if (!file) return;
+    statusEl.textContent = 'Envoi en cours…';
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      const base64 = e.target.result.split(',')[1];
+      try {
+        const res = await fetch('/api/victory-background', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ filename: file.name, data: base64 }),
+        });
+        const { url, error } = await res.json();
+        if (error) { statusEl.textContent = 'Erreur : ' + error; return; }
+        showPreview(url + '?t=' + Date.now());
+        statusEl.textContent = 'Background appliqué !';
+        setTimeout(() => { statusEl.textContent = ''; }, 2000);
+      } catch { statusEl.textContent = 'Erreur réseau'; }
+    };
+    reader.readAsDataURL(file);
+    fileInput.value = '';
+  });
+
+  clearBtn.addEventListener('click', async () => {
+    await fetch('/api/victory-background', { method: 'DELETE' });
+    hidePreview();
+    statusEl.textContent = 'Background supprimé';
+    setTimeout(() => { statusEl.textContent = ''; }, 2000);
+  });
+})();
+
+// ── Victory Screen config ───────────────────────────────────────────────────
+
+(function () {
+  let _vicDebounce = null;
+  function sendVicConfig(patch) {
+    clearTimeout(_vicDebounce);
+    _vicDebounce = setTimeout(async () => {
+      await fetch('/api/victory-config', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(patch),
+      });
+    }, 80);
+  }
+
+  function sliderLabel(rangeId, labelId, suffix) {
+    const range = document.getElementById(rangeId);
+    const label = document.getElementById(labelId);
+    if (!range || !label) return;
+    range.addEventListener('input', () => { label.textContent = range.value + suffix; });
+    label.textContent = range.value + suffix;
+  }
+
+  // Fond
+  sliderLabel('vic-bg-blur',       'vic-bg-blur-val',       'px');
+  sliderLabel('vic-bg-brightness', 'vic-bg-brightness-val', '%');
+  sliderLabel('vic-bg-saturation', 'vic-bg-saturation-val', '%');
+  sliderLabel('vic-bg-opacity',    'vic-bg-opacity-val',    '%');
+
+  document.getElementById('vic-bg-blur')?.addEventListener('input', e =>       sendVicConfig({ bg: { blur: +e.target.value } }));
+  document.getElementById('vic-bg-brightness')?.addEventListener('input', e => sendVicConfig({ bg: { brightness: +e.target.value } }));
+  document.getElementById('vic-bg-saturation')?.addEventListener('input', e => sendVicConfig({ bg: { saturation: +e.target.value } }));
+  document.getElementById('vic-bg-opacity')?.addEventListener('input', e =>    sendVicConfig({ bg: { opacity: +e.target.value } }));
+
+  // Effets
+  sliderLabel('vic-vignette-intensity', 'vic-vignette-val',         '%');
+  sliderLabel('vic-scanlines-opacity',  'vic-scanlines-opacity-val','%');
+  sliderLabel('vic-tint-opacity',       'vic-tint-opacity-val',     '%');
+
+  document.getElementById('vic-vignette-intensity')?.addEventListener('input', e => sendVicConfig({ vignette: { intensity: +e.target.value } }));
+  document.getElementById('vic-scanlines-visible')?.addEventListener('change', e => sendVicConfig({ scanlines: { visible: e.target.checked } }));
+  document.getElementById('vic-scanlines-opacity')?.addEventListener('input', e =>  sendVicConfig({ scanlines: { opacity: +e.target.value } }));
+  document.getElementById('vic-tint-visible')?.addEventListener('change', e =>      sendVicConfig({ tint: { visible: e.target.checked } }));
+  document.getElementById('vic-tint-color')?.addEventListener('input', e =>         sendVicConfig({ tint: { color: e.target.value } }));
+  document.getElementById('vic-tint-opacity')?.addEventListener('input', e =>       sendVicConfig({ tint: { opacity: +e.target.value } }));
+
+  // Particules
+  sliderLabel('vic-particle-density', 'vic-particle-density-val', '%');
+  sliderLabel('vic-particle-opacity', 'vic-particle-opacity-val', '%');
+
+  document.getElementById('vic-p1-particle')?.addEventListener('change', e => sendVicConfig({ particles: { p1Override: e.target.value } }));
+  document.getElementById('vic-p2-particle')?.addEventListener('change', e => sendVicConfig({ particles: { p2Override: e.target.value } }));
+  document.getElementById('vic-particle-density')?.addEventListener('input', e => sendVicConfig({ particles: { density: +e.target.value } }));
+  document.getElementById('vic-particle-opacity')?.addEventListener('input', e => sendVicConfig({ particles: { opacity: +e.target.value } }));
+
+  // Animation — entrée
+  document.querySelectorAll('#vic-entry-grid .vs-anim-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('#vic-entry-grid .vs-anim-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      sendVicConfig({ animation: { entryType: btn.dataset.vicentry } });
+    });
+  });
+
+  // Animation — sortie
+  document.querySelectorAll('#vic-exit-grid .vs-anim-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('#vic-exit-grid .vs-anim-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      sendVicConfig({ animation: { exitType: btn.dataset.vicexit } });
+    });
+  });
+
+  sliderLabel('vic-anim-duration', 'vic-anim-duration-val', 'ms');
+  document.getElementById('vic-anim-duration')?.addEventListener('input', e => sendVicConfig({ animation: { duration: +e.target.value } }));
+  document.getElementById('vic-flash-enabled')?.addEventListener('change', e => sendVicConfig({ animation: { flashEnabled: e.target.checked } }));
+
+  // Auto-hide
+  const ahRange   = document.getElementById('vic-autohide-range');
+  const ahNum     = document.getElementById('vic-autohide-num');
+  const ahPreview = document.getElementById('vic-autohide-preview');
+  function updateVicAutoHidePreview() {
+    const v = parseInt(ahRange?.value || 0);
+    if (ahNum) ahNum.value = v;
+    if (ahPreview) ahPreview.textContent = v > 0 ? `Masquage auto dans ${v}s` : 'Désactivé';
+  }
+  ahRange?.addEventListener('input', () => { updateVicAutoHidePreview(); sendVicConfig({ animation: { autoHide: +ahRange.value } }); });
+  ahNum?.addEventListener('input', () => {
+    const v = Math.min(30, Math.max(0, parseInt(ahNum.value) || 0));
+    ahNum.value = v;
+    if (ahRange) ahRange.value = v;
+    updateVicAutoHidePreview();
+    sendVicConfig({ animation: { autoHide: v } });
+  });
+  updateVicAutoHidePreview();
+
+  // Sous-onglets Victory
+  document.querySelectorAll('#vic-subtab-nav .vs-subtab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('#vic-subtab-nav .vs-subtab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('#vic-panel-bg, #vic-panel-effects, #vic-panel-particles, #vic-panel-anim, #vic-panel-preview').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      const target = document.getElementById(btn.dataset.vicpanel);
+      if (target) {
+        target.classList.add('active');
+        target.querySelectorAll('.overlay-preview-wrap').forEach(w => {
+          const frame = w.querySelector('.overlay-preview-frame');
+          if (!frame) return;
+          const scale = w.offsetWidth / 1920;
+          frame.style.transform = `scale(${scale})`;
+          w.style.height = Math.round(1080 * scale) + 'px';
+        });
+      }
+    });
+  });
+
+  // Charger la config au démarrage
+  fetch('/api/victory-config').then(r => r.json()).then(cfg => {
+    if (!cfg) return;
+    const s = id => document.getElementById(id);
+    if (cfg.bg) {
+      if (s('vic-bg-blur'))       { s('vic-bg-blur').value       = cfg.bg.blur;       s('vic-bg-blur-val').textContent       = cfg.bg.blur + 'px'; }
+      if (s('vic-bg-brightness')) { s('vic-bg-brightness').value = cfg.bg.brightness; s('vic-bg-brightness-val').textContent = cfg.bg.brightness + '%'; }
+      if (s('vic-bg-saturation')) { s('vic-bg-saturation').value = cfg.bg.saturation; s('vic-bg-saturation-val').textContent = cfg.bg.saturation + '%'; }
+      if (s('vic-bg-opacity'))    { s('vic-bg-opacity').value    = cfg.bg.opacity;    s('vic-bg-opacity-val').textContent    = cfg.bg.opacity + '%'; }
+    }
+    if (cfg.vignette && s('vic-vignette-intensity')) { s('vic-vignette-intensity').value = cfg.vignette.intensity; s('vic-vignette-val').textContent = cfg.vignette.intensity + '%'; }
+    if (cfg.scanlines) {
+      if (s('vic-scanlines-visible')) s('vic-scanlines-visible').checked = cfg.scanlines.visible;
+      if (s('vic-scanlines-opacity')) { s('vic-scanlines-opacity').value = cfg.scanlines.opacity; s('vic-scanlines-opacity-val').textContent = cfg.scanlines.opacity + '%'; }
+    }
+    if (cfg.tint) {
+      if (s('vic-tint-visible')) s('vic-tint-visible').checked = cfg.tint.visible;
+      if (s('vic-tint-color'))   s('vic-tint-color').value     = cfg.tint.color;
+      if (s('vic-tint-opacity')) { s('vic-tint-opacity').value = cfg.tint.opacity; s('vic-tint-opacity-val').textContent = cfg.tint.opacity + '%'; }
+    }
+    if (cfg.particles) {
+      if (s('vic-p1-particle'))      s('vic-p1-particle').value      = cfg.particles.p1Override;
+      if (s('vic-p2-particle'))      s('vic-p2-particle').value      = cfg.particles.p2Override;
+      if (s('vic-particle-density')) { s('vic-particle-density').value = cfg.particles.density; s('vic-particle-density-val').textContent = cfg.particles.density + '%'; }
+      if (s('vic-particle-opacity')) { s('vic-particle-opacity').value = cfg.particles.opacity; s('vic-particle-opacity-val').textContent = cfg.particles.opacity + '%'; }
+    }
+    if (cfg.animation) {
+      if (cfg.animation.entryType)
+        document.querySelectorAll('#vic-entry-grid .vs-anim-btn').forEach(b => b.classList.toggle('active', b.dataset.vicentry === cfg.animation.entryType));
+      if (cfg.animation.exitType)
+        document.querySelectorAll('#vic-exit-grid .vs-anim-btn').forEach(b => b.classList.toggle('active', b.dataset.vicexit === cfg.animation.exitType));
+      if (s('vic-anim-duration')) { s('vic-anim-duration').value = cfg.animation.duration; s('vic-anim-duration-val').textContent = cfg.animation.duration + 'ms'; }
+      if (s('vic-flash-enabled')) s('vic-flash-enabled').checked = cfg.animation.flashEnabled !== false;
+      if (s('vic-autohide-range') && s('vic-autohide-num')) {
+        s('vic-autohide-range').value = cfg.animation.autoHide;
+        s('vic-autohide-num').value   = cfg.animation.autoHide;
+        updateVicAutoHidePreview();
       }
     }
   }).catch(() => {});
@@ -4019,6 +4272,11 @@ socket.on('disconnect', () => {
 });
 
 socket.on('stateUpdate', syncFromState);
+socket.on('victoryTest', () => updateVictoryToggleBtn(true));
+socket.on('victoryHide', () => updateVictoryToggleBtn(false));
+socket.on('transitionsUpdate', data => {
+  if (data.victory !== undefined) updateVictoryToggleBtn(!!data.victory.visible);
+});
 socket.on('vetoUpdate', renderVeto);
 socket.on('castersUpdate', syncCastersFromState);
 socket.on('rulesetUpdate', (r) => {
@@ -10905,6 +11163,7 @@ socket.on('stateUpdate', (s) => {
   // ── Overlay bar ───────────────────────────────────────────────
   const OVERLAYS = [
     { id: 'scoreboard',      label: 'Scoreboard'  },
+    { id: 'victory',         label: 'Victory'     },
     { id: 'cam',             label: 'Cam'         },
     { id: 'ticker',          label: 'Ticker'      },
     { id: 'casters',         label: 'Casters'     },

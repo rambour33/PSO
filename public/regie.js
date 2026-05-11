@@ -110,6 +110,12 @@ function resetScores() {
 document.getElementById('btn-apply').addEventListener('click', sendScoreboard);
 document.getElementById('btn-swap').addEventListener('click', swapPlayers);
 document.getElementById('btn-reset-score').addEventListener('click', resetScores);
+document.getElementById('btn-victory-show').addEventListener('click', () => {
+  fetch('/api/victory/test', { method: 'POST' });
+});
+document.getElementById('btn-victory-hide').addEventListener('click', () => {
+  fetch('/api/victory/hide', { method: 'POST' });
+});
 
 document.getElementById('p1-inc').addEventListener('click', () => {
   const el = document.getElementById('p1-score');

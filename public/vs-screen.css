@@ -477,16 +477,16 @@ html, body {
   display: flex;
   align-items: center;
   gap: 10px;
-  font-size: 22px;
+  font-size: 32px;
   font-family: 'Inter', sans-serif;
   font-weight: 400;
   color: var(--vs-accent);
-  opacity: 0.7;
+  opacity: 1;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   white-space: nowrap;
-  background: rgba(0,0,0,0.38);
-  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(0,0,0,1);
+  border: 1px solid rgba(255,255,255,0.15);
   border-radius: 6px;
   padding: 5px 18px;
 }
@@ -496,14 +496,14 @@ html, body {
 .vs-meta-sep:first-child { display: none; }
 
 #vs-event-name {
-  font-size: 24px;
+  font-size: 34px;
   font-family: 'Inter', sans-serif;
   font-weight: 700;
   color: var(--vs-accent);
-  opacity: 0.4;
+  opacity: 1;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  background: rgba(0,0,0,0.32);
+  background: rgba(0,0,0,1);
   border-radius: 4px;
   padding: 3px 14px;
 }
@@ -514,13 +514,13 @@ html, body {
   align-items: center;
   gap: 14px;
   margin-top: 8px;
-  background: rgba(0,0,0,0.38);
-  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(0,0,0,1);
+  border: 1px solid rgba(255,255,255,0.15);
   border-radius: 8px;
   padding: 6px 22px;
 }
 .vs-series-score {
-  font-size: 52px;
+  font-size: 62px;
   font-family: 'Russo One', sans-serif;
   color: var(--vs-accent);
   min-width: 30px;

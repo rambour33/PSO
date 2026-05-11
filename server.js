@@ -158,6 +158,22 @@ function saveVsConfig() {
   try { fs.writeFileSync('./data/vs-config.json', JSON.stringify(vsConfig, null, 2)); } catch {}
 }
 
+let victoryConfig = (() => {
+  const saved = (() => { try { return JSON.parse(fs.readFileSync('./data/victory-config.json','utf8')); } catch { return {}; } })();
+  return Object.assign({
+    bg:        { blur: 18, brightness: 30, saturation: 140, opacity: 100 },
+    vignette:  { intensity: 100 },
+    scanlines: { visible: true, opacity: 8 },
+    particles: { p1Override: 'auto', p2Override: 'auto', density: 100, opacity: 100 },
+    animation: { entryType: 'fade', exitType: 'fade', flashEnabled: true, autoHide: 0, duration: 700 },
+    tint:      { visible: false, color: '#000000', opacity: 0 },
+  }, saved);
+})();
+
+function saveVictoryConfig() {
+  try { fs.writeFileSync('./data/victory-config.json', JSON.stringify(victoryConfig, null, 2)); } catch {}
+}
+
 let matchState = {
   player1: { name: 'PLAYER 1', score: 0, character: null, color: '#E83030', tag: '', pronouns: '', stockColor: 0, flag: '', flagOffsetX: 0, flagOffsetY: 0, seeding: null, socials: ['', '', ''] },
   player2: { name: 'PLAYER 2', score: 0, character: null, color: '#3070E8', tag: '', pronouns: '', stockColor: 0, flag: '', flagOffsetX: 0, flagOffsetY: 0, seeding: null, socials: ['', '', ''] },
@@ -183,6 +199,7 @@ let matchState = {
   particleCountScale: 100,
   particlesEnabled: true,
   hidePlayerColors: false,
+  charDisplayMode: 'normal',
   visible: true,
   sbScale: 100,
   sbX: 0,
@@ -417,6 +434,7 @@ app.get('/stageveto', (req, res) => res.sendFile(path.join(__dirname, 'public', 
 app.get('/casters', (req, res) => res.sendFile(path.join(__dirname, 'public', 'casters.html')));
 app.get('/control', (req, res) => res.sendFile(path.join(__dirname, 'public', 'control.html')));
 app.get('/vs-screen', (req, res) => res.sendFile(path.join(__dirname, 'public', 'vs-screen.html')));
+app.get('/victory',   (req, res) => res.sendFile(path.join(__dirname, 'public', 'victory.html')));
 app.get('/player-stats', (req, res) => res.sendFile(path.join(__dirname, 'public', 'player-stats.html')));
 app.get('/nextmatch',    (req, res) => res.sendFile(path.join(__dirname, 'public', 'nextmatch.html')));
 app.get('/twitch-viewer',   (req, res) => res.sendFile(path.join(__dirname, 'public', 'twitch-viewer.html')));
@@ -444,6 +462,7 @@ app.get('/api/obs-collection', (req, res) => {
     // ── Smash / Général ──────────────────────────────────────────────────────
     { scene: 'PSO – Scoreboard',          source: 'PSO Scoreboard',          path: '/overlay' },
     { scene: 'PSO – VS Screen',           source: 'PSO VS Screen',           path: '/vs-screen' },
+    { scene: 'PSO – Victory',            source: 'PSO Victory',            path: '/victory' },
     { scene: 'PSO – Casters',             source: 'PSO Casters',             path: '/casters' },
     { scene: 'PSO – Head to Head',        source: 'PSO Head to Head',        path: '/h2h' },
     { scene: 'PSO – Stage Veto',          source: 'PSO Stage Veto',          path: '/stageveto' },
@@ -2033,6 +2052,16 @@ app.post('/api/state', (req, res) => {
   res.json(matchState);
 });
 
+// ── Victory test ───────────────────────────────────────────────
+app.post('/api/victory/test', (req, res) => {
+  io.emit('victoryTest', matchState);
+  res.json({ ok: true });
+});
+app.post('/api/victory/hide', (req, res) => {
+  io.emit('victoryHide');
+  res.json({ ok: true });
+});
+
 // ── Logo upload ────────────────────────────────────────────────
 const LOGOS_DIR = path.join(__dirname, 'public', 'logos');
 if (!fs.existsSync(LOGOS_DIR)) fs.mkdirSync(LOGOS_DIR, { recursive: true });
@@ -2490,8 +2519,8 @@ app.post('/api/startgg/set/:id/report', async (req, res) => {
     for (let i = 0; i < p1Score; i++) {
       const entry = { gameNum: gameNum++, winnerId: String(p1EntrantId) };
       const sel = [];
-      if (p1CharId) sel.push({ entrantId: String(p1EntrantId), characterId: p1CharId, selectionType: 'CHARACTER' });
-      if (p2CharId) sel.push({ entrantId: String(p2EntrantId), characterId: p2CharId, selectionType: 'CHARACTER' });
+      if (p1CharId) sel.push({ entrantId: String(p1EntrantId), characterId: p1CharId });
+      if (p2CharId) sel.push({ entrantId: String(p2EntrantId), characterId: p2CharId });
       if (sel.length) entry.selections = sel;
       gameData.push(entry);
     }
@@ -2499,8 +2528,8 @@ app.post('/api/startgg/set/:id/report', async (req, res) => {
     for (let i = 0; i < p2Score; i++) {
       const entry = { gameNum: gameNum++, winnerId: String(p2EntrantId) };
       const sel = [];
-      if (p1CharId) sel.push({ entrantId: String(p1EntrantId), characterId: p1CharId, selectionType: 'CHARACTER' });
-      if (p2CharId) sel.push({ entrantId: String(p2EntrantId), characterId: p2CharId, selectionType: 'CHARACTER' });
+      if (p1CharId) sel.push({ entrantId: String(p1EntrantId), characterId: p1CharId });
+      if (p2CharId) sel.push({ entrantId: String(p2EntrantId), characterId: p2CharId });
       if (sel.length) entry.selections = sel;
       gameData.push(entry);
     }
@@ -3393,6 +3422,57 @@ app.post('/api/vs-config', (req, res) => {
   res.json(vsConfig);
 });
 
+// ─── Victory Background API ──────────────────────────────────────────────────
+
+function getVictoryBgUrl() {
+  for (const ext of BG_EXTS)
+    if (fs.existsSync(path.join(BG_DIR, 'victory-background' + ext)))
+      return '/background/victory-background' + ext;
+  return null;
+}
+
+app.get('/api/victory-background', (req, res) => res.json({ url: getVictoryBgUrl() }));
+
+app.post('/api/victory-background', (req, res) => {
+  const { filename, data } = req.body;
+  if (!data) return res.status(400).json({ error: 'no data' });
+  const ext = path.extname(filename).toLowerCase() || '.png';
+  BG_EXTS.forEach(e => {
+    const old = path.join(BG_DIR, 'victory-background' + e);
+    if (fs.existsSync(old)) fs.unlinkSync(old);
+  });
+  fs.writeFileSync(path.join(BG_DIR, 'victory-background' + ext), Buffer.from(data, 'base64'));
+  const url = '/background/victory-background' + ext;
+  io.emit('victoryBgUpdate', { url });
+  res.json({ url });
+});
+
+app.delete('/api/victory-background', (req, res) => {
+  BG_EXTS.forEach(e => {
+    const f = path.join(BG_DIR, 'victory-background' + e);
+    if (fs.existsSync(f)) fs.unlinkSync(f);
+  });
+  io.emit('victoryBgUpdate', { url: null });
+  res.json({ ok: true });
+});
+
+// ─── Victory Config API ──────────────────────────────────────────────────────
+
+app.get('/api/victory-config', (req, res) => res.json(victoryConfig));
+
+app.post('/api/victory-config', (req, res) => {
+  const body = req.body;
+  if (body.bg)        victoryConfig.bg        = { ...victoryConfig.bg,        ...body.bg };
+  if (body.vignette)  victoryConfig.vignette  = { ...victoryConfig.vignette,  ...body.vignette };
+  if (body.scanlines) victoryConfig.scanlines = { ...victoryConfig.scanlines, ...body.scanlines };
+  if (body.particles) victoryConfig.particles = { ...victoryConfig.particles, ...body.particles };
+  if (body.animation) victoryConfig.animation = { ...victoryConfig.animation, ...body.animation };
+  if (body.tint)      victoryConfig.tint      = { ...victoryConfig.tint,      ...body.tint };
+  saveVictoryConfig();
+  io.emit('victoryConfigUpdate', victoryConfig);
+  res.json(victoryConfig);
+});
+
 // ─── Flags API ───────────────────────────────────────────────────────────────
 
 app.get('/api/flags', (req, res) => {
@@ -3551,6 +3631,7 @@ const TRANSITION_IDS = [
   'ticker', 'cam', 'frames', 'stream-title', 'h2h', 'player-stats',
   'tournament-history', 'bracket', 'top8', 'timer', 'nextmatch', 'upcoming',
   'twitch-chat', 'twitch-viewer', 'youtube-chat', 'combined-chat',
+  'victory',
 ];
 
 function defaultTransition() {
@@ -3656,6 +3737,7 @@ const DECK_LABELS = {
   'twitch-viewer':      'Viewers Twitch',
   'youtube-chat':       'Chat YouTube',
   'combined-chat':      'Chat Combiné',
+  'victory':            'Victoire',
 };
 
 app.get('/api/deck', (req, res) => {
@@ -3717,12 +3799,16 @@ app.get('/api/deck/:overlay/:action', (req, res) => {
   t.visible = doShow;
   saveTransitionState(transitionState);
 
-  io.emit(doShow ? 'overlayShow' : 'overlayHide', {
-    id:     overlay,
-    animIn:  t.animIn,
-    animOut: t.animOut,
-    dur:     t.dur,
-  });
+  if (overlay === 'victory') {
+    io.emit(doShow ? 'victoryTest' : 'victoryHide', doShow ? matchState : undefined);
+  } else {
+    io.emit(doShow ? 'overlayShow' : 'overlayHide', {
+      id:     overlay,
+      animIn:  t.animIn,
+      animOut: t.animOut,
+      dur:     t.dur,
+    });
+  }
   io.emit('transitionsUpdate', transitionState);
 
   if (req.headers.accept && req.headers.accept.includes('text/html')) {
