@@ -263,10 +263,13 @@ function syncFromState(s) {
 
   // Visibility button
   const btn = document.getElementById('btn-visibility');
-  btn.textContent = s.visible ? 'Masquer' : 'Afficher';
-  btn.style.background = s.visible ? '' : '#333345';
-  btn.style.borderColor = s.visible ? '' : '#444460';
-  document.getElementById('overlay-status').textContent = s.visible ? 'Visible' : 'Masqué';
+  if (btn) {
+    btn.textContent = s.visible ? 'Masquer' : 'Afficher';
+    btn.style.background = s.visible ? '' : '#333345';
+    btn.style.borderColor = s.visible ? '' : '#444460';
+  }
+  const overlayStatus = document.getElementById('overlay-status');
+  if (overlayStatus) overlayStatus.textContent = s.visible ? 'Visible' : 'Masqué';
 }
 
 function updateCharPreview(player, char) {
@@ -688,15 +691,18 @@ document.getElementById('btn-vs-trigger')?.addEventListener('click', () => {
   if (btn) { btn.textContent = '✓ Envoyé'; setTimeout(() => { btn.textContent = '⚔ VS Anim'; }, 1200); }
 });
 
-document.getElementById('btn-visibility').addEventListener('click', () => {
+document.getElementById('btn-visibility')?.addEventListener('click', () => {
   const ns = buildStateFromForm();
   ns.visible = !state.visible;
   emitState(ns);
   const btn = document.getElementById('btn-visibility');
-  btn.textContent = ns.visible ? 'Masquer' : 'Afficher';
-  btn.style.background = ns.visible ? '' : '#333345';
-  btn.style.borderColor = ns.visible ? '' : '#444460';
-  document.getElementById('overlay-status').textContent = ns.visible ? 'Visible' : 'Masqué';
+  if (btn) {
+    btn.textContent = ns.visible ? 'Masquer' : 'Afficher';
+    btn.style.background = ns.visible ? '' : '#333345';
+    btn.style.borderColor = ns.visible ? '' : '#444460';
+  }
+  const overlayStatus = document.getElementById('overlay-status');
+  if (overlayStatus) overlayStatus.textContent = ns.visible ? 'Visible' : 'Masqué';
   setStatus(`Overlay ${ns.visible ? 'affiché' : 'masqué'}`);
 });
 
@@ -4334,7 +4340,7 @@ document.addEventListener('keydown', (e) => {
       break;
     case 'v':
     case 'V':
-      document.getElementById('btn-visibility').click();
+      document.getElementById('btn-visibility')?.click();
       break;
     case 'Escape':
       closeCharPicker();
