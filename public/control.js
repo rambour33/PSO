@@ -11888,45 +11888,15 @@ socket.on('stateUpdate', (s) => {
 })();
 
 // ── Scroll-nav générique (Victory, VS Screen, Next Match, Veto, Casters) ──────
-function initScrollNav(scrollAreaId, navTitlesId, sects) {
+// Les couleurs sont gérées par CSS (nth-child), pas de détection de scroll.
+function initScrollNav(scrollAreaId, navTitlesId) {
   const scrollArea = document.getElementById(scrollAreaId);
   if (!scrollArea) return;
-  const titles = document.querySelectorAll('#' + navTitlesId + ' .vic-nav-title');
-  const inView = new Set();
-
-  function setActive(id) {
-    titles.forEach(t => t.classList.toggle('active', t.dataset.target === id));
-  }
-
-  // IntersectionObserver : détecte quelles sections sont dans la zone haute (top 10%)
-  const io = new IntersectionObserver((entries) => {
-    entries.forEach(e => e.isIntersecting ? inView.add(e.target.id) : inView.delete(e.target.id));
-    // Cas spécial fond de page
-    const atBottom = scrollArea.scrollTop + scrollArea.clientHeight >= scrollArea.scrollHeight - 5;
-    if (atBottom && scrollArea.scrollHeight > scrollArea.clientHeight) {
-      setActive(sects[sects.length - 1]);
-      return;
-    }
-    // Section active = la première (la plus haute) qui est actuellement dans la zone
-    const current = sects.find(id => inView.has(id)) || sects[0];
-    setActive(current);
-  }, { root: scrollArea, rootMargin: '0px 0px -90% 0px', threshold: 0 });
-
-  sects.forEach(id => { const el = document.getElementById(id); if (el) io.observe(el); });
-
-  // Cas fond de page via scroll (IO ne fire pas si scrollTop change sans intersection change)
-  scrollArea.addEventListener('scroll', () => {
-    if (scrollArea.scrollTop + scrollArea.clientHeight >= scrollArea.scrollHeight - 5) {
-      setActive(sects[sects.length - 1]);
-    }
-  }, { passive: true });
-
   // Molette sur la colonne de titres → transférer au scrollArea
   const navEl = document.getElementById(navTitlesId);
   if (navEl) navEl.addEventListener('wheel', e => { e.preventDefault(); scrollArea.scrollBy({ top: e.deltaY }); }, { passive: false });
-
-  // Clic sur un titre → scroll vers la section
-  titles.forEach(t => {
+  // Clic sur un titre → scroll vers la section correspondante
+  document.querySelectorAll('#' + navTitlesId + ' .vic-nav-title').forEach(t => {
     t.addEventListener('click', () => {
       const el = document.getElementById(t.dataset.target);
       if (el) scrollArea.scrollTo({ top: el.offsetTop, behavior: 'smooth' });
@@ -11934,8 +11904,8 @@ function initScrollNav(scrollAreaId, navTitlesId, sects) {
   });
 }
 
-initScrollNav('vic-scroll-area',     'vic-nav-titles',     ['vic-sect-obs','vic-sect-fond','vic-sect-effects','vic-sect-particles','vic-sect-anim']);
-initScrollNav('vs-scroll-area',      'vs-nav-titles',      ['vs-sect-obs','vs-sect-fond','vs-sect-effects','vs-sect-particles','vs-sect-anim']);
-initScrollNav('nm-scroll-area',      'nm-nav-titles',      ['nm-sect-obs','nm-sect-cadre','nm-sect-elements']);
-initScrollNav('veto-scroll-area',    'veto-nav-titles',    ['veto-sect-action','veto-sect-ruleset']);
-initScrollNav('casters-scroll-area', 'casters-nav-titles', ['casters-sect-form','casters-sect-config']);
+initScrollNav('vic-scroll-area',     'vic-nav-titles');
+initScrollNav('vs-scroll-area',      'vs-nav-titles');
+initScrollNav('nm-scroll-area',      'nm-nav-titles');
+initScrollNav('veto-scroll-area',    'veto-nav-titles');
+initScrollNav('casters-scroll-area', 'casters-nav-titles');
