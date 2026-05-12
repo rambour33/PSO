@@ -11891,16 +11891,21 @@ socket.on('stateUpdate', (s) => {
 // Les couleurs sont gérées par CSS (nth-child), pas de détection de scroll.
 function initScrollNav(scrollAreaId, navTitlesId) {
   const scrollArea = document.getElementById(scrollAreaId);
-  if (!scrollArea) return;
-  // Molette sur la colonne de titres → transférer au scrollArea
   const navEl = document.getElementById(navTitlesId);
-  if (navEl) navEl.addEventListener('wheel', e => { e.preventDefault(); scrollArea.scrollBy({ top: e.deltaY }); }, { passive: false });
-  // Clic sur un titre → scroll vers la section correspondante
-  document.querySelectorAll('#' + navTitlesId + ' .vic-nav-title').forEach(t => {
-    t.addEventListener('click', () => {
-      const el = document.getElementById(t.dataset.target);
-      if (el) scrollArea.scrollTo({ top: el.offsetTop, behavior: 'smooth' });
-    });
+  if (!scrollArea || !navEl) return;
+
+  // Molette sur la colonne de titres → transférer au scrollArea
+  navEl.addEventListener('wheel', e => { e.preventDefault(); scrollArea.scrollBy({ top: e.deltaY }); }, { passive: false });
+
+  // Délégation : clic n'importe où sur la colonne de titres
+  navEl.addEventListener('click', e => {
+    const title = e.target.closest('.vic-nav-title');
+    if (!title) return;
+    const target = document.getElementById(title.dataset.target);
+    if (!target) return;
+    // getBoundingClientRect calculé au moment du clic = valeurs correctes (panel visible)
+    const top = target.getBoundingClientRect().top - scrollArea.getBoundingClientRect().top + scrollArea.scrollTop;
+    scrollArea.scrollTo({ top: Math.max(0, top - 8), behavior: 'smooth' });
   });
 }
 
