@@ -175,26 +175,36 @@ function startParticles(charId1, charId2) {
 
 // ── Character image ──────────────────────────────────────────
 function setCharImg(imgEl, phEl, character, stockColor) {
-  if (!character) {
-    imgEl.style.display = 'none';
-    phEl.classList.add('active');
-    phEl.textContent = '?';
-    return;
-  }
-  const color = String(stockColor ?? 0).padStart(2, '0');
-  const name  = character.name.replace(/\s*\/\s*/g, '-');
-  const enc   = encodeURIComponent(name);
-  imgEl.src = `/full/chara_1_${enc}_${color}.png`;
-  imgEl.style.display = 'block';
-  phEl.classList.remove('active');
-  imgEl.onerror = () => {
-    imgEl.src = `/full/chara_1_${enc}_00.png`;
-    imgEl.onerror = () => {
+  return new Promise(resolve => {
+    if (!character) {
       imgEl.style.display = 'none';
       phEl.classList.add('active');
-      phEl.textContent = name.charAt(0).toUpperCase();
+      phEl.textContent = '?';
+      return resolve();
+    }
+    const color = String(stockColor ?? 0).padStart(2, '0');
+    const name  = character.name.replace(/\s*\/\s*/g, '-');
+    const enc   = encodeURIComponent(name);
+    const tryLoad = (src, fallback) => {
+      imgEl.onload  = () => { imgEl.style.display = 'block'; phEl.classList.remove('active'); resolve(); };
+      imgEl.onerror = fallback;
+      imgEl.src = src;
     };
-  };
+    tryLoad(
+      `/full/chara_1_${enc}_${color}.png`,
+      () => tryLoad(
+        `/full/chara_1_${enc}_00.png`,
+        () => { imgEl.style.display = 'none'; phEl.classList.add('active'); phEl.textContent = name.charAt(0).toUpperCase(); resolve(); }
+      )
+    );
+  });
+}
+
+function waitForImgs() {
+  const wait = el => (el.complete && el.naturalHeight > 0)
+    ? Promise.resolve()
+    : new Promise(r => { el.addEventListener('load', r, { once: true }); el.addEventListener('error', r, { once: true }); });
+  return Promise.all([wait(p1Img), wait(p2Img)]);
 }
 
 // ── Stage background ─────────────────────────────────────────
@@ -295,9 +305,11 @@ function update(s) {
   p2Side.style.setProperty('--pcolor', s.player2.color || '#3070E8');
   p2Tag.style.color = s.player2.color || '#3070E8';
 
-  // Character images
-  setCharImg(p1Img, p1Ph, s.player1.character, s.player1.stockColor);
-  setCharImg(p2Img, p2Ph, s.player2.character, s.player2.stockColor);
+  // Character images — retourne la promesse pour pouvoir attendre le chargement
+  const imgReady = Promise.all([
+    setCharImg(p1Img, p1Ph, s.player1.character, s.player1.stockColor),
+    setCharImg(p2Img, p2Ph, s.player2.character, s.player2.stockColor),
+  ]);
 
   // Center info
   vsRound.textContent    = s.stage || '';
@@ -335,6 +347,7 @@ function update(s) {
   }
 
   prevState = s;
+  return imgReady;
 }
 
 // ── Custom background ─────────────────────────────────────────
@@ -354,7 +367,7 @@ socket.on('vsConfigUpdate', cfg => {
 
 // ── vsScreen trigger ──────────────────────────────────────────
 socket.on('vsScreenTrigger', () => {
-  triggerAnimation();
+  waitForImgs().then(triggerAnimation);
 });
 
 socket.on('vsScreenHide', () => {
@@ -380,7 +393,7 @@ async function init() {
     const cfg = await cfgRes.json();
     applyVsConfig(cfg);
     setCustomBg(url);
-    update(s);
+    await update(s);
     triggerAnimation();
   } catch(e) {
     console.error('VS Screen init failed:', e);

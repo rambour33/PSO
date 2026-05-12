@@ -426,7 +426,8 @@ app.get('/', (req, res) => res.redirect('/control'));
 app.get('/guide', (req, res) => res.sendFile(path.join(__dirname, 'public', 'guide.html')));
 app.get('/deck',  (req, res) => res.sendFile(path.join(__dirname, 'public', 'deck.html')));
 app.get('/regie', (req, res) => res.sendFile(path.join(__dirname, 'public', 'regie.html')));
-app.get('/overlay', (req, res) => res.sendFile(path.join(__dirname, 'public', 'overlay.html')));
+app.get('/overlay',      (req, res) => res.sendFile(path.join(__dirname, 'public', 'overlay.html')));
+app.get('/overlay-slim', (req, res) => res.sendFile(path.join(__dirname, 'public', 'overlay-slim.html')));
 app.get('/h2h',          (req, res) => res.sendFile(path.join(__dirname, 'public', 'h2h.html')));
 app.get('/youtube-chat', (req, res) => res.sendFile(path.join(__dirname, 'public', 'youtube-chat.html')));
 app.get('/twitch-alerts',(req, res) => res.sendFile(path.join(__dirname, 'public', 'twitch-alerts.html')));
@@ -445,6 +446,7 @@ app.get('/ticker', (req, res) => res.sendFile(path.join(__dirname, 'public', 'ti
 app.get('/frames', (req, res) => res.sendFile(path.join(__dirname, 'public', 'frames.html')));
 app.get('/stream-title',  (req, res) => res.sendFile(path.join(__dirname, 'public', 'stream-title.html')));
 app.get('/super-overlay', (req, res) => res.sendFile(path.join(__dirname, 'public', 'super-overlay.html')));
+app.get('/super-scenes',  (req, res) => res.sendFile(path.join(__dirname, 'public', 'super-scenes.html')));
 app.get('/super-overlay/:n', (req, res) => {
   const n = parseInt(req.params.n);
   if (isNaN(n) || n < 1 || n > 9) return res.status(404).send('Scène introuvable');
@@ -474,6 +476,7 @@ app.get('/api/obs-collection', (req, res) => {
     { scene: 'PSO – Ticker',              source: 'PSO Ticker',              path: '/ticker' },
     { scene: 'PSO – Stream Title',        source: 'PSO Stream Title',        path: '/stream-title' },
     { scene: 'PSO – Super Overlay',       source: 'PSO Super Overlay',       path: '/super-overlay' },
+    { scene: 'PSO – Super Scènes',        source: 'PSO Super Scènes',        path: '/super-scenes' },
     // ── Scènes custom (Créateur de scènes) ───────────────────────────────────
     ...Array.from({ length: 9 }, (_, i) => ({
       scene:  `Scene Custom ${i + 1}`,
@@ -660,13 +663,17 @@ app.post('/api/title', (req, res) => {
 const SUPER_LAYER_DEFS = [
   // Scoreboard
   { id: 'overlay',            label: 'Overlay principal',   url: '/overlay',            category: 'Scoreboard'          },
+  { id: 'overlay-slim',       label: 'Scoreboard slim',     url: '/overlay-slim',       category: 'Scoreboard'          },
+  { id: 'scoreboard-custom',  label: 'Scoreboard custom',   url: '/scoreboard-custom',  category: 'Scoreboard'          },
   { id: 'scoreboard-elements',label: 'Éléments scoreboard', url: '/scoreboard-elements',category: 'Scoreboard'          },
   // Casters
   { id: 'casters',            label: 'Casters',             url: '/casters',            category: 'Casters'             },
+  { id: 'casters-custom',     label: 'Casters personnalisés',url: '/casters-custom',    category: 'Casters'             },
   // Veto
   { id: 'stageveto',          label: 'Stage Veto',          url: '/stageveto',          category: 'Veto'                },
   // VS Screen
   { id: 'vs-screen',          label: 'VS Screen',           url: '/vs-screen',          category: 'VS Screen'           },
+  { id: 'victory',            label: 'Écran victoire',      url: '/victory',            category: 'VS Screen'           },
   // Overlays génériques
   { id: 'ticker',             label: 'Bandeau',             url: '/ticker',             category: 'Overlays génériques' },
   { id: 'frames',             label: 'Cadres',              url: '/frames',             category: 'Overlays génériques' },
@@ -849,6 +856,7 @@ function applyOverlaySnapshot(id, snapshot) {
     case 'player-stats':       playerStatsState      = { ...playerStatsState,      ...snapshot }; io.emit('playerStatsUpdate',      playerStatsState);      break;
     case 'tournament-history': tournamentHistoryState= { ...tournamentHistoryState,...snapshot }; io.emit('tournamentHistoryUpdate',tournamentHistoryState);break;
     case 'twitch-chat':        twitchChatState       = { ...twitchChatState,       ...snapshot }; io.emit('twitchChatUpdate',       twitchChatState);       break;
+    case 'scoreboard-elements': elementsOverlayState = { ...elementsOverlayState, ...snapshot }; io.emit('elementsOverlayUpdate', elementsOverlayState);   break;
   }
 }
 
@@ -3635,6 +3643,7 @@ const TRANSITION_IDS = [
   'custom-scene-0', 'custom-scene-1', 'custom-scene-2', 'custom-scene-3',
   'custom-scene-4', 'custom-scene-5', 'custom-scene-6', 'custom-scene-7',
   'custom-scene-8',
+  'super-scenes',
 ];
 
 function defaultTransition() {
@@ -3668,7 +3677,7 @@ let transitionState = (() => {
   const out = {};
   for (const id of TRANSITION_IDS) {
     const def = id.startsWith('custom-scene-')
-      ? { animIn: 'stinger', animOut: 'stinger', dur: 500, visible: false }
+      ? { animIn: 'stinger', animOut: 'fade',    dur: 500, visible: false }
       : defaultTransition();
     out[id] = Object.assign(def, saved[id] || {});
   }
@@ -3703,12 +3712,14 @@ app.post('/api/transitions/:id/show', (req, res) => {
 
   const csMatch = id.match(/^custom-scene-(\d)$/);
   if (csMatch) {
-    const sceneIdx = parseInt(csMatch[1]);
-    io.emit('stingerTrigger', stingerPayload());
-    setTimeout(() => {
-      superState.activeScene = sceneIdx;
-      superBroadcast();
-    }, stingerCoverTime());
+    const t = transitionState[id];
+    if (t.animIn === 'stinger') {
+      const sceneIdx = parseInt(csMatch[1]);
+      io.emit('stingerTrigger', stingerPayload());
+      setTimeout(() => { superState.activeScene = sceneIdx; superBroadcast(); }, stingerCoverTime());
+    } else {
+      io.emit('overlayShow', { id, animIn: t.animIn, animOut: t.animOut, dur: t.dur });
+    }
   } else {
     io.emit('overlayShow', {
       id,
@@ -3769,6 +3780,7 @@ const DECK_LABELS = {
   ...Object.fromEntries(Array.from({ length: 9 }, (_, i) => [
     `custom-scene-${i}`, superState.scenes[i]?.name || `Scène custom ${i + 1}`,
   ])),
+  'super-scenes':       'Super Scènes',
 };
 
 app.get('/api/deck', (req, res) => {
@@ -3820,13 +3832,14 @@ app.get('/api/deck/score/:player/:action', (req, res) => {
 
 app.get('/api/deck/:overlay/:action', (req, res) => {
   const { overlay, action } = req.params;
-  if (!['show', 'hide', 'toggle'].includes(action))
+  if (!['show', 'hide', 'toggle', 'reveal'].includes(action))
     return res.status(400).json({ error: `Action invalide: ${action}` });
   if (!transitionState[overlay])
     return res.status(404).json({ error: `Overlay inconnu: ${overlay}`, available: TRANSITION_IDS });
 
   const t = transitionState[overlay];
-  const doShow = action === 'toggle' ? !t.visible : action === 'show';
+  const isReveal = action === 'reveal';
+  const doShow = isReveal ? true : (action === 'toggle' ? !t.visible : action === 'show');
   t.visible = doShow;
   saveTransitionState(transitionState);
 
@@ -3835,11 +3848,23 @@ app.get('/api/deck/:overlay/:action', (req, res) => {
     io.emit(doShow ? 'victoryTest' : 'victoryHide', doShow ? matchState : undefined);
   } else if (overlay === 'vs-screen') {
     io.emit(doShow ? 'vsScreenTrigger' : 'vsScreenHide');
-  } else if (csDeckMatch && doShow) {
-    const sceneIdx = parseInt(csDeckMatch[1]);
-    io.emit('stingerTrigger', stingerPayload());
-    setTimeout(() => { superState.activeScene = sceneIdx; superBroadcast(); }, stingerCoverTime());
-  } else if (!csDeckMatch) {
+  } else if (csDeckMatch && doShow && !isReveal) {
+    if (t.animIn === 'stinger') {
+      const sceneIdx = parseInt(csDeckMatch[1]);
+      io.emit('stingerTrigger', stingerPayload());
+      io.emit('overlayShow', { id: overlay, animIn: 'fade', animOut: t.animOut || 'fade', dur: t.dur || 500 });
+      setTimeout(() => { superState.activeScene = sceneIdx; superBroadcast(); }, stingerCoverTime());
+    } else {
+      io.emit('overlayShow', { id: overlay, animIn: t.animIn || 'fade', animOut: t.animOut || 'fade', dur: t.dur || 500 });
+    }
+  } else if (csDeckMatch) {
+    io.emit(doShow ? 'overlayShow' : 'overlayHide', {
+      id:     overlay,
+      animIn:  t.animIn  || 'fade',
+      animOut: t.animOut || 'fade',
+      dur:     t.dur     || 500,
+    });
+  } else {
     io.emit(doShow ? 'overlayShow' : 'overlayHide', {
       id:     overlay,
       animIn:  t.animIn,

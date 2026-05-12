@@ -5732,13 +5732,17 @@ document.getElementById('btn-copy-cam-url')?.addEventListener('click', () => {
 const LAYER_COLORS = {
   // Scoreboard
   'overlay':             '#E8B830',
+  'overlay-slim':        '#D4A020',
+  'scoreboard-custom':   '#F4A460',
   'scoreboard-elements': '#C8A020',
   // Casters
   'casters':             '#FF6EC7',
+  'casters-custom':      '#FF8ED4',
   // Veto
   'stageveto':           '#00F5FF',
   // VS Screen
   'vs-screen':           '#4488FF',
+  'victory':             '#FFD700',
   // Overlays génériques
   'ticker':              '#FF4500',
   'frames':              '#29B6F6',
@@ -5927,7 +5931,8 @@ function recalcStudioScale() {
 // Overlays qui supportent les snapshots
 const SNAPSHOT_SUPPORTED = new Set([
   'overlay','cam','ticker','stream-title','frames',
-  'player-stats','tournament-history','twitch-chat'
+  'player-stats','tournament-history','twitch-chat',
+  'scoreboard-elements',
 ]);
 
 /* ── Rendu de la liste de calques ──────────────────────────── */
@@ -10636,6 +10641,7 @@ socket.on('stateUpdate', (s) => {
     { id: 'twitch-viewer',       label: 'Viewers Twitch'     },
     { id: 'youtube-chat',        label: 'Chat YouTube'       },
     { id: 'combined-chat',       label: 'Chat Combiné'       },
+    { id: 'super-scenes',        label: 'Super Scènes'       },
   ];
 
   /* Scènes custom (super-overlay) — labels mis à jour depuis superState */
@@ -10657,19 +10663,14 @@ socket.on('stateUpdate', (s) => {
     { value: 'blur',        label: 'Flou'         },
   ];
 
-  const ANIM_STINGER_ONLY = [{ value: 'stinger', label: 'Stinger' }];
+  const ANIM_TYPES_WITH_STINGER = [
+    { value: 'stinger', label: 'Stinger' },
+    ...ANIM_TYPES,
+  ];
 
   let animState = {}; // { id: { animIn, animOut, dur, visible } }
 
-  function animSelectHtml(name, val) {
-    return '<select class="anim-sel" data-key="' + name + '">' +
-      ANIM_TYPES.map(t =>
-        '<option value="' + t.value + '"' + (t.value === val ? ' selected' : '') + '>' + t.label + '</option>'
-      ).join('') +
-    '</select>';
-  }
-
-  function animSelectHtmlFrom(types, name, val) {
+  function animSelectHtml(types, name, val) {
     return '<select class="anim-sel" data-key="' + name + '">' +
       types.map(t =>
         '<option value="' + t.value + '"' + (t.value === val ? ' selected' : '') + '>' + t.label + '</option>'
@@ -10678,12 +10679,14 @@ socket.on('stateUpdate', (s) => {
   }
 
   function buildCard(ov) {
-    if (ov.isCustomScene) return buildCustomSceneCard(ov);
-
-    const s = animState[ov.id] || { animIn: 'fade', animOut: 'fade', dur: 500, visible: true };
+    const defIn  = ov.isCustomScene ? 'stinger' : 'fade';
+    const defVis = !ov.isCustomScene;
+    const s = animState[ov.id] || { animIn: defIn, animOut: 'fade', dur: 500, visible: defVis };
     const card = document.createElement('div');
     card.className = 'anim-card';
     card.dataset.id = ov.id;
+
+    const animInTypes = ov.isCustomScene ? ANIM_TYPES_WITH_STINGER : ANIM_TYPES;
 
     card.innerHTML =
       '<div class="anim-card-header">' +
@@ -10695,8 +10698,8 @@ socket.on('stateUpdate', (s) => {
         '<button class="btn btn-sm anim-btn-hide">Masquer</button>' +
       '</div>' +
       '<div class="anim-card-selects">' +
-        '<div><label>Entrée</label>' + animSelectHtml('animIn', s.animIn) + '</div>' +
-        '<div><label>Sortie</label>' + animSelectHtml('animOut', s.animOut) + '</div>' +
+        '<div><label>Entrée</label>' + animSelectHtml(animInTypes, 'animIn', s.animIn) + '</div>' +
+        '<div><label>Sortie</label>' + animSelectHtml(ANIM_TYPES,  'animOut', s.animOut) + '</div>' +
       '</div>' +
       '<div class="anim-dur-row">' +
         '<span>Durée</span>' +
@@ -10704,7 +10707,6 @@ socket.on('stateUpdate', (s) => {
         '<span class="anim-dur-val">' + s.dur + 'ms</span>' +
       '</div>';
 
-    /* Show / Hide */
     card.querySelector('.anim-btn-show').addEventListener('click', () => {
       fetch('/api/transitions/' + ov.id + '/show', { method: 'POST' }).catch(() => {});
     });
@@ -10712,41 +10714,14 @@ socket.on('stateUpdate', (s) => {
       fetch('/api/transitions/' + ov.id + '/hide', { method: 'POST' }).catch(() => {});
     });
 
-    /* Anim selects */
     card.querySelectorAll('.anim-sel').forEach(sel => {
       sel.addEventListener('change', () => patchTransition(ov.id, { [sel.dataset.key]: sel.value }));
     });
 
-    /* Duration slider */
     const durRange = card.querySelector('.anim-dur-range');
     const durVal   = card.querySelector('.anim-dur-val');
     durRange.addEventListener('input', () => { durVal.textContent = durRange.value + 'ms'; });
     durRange.addEventListener('change', () => patchTransition(ov.id, { dur: +durRange.value }));
-
-    return card;
-  }
-
-  function buildCustomSceneCard(ov) {
-    const s = animState[ov.id] || { visible: false };
-    const card = document.createElement('div');
-    card.className = 'anim-card anim-card--custom-scene';
-    card.dataset.id = ov.id;
-
-    card.innerHTML =
-      '<div class="anim-card-header">' +
-        '<span class="anim-card-status' + (s.visible ? '' : ' hidden') + '"></span>' +
-        '<span class="anim-card-name">' + ov.label + '</span>' +
-      '</div>' +
-      '<div class="anim-card-btns">' +
-        '<button class="btn btn-sm anim-btn-activate" style="background:linear-gradient(135deg,#7c3aed,#9333ea);color:#fff;border:none">▶ Activer</button>' +
-      '</div>' +
-      '<div class="anim-card-selects">' +
-        '<div><label>Transition</label>' + animSelectHtmlFrom(ANIM_STINGER_ONLY, 'animIn', 'stinger') + '</div>' +
-      '</div>';
-
-    card.querySelector('.anim-btn-activate').addEventListener('click', () => {
-      fetch('/api/transitions/' + ov.id + '/show', { method: 'POST' }).catch(() => {});
-    });
 
     return card;
   }

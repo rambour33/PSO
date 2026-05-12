@@ -1,10 +1,3 @@
-/**
- * super-overlay.js
- * Empile les overlays PSO en calques iframes.
- *
- * Mode scène fixe  : URL /super-overlay/N  → affiche toujours la scène N
- * Mode scène active: URL /super-overlay    → suit la scène active du Studio
- */
 (function () {
   'use strict';
 
@@ -12,106 +5,85 @@
   const bgEl    = document.getElementById('so-bg');
   const bgImgEl = document.getElementById('so-bg-img');
 
-  // Détecte si l'URL contient un numéro de scène (/super-overlay/3 → idx 2)
-  const pathMatch     = window.location.pathname.match(/\/super-overlay\/(\d+)/);
-  const fixedSceneIdx = pathMatch ? (parseInt(pathMatch[1], 10) - 1) : null;
+  // /super-overlay/N  →  fixed scene N (1-based in URL, 0-based internally)
+  const m = window.location.pathname.match(/\/super-overlay\/(\d+)$/);
+  const fixedIdx = m ? parseInt(m[1], 10) - 1 : null;
 
-  /* ── Système de particules ───────────────────────────────────── */
-  const PS = (typeof createParticleSystem === 'function')
-    ? createParticleSystem('so-particle-canvas', 'so-root')
-    : null;
+  /* ── Calques ──────────────────────────────────────────────────── */
+  const layerEls = {};
 
-  let _currentTheme = 'default';
-
-  function applyParticles(s) {
-    if (!PS) return;
-    const enabled = s.bgParticlesEnabled === true;
-    if (!enabled) { if (PS.type) PS.stop(); return; }
-
-    const tp = (window.THEME_PARTICLES || {})[_currentTheme];
-    if (!tp) { if (PS.type) PS.stop(); return; }
-
-    if (tp.type !== PS.type) PS.start(tp.type, tp.count);
-    PS.setOpacity((s.bgParticlesOpacity ?? 100) / 100);
-    PS.setCountScale((s.bgParticlesCount ?? 100) / 100);
-  }
-
-  /* ── Créer / récupérer un calque ────────────────────────────── */
   function getOrCreate(layer) {
-    let el = document.getElementById('so-layer-' + layer.id);
-    if (!el) {
-      el = document.createElement('div');
-      el.id        = 'so-layer-' + layer.id;
-      el.className = 'so-layer so-hidden';
-      const iframe     = document.createElement('iframe');
-      iframe.src       = layer.url;
-      iframe.scrolling = 'no';
-      iframe.title     = layer.label;
-      el.appendChild(iframe);
-      root.appendChild(el);
-    }
-    return el;
+    if (layerEls[layer.id]) return layerEls[layer.id];
+    const el  = document.createElement('div');
+    el.id     = 'so-layer-' + layer.id;
+    el.className = 'so-layer so-hidden';
+    const fr  = document.createElement('iframe');
+    fr.src       = layer.url;
+    fr.scrolling = 'no';
+    fr.title     = layer.label || layer.id;
+    el.appendChild(fr);
+    root.appendChild(el);
+    return (layerEls[layer.id] = el);
   }
 
-  /* ── Appliquer l'état d'une scène ───────────────────────────── */
-  function applyState(s) {
-    if (bgEl) {
-      bgEl.style.background = (s.bgColor && s.bgColor !== 'transparent')
-        ? s.bgColor : 'transparent';
+  /* ── Appliquer une scène ──────────────────────────────────────── */
+  function applyScene(scene) {
+    if (!scene) return;
+
+    // Fond couleur
+    bgEl.style.background = (scene.bgColor && scene.bgColor !== 'transparent')
+      ? scene.bgColor
+      : 'transparent';
+
+    // Fond image
+    if (scene.bgImage) {
+      const isTile = scene.bgImageMode === 'tile';
+      bgImgEl.style.display          = 'block';
+      bgImgEl.style.backgroundImage  = `url('${scene.bgImage}')`;
+      bgImgEl.style.backgroundSize   = isTile ? 'auto'      : 'cover';
+      bgImgEl.style.backgroundRepeat = isTile ? 'repeat'    : 'no-repeat';
+      bgImgEl.style.mixBlendMode     = scene.bgImageBlend  || 'normal';
+      bgImgEl.style.opacity          = (scene.bgImageOpacity ?? 100) / 100;
+    } else {
+      bgImgEl.style.display = 'none';
     }
-    if (bgImgEl) {
-      if (s.bgImage) {
-        const isImg = s.bgImageMode === 'image';
-        bgImgEl.style.display            = 'block';
-        bgImgEl.style.backgroundImage    = `url('${s.bgImage}')`;
-        bgImgEl.style.backgroundSize     = isImg ? 'cover' : 'auto';
-        bgImgEl.style.backgroundRepeat   = isImg ? 'no-repeat' : 'repeat';
-        bgImgEl.style.backgroundPosition = 'center';
-        bgImgEl.style.mixBlendMode       = s.bgImageBlend || 'normal';
-        bgImgEl.style.opacity            = (s.bgImageOpacity ?? 100) / 100;
-      } else {
-        bgImgEl.style.display = 'none';
-        bgImgEl.style.backgroundImage = '';
-      }
-    }
-    applyParticles(s);
-    const sorted = (s.layers || []).slice().sort((a, b) => a.order - b.order);
-    sorted.forEach((layer, idx) => {
+
+    // Calques
+    const active = new Set();
+    const sorted = (scene.layers || []).slice().sort((a, b) => a.order - b.order);
+
+    sorted.forEach((layer, i) => {
       const el = getOrCreate(layer);
-      el.style.left    = (layer.x || 0) + 'px';
-      el.style.top     = (layer.y || 0) + 'px';
-      el.style.zIndex  = idx;
-      el.style.opacity = layer.visible ? (layer.opacity ?? 1) : 0;
+      el.style.left   = (layer.x || 0) + 'px';
+      el.style.top    = (layer.y || 0) + 'px';
+      el.style.zIndex = i + 1;
+      el.style.opacity = layer.visible ? (layer.opacity ?? 1) : 1;
       el.classList.toggle('so-hidden', !layer.visible);
+      active.add(layer.id);
+    });
+
+    // Masquer les calques absents de la scène
+    Object.keys(layerEls).forEach(id => {
+      if (!active.has(id)) layerEls[id].classList.add('so-hidden');
     });
   }
 
-  /* ── Socket.IO ───────────────────────────────────────────────── */
+  /* ── Socket ───────────────────────────────────────────────────── */
   const socket = io();
 
-  // Suivi du thème actif (pour les particules)
-  let _lastSceneState = null;
-  socket.on('stateUpdate', ms => {
-    if (!ms || !ms.overlayTheme) return;
-    _currentTheme = ms.overlayTheme;
-    if (_lastSceneState) applyParticles(_lastSceneState);
-  });
+  if (fixedIdx !== null) {
+    // Mode scène fixe : toujours afficher la scène N
+    const fromFull = state => applyScene(state?.scenes?.[fixedIdx]);
+    fetch('/api/super').then(r => r.json()).then(fromFull).catch(() => {});
+    socket.on('superStateUpdate', fromFull);
 
-  if (fixedSceneIdx !== null) {
-    /* Mode scène fixe : toujours afficher la scène N */
-    function applyFromFullState(state) {
-      const scene = state.scenes && state.scenes[fixedSceneIdx];
-      if (scene) { _lastSceneState = scene; applyState(scene); }
-    }
-    fetch('/api/super').then(r => r.json()).then(applyFromFullState).catch(() => {});
-    fetch('/api/state').then(r => r.json()).then(ms => { if (ms) _currentTheme = ms.overlayTheme || 'default'; }).catch(() => {});
-    socket.on('superStateUpdate', applyFromFullState);
   } else {
-    /* Mode scène active : suit la scène sélectionnée dans le Studio */
-    fetch('/api/state').then(r => r.json()).then(ms => { if (ms) _currentTheme = ms.overlayTheme || 'default'; }).catch(() => {});
-    socket.on('superUpdate', s => {
-      try { _lastSceneState = s; applyState(s); } catch (e) { console.error('[super-overlay]', e); }
-    });
+    // Mode scène active : suit la scène sélectionnée dans le Studio
+    const fromFull  = state => applyScene(state?.scenes?.[state?.activeScene]);
+    const fromScene = scene => applyScene(scene);
+    fetch('/api/super').then(r => r.json()).then(fromFull).catch(() => {});
+    socket.on('superUpdate',      fromScene);
+    socket.on('superStateUpdate', fromFull);
   }
 
 })();
