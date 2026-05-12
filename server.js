@@ -3631,7 +3631,7 @@ const TRANSITION_IDS = [
   'ticker', 'cam', 'frames', 'stream-title', 'h2h', 'player-stats',
   'tournament-history', 'bracket', 'top8', 'timer', 'nextmatch', 'upcoming',
   'twitch-chat', 'twitch-viewer', 'youtube-chat', 'combined-chat',
-  'victory',
+  'victory', 'vs-screen',
 ];
 
 function defaultTransition() {
@@ -3738,6 +3738,7 @@ const DECK_LABELS = {
   'youtube-chat':       'Chat YouTube',
   'combined-chat':      'Chat Combiné',
   'victory':            'Victoire',
+  'vs-screen':          'VS Screen',
 };
 
 app.get('/api/deck', (req, res) => {
@@ -3801,6 +3802,8 @@ app.get('/api/deck/:overlay/:action', (req, res) => {
 
   if (overlay === 'victory') {
     io.emit(doShow ? 'victoryTest' : 'victoryHide', doShow ? matchState : undefined);
+  } else if (overlay === 'vs-screen') {
+    io.emit(doShow ? 'vsScreenTrigger' : 'vsScreenHide');
   } else {
     io.emit(doShow ? 'overlayShow' : 'overlayHide', {
       id:     overlay,

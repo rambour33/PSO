@@ -5264,9 +5264,13 @@ body.regie-mode [data-subpanel$="-preview"] {
 /* Couleur 5 → violet */
 [id$="-nav-titles"] .vic-nav-title:nth-child(5) { color: #af6fff; }
 [id$="-scroll-area"] > :nth-child(5) { border-left: 3px solid #af6fff; background: rgba(175,111,255,0.05); border-top: 2px solid #af6fff; }
+[id$="-nav-titles"] .vic-nav-title:nth-child(6) { color: #ffdd44; }
+[id$="-scroll-area"] > :nth-child(6) { border-left: 3px solid #ffdd44; background: rgba(255,221,68,0.05); border-top: 2px solid #ffdd44; }
+[id$="-nav-titles"] .vic-nav-title:nth-child(7) { color: #44ddff; }
+[id$="-scroll-area"] > :nth-child(7) { border-left: 3px solid #44ddff; background: rgba(68,221,255,0.05); border-top: 2px solid #44ddff; }
 
 /* Espacement uniforme quel que soit le nombre de titres */
 [id$="-nav-titles"] { justify-content: space-evenly !important; padding: 0 !important; gap: 0 !important; }
-#vic-scroll-area, #vs-scroll-area, #nm-scroll-area, #veto-scroll-area, #casters-scroll-area { scrollbar-width: thin; scrollbar-color: var(--border) transparent; position: relative; }
+#sb-scroll-area, #vic-scroll-area, #vs-scroll-area, #nm-scroll-area, #veto-scroll-area, #casters-scroll-area { scrollbar-width: thin; scrollbar-color: var(--border) transparent; position: relative; }
 #vic-scroll-area::-webkit-scrollbar, #vs-scroll-area::-webkit-scrollbar, #nm-scroll-area::-webkit-scrollbar, #veto-scroll-area::-webkit-scrollbar, #casters-scroll-area::-webkit-scrollbar { width: 4px; }
 #vic-scroll-area::-webkit-scrollbar-thumb, #vs-scroll-area::-webkit-scrollbar-thumb, #nm-scroll-area::-webkit-scrollbar-thumb, #veto-scroll-area::-webkit-scrollbar-thumb, #casters-scroll-area::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }

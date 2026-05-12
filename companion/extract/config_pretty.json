@@ -1,0 +1,5037 @@
+{
+  "version": 12,
+  "type": "full",
+  "companionBuild": "4.3.1+9209-stable-bf5535c82b",
+  "pages": {
+    "1": {
+      "id": "GRWZet7yK7srNxyV43avq",
+      "name": "PSO",
+      "controls": {
+        "0": {
+          "0": {
+            "type": "button",
+            "style": {
+              "text": "\u00e2\u00ac\u2020\u00ef\u00b8\udc8f",
+              "textExpression": false,
+              "size": "auto",
+              "png64": null,
+              "alignment": "center:center",
+              "pngalignment": "center:center",
+              "color": 16777215,
+              "bgcolor": 0,
+              "show_topbar": "default"
+            },
+            "options": {
+              "stepProgression": "auto",
+              "stepExpression": "",
+              "rotaryActions": false
+            },
+            "feedbacks": [],
+            "steps": {
+              "0": {
+                "action_sets": {
+                  "down": [
+                    {
+                      "id": "FAl-MTXTgVvpACLkN-7i5",
+                      "definitionId": "dec_page",
+                      "connectionId": "internal",
+                      "options": {
+                        "surfaceId": {
+                          "isExpression": false,
+                          "value": "self"
+                        }
+                      },
+                      "type": "action",
+                      "children": {}
+                    }
+                  ],
+                  "up": []
+                },
+                "options": {
+                  "runWhileHeld": []
+                }
+              }
+            },
+            "localVariables": []
+          },
+          "1": {
+            "type": "button",
+            "style": {
+              "text": "\u00e2\u00ac\u2021\u00ef\u00b8\udc8f",
+              "textExpression": false,
+              "size": "auto",
+              "png64": null,
+              "alignment": "center:center",
+              "pngalignment": "center:center",
+              "color": 16777215,
+              "bgcolor": 0,
+              "show_topbar": "default"
+            },
+            "options": {
+              "stepProgression": "auto",
+              "stepExpression": "",
+              "rotaryActions": false
+            },
+            "feedbacks": [],
+            "steps": {
+              "0": {
+                "action_sets": {
+                  "down": [
+                    {
+                      "id": "-nMNSIhJB5C3n2hC4JuW5",
+                      "definitionId": "inc_page",
+                      "connectionId": "internal",
+                      "options": {
+                        "surfaceId": {
+                          "isExpression": false,
+                          "value": "self"
+                        }
+                      },
+                      "type": "action",
+                      "children": {}
+                    }
+                  ],
+                  "up": []
+                },
+                "options": {
+                  "runWhileHeld": []
+                }
+              }
+            },
+            "localVariables": []
+          },
+          "2": {
+            "type": "button",
+            "style": {
+              "text": "+1\nJ1",
+              "textExpression": false,
+              "size": "18",
+              "png64": null,
+              "alignment": "center:center",
+              "pngalignment": "center:center",
+              "color": 16777215,
+              "bgcolor": 11141120,
+              "show_topbar": "default"
+            },
+            "options": {
+              "stepProgression": "auto",
+              "stepExpression": "",
+              "rotaryActions": false
+            },
+            "feedbacks": [],
+            "steps": {
+              "0": {
+                "action_sets": {
+                  "down": [
+                    {
+                      "id": "JUsaYzeAeBmVNiuET-aoo",
+                      "definitionId": "get",
+                      "connectionId": "JeL8gnZ7zpL1NF-eW4Ij9",
+                      "options": {
+                        "url": {
+                          "value": "http://localhost:3002/api/deck/score/p1/inc",
+                          "isExpression": false
+                        },
+                        "header": {
+                          "isExpression": false,
+                          "value": ""
+                        },
+                        "jsonResultDataVariable": {
+                          "isExpression": false
+                        },
+                        "result_stringify": {
+                          "isExpression": false,
+                          "value": true
+                        },
+                        "statusCodeVariable": {
+                          "isExpression": false
+                        }
+                      },
+                      "upgradeIndex": 1,
+                      "type": "action"
+                    }
+                  ],
+                  "up": []
+                },
+                "options": {
+                  "runWhileHeld": []
+                }
+              }
+            },
+            "localVariables": []
+          },
+          "3": {
+            "type": "button",
+            "style": {
+              "text": "-1\nJ1",
+              "textExpression": false,
+              "size": "18",
+              "png64": null,
+              "alignment": "center:center",
+              "pngalignment": "center:center",
+              "color": 16777215,
+              "bgcolor": 6684672,
+              "show_topbar": "default"
+            },
+            "options": {
+              "stepProgression": "auto",
+              "stepExpression": "",
+              "rotaryActions": false
+            },
+            "feedbacks": [],
+            "steps": {
+              "0": {
+                "action_sets": {
+                  "down": [
+                    {
+                      "id": "AFbgklZIXAeTdbvmzuNx2",
+                      "definitionId": "get",
+                      "connectionId": "JeL8gnZ7zpL1NF-eW4Ij9",
+                      "options": {
+                        "url": {
+                          "value": "http://localhost:3002/api/deck/score/p1/dec",
+                          "isExpression": false
+                        },
+                        "header": {
+                          "isExpression": false,
+                          "value": ""
+                        },
+                        "jsonResultDataVariable": {
+                          "isExpression": false
+                        },
+                        "result_stringify": {
+                          "isExpression": false,
+                          "value": true
+                        },
+                        "statusCodeVariable": {
+                          "isExpression": false
+                        }
+                      },
+                      "upgradeIndex": 1,
+                      "type": "action"
+                    }
+                  ],
+                  "up": []
+                },
+                "options": {
+                  "runWhileHeld": []
+                }
+              }
+            },
+            "localVariables": []
+          },
+          "4": {
+            "type": "button",
+            "style": {
+              "text": "RESET\n0/0",
+              "textExpression": false,
+              "size": "14",
+              "png64": null,
+              "alignment": "center:center",
+              "pngalignment": "center:center",
+              "color": 16777215,
+              "bgcolor": 8413696,
+              "show_topbar": "default"
+            },
+            "options": {
+              "stepProgression": "auto",
+              "stepExpression": "",
+              "rotaryActions": false
+            },
+            "feedbacks": [],
+            "steps": {
+              "0": {
+                "action_sets": {
+                  "down": [
+                    {
+                      "id": "8ImRmG_ZBpRpTjFwQ_QME",
+                      "definitionId": "get",
+                      "connectionId": "JeL8gnZ7zpL1NF-eW4Ij9",
+                      "options": {
+                        "url": {
+                          "value": "http://localhost:3002/api/deck/score/reset",
+                          "isExpression": false
+                        },
+                        "header": {
+                          "isExpression": false,
+                          "value": ""
+                        },
+                        "jsonResultDataVariable": {
+                          "isExpression": false
+                        },
+                        "result_stringify": {
+                          "isExpression": false,
+                          "value": true
+                        },
+                        "statusCodeVariable": {
+                          "isExpression": false
+                        }
+                      },
+                      "upgradeIndex": 1,
+                      "type": "action"
+                    }
+                  ],
+                  "up": []
+                },
+                "options": {
+                  "runWhileHeld": []
+                }
+              }
+            },
+            "localVariables": []
+          },
+          "5": {
+            "type": "button",
+            "style": {
+              "text": "-1\nJ2",
+              "textExpression": false,
+              "size": "18",
+              "png64": null,
+              "alignment": "center:center",
+              "pngalignment": "center:center",
+              "color": 16777215,
+              "bgcolor": 102,
+              "show_topbar": "default"
+            },
+            "options": {
+              "stepProgression": "auto",
+              "stepExpression": "",
+              "rotaryActions": false
+            },
+            "feedbacks": [],
+            "steps": {
+              "0": {
+                "action_sets": {
+                  "down": [
+                    {
+                      "id": "u6z3aR0BT4NscHxnFWqrF",
+                      "definitionId": "get",
+                      "connectionId": "JeL8gnZ7zpL1NF-eW4Ij9",
+                      "options": {
+                        "url": {
+                          "value": "http://localhost:3002/api/deck/score/p2/dec",
+                          "isExpression": false
+                        },
+                        "header": {
+                          "isExpression": false,
+                          "value": ""
+                        },
+                        "jsonResultDataVariable": {
+                          "isExpression": false
+                        },
+                        "result_stringify": {
+                          "isExpression": false,
+                          "value": true
+                        },
+                        "statusCodeVariable": {
+                          "isExpression": false
+                        }
+                      },
+                      "upgradeIndex": 1,
+                      "type": "action"
+                    }
+                  ],
+                  "up": []
+                },
+                "options": {
+                  "runWhileHeld": []
+                }
+              }
+            },
+            "localVariables": []
+          },
+          "6": {
+            "type": "button",
+            "style": {
+              "text": "+1\nJ2",
+              "textExpression": false,
+              "size": "18",
+              "png64": null,
+              "alignment": "center:center",
+              "pngalignment": "center:center",
+              "color": 16777215,
+              "bgcolor": 170,
+              "show_topbar": "default"
+            },
+            "options": {
+              "stepProgression": "auto",
+              "stepExpression": "",
+              "rotaryActions": false
+            },
+            "feedbacks": [],
+            "steps": {
+              "0": {
+                "action_sets": {
+                  "down": [
+                    {
+                      "id": "4BVKiRtYHZIFIRh8tJ8dR",
+                      "definitionId": "get",
+                      "connectionId": "JeL8gnZ7zpL1NF-eW4Ij9",
+                      "options": {
+                        "url": {
+                          "value": "http://localhost:3002/api/deck/score/p2/inc",
+                          "isExpression": false
+                        },
+                        "header": {
+                          "isExpression": false,
+                          "value": ""
+                        },
+                        "jsonResultDataVariable": {
+                          "isExpression": false
+                        },
+                        "result_stringify": {
+                          "isExpression": false,
+                          "value": true
+                        },
+                        "statusCodeVariable": {
+                          "isExpression": false
+                        }
+                      },
+                      "upgradeIndex": 1,
+                      "type": "action"
+                    }
+                  ],
+                  "up": []
+                },
+                "options": {
+                  "runWhileHeld": []
+                }
+              }
+            },
+            "localVariables": []
+          },
+          "7": {
+            "type": "button",
+            "style": {
+              "text": "\u00e2\u2013\u00b6 TOUT",
+              "textExpression": false,
+              "size": "auto",
+              "png64": null,
+              "alignment": "center:center",
+              "pngalignment": "center:center",
+              "color": 16777215,
+              "bgcolor": 13056,
+              "show_topbar": "default"
+            },
+            "options": {
+              "stepProgression": "auto",
+              "stepExpression": "",
+              "rotaryActions": false
+            },
+            "feedbacks": [],
+            "steps": {
+              "0": {
+                "action_sets": {
+                  "down": [
+                    {
+                      "id": "VW78mMTvrVVjaNA7yA8yR",
+                      "definitionId": "get",
+                      "connectionId": "JeL8gnZ7zpL1NF-eW4Ij9",
+                      "upgradeIndex": 1,
+                      "type": "action",
+                      "options": {
+                        "url": {
+                          "value": "http://localhost:3002/api/deck/scoreboard/show",
+                          "isExpression": false
+                        },
+                        "header": {
+                          "isExpression": false,
+                          "value": ""
+                        },
+                        "jsonResultDataVariable": {
+                          "isExpression": false
+                        },
+                        "result_stringify": {
+                          "isExpression": false,
+                          "value": true
+                        },
+                        "statusCodeVariable": {
+                          "isExpression": false
+                        }
+                      }
+                    },
+                    {
+                      "id": "8x5OTwb5T3vZXtgrEtXAn",
+                      "definitionId": "get",
+                      "connectionId": "JeL8gnZ7zpL1NF-eW4Ij9",
+                      "upgradeIndex": 1,
+                      "type": "action",
+                      "options": {
+                        "url": {
+                          "value": "http://localhost:3002/api/deck/scoreboard-elements/show",
+                          "isExpression": false
+                        },
+                        "header": {
+                          "isExpression": false,
+                          "value": ""
+                        },
+                        "jsonResultDataVariable": {
+                          "isExpression": false
+                        },
+                        "result_stringify": {
+                          "isExpression": false,
+                          "value": true
+                        },
+                        "statusCodeVariable": {
+                          "isExpression": false
+                        }
+                      }
+                    },
+                    {
+                      "id": "OwY2uZ3MBi39v0IWjUC98",
+                      "definitionId": "get",
+                      "connectionId": "JeL8gnZ7zpL1NF-eW4Ij9",
+                      "upgradeIndex": 1,
+                      "type": "action",
+                      "options": {
+                        "url": {
+                          "value": "http://localhost:3002/api/deck/casters/show",
+                          "isExpression": false
+                        },
+                        "header": {
+                          "isExpression": false,
+                          "value": ""
+                        },
+                        "jsonResultDataVariable": {
+                          "isExpression": false
+                        },
+                        "result_stringify": {
+                          "isExpression": false,
+                          "value": true
+                        },
+                        "statusCodeVariable": {
+                          "isExpression": false
+                        }
+                      }
+                    },
+                    {
+                      "id": "3L0fHfo9vwU4oM8ho4sOa",
+                      "definitionId": "get",
+                      "connectionId": "JeL8gnZ7zpL1NF-eW4Ij9",
+                      "upgradeIndex": 1,
+                      "type": "action",
+                      "options": {
+                        "url": {
+                          "value": "http://localhost:3002/api/deck/stageveto/show",
+                          "isExpression": false
+                        },
+                        "header": {
+                          "isExpression": false,
+                          "value": ""
+                        },
+                        "jsonResultDataVariable": {
+                          "isExpression": false
+                        },
+                        "result_stringify": {
+                          "isExpression": false,
+                          "value": true
+                        },
+                        "statusCodeVariable": {
+                          "isExpression": false
+                        }
+                      }
+                    },
+                    {
+                      "id": "U5kxw920DUPfJnHSOvqls",
+                      "definitionId": "get",
+                      "connectionId": "JeL8gnZ7zpL1NF-eW4Ij9",
+                      "upgradeIndex": 1,
+                      "type": "action",
+                      "options": {
+                        "url": {
+                          "value": "http://localhost:3002/api/deck/ticker/show",
+                          "isExpression": false
+                        },
+                        "header": {
+                          "isExpression": false,
+                          "value": ""
+                        },
+                        "jsonResultDataVariable": {
+                          "isExpression": false
+                        },
+                        "result_stringify": {
+                          "isExpression": false,
+                          "value": true
+                        },
+                        "statusCodeVariable": {
+                          "isExpression": false
+                        }
+                      }
+                    },
+                    {
+                      "id": "fZKh-VQiPYskjlDM1-j4Y",
+                      "definitionId": "get",
+                      "connectionId": "JeL8gnZ7zpL1NF-eW4Ij9",
+                      "upgradeIndex": 1,
+                      "type": "action",
+                      "options": {
+                        "url": {
+                          "value": "http://localhost:3002/api/deck/cam/show",
+                          "isExpression": false
+                        },
+                        "header": {
+                          "isExpression": false,
+                          "value": ""
+                        },
+                        "jsonResultDataVariable": {
+                          "isExpression": false
+                        },
+                        "result_stringify": {
+                          "isExpression": false,
+                          "value": true
+                        },
+                        "statusCodeVariable": {
+                          "isExpression": false
+                        }
+                      }
+                    },
+                    {
+                      "id": "epMZ34ouZIFXe8Ln4R_Ly",
+                      "definitionId": "get",
+                      "connectionId": "JeL8gnZ7zpL1NF-eW4Ij9",
+                      "upgradeIndex": 1,
+                      "type": "action",
+                      "options": {
+                        "url": {
+                          "value": "http://localhost:3002/api/deck/frames/show",
+                          "isExpression": false
+                        },
+                        "header": {
+                          "isExpression": false,
+                          "value": ""
+                        },
+                        "jsonResultDataVariable": {
+                          "isExpression": false
+                        },
+                        "result_stringify": {
+                          "isExpression": false,
+                          "value": true
+                        },
+                        "statusCodeVariable": {
+                          "isExpression": false
+                        }
+                      }
+                    },
+                    {
+                      "id": "AWvAjCpGR1Dh211DBY-51",
+                      "definitionId": "get",
+                      "connectionId": "JeL8gnZ7zpL1NF-eW4Ij9",
+                      "upgradeIndex": 1,
+                      "type": "action",
+                      "options": {
+                        "url": {
+                          "value": "http://localhost:3002/api/deck/stream-title/show",
+                          "isExpression": false
+                        },
+                        "header": {
+                          "isExpression": false,
+                          "value": ""
+                        },
+                        "jsonResultDataVariable": {
+                          "isExpression": false
+                        },
+                        "result_stringify": {
+                          "isExpression": false,
+                          "value": true
+                        },
+                        "statusCodeVariable": {
+                          "isExpression": false
+                        }
+                      }
+                    },
+                    {
+                      "id": "cd4K_W7Zjopbv0c21etEV",
+                      "definitionId": "get",
+                      "connectionId": "JeL8gnZ7zpL1NF-eW4Ij9",
+                      "upgradeIndex": 1,
+                      "type": "action",
+                      "options": {
+                        "url": {
+                          "value": "http://localhost:3002/api/deck/h2h/show",
+                          "isExpression": false
+                        },
+                        "header": {
+                          "isExpression": false,
+                          "value": ""
+                        },
+                        "jsonResultDataVariable": {
+                          "isExpression": false
+                        },
+                        "result_stringify": {
+                          "isExpression": false,
+                          "value": true
+                        },
+                        "statusCodeVariable": {
+                          "isExpression": false
+                        }
+                      }
+                    },
+                    {
+                      "id": "EB-zbTDTHUchHveKFo57h",
+                      "definitionId": "get",
+                      "connectionId": "JeL8gnZ7zpL1NF-eW4Ij9",
+                      "upgradeIndex": 1,
+                      "type": "action",
+                      "options": {
+                        "url": {
+                          "value": "http://localhost:3002/api/deck/player-stats/show",
+                          "isExpression": false
+                        },
+                        "header": {
+                          "isExpression": false,
+                          "value": ""
+                        },
+                        "jsonResultDataVariable": {
+                          "isExpression": false
+                        },
+                        "result_stringify": {
+                          "isExpression": false,
+                          "value": true
+                        },
+                        "statusCodeVariable": {
+                          "isExpression": false
+                        }
+                      }
+                    },
+                    {
+                      "id": "klmn4T4X5ahlXzZPJB0G7",
+                      "definitionId": "get",
+                      "connectionId": "JeL8gnZ7zpL1NF-eW4Ij9",
+                      "upgradeIndex": 1,
+                      "type": "action",
+                      "options": {
+                        "url": {
+                          "value": "http://localhost:3002/api/deck/tournament-history/show",
+                          "isExpression": false
+                        },
+                        "header": {
+                          "isExpression": false,
+                          "value": ""
+                        },
+                        "jsonResultDataVariable": {
+                          "isExpression": false
+                        },
+                        "result_stringify": {
+                          "isExpression": false,
+                          "value": true
+                        },
+                        "statusCodeVariable": {
+                          "isExpression": false
+                        }
+                      }
+                    },
+                    {
+                      "id": "xaa-008WdpGlhCottu3R5",
+                      "definitionId": "get",
+                      "connectionId": "JeL8gnZ7zpL1NF-eW4Ij9",
+                      "upgradeIndex": 1,
+                      "type": "action",
+                      "options": {
+                        "url": {
+                          "value": "http://localhost:3002/api/deck/bracket/show",
+                          "isExpression": false
+                        },
+                        "header": {
+                          "isExpression": false,
+                          "value": ""
+                        },
+                        "jsonResultDataVariable": {
+                          "isExpression": false
+                        },
+                        "result_stringify": {
+                          "isExpression": false,
+                          "value": true
+                        },
+                        "statusCodeVariable": {
+                          "isExpression": false
+                        }
+                      }
+                    },
+                    {
+                      "id": "cX8yCZwJWWuvcD_ULNyhi",
+                      "definitionId": "get",
+                      "connectionId": "JeL8gnZ7zpL1NF-eW4Ij9",
+                      "upgradeIndex": 1,
+                      "type": "action",
+                      "options": {
+                        "url": {
+                          "value": "http://localhost:3002/api/deck/top8/show",
+                          "isExpression": false
+                        },
+                        "header": {
+                          "isExpression": false,
+                          "value": ""
+                        },
+                        "jsonResultDataVariable": {
+                          "isExpression": false
+                        },
+                        "result_stringify": {
+                          "isExpression": false,
+                          "value": true
+                        },
+                        "statusCodeVariable": {
+                          "isExpression": false
+                        }
+                      }
+                    },
+                    {
+                      "id": "kjh8EpFuwvp7-BLfRUfxS",
+                      "definitionId": "get",
+                      "connectionId": "JeL8gnZ7zpL1NF-eW4Ij9",
+                      "upgradeIndex": 1,
+                      "type": "action",
+                      "options": {
+                        "url": {
+                          "value": "http://localhost:3002/api/deck/timer/show",
+                          "isExpression": false
+                        },
+                        "header": {
+                          "isExpression": false,
+                          "value": ""
+                        },
+                        "jsonResultDataVariable": {
+                          "isExpression": false
+                        },
+                        "result_stringify": {
+                          "isExpression": false,
+                          "value": true
+                        },
+                        "statusCodeVariable": {
+                          "isExpression": false
+                        }
+                      }
+                    },
+                    {
+                      "id": "wKz6z6AEgZebJmRnkMI71",
+                      "definitionId": "get",
+                      "connectionId": "JeL8gnZ7zpL1NF-eW4Ij9",
+                      "upgradeIndex": 1,
+                      "type": "action",
+                      "options": {
+                        "url": {
+                          "value": "http://localhost:3002/api/deck/nextmatch/show",
+                          "isExpression": false
+                        },
+                        "header": {
+                          "isExpression": false,
+                          "value": ""
+                        },
+                        "jsonResultDataVariable": {
+                          "isExpression": false
+                        },
+                        "result_stringify": {
+                          "isExpression": false,
+                          "value": true
+                        },
+                        "statusCodeVariable": {
+                          "isExpression": false
+                        }
+                      }
+                    },
+                    {
+                      "id": "7skKewZKcDyeBeIfQmVjz",
+                      "definitionId": "get",
+                      "connectionId": "JeL8gnZ7zpL1NF-eW4Ij9",
+                      "upgradeIndex": 1,
+                      "type": "action",
+                      "options": {
+                        "url": {
+                          "value": "http://localhost:3002/api/deck/upcoming/show",
+                          "isExpression": false
+                        },
+                        "header": {
+                          "isExpression": false,
+                          "value": ""
+                        },
+                        "jsonResultDataVariable": {
+                          "isExpression": false
+                        },
+                        "result_stringify": {
+                          "isExpression": false,
+                          "value": true
+                        },
+                        "statusCodeVariable": {
+                          "isExpression": false
+                        }
+                      }
+                    },
+                    {
+                      "id": "XYiYHkJJe6E-dCtvaBdzB",
+                      "definitionId": "get",
+                      "connectionId": "JeL8gnZ7zpL1NF-eW4Ij9",
+                      "upgradeIndex": 1,
+                      "type": "action",
+                      "options": {
+                        "url": {
+                          "value": "http://localhost:3002/api/deck/twitch-chat/show",
+                          "isExpression": false
+                        },
+                        "header": {
+                          "isExpression": false,
+                          "value": ""
+                        },
+                        "jsonResultDataVariable": {
+                          "isExpression": false
+                        },
+                        "result_stringify": {
+                          "isExpression": false,
+                          "value": true
+                        },
+                        "statusCodeVariable": {
+                          "isExpression": false
+                        }
+                      }
+                    },
+                    {
+                      "id": "EN8JYDfHyWK494uW1sVtx",
+                      "definitionId": "get",
+                      "connectionId": "JeL8gnZ7zpL1NF-eW4Ij9",
+                      "upgradeIndex": 1,
+                      "type": "action",
+                      "options": {
+                        "url": {
+                          "value": "http://localhost:3002/api/deck/twitch-viewer/show",
+                          "isExpression": false
+                        },
+                        "header": {
+                          "isExpression": false,
+                          "value": ""
+                        },
+                        "jsonResultDataVariable": {
+                          "isExpression": false
+                        },
+                        "result_stringify": {
+                          "isExpression": false,
+                          "value": true
+                        },
+                        "statusCodeVariable": {
+                          "isExpression": false
+                        }
+                      }
+                    },
+                    {
+                      "id": "XWhjqB9jjlXaPR3VRTCWr",
+                      "definitionId": "get",
+                      "connectionId": "JeL8gnZ7zpL1NF-eW4Ij9",
+                      "upgradeIndex": 1,
+                      "type": "action",
+                      "options": {
+                        "url": {
+                          "value": "http://localhost:3002/api/deck/youtube-chat/show",
+                          "isExpression": false
+                        },
+                        "header": {
+                          "isExpression": false,
+                          "value": ""
+                        },
+                        "jsonResultDataVariable": {
+                          "isExpression": false
+                        },
+                        "result_stringify": {
+                          "isExpression": false,
+                          "value": true
+                        },
+                        "statusCodeVariable": {
+                          "isExpression": false
+                        }
+                      }
+                    },
+                    {
+                      "id": "QqafM0DNFkfxup4cOLSFw",
+                      "definitionId": "get",
+                      "connectionId": "JeL8gnZ7zpL1NF-eW4Ij9",
+                      "upgradeIndex": 1,
+                      "type": "action",
+                      "options": {
+                        "url": {
+                          "value": "http://localhost:3002/api/deck/combined-chat/show",
+                          "isExpression": false
+                        },
+                        "header": {
+                          "isExpression": false,
+                          "value": ""
+                        },
+                        "jsonResultDataVariable": {
+                          "isExpression": false
+                        },
+                        "result_stringify": {
+                          "isExpression": false,
+                          "value": true
+                        },
+                        "statusCodeVariable": {
+                          "isExpression": false
+                        }
+                      }
+                    },
+                    {
+                      "id": "nfY7X1s7SaI6lI9GZzydH",
+                      "definitionId": "get",
+                      "connectionId": "JeL8gnZ7zpL1NF-eW4Ij9",
+                      "upgradeIndex": 1,
+                      "type": "action",
+                      "options": {
+                        "url": {
+                          "value": "http://localhost:3002/api/deck/victory/show",
+                          "isExpression": false
+                        },
+                        "header": {
+                          "isExpression": false,
+                          "value": ""
+                        },
+                        "jsonResultDataVariable": {
+                          "isExpression": false
+                        },
+                        "result_stringify": {
+                          "isExpression": false,
+                          "value": true
+                        },
+                        "statusCodeVariable": {
+                          "isExpression": false
+                        }
+                      }
+                    },
+                    {
+                      "id": "kW2CTyfT7s8wW8ie259GB",
+                      "definitionId": "bgcolor",
+                      "connectionId": "internal",
+                      "type": "action",
+                      "options": {
+                        "location": {
+                          "isExpression": false,
+                          "value": "$(this:page)/$(this:row)/$(this:column)"
+                        },
+                        "color": {
+                          "value": 13056,
+                          "isExpression": false
+                        }
+                      },
+                      "children": {}
+                    }
+                  ],
+                  "up": []
+                },
+                "options": {
+                  "runWhileHeld": []
+                }
+              },
+              "1": {
+                "action_sets": {
+                  "down": [
+                    {
+                      "id": "09_ipHcyGS9qgVwz52DlZ",
+                      "definitionId": "get",
+                      "connectionId": "JeL8gnZ7zpL1NF-eW4Ij9",
+                      "upgradeIndex": 1,
+                      "type": "action",
+                      "options": {
+                        "url": {
+                          "value": "http://localhost:3002/api/deck/scoreboard/hide",
+                          "isExpression": false
+                        },
+                        "header": {
+                          "isExpression": false,
+                          "value": ""
+                        },
+                        "jsonResultDataVariable": {
+                          "isExpression": false
+                        },
+                        "result_stringify": {
+                          "isExpression": false,
+                          "value": true
+                        },
+                        "statusCodeVariable": {
+                          "isExpression": false
+                        }
+                      }
+                    },
+                    {
+                      "id": "kyAkI_tPkDR-dThXpIUk0",
+                      "definitionId": "get",
+                      "connectionId": "JeL8gnZ7zpL1NF-eW4Ij9",
+                      "upgradeIndex": 1,
+                      "type": "action",
+                      "options": {
+                        "url": {
+                          "value": "http://localhost:3002/api/deck/scoreboard-elements/hide",
+                          "isExpression": false
+                        },
+                        "header": {
+                          "isExpression": false,
+                          "value": ""
+                        },
+                        "jsonResultDataVariable": {
+                          "isExpression": false
+                        },
+                        "result_stringify": {
+                          "isExpression": false,
+                          "value": true
+                        },
+                        "statusCodeVariable": {
+                          "isExpression": false
+                        }
+                      }
+                    },
+                    {
+                      "id": "hZcYP8aQWIpHNNeyksqHv",
+                      "definitionId": "get",
+                      "connectionId": "JeL8gnZ7zpL1NF-eW4Ij9",
+                      "upgradeIndex": 1,
+                      "type": "action",
+                      "options": {
+                        "url": {
+                          "value": "http://localhost:3002/api/deck/casters/hide",
+                          "isExpression": false
+                        },
+                        "header": {
+                          "isExpression": false,
+                          "value": ""
+                        },
+                        "jsonResultDataVariable": {
+                          "isExpression": false
+                        },
+                        "result_stringify": {
+                          "isExpression": false,
+                          "value": true
+                        },
+                        "statusCodeVariable": {
+                          "isExpression": false
+                        }
+                      }
+                    },
+                    {
+                      "id": "dmtbIQlaJL0cSeatj354u",
+                      "definitionId": "get",
+                      "connectionId": "JeL8gnZ7zpL1NF-eW4Ij9",
+                      "upgradeIndex": 1,
+                      "type": "action",
+                      "options": {
+                        "url": {
+                          "value": "http://localhost:3002/api/deck/stageveto/hide",
+                          "isExpression": false
+                        },
+                        "header": {
+                          "isExpression": false,
+                          "value": ""
+                        },
+                        "jsonResultDataVariable": {
+                          "isExpression": false
+                        },
+                        "result_stringify": {
+                          "isExpression": false,
+                          "value": true
+                        },
+                        "statusCodeVariable": {
+                          "isExpression": false
+                        }
+                      }
+                    },
+                    {
+                      "id": "0SYU-GGiOohsNKF9QoSY1",
+                      "definitionId": "get",
+                      "connectionId": "JeL8gnZ7zpL1NF-eW4Ij9",
+                      "upgradeIndex": 1,
+                      "type": "action",
+                      "options": {
+                        "url": {
+                          "value": "http://localhost:3002/api/deck/ticker/hide",
+                          "isExpression": false
+                        },
+                        "header": {
+                          "isExpression": false,
+                          "value": ""
+                        },
+                        "jsonResultDataVariable": {
+                          "isExpression": false
+                        },
+                        "result_stringify": {
+                          "isExpression": false,
+                          "value": true
+                        },
+                        "statusCodeVariable": {
+                          "isExpression": false
+                        }
+                      }
+                    },
+                    {
+                      "id": "0OCYsxUYuJ6chY_VHE_Dz",
+                      "definitionId": "get",
+                      "connectionId": "JeL8gnZ7zpL1NF-eW4Ij9",
+                      "upgradeIndex": 1,
+                      "type": "action",
+                      "options": {
+                        "url": {
+                          "value": "http://localhost:3002/api/deck/cam/hide",
+                          "isExpression": false
+                        },
+                        "header": {
+                          "isExpression": false,
+                          "value": ""
+                        },
+                        "jsonResultDataVariable": {
+                          "isExpression": false
+                        },
+                        "result_stringify": {
+                          "isExpression": false,
+                          "value": true
+                        },
+                        "statusCodeVariable": {
+                          "isExpression": false
+                        }
+                      }
+                    },
+                    {
+                      "id": "vq38FkNySQ6gPRiZWKzX5",
+                      "definitionId": "get",
+                      "connectionId": "JeL8gnZ7zpL1NF-eW4Ij9",
+                      "upgradeIndex": 1,
+                      "type": "action",
+                      "options": {
+                        "url": {
+                          "value": "http://localhost:3002/api/deck/frames/hide",
+                          "isExpression": false
+                        },
+                        "header": {
+                          "isExpression": false,
+                          "value": ""
+                        },
+                        "jsonResultDataVariable": {
+                          "isExpression": false
+                        },
+                        "result_stringify": {
+                          "isExpression": false,
+                          "value": true
+                        },
+                        "statusCodeVariable": {
+                          "isExpression": false
+                        }
+                      }
+                    },
+                    {
+                      "id": "QI1DdGEr7PpqNUhvJ3u1g",
+                      "definitionId": "get",
+                      "connectionId": "JeL8gnZ7zpL1NF-eW4Ij9",
+                      "upgradeIndex": 1,
+                      "type": "action",
+                      "options": {
+                        "url": {
+                          "value": "http://localhost:3002/api/deck/stream-title/hide",
+                          "isExpression": false
+                        },
+                        "header": {
+                          "isExpression": false,
+                          "value": ""
+                        },
+                        "jsonResultDataVariable": {
+                          "isExpression": false
+                        },
+                        "result_stringify": {
+                          "isExpression": false,
+                          "value": true
+                        },
+                        "statusCodeVariable": {
+                          "isExpression": false
+                        }
+                      }
+                    },
+                    {
+                      "id": "W73kDqhyrozCQpLk6NQaj",
+                      "definitionId": "get",
+                      "connectionId": "JeL8gnZ7zpL1NF-eW4Ij9",
+                      "upgradeIndex": 1,
+                      "type": "action",
+                      "options": {
+                        "url": {
+                          "value": "http://localhost:3002/api/deck/h2h/hide",
+                          "isExpression": false
+                        },
+                        "header": {
+                          "isExpression": false,
+                          "value": ""
+                        },
+                        "jsonResultDataVariable": {
+                          "isExpression": false
+                        },
+                        "result_stringify": {
+                          "isExpression": false,
+                          "value": true
+                        },
+                        "statusCodeVariable": {
+                          "isExpression": false
+                        }
+                      }
+                    },
+                    {
+                      "id": "FJPHMuL8LrDs2l-jSwd2Y",
+                      "definitionId": "get",
+                      "connectionId": "JeL8gnZ7zpL1NF-eW4Ij9",
+                      "upgradeIndex": 1,
+                      "type": "action",
+                      "options": {
+                        "url": {
+                          "value": "http://localhost:3002/api/deck/player-stats/hide",
+                          "isExpression": false
+                        },
+                        "header": {
+                          "isExpression": false,
+                          "value": ""
+                        },
+                        "jsonResultDataVariable": {
+                          "isExpression": false
+                        },
+                        "result_stringify": {
+                          "isExpression": false,
+                          "value": true
+                        },
+                        "statusCodeVariable": {
+                          "isExpression": false
+                        }
+                      }
+                    },
+                    {
+                      "id": "DRdtY_wwEVFTTIsXfxIzj",
+                      "definitionId": "get",
+                      "connectionId": "JeL8gnZ7zpL1NF-eW4Ij9",
+                      "upgradeIndex": 1,
+                      "type": "action",
+                      "options": {
+                        "url": {
+                          "value": "http://localhost:3002/api/deck/tournament-history/hide",
+                          "isExpression": false
+                        },
+                        "header": {
+                          "isExpression": false,
+                          "value": ""
+                        },
+                        "jsonResultDataVariable": {
+                          "isExpression": false
+                        },
+                        "result_stringify": {
+                          "isExpression": false,
+                          "value": true
+                        },
+                        "statusCodeVariable": {
+                          "isExpression": false
+                        }
+                      }
+                    },
+                    {
+                      "id": "XjIHAF8rQ4wIvHTuBzTqV",
+                      "definitionId": "get",
+                      "connectionId": "JeL8gnZ7zpL1NF-eW4Ij9",
+                      "upgradeIndex": 1,
+                      "type": "action",
+                      "options": {
+                        "url": {
+                          "value": "http://localhost:3002/api/deck/bracket/hide",
+                          "isExpression": false
+                        },
+                        "header": {
+                          "isExpression": false,
+                          "value": ""
+                        },
+                        "jsonResultDataVariable": {
+                          "isExpression": false
+                        },
+                        "result_stringify": {
+                          "isExpression": false,
+                          "value": true
+                        },
+                        "statusCodeVariable": {
+                          "isExpression": false
+                        }
+                      }
+                    },
+                    {
+                      "id": "zrArZ4U88aRW4uobWV1ud",
+                      "definitionId": "get",
+                      "connectionId": "JeL8gnZ7zpL1NF-eW4Ij9",
+                      "upgradeIndex": 1,
+                      "type": "action",
+                      "options": {
+                        "url": {
+                          "value": "http://localhost:3002/api/deck/top8/hide",
+                          "isExpression": false
+                        },
+                        "header": {
+                          "isExpression": false,
+                          "value": ""
+                        },
+                        "jsonResultDataVariable": {
+                          "isExpression": false
+                        },
+                        "result_stringify": {
+                          "isExpression": false,
+                          "value": true
+                        },
+                        "statusCodeVariable": {
+                          "isExpression": false
+                        }
+                      }
+                    },
+                    {
+                      "id": "P9AXGuXywFBJjL-8SkJjy",
+                      "definitionId": "get",
+                      "connectionId": "JeL8gnZ7zpL1NF-eW4Ij9",
+                      "upgradeIndex": 1,
+                      "type": "action",
+                      "options": {
+                        "url": {
+                          "value": "http://localhost:3002/api/deck/timer/hide",
+                          "isExpression": false
+                        },
+                        "header": {
+                          "isExpression": false,
+                          "value": ""
+                        },
+                        "jsonResultDataVariable": {
+                          "isExpression": false
+                        },
+                        "result_stringify": {
+                          "isExpression": false,
+                          "value": true
+                        },
+                        "statusCodeVariable": {
+                          "isExpression": false
+                        }
+                      }
+                    },
+                    {
+                      "id": "5cdTLzK4DUMzNibpgz0LW",
+                      "definitionId": "get",
+                      "connectionId": "JeL8gnZ7zpL1NF-eW4Ij9",
+                      "upgradeIndex": 1,
+                      "type": "action",
+                      "options": {
+                        "url": {
+                          "value": "http://localhost:3002/api/deck/nextmatch/hide",
+                          "isExpression": false
+                        },
+                        "header": {
+                          "isExpression": false,
+                          "value": ""
+                        },
+                        "jsonResultDataVariable": {
+                          "isExpression": false
+                        },
+                        "result_stringify": {
+                          "isExpression": false,
+                          "value": true
+                        },
+                        "statusCodeVariable": {
+                          "isExpression": false
+                        }
+                      }
+                    },
+                    {
+                      "id": "KLflKSJN0GV-KOXH0CM1k",
+                      "definitionId": "get",
+                      "connectionId": "JeL8gnZ7zpL1NF-eW4Ij9",
+                      "upgradeIndex": 1,
+                      "type": "action",
+                      "options": {
+                        "url": {
+                          "value": "http://localhost:3002/api/deck/upcoming/hide",
+                          "isExpression": false
+                        },
+                        "header": {
+                          "isExpression": false,
+                          "value": ""
+                        },
+                        "jsonResultDataVariable": {
+                          "isExpression": false
+                        },
+                        "result_stringify": {
+                          "isExpression": false,
+                          "value": true
+                        },
+                        "statusCodeVariable": {
+                          "isExpression": false
+                        }
+                      }
+                    },
+                    {
+                      "id": "xmZW_JKXZAyN1avRLdnOO",
+                      "definitionId": "get",
+                      "connectionId": "JeL8gnZ7zpL1NF-eW4Ij9",
+                      "upgradeIndex": 1,
+                      "type": "action",
+                      "options": {
+                        "url": {
+                          "value": "http://localhost:3002/api/deck/twitch-chat/hide",
+                          "isExpression": false
+                        },
+                        "header": {
+                          "isExpression": false,
+                          "value": ""
+                        },
+                        "jsonResultDataVariable": {
+                          "isExpression": false
+                        },
+                        "result_stringify": {
+                          "isExpression": false,
+                          "value": true
+                        },
+                        "statusCodeVariable": {
+                          "isExpression": false
+                        }
+                      }
+                    },
+                    {
+                      "id": "z7QiKxp2Y1jjPxGotIzga",
+                      "definitionId": "get",
+                      "connectionId": "JeL8gnZ7zpL1NF-eW4Ij9",
+                      "upgradeIndex": 1,
+                      "type": "action",
+                      "options": {
+                        "url": {
+                          "value": "http://localhost:3002/api/deck/twitch-viewer/hide",
+                          "isExpression": false
+                        },
+                        "header": {
+                          "isExpression": false,
+                          "value": ""
+                        },
+                        "jsonResultDataVariable": {
+                          "isExpression": false
+                        },
+                        "result_stringify": {
+                          "isExpression": false,
+                          "value": true
+                        },
+                        "statusCodeVariable": {
+                          "isExpression": false
+                        }
+                      }
+                    },
+                    {
+                      "id": "YPd8IBNHh-nirymTnme_M",
+                      "definitionId": "get",
+                      "connectionId": "JeL8gnZ7zpL1NF-eW4Ij9",
+                      "upgradeIndex": 1,
+                      "type": "action",
+                      "options": {
+                        "url": {
+                          "value": "http://localhost:3002/api/deck/youtube-chat/hide",
+                          "isExpression": false
+                        },
+                        "header": {
+                          "isExpression": false,
+                          "value": ""
+                        },
+                        "jsonResultDataVariable": {
+                          "isExpression": false
+                        },
+                        "result_stringify": {
+                          "isExpression": false,
+                          "value": true
+                        },
+                        "statusCodeVariable": {
+                          "isExpression": false
+                        }
+                      }
+                    },
+                    {
+                      "id": "rGyBpQ3m9ZMK7Uaa648Ht",
+                      "definitionId": "get",
+                      "connectionId": "JeL8gnZ7zpL1NF-eW4Ij9",
+                      "upgradeIndex": 1,
+                      "type": "action",
+                      "options": {
+                        "url": {
+                          "value": "http://localhost:3002/api/deck/combined-chat/hide",
+                          "isExpression": false
+                        },
+                        "header": {
+                          "isExpression": false,
+                          "value": ""
+                        },
+                        "jsonResultDataVariable": {
+                          "isExpression": false
+                        },
+                        "result_stringify": {
+                          "isExpression": false,
+                          "value": true
+                        },
+                        "statusCodeVariable": {
+                          "isExpression": false
+                        }
+                      }
+                    },
+                    {
+                      "id": "GxF91DjAjGy99nrSNdJwp",
+                      "definitionId": "get",
+                      "connectionId": "JeL8gnZ7zpL1NF-eW4Ij9",
+                      "upgradeIndex": 1,
+                      "type": "action",
+                      "options": {
+                        "url": {
+                          "value": "http://localhost:3002/api/deck/victory/hide",
+                          "isExpression": false
+                        },
+                        "header": {
+                          "isExpression": false,
+                          "value": ""
+                        },
+                        "jsonResultDataVariable": {
+                          "isExpression": false
+                        },
+                        "result_stringify": {
+                          "isExpression": false,
+                          "value": true
+                        },
+                        "statusCodeVariable": {
+                          "isExpression": false
+                        }
+                      }
+                    },
+                    {
+                      "id": "nnqzk68O8IBpOxk0ClCQL",
+                      "definitionId": "bgcolor",
+                      "connectionId": "internal",
+                      "type": "action",
+                      "options": {
+                        "location": {
+                          "isExpression": false,
+                          "value": "$(this:page)/$(this:row)/$(this:column)"
+                        },
+                        "color": {
+                          "value": 11141120,
+                          "isExpression": false
+                        }
+                      },
+                      "children": {}
+                    }
+                  ],
+                  "up": []
+                },
+                "options": {
+                  "runWhileHeld": []
+                }
+              }
+            },
+            "localVariables": []
+          }
+        },
+        "1": {
+          "0": {
+            "type": "button",
+            "style": {
+              "text": "\u00e2\u2013\u00b6 Score-\nboard",
+              "textExpression": false,
+              "size": "auto",
+              "png64": null,
+              "alignment": "center:center",
+              "pngalignment": "center:center",
+              "color": 16777215,
+              "bgcolor": 13056,
+              "show_topbar": "default"
+            },
+            "options": {
+              "stepProgression": "auto",
+              "stepExpression": "",
+              "rotaryActions": false
+            },
+            "feedbacks": [],
+            "steps": {
+              "0": {
+                "action_sets": {
+                  "down": [
+                    {
+                      "id": "_bQ145pTGTt5T9TjP6fAd",
+                      "definitionId": "get",
+                      "connectionId": "JeL8gnZ7zpL1NF-eW4Ij9",
+                      "options": {
+                        "url": {
+                          "value": "http://localhost:3002/api/deck/scoreboard/show",
+                          "isExpression": false
+                        },
+                        "header": {
+                          "isExpression": false,
+                          "value": ""
+                        },
+                        "jsonResultDataVariable": {
+                          "isExpression": false
+                        },
+                        "result_stringify": {
+                          "isExpression": false,
+                          "value": true
+                        },
+                        "statusCodeVariable": {
+                          "isExpression": false
+                        }
+                      },
+                      "upgradeIndex": 1,
+                      "type": "action"
+                    },
+                    {
+                      "id": "k1Nm6ZPidUt1OKmeALD6H",
+                      "definitionId": "bgcolor",
+                      "connectionId": "internal",
+                      "options": {
+                        "location": {
+                          "isExpression": false,
+                          "value": "$(this:page)/$(this:row)/$(this:column)"
+                        },
+                        "color": {
+                          "value": 13056,
+                          "isExpression": false
+                        }
+                      },
+                      "type": "action",
+                      "children": {}
+                    }
+                  ],
+                  "up": []
+                },
+                "options": {
+                  "runWhileHeld": []
+                }
+              },
+              "1": {
+                "action_sets": {
+                  "down": [
+                    {
+                      "id": "apxfLWM5O7SkiZkZscQNT",
+                      "definitionId": "get",
+                      "connectionId": "JeL8gnZ7zpL1NF-eW4Ij9",
+                      "options": {
+                        "url": {
+                          "value": "http://localhost:3002/api/deck/scoreboard/hide",
+                          "isExpression": false
+                        },
+                        "header": {
+                          "isExpression": false,
+                          "value": ""
+                        },
+                        "jsonResultDataVariable": {
+                          "isExpression": false
+                        },
+                        "result_stringify": {
+                          "isExpression": false,
+                          "value": true
+                        },
+                        "statusCodeVariable": {
+                          "isExpression": false
+                        }
+                      },
+                      "upgradeIndex": 1,
+                      "type": "action"
+                    },
+                    {
+                      "id": "aeMZzjTmHSkKyXtuhTxS9",
+                      "definitionId": "bgcolor",
+                      "connectionId": "internal",
+                      "options": {
+                        "location": {
+                          "isExpression": false,
+                          "value": "$(this:page)/$(this:row)/$(this:column)"
+                        },
+                        "color": {
+                          "value": 11141120,
+                          "isExpression": false
+                        }
+                      },
+                      "type": "action",
+                      "children": {}
+                    }
+                  ],
+                  "up": []
+                },
+                "options": {
+                  "runWhileHeld": []
+                }
+              }
+            },
+            "localVariables": []
+          },
+          "1": {
+            "type": "button",
+            "style": {
+              "text": "\u00e2\u2013\u00b6 Casters",
+              "textExpression": false,
+              "size": "auto",
+              "png64": null,
+              "alignment": "center:center",
+              "pngalignment": "center:center",
+              "color": 16777215,
+              "bgcolor": 13056,
+              "show_topbar": "default"
+            },
+            "options": {
+              "stepProgression": "auto",
+              "stepExpression": "",
+              "rotaryActions": false
+            },
+            "feedbacks": [],
+            "steps": {
+              "0": {
+                "action_sets": {
+                  "down": [
+                    {
+                      "id": "qJyhRPMksVmHXx6pAA3mE",
+                      "definitionId": "get",
+                      "connectionId": "JeL8gnZ7zpL1NF-eW4Ij9",
+                      "options": {
+                        "url": {
+                          "value": "http://localhost:3002/api/deck/casters/show",
+                          "isExpression": false
+                        },
+                        "header": {
+                          "isExpression": false,
+                          "value": ""
+                        },
+                        "jsonResultDataVariable": {
+                          "isExpression": false
+                        },
+                        "result_stringify": {
+                          "isExpression": false,
+                          "value": true
+                        },
+                        "statusCodeVariable": {
+                          "isExpression": false
+                        }
+                      },
+                      "upgradeIndex": 1,
+                      "type": "action"
+                    },
+                    {
+                      "id": "zDcmdEaBeq_PoRB1Z8TG4",
+                      "definitionId": "bgcolor",
+                      "connectionId": "internal",
+                      "options": {
+                        "location": {
+                          "isExpression": false,
+                          "value": "$(this:page)/$(this:row)/$(this:column)"
+                        },
+                        "color": {
+                          "value": 13056,
+                          "isExpression": false
+                        }
+                      },
+                      "type": "action",
+                      "children": {}
+                    }
+                  ],
+                  "up": []
+                },
+                "options": {
+                  "runWhileHeld": []
+                }
+              },
+              "1": {
+                "action_sets": {
+                  "down": [
+                    {
+                      "id": "cn1xqGz-r0f5VpN3bv98e",
+                      "definitionId": "get",
+                      "connectionId": "JeL8gnZ7zpL1NF-eW4Ij9",
+                      "options": {
+                        "url": {
+                          "value": "http://localhost:3002/api/deck/casters/hide",
+                          "isExpression": false
+                        },
+                        "header": {
+                          "isExpression": false,
+                          "value": ""
+                        },
+                        "jsonResultDataVariable": {
+                          "isExpression": false
+                        },
+                        "result_stringify": {
+                          "isExpression": false,
+                          "value": true
+                        },
+                        "statusCodeVariable": {
+                          "isExpression": false
+                        }
+                      },
+                      "upgradeIndex": 1,
+                      "type": "action"
+                    },
+                    {
+                      "id": "-eh2YUEzEGRwE3zFh3Fpy",
+                      "definitionId": "bgcolor",
+                      "connectionId": "internal",
+                      "options": {
+                        "location": {
+                          "isExpression": false,
+                          "value": "$(this:page)/$(this:row)/$(this:column)"
+                        },
+                        "color": {
+                          "value": 11141120,
+                          "isExpression": false
+                        }
+                      },
+                      "type": "action",
+                      "children": {}
+                    }
+                  ],
+                  "up": []
+                },
+                "options": {
+                  "runWhileHeld": []
+                }
+              }
+            },
+            "localVariables": []
+          },
+          "2": {
+            "type": "button",
+            "style": {
+              "text": "\u00e2\u2013\u00b6 Next\nMatch",
+              "textExpression": false,
+              "size": "auto",
+              "png64": null,
+              "alignment": "center:center",
+              "pngalignment": "center:center",
+              "color": 16777215,
+              "bgcolor": 13056,
+              "show_topbar": "default"
+            },
+            "options": {
+              "stepProgression": "auto",
+              "stepExpression": "",
+              "rotaryActions": false
+            },
+            "feedbacks": [],
+            "steps": {
+              "0": {
+                "action_sets": {
+                  "down": [
+                    {
+                      "id": "hIUKBXXnSFyERnPqS3OCu",
+                      "definitionId": "get",
+                      "connectionId": "JeL8gnZ7zpL1NF-eW4Ij9",
+                      "upgradeIndex": 1,
+                      "type": "action",
+                      "options": {
+                        "url": {
+                          "value": "http://localhost:3002/api/deck/nextmatch/show",
+                          "isExpression": false
+                        },
+                        "header": {
+                          "isExpression": false,
+                          "value": ""
+                        },
+                        "jsonResultDataVariable": {
+                          "isExpression": false
+                        },
+                        "result_stringify": {
+                          "isExpression": false,
+                          "value": true
+                        },
+                        "statusCodeVariable": {
+                          "isExpression": false
+                        }
+                      }
+                    },
+                    {
+                      "id": "qcn7Di6apuF8Qp5NWC78T",
+                      "definitionId": "bgcolor",
+                      "connectionId": "internal",
+                      "type": "action",
+                      "options": {
+                        "location": {
+                          "isExpression": false,
+                          "value": "$(this:page)/$(this:row)/$(this:column)"
+                        },
+                        "color": {
+                          "value": 13056,
+                          "isExpression": false
+                        }
+                      },
+                      "children": {}
+                    }
+                  ],
+                  "up": []
+                },
+                "options": {
+                  "runWhileHeld": []
+                }
+              },
+              "1": {
+                "action_sets": {
+                  "down": [
+                    {
+                      "id": "fVebQoKCFwfrCB0ri7Wvb",
+                      "definitionId": "get",
+                      "connectionId": "JeL8gnZ7zpL1NF-eW4Ij9",
+                      "upgradeIndex": 1,
+                      "type": "action",
+                      "options": {
+                        "url": {
+                          "value": "http://localhost:3002/api/deck/nextmatch/hide",
+                          "isExpression": false
+                        },
+                        "header": {
+                          "isExpression": false,
+                          "value": ""
+                        },
+                        "jsonResultDataVariable": {
+                          "isExpression": false
+                        },
+                        "result_stringify": {
+                          "isExpression": false,
+                          "value": true
+                        },
+                        "statusCodeVariable": {
+                          "isExpression": false
+                        }
+                      }
+                    },
+                    {
+                      "id": "P52mYLEqMGzTYcweadKRo",
+                      "definitionId": "bgcolor",
+                      "connectionId": "internal",
+                      "type": "action",
+                      "options": {
+                        "location": {
+                          "isExpression": false,
+                          "value": "$(this:page)/$(this:row)/$(this:column)"
+                        },
+                        "color": {
+                          "value": 11141120,
+                          "isExpression": false
+                        }
+                      },
+                      "children": {}
+                    }
+                  ],
+                  "up": []
+                },
+                "options": {
+                  "runWhileHeld": []
+                }
+              }
+            },
+            "localVariables": []
+          },
+          "4": {
+            "type": "button",
+            "style": {
+              "text": "\u00e2\u2013\u00b6 Victoire",
+              "textExpression": false,
+              "size": "auto",
+              "png64": null,
+              "alignment": "center:center",
+              "pngalignment": "center:center",
+              "color": 16777215,
+              "bgcolor": 13056,
+              "show_topbar": "default"
+            },
+            "options": {
+              "stepProgression": "auto",
+              "stepExpression": "",
+              "rotaryActions": false
+            },
+            "feedbacks": [],
+            "steps": {
+              "0": {
+                "action_sets": {
+                  "down": [
+                    {
+                      "id": "QZlCFHwDIKJPMGInqhhDx",
+                      "definitionId": "get",
+                      "connectionId": "JeL8gnZ7zpL1NF-eW4Ij9",
+                      "options": {
+                        "url": {
+                          "value": "http://localhost:3002/api/deck/victory/show",
+                          "isExpression": false
+                        },
+                        "header": {
+                          "isExpression": false,
+                          "value": ""
+                        },
+                        "jsonResultDataVariable": {
+                          "isExpression": false
+                        },
+                        "result_stringify": {
+                          "isExpression": false,
+                          "value": true
+                        },
+                        "statusCodeVariable": {
+                          "isExpression": false
+                        }
+                      },
+                      "upgradeIndex": 1,
+                      "type": "action"
+                    },
+                    {
+                      "id": "fjaF2SPPwjZiUfVLDhjoA",
+                      "definitionId": "bgcolor",
+                      "connectionId": "internal",
+                      "options": {
+                        "location": {
+                          "isExpression": false,
+                          "value": "$(this:page)/$(this:row)/$(this:column)"
+                        },
+                        "color": {
+                          "value": 13056,
+                          "isExpression": false
+                        }
+                      },
+                      "type": "action",
+                      "children": {}
+                    }
+                  ],
+                  "up": []
+                },
+                "options": {
+                  "runWhileHeld": []
+                }
+              },
+              "1": {
+                "action_sets": {
+                  "down": [
+                    {
+                      "id": "Jz2-FLYPmvcyILmppXQru",
+                      "definitionId": "get",
+                      "connectionId": "JeL8gnZ7zpL1NF-eW4Ij9",
+                      "options": {
+                        "url": {
+                          "value": "http://localhost:3002/api/deck/victory/hide",
+                          "isExpression": false
+                        },
+                        "header": {
+                          "isExpression": false,
+                          "value": ""
+                        },
+                        "jsonResultDataVariable": {
+                          "isExpression": false
+                        },
+                        "result_stringify": {
+                          "isExpression": false,
+                          "value": true
+                        },
+                        "statusCodeVariable": {
+                          "isExpression": false
+                        }
+                      },
+                      "upgradeIndex": 1,
+                      "type": "action"
+                    },
+                    {
+                      "id": "qn1wuB8P8DMdULNpcg8gI",
+                      "definitionId": "bgcolor",
+                      "connectionId": "internal",
+                      "options": {
+                        "location": {
+                          "isExpression": false,
+                          "value": "$(this:page)/$(this:row)/$(this:column)"
+                        },
+                        "color": {
+                          "value": 11141120,
+                          "isExpression": false
+                        }
+                      },
+                      "type": "action",
+                      "children": {}
+                    }
+                  ],
+                  "up": []
+                },
+                "options": {
+                  "runWhileHeld": []
+                }
+              }
+            },
+            "localVariables": []
+          },
+          "5": {
+            "type": "button",
+            "style": {
+              "text": "\u00e2\u2013\u00b6 Cam",
+              "textExpression": false,
+              "size": "auto",
+              "png64": null,
+              "alignment": "center:center",
+              "pngalignment": "center:center",
+              "color": 16777215,
+              "bgcolor": 13056,
+              "show_topbar": "default"
+            },
+            "options": {
+              "stepProgression": "auto",
+              "stepExpression": "",
+              "rotaryActions": false
+            },
+            "feedbacks": [],
+            "steps": {
+              "0": {
+                "action_sets": {
+                  "down": [
+                    {
+                      "id": "rSrrm1KftgxXx8WngAQ_p",
+                      "definitionId": "get",
+                      "connectionId": "JeL8gnZ7zpL1NF-eW4Ij9",
+                      "options": {
+                        "url": {
+                          "value": "http://localhost:3002/api/deck/cam/show",
+                          "isExpression": false
+                        },
+                        "header": {
+                          "isExpression": false,
+                          "value": ""
+                        },
+                        "jsonResultDataVariable": {
+                          "isExpression": false
+                        },
+                        "result_stringify": {
+                          "isExpression": false,
+                          "value": true
+                        },
+                        "statusCodeVariable": {
+                          "isExpression": false
+                        }
+                      },
+                      "upgradeIndex": 1,
+                      "type": "action"
+                    },
+                    {
+                      "id": "1OW_YWhUwxHhJuL51AkpK",
+                      "definitionId": "bgcolor",
+                      "connectionId": "internal",
+                      "options": {
+                        "location": {
+                          "isExpression": false,
+                          "value": "$(this:page)/$(this:row)/$(this:column)"
+                        },
+                        "color": {
+                          "value": 13056,
+                          "isExpression": false
+                        }
+                      },
+                      "type": "action",
+                      "children": {}
+                    }
+                  ],
+                  "up": []
+                },
+                "options": {
+                  "runWhileHeld": []
+                }
+              },
+              "1": {
+                "action_sets": {
+                  "down": [
+                    {
+                      "id": "2_LMQlxYX6a23evfm6bor",
+                      "definitionId": "get",
+                      "connectionId": "JeL8gnZ7zpL1NF-eW4Ij9",
+                      "options": {
+                        "url": {
+                          "value": "http://localhost:3002/api/deck/cam/hide",
+                          "isExpression": false
+                        },
+                        "header": {
+                          "isExpression": false,
+                          "value": ""
+                        },
+                        "jsonResultDataVariable": {
+                          "isExpression": false
+                        },
+                        "result_stringify": {
+                          "isExpression": false,
+                          "value": true
+                        },
+                        "statusCodeVariable": {
+                          "isExpression": false
+                        }
+                      },
+                      "upgradeIndex": 1,
+                      "type": "action"
+                    },
+                    {
+                      "id": "26WH1BQhvBl53Mr33b5ky",
+                      "definitionId": "bgcolor",
+                      "connectionId": "internal",
+                      "options": {
+                        "location": {
+                          "isExpression": false,
+                          "value": "$(this:page)/$(this:row)/$(this:column)"
+                        },
+                        "color": {
+                          "value": 11141120,
+                          "isExpression": false
+                        }
+                      },
+                      "type": "action",
+                      "children": {}
+                    }
+                  ],
+                  "up": []
+                },
+                "options": {
+                  "runWhileHeld": []
+                }
+              }
+            },
+            "localVariables": []
+          },
+          "6": {
+            "type": "button",
+            "style": {
+              "text": "\u00e2\u2013\u00b6 Veto",
+              "textExpression": false,
+              "size": "auto",
+              "png64": null,
+              "alignment": "center:center",
+              "pngalignment": "center:center",
+              "color": 16777215,
+              "bgcolor": 13056,
+              "show_topbar": "default"
+            },
+            "options": {
+              "stepProgression": "auto",
+              "stepExpression": "",
+              "rotaryActions": false
+            },
+            "feedbacks": [],
+            "steps": {
+              "0": {
+                "action_sets": {
+                  "down": [
+                    {
+                      "id": "2eQSzaKb3yL_P2_UnF1Eu",
+                      "definitionId": "get",
+                      "connectionId": "JeL8gnZ7zpL1NF-eW4Ij9",
+                      "options": {
+                        "url": {
+                          "value": "http://localhost:3002/api/deck/stageveto/show",
+                          "isExpression": false
+                        },
+                        "header": {
+                          "isExpression": false,
+                          "value": ""
+                        },
+                        "jsonResultDataVariable": {
+                          "isExpression": false
+                        },
+                        "result_stringify": {
+                          "isExpression": false,
+                          "value": true
+                        },
+                        "statusCodeVariable": {
+                          "isExpression": false
+                        }
+                      },
+                      "upgradeIndex": 1,
+                      "type": "action"
+                    },
+                    {
+                      "id": "eSrbOSLxMvdzrS4j0vDQk",
+                      "definitionId": "bgcolor",
+                      "connectionId": "internal",
+                      "options": {
+                        "location": {
+                          "isExpression": false,
+                          "value": "$(this:page)/$(this:row)/$(this:column)"
+                        },
+                        "color": {
+                          "value": 13056,
+                          "isExpression": false
+                        }
+                      },
+                      "type": "action",
+                      "children": {}
+                    }
+                  ],
+                  "up": []
+                },
+                "options": {
+                  "runWhileHeld": []
+                }
+              },
+              "1": {
+                "action_sets": {
+                  "down": [
+                    {
+                      "id": "rJ8KcZ-46JROJVsnf5fnE",
+                      "definitionId": "get",
+                      "connectionId": "JeL8gnZ7zpL1NF-eW4Ij9",
+                      "options": {
+                        "url": {
+                          "value": "http://localhost:3002/api/deck/stageveto/hide",
+                          "isExpression": false
+                        },
+                        "header": {
+                          "isExpression": false,
+                          "value": ""
+                        },
+                        "jsonResultDataVariable": {
+                          "isExpression": false
+                        },
+                        "result_stringify": {
+                          "isExpression": false,
+                          "value": true
+                        },
+                        "statusCodeVariable": {
+                          "isExpression": false
+                        }
+                      },
+                      "upgradeIndex": 1,
+                      "type": "action"
+                    },
+                    {
+                      "id": "ZblunCExWKZUR_zU4ZnZt",
+                      "definitionId": "bgcolor",
+                      "connectionId": "internal",
+                      "options": {
+                        "location": {
+                          "isExpression": false,
+                          "value": "$(this:page)/$(this:row)/$(this:column)"
+                        },
+                        "color": {
+                          "value": 11141120,
+                          "isExpression": false
+                        }
+                      },
+                      "type": "action",
+                      "children": {}
+                    }
+                  ],
+                  "up": []
+                },
+                "options": {
+                  "runWhileHeld": []
+                }
+              }
+            },
+            "localVariables": []
+          },
+          "7": {
+            "type": "button",
+            "style": {
+              "text": "\u00e2\u2013\u00b6 Timer",
+              "textExpression": false,
+              "size": "auto",
+              "png64": null,
+              "alignment": "center:center",
+              "pngalignment": "center:center",
+              "color": 16777215,
+              "bgcolor": 13056,
+              "show_topbar": "default"
+            },
+            "options": {
+              "stepProgression": "auto",
+              "stepExpression": "",
+              "rotaryActions": false
+            },
+            "feedbacks": [],
+            "steps": {
+              "0": {
+                "action_sets": {
+                  "down": [
+                    {
+                      "id": "VjndSaJKg45eRvEaszJb9",
+                      "definitionId": "get",
+                      "connectionId": "JeL8gnZ7zpL1NF-eW4Ij9",
+                      "options": {
+                        "url": {
+                          "value": "http://localhost:3002/api/deck/timer/show",
+                          "isExpression": false
+                        },
+                        "header": {
+                          "isExpression": false,
+                          "value": ""
+                        },
+                        "jsonResultDataVariable": {
+                          "isExpression": false
+                        },
+                        "result_stringify": {
+                          "isExpression": false,
+                          "value": true
+                        },
+                        "statusCodeVariable": {
+                          "isExpression": false
+                        }
+                      },
+                      "upgradeIndex": 1,
+                      "type": "action"
+                    },
+                    {
+                      "id": "-TE4NR3V0ymjftRGaiU_r",
+                      "definitionId": "bgcolor",
+                      "connectionId": "internal",
+                      "options": {
+                        "location": {
+                          "isExpression": false,
+                          "value": "$(this:page)/$(this:row)/$(this:column)"
+                        },
+                        "color": {
+                          "value": 13056,
+                          "isExpression": false
+                        }
+                      },
+                      "type": "action",
+                      "children": {}
+                    }
+                  ],
+                  "up": []
+                },
+                "options": {
+                  "runWhileHeld": []
+                }
+              },
+              "1": {
+                "action_sets": {
+                  "down": [
+                    {
+                      "id": "E9G2BXYn5GSZ4dKOn-GzE",
+                      "definitionId": "get",
+                      "connectionId": "JeL8gnZ7zpL1NF-eW4Ij9",
+                      "options": {
+                        "url": {
+                          "value": "http://localhost:3002/api/deck/timer/hide",
+                          "isExpression": false
+                        },
+                        "header": {
+                          "isExpression": false,
+                          "value": ""
+                        },
+                        "jsonResultDataVariable": {
+                          "isExpression": false
+                        },
+                        "result_stringify": {
+                          "isExpression": false,
+                          "value": true
+                        },
+                        "statusCodeVariable": {
+                          "isExpression": false
+                        }
+                      },
+                      "upgradeIndex": 1,
+                      "type": "action"
+                    },
+                    {
+                      "id": "po_wSPe3-Uj2aQnrhl_Oh",
+                      "definitionId": "bgcolor",
+                      "connectionId": "internal",
+                      "options": {
+                        "location": {
+                          "isExpression": false,
+                          "value": "$(this:page)/$(this:row)/$(this:column)"
+                        },
+                        "color": {
+                          "value": 11141120,
+                          "isExpression": false
+                        }
+                      },
+                      "type": "action",
+                      "children": {}
+                    }
+                  ],
+                  "up": []
+                },
+                "options": {
+                  "runWhileHeld": []
+                }
+              }
+            },
+            "localVariables": []
+          }
+        },
+        "2": {
+          "0": {
+            "type": "button",
+            "style": {
+              "text": "\u00e2\u2013\u00b6 H2H",
+              "textExpression": false,
+              "size": "auto",
+              "png64": null,
+              "alignment": "center:center",
+              "pngalignment": "center:center",
+              "color": 16777215,
+              "bgcolor": 13056,
+              "show_topbar": "default"
+            },
+            "options": {
+              "stepProgression": "auto",
+              "stepExpression": "",
+              "rotaryActions": false
+            },
+            "feedbacks": [],
+            "steps": {
+              "0": {
+                "action_sets": {
+                  "down": [
+                    {
+                      "id": "qXX_J6-AoLeYqR-qOZNHx",
+                      "definitionId": "get",
+                      "connectionId": "JeL8gnZ7zpL1NF-eW4Ij9",
+                      "options": {
+                        "url": {
+                          "value": "http://localhost:3002/api/deck/h2h/show",
+                          "isExpression": false
+                        },
+                        "header": {
+                          "isExpression": false,
+                          "value": ""
+                        },
+                        "jsonResultDataVariable": {
+                          "isExpression": false
+                        },
+                        "result_stringify": {
+                          "isExpression": false,
+                          "value": true
+                        },
+                        "statusCodeVariable": {
+                          "isExpression": false
+                        }
+                      },
+                      "upgradeIndex": 1,
+                      "type": "action"
+                    },
+                    {
+                      "id": "9cnnpa6H6ecwD8BLd-gp_",
+                      "definitionId": "bgcolor",
+                      "connectionId": "internal",
+                      "options": {
+                        "location": {
+                          "isExpression": false,
+                          "value": "$(this:page)/$(this:row)/$(this:column)"
+                        },
+                        "color": {
+                          "value": 13056,
+                          "isExpression": false
+                        }
+                      },
+                      "type": "action",
+                      "children": {}
+                    }
+                  ],
+                  "up": []
+                },
+                "options": {
+                  "runWhileHeld": []
+                }
+              },
+              "1": {
+                "action_sets": {
+                  "down": [
+                    {
+                      "id": "G1kDJlXd_g4ifr2gATTw_",
+                      "definitionId": "get",
+                      "connectionId": "JeL8gnZ7zpL1NF-eW4Ij9",
+                      "options": {
+                        "url": {
+                          "value": "http://localhost:3002/api/deck/h2h/hide",
+                          "isExpression": false
+                        },
+                        "header": {
+                          "isExpression": false,
+                          "value": ""
+                        },
+                        "jsonResultDataVariable": {
+                          "isExpression": false
+                        },
+                        "result_stringify": {
+                          "isExpression": false,
+                          "value": true
+                        },
+                        "statusCodeVariable": {
+                          "isExpression": false
+                        }
+                      },
+                      "upgradeIndex": 1,
+                      "type": "action"
+                    },
+                    {
+                      "id": "6mOtO14v65056qK2ZqD2y",
+                      "definitionId": "bgcolor",
+                      "connectionId": "internal",
+                      "options": {
+                        "location": {
+                          "isExpression": false,
+                          "value": "$(this:page)/$(this:row)/$(this:column)"
+                        },
+                        "color": {
+                          "value": 11141120,
+                          "isExpression": false
+                        }
+                      },
+                      "type": "action",
+                      "children": {}
+                    }
+                  ],
+                  "up": []
+                },
+                "options": {
+                  "runWhileHeld": []
+                }
+              }
+            },
+            "localVariables": []
+          },
+          "1": {
+            "type": "button",
+            "style": {
+              "text": "\u00e2\u2013\u00b6 Stats",
+              "textExpression": false,
+              "size": "auto",
+              "png64": null,
+              "alignment": "center:center",
+              "pngalignment": "center:center",
+              "color": 16777215,
+              "bgcolor": 13056,
+              "show_topbar": "default"
+            },
+            "options": {
+              "stepProgression": "auto",
+              "stepExpression": "",
+              "rotaryActions": false
+            },
+            "feedbacks": [],
+            "steps": {
+              "0": {
+                "action_sets": {
+                  "down": [
+                    {
+                      "id": "e5QfT8kKyp8XdjwygkhHw",
+                      "definitionId": "get",
+                      "connectionId": "JeL8gnZ7zpL1NF-eW4Ij9",
+                      "options": {
+                        "url": {
+                          "value": "http://localhost:3002/api/deck/player-stats/show",
+                          "isExpression": false
+                        },
+                        "header": {
+                          "isExpression": false,
+                          "value": ""
+                        },
+                        "jsonResultDataVariable": {
+                          "isExpression": false
+                        },
+                        "result_stringify": {
+                          "isExpression": false,
+                          "value": true
+                        },
+                        "statusCodeVariable": {
+                          "isExpression": false
+                        }
+                      },
+                      "upgradeIndex": 1,
+                      "type": "action"
+                    },
+                    {
+                      "id": "oh_-wAxqOsE6BugUZViuK",
+                      "definitionId": "bgcolor",
+                      "connectionId": "internal",
+                      "options": {
+                        "location": {
+                          "isExpression": false,
+                          "value": "$(this:page)/$(this:row)/$(this:column)"
+                        },
+                        "color": {
+                          "value": 13056,
+                          "isExpression": false
+                        }
+                      },
+                      "type": "action",
+                      "children": {}
+                    }
+                  ],
+                  "up": []
+                },
+                "options": {
+                  "runWhileHeld": []
+                }
+              },
+              "1": {
+                "action_sets": {
+                  "down": [
+                    {
+                      "id": "2mqVUHnd8F9zO0Av-NKNE",
+                      "definitionId": "get",
+                      "connectionId": "JeL8gnZ7zpL1NF-eW4Ij9",
+                      "options": {
+                        "url": {
+                          "value": "http://localhost:3002/api/deck/player-stats/hide",
+                          "isExpression": false
+                        },
+                        "header": {
+                          "isExpression": false,
+                          "value": ""
+                        },
+                        "jsonResultDataVariable": {
+                          "isExpression": false
+                        },
+                        "result_stringify": {
+                          "isExpression": false,
+                          "value": true
+                        },
+                        "statusCodeVariable": {
+                          "isExpression": false
+                        }
+                      },
+                      "upgradeIndex": 1,
+                      "type": "action"
+                    },
+                    {
+                      "id": "zRjsBgr2df31NU69d7M42",
+                      "definitionId": "bgcolor",
+                      "connectionId": "internal",
+                      "options": {
+                        "location": {
+                          "isExpression": false,
+                          "value": "$(this:page)/$(this:row)/$(this:column)"
+                        },
+                        "color": {
+                          "value": 11141120,
+                          "isExpression": false
+                        }
+                      },
+                      "type": "action",
+                      "children": {}
+                    }
+                  ],
+                  "up": []
+                },
+                "options": {
+                  "runWhileHeld": []
+                }
+              }
+            },
+            "localVariables": []
+          },
+          "2": {
+            "type": "button",
+            "style": {
+              "text": "\u00e2\u2013\u00b6 Bracket",
+              "textExpression": false,
+              "size": "auto",
+              "png64": null,
+              "alignment": "center:center",
+              "pngalignment": "center:center",
+              "color": 16777215,
+              "bgcolor": 13056,
+              "show_topbar": "default"
+            },
+            "options": {
+              "stepProgression": "auto",
+              "stepExpression": "",
+              "rotaryActions": false
+            },
+            "feedbacks": [],
+            "steps": {
+              "0": {
+                "action_sets": {
+                  "down": [
+                    {
+                      "id": "oSkHH59ftiig4lfQNh9It",
+                      "definitionId": "get",
+                      "connectionId": "JeL8gnZ7zpL1NF-eW4Ij9",
+                      "options": {
+                        "url": {
+                          "value": "http://localhost:3002/api/deck/bracket/show",
+                          "isExpression": false
+                        },
+                        "header": {
+                          "isExpression": false,
+                          "value": ""
+                        },
+                        "jsonResultDataVariable": {
+                          "isExpression": false
+                        },
+                        "result_stringify": {
+                          "isExpression": false,
+                          "value": true
+                        },
+                        "statusCodeVariable": {
+                          "isExpression": false
+                        }
+                      },
+                      "upgradeIndex": 1,
+                      "type": "action"
+                    },
+                    {
+                      "id": "mLa-eV2lELjQDeQuSAj7k",
+                      "definitionId": "bgcolor",
+                      "connectionId": "internal",
+                      "options": {
+                        "location": {
+                          "isExpression": false,
+                          "value": "$(this:page)/$(this:row)/$(this:column)"
+                        },
+                        "color": {
+                          "value": 13056,
+                          "isExpression": false
+                        }
+                      },
+                      "type": "action",
+                      "children": {}
+                    }
+                  ],
+                  "up": []
+                },
+                "options": {
+                  "runWhileHeld": []
+                }
+              },
+              "1": {
+                "action_sets": {
+                  "down": [
+                    {
+                      "id": "F5ALfj2uhsktc1ZDdcCY6",
+                      "definitionId": "get",
+                      "connectionId": "JeL8gnZ7zpL1NF-eW4Ij9",
+                      "options": {
+                        "url": {
+                          "value": "http://localhost:3002/api/deck/bracket/hide",
+                          "isExpression": false
+                        },
+                        "header": {
+                          "isExpression": false,
+                          "value": ""
+                        },
+                        "jsonResultDataVariable": {
+                          "isExpression": false
+                        },
+                        "result_stringify": {
+                          "isExpression": false,
+                          "value": true
+                        },
+                        "statusCodeVariable": {
+                          "isExpression": false
+                        }
+                      },
+                      "upgradeIndex": 1,
+                      "type": "action"
+                    },
+                    {
+                      "id": "Aosr6Oh_fM2gLPWv2pJVJ",
+                      "definitionId": "bgcolor",
+                      "connectionId": "internal",
+                      "options": {
+                        "location": {
+                          "isExpression": false,
+                          "value": "$(this:page)/$(this:row)/$(this:column)"
+                        },
+                        "color": {
+                          "value": 11141120,
+                          "isExpression": false
+                        }
+                      },
+                      "type": "action",
+                      "children": {}
+                    }
+                  ],
+                  "up": []
+                },
+                "options": {
+                  "runWhileHeld": []
+                }
+              }
+            },
+            "localVariables": []
+          },
+          "3": {
+            "type": "button",
+            "style": {
+              "text": "\u00e2\u2013\u00b6 Top 8",
+              "textExpression": false,
+              "size": "auto",
+              "png64": null,
+              "alignment": "center:center",
+              "pngalignment": "center:center",
+              "color": 16777215,
+              "bgcolor": 13056,
+              "show_topbar": "default"
+            },
+            "options": {
+              "stepProgression": "auto",
+              "stepExpression": "",
+              "rotaryActions": false
+            },
+            "feedbacks": [],
+            "steps": {
+              "0": {
+                "action_sets": {
+                  "down": [
+                    {
+                      "id": "iNNKYqsRnUUaAZ-tv1Sy1",
+                      "definitionId": "get",
+                      "connectionId": "JeL8gnZ7zpL1NF-eW4Ij9",
+                      "options": {
+                        "url": {
+                          "value": "http://localhost:3002/api/deck/top8/show",
+                          "isExpression": false
+                        },
+                        "header": {
+                          "isExpression": false,
+                          "value": ""
+                        },
+                        "jsonResultDataVariable": {
+                          "isExpression": false
+                        },
+                        "result_stringify": {
+                          "isExpression": false,
+                          "value": true
+                        },
+                        "statusCodeVariable": {
+                          "isExpression": false
+                        }
+                      },
+                      "upgradeIndex": 1,
+                      "type": "action"
+                    },
+                    {
+                      "id": "rrwTDPMXCI7lvYs0NfTs0",
+                      "definitionId": "bgcolor",
+                      "connectionId": "internal",
+                      "options": {
+                        "location": {
+                          "isExpression": false,
+                          "value": "$(this:page)/$(this:row)/$(this:column)"
+                        },
+                        "color": {
+                          "value": 13056,
+                          "isExpression": false
+                        }
+                      },
+                      "type": "action",
+                      "children": {}
+                    }
+                  ],
+                  "up": []
+                },
+                "options": {
+                  "runWhileHeld": []
+                }
+              },
+              "1": {
+                "action_sets": {
+                  "down": [
+                    {
+                      "id": "EpxzNlt1TjzHlG900bsQf",
+                      "definitionId": "get",
+                      "connectionId": "JeL8gnZ7zpL1NF-eW4Ij9",
+                      "options": {
+                        "url": {
+                          "value": "http://localhost:3002/api/deck/top8/hide",
+                          "isExpression": false
+                        },
+                        "header": {
+                          "isExpression": false,
+                          "value": ""
+                        },
+                        "jsonResultDataVariable": {
+                          "isExpression": false
+                        },
+                        "result_stringify": {
+                          "isExpression": false,
+                          "value": true
+                        },
+                        "statusCodeVariable": {
+                          "isExpression": false
+                        }
+                      },
+                      "upgradeIndex": 1,
+                      "type": "action"
+                    },
+                    {
+                      "id": "H6CYyNaEVGVLuMUgelNvL",
+                      "definitionId": "bgcolor",
+                      "connectionId": "internal",
+                      "options": {
+                        "location": {
+                          "isExpression": false,
+                          "value": "$(this:page)/$(this:row)/$(this:column)"
+                        },
+                        "color": {
+                          "value": 11141120,
+                          "isExpression": false
+                        }
+                      },
+                      "type": "action",
+                      "children": {}
+                    }
+                  ],
+                  "up": []
+                },
+                "options": {
+                  "runWhileHeld": []
+                }
+              }
+            },
+            "localVariables": []
+          },
+          "4": {
+            "type": "button",
+            "style": {
+              "text": "\u00e2\u2013\u00b6 Ticker",
+              "textExpression": false,
+              "size": "auto",
+              "png64": null,
+              "alignment": "center:center",
+              "pngalignment": "center:center",
+              "color": 16777215,
+              "bgcolor": 13056,
+              "show_topbar": "default"
+            },
+            "options": {
+              "stepProgression": "auto",
+              "stepExpression": "",
+              "rotaryActions": false
+            },
+            "feedbacks": [],
+            "steps": {
+              "0": {
+                "action_sets": {
+                  "down": [
+                    {
+                      "id": "LxZjhy35ICyEBcpr5aO0c",
+                      "definitionId": "get",
+                      "connectionId": "JeL8gnZ7zpL1NF-eW4Ij9",
+                      "options": {
+                        "url": {
+                          "value": "http://localhost:3002/api/deck/ticker/show",
+                          "isExpression": false
+                        },
+                        "header": {
+                          "isExpression": false,
+                          "value": ""
+                        },
+                        "jsonResultDataVariable": {
+                          "isExpression": false
+                        },
+                        "result_stringify": {
+                          "isExpression": false,
+                          "value": true
+                        },
+                        "statusCodeVariable": {
+                          "isExpression": false
+                        }
+                      },
+                      "upgradeIndex": 1,
+                      "type": "action"
+                    },
+                    {
+                      "id": "6jW39M4OtOtmWvhw9PeaG",
+                      "definitionId": "bgcolor",
+                      "connectionId": "internal",
+                      "options": {
+                        "location": {
+                          "isExpression": false,
+                          "value": "$(this:page)/$(this:row)/$(this:column)"
+                        },
+                        "color": {
+                          "value": 13056,
+                          "isExpression": false
+                        }
+                      },
+                      "type": "action",
+                      "children": {}
+                    }
+                  ],
+                  "up": []
+                },
+                "options": {
+                  "runWhileHeld": []
+                }
+              },
+              "1": {
+                "action_sets": {
+                  "down": [
+                    {
+                      "id": "WwTiXsZYlhs-7tcd4Sxzq",
+                      "definitionId": "get",
+                      "connectionId": "JeL8gnZ7zpL1NF-eW4Ij9",
+                      "options": {
+                        "url": {
+                          "value": "http://localhost:3002/api/deck/ticker/hide",
+                          "isExpression": false
+                        },
+                        "header": {
+                          "isExpression": false,
+                          "value": ""
+                        },
+                        "jsonResultDataVariable": {
+                          "isExpression": false
+                        },
+                        "result_stringify": {
+                          "isExpression": false,
+                          "value": true
+                        },
+                        "statusCodeVariable": {
+                          "isExpression": false
+                        }
+                      },
+                      "upgradeIndex": 1,
+                      "type": "action"
+                    },
+                    {
+                      "id": "XDfs6g7WCQVtiF8nLF4sm",
+                      "definitionId": "bgcolor",
+                      "connectionId": "internal",
+                      "options": {
+                        "location": {
+                          "isExpression": false,
+                          "value": "$(this:page)/$(this:row)/$(this:column)"
+                        },
+                        "color": {
+                          "value": 11141120,
+                          "isExpression": false
+                        }
+                      },
+                      "type": "action",
+                      "children": {}
+                    }
+                  ],
+                  "up": []
+                },
+                "options": {
+                  "runWhileHeld": []
+                }
+              }
+            },
+            "localVariables": []
+          },
+          "5": {
+            "type": "button",
+            "style": {
+              "text": "\u00e2\u2013\u00b6 Frames",
+              "textExpression": false,
+              "size": "auto",
+              "png64": null,
+              "alignment": "center:center",
+              "pngalignment": "center:center",
+              "color": 16777215,
+              "bgcolor": 13056,
+              "show_topbar": "default"
+            },
+            "options": {
+              "stepProgression": "auto",
+              "stepExpression": "",
+              "rotaryActions": false
+            },
+            "feedbacks": [],
+            "steps": {
+              "0": {
+                "action_sets": {
+                  "down": [
+                    {
+                      "id": "NgBpBy6HaaSbfD80YnRKS",
+                      "definitionId": "get",
+                      "connectionId": "JeL8gnZ7zpL1NF-eW4Ij9",
+                      "options": {
+                        "url": {
+                          "value": "http://localhost:3002/api/deck/frames/show",
+                          "isExpression": false
+                        },
+                        "header": {
+                          "isExpression": false,
+                          "value": ""
+                        },
+                        "jsonResultDataVariable": {
+                          "isExpression": false
+                        },
+                        "result_stringify": {
+                          "isExpression": false,
+                          "value": true
+                        },
+                        "statusCodeVariable": {
+                          "isExpression": false
+                        }
+                      },
+                      "upgradeIndex": 1,
+                      "type": "action"
+                    },
+                    {
+                      "id": "tFQ8P-uUlo7YWhzDWSTK7",
+                      "definitionId": "bgcolor",
+                      "connectionId": "internal",
+                      "options": {
+                        "location": {
+                          "isExpression": false,
+                          "value": "$(this:page)/$(this:row)/$(this:column)"
+                        },
+                        "color": {
+                          "value": 13056,
+                          "isExpression": false
+                        }
+                      },
+                      "type": "action",
+                      "children": {}
+                    }
+                  ],
+                  "up": []
+                },
+                "options": {
+                  "runWhileHeld": []
+                }
+              },
+              "1": {
+                "action_sets": {
+                  "down": [
+                    {
+                      "id": "rIB-2rphphr0JH6D1CD19",
+                      "definitionId": "get",
+                      "connectionId": "JeL8gnZ7zpL1NF-eW4Ij9",
+                      "options": {
+                        "url": {
+                          "value": "http://localhost:3002/api/deck/frames/hide",
+                          "isExpression": false
+                        },
+                        "header": {
+                          "isExpression": false,
+                          "value": ""
+                        },
+                        "jsonResultDataVariable": {
+                          "isExpression": false
+                        },
+                        "result_stringify": {
+                          "isExpression": false,
+                          "value": true
+                        },
+                        "statusCodeVariable": {
+                          "isExpression": false
+                        }
+                      },
+                      "upgradeIndex": 1,
+                      "type": "action"
+                    },
+                    {
+                      "id": "hm4DD2AZcFvlSxVIMlNPq",
+                      "definitionId": "bgcolor",
+                      "connectionId": "internal",
+                      "options": {
+                        "location": {
+                          "isExpression": false,
+                          "value": "$(this:page)/$(this:row)/$(this:column)"
+                        },
+                        "color": {
+                          "value": 11141120,
+                          "isExpression": false
+                        }
+                      },
+                      "type": "action",
+                      "children": {}
+                    }
+                  ],
+                  "up": []
+                },
+                "options": {
+                  "runWhileHeld": []
+                }
+              }
+            },
+            "localVariables": []
+          },
+          "6": {
+            "type": "button",
+            "style": {
+              "text": "\u00e2\u2013\u00b6 Titre",
+              "textExpression": false,
+              "size": "auto",
+              "png64": null,
+              "alignment": "center:center",
+              "pngalignment": "center:center",
+              "color": 16777215,
+              "bgcolor": 13056,
+              "show_topbar": "default"
+            },
+            "options": {
+              "stepProgression": "auto",
+              "stepExpression": "",
+              "rotaryActions": false
+            },
+            "feedbacks": [],
+            "steps": {
+              "0": {
+                "action_sets": {
+                  "down": [
+                    {
+                      "id": "49cqdvsvFWOllZvJpFDh8",
+                      "definitionId": "get",
+                      "connectionId": "JeL8gnZ7zpL1NF-eW4Ij9",
+                      "options": {
+                        "url": {
+                          "value": "http://localhost:3002/api/deck/stream-title/show",
+                          "isExpression": false
+                        },
+                        "header": {
+                          "isExpression": false,
+                          "value": ""
+                        },
+                        "jsonResultDataVariable": {
+                          "isExpression": false
+                        },
+                        "result_stringify": {
+                          "isExpression": false,
+                          "value": true
+                        },
+                        "statusCodeVariable": {
+                          "isExpression": false
+                        }
+                      },
+                      "upgradeIndex": 1,
+                      "type": "action"
+                    },
+                    {
+                      "id": "jXGztgx0l8O_8Z4RVViMs",
+                      "definitionId": "bgcolor",
+                      "connectionId": "internal",
+                      "options": {
+                        "location": {
+                          "isExpression": false,
+                          "value": "$(this:page)/$(this:row)/$(this:column)"
+                        },
+                        "color": {
+                          "value": 13056,
+                          "isExpression": false
+                        }
+                      },
+                      "type": "action",
+                      "children": {}
+                    }
+                  ],
+                  "up": []
+                },
+                "options": {
+                  "runWhileHeld": []
+                }
+              },
+              "1": {
+                "action_sets": {
+                  "down": [
+                    {
+                      "id": "7pyTmbC9PXxzFiu_loTyy",
+                      "definitionId": "get",
+                      "connectionId": "JeL8gnZ7zpL1NF-eW4Ij9",
+                      "options": {
+                        "url": {
+                          "value": "http://localhost:3002/api/deck/stream-title/hide",
+                          "isExpression": false
+                        },
+                        "header": {
+                          "isExpression": false,
+                          "value": ""
+                        },
+                        "jsonResultDataVariable": {
+                          "isExpression": false
+                        },
+                        "result_stringify": {
+                          "isExpression": false,
+                          "value": true
+                        },
+                        "statusCodeVariable": {
+                          "isExpression": false
+                        }
+                      },
+                      "upgradeIndex": 1,
+                      "type": "action"
+                    },
+                    {
+                      "id": "fFzDze-SpfLPo6VuQ499v",
+                      "definitionId": "bgcolor",
+                      "connectionId": "internal",
+                      "options": {
+                        "location": {
+                          "isExpression": false,
+                          "value": "$(this:page)/$(this:row)/$(this:column)"
+                        },
+                        "color": {
+                          "value": 11141120,
+                          "isExpression": false
+                        }
+                      },
+                      "type": "action",
+                      "children": {}
+                    }
+                  ],
+                  "up": []
+                },
+                "options": {
+                  "runWhileHeld": []
+                }
+              }
+            },
+            "localVariables": []
+          },
+          "7": {
+            "type": "button",
+            "style": {
+              "text": "\u00e2\u2013\u00b6 Chat\nCombin\u00c3\u00a9",
+              "textExpression": false,
+              "size": "auto",
+              "png64": null,
+              "alignment": "center:center",
+              "pngalignment": "center:center",
+              "color": 16777215,
+              "bgcolor": 13056,
+              "show_topbar": "default"
+            },
+            "options": {
+              "stepProgression": "auto",
+              "stepExpression": "",
+              "rotaryActions": false
+            },
+            "feedbacks": [],
+            "steps": {
+              "0": {
+                "action_sets": {
+                  "down": [
+                    {
+                      "id": "DHmxv_4igM20EqLRMCR7Q",
+                      "definitionId": "get",
+                      "connectionId": "JeL8gnZ7zpL1NF-eW4Ij9",
+                      "options": {
+                        "url": {
+                          "value": "http://localhost:3002/api/deck/combined-chat/show",
+                          "isExpression": false
+                        },
+                        "header": {
+                          "isExpression": false,
+                          "value": ""
+                        },
+                        "jsonResultDataVariable": {
+                          "isExpression": false
+                        },
+                        "result_stringify": {
+                          "isExpression": false,
+                          "value": true
+                        },
+                        "statusCodeVariable": {
+                          "isExpression": false
+                        }
+                      },
+                      "upgradeIndex": 1,
+                      "type": "action"
+                    },
+                    {
+                      "id": "m7-mv2aKWcuRbVrd4qcL8",
+                      "definitionId": "bgcolor",
+                      "connectionId": "internal",
+                      "options": {
+                        "location": {
+                          "isExpression": false,
+                          "value": "$(this:page)/$(this:row)/$(this:column)"
+                        },
+                        "color": {
+                          "value": 13056,
+                          "isExpression": false
+                        }
+                      },
+                      "type": "action",
+                      "children": {}
+                    }
+                  ],
+                  "up": []
+                },
+                "options": {
+                  "runWhileHeld": []
+                }
+              },
+              "1": {
+                "action_sets": {
+                  "down": [
+                    {
+                      "id": "7Unol_LKk49_QfTSNAhhi",
+                      "definitionId": "get",
+                      "connectionId": "JeL8gnZ7zpL1NF-eW4Ij9",
+                      "options": {
+                        "url": {
+                          "value": "http://localhost:3002/api/deck/combined-chat/hide",
+                          "isExpression": false
+                        },
+                        "header": {
+                          "isExpression": false,
+                          "value": ""
+                        },
+                        "jsonResultDataVariable": {
+                          "isExpression": false
+                        },
+                        "result_stringify": {
+                          "isExpression": false,
+                          "value": true
+                        },
+                        "statusCodeVariable": {
+                          "isExpression": false
+                        }
+                      },
+                      "upgradeIndex": 1,
+                      "type": "action"
+                    },
+                    {
+                      "id": "sGVTyoAE9c5Qu-TVnVJbG",
+                      "definitionId": "bgcolor",
+                      "connectionId": "internal",
+                      "options": {
+                        "location": {
+                          "isExpression": false,
+                          "value": "$(this:page)/$(this:row)/$(this:column)"
+                        },
+                        "color": {
+                          "value": 11141120,
+                          "isExpression": false
+                        }
+                      },
+                      "type": "action",
+                      "children": {}
+                    }
+                  ],
+                  "up": []
+                },
+                "options": {
+                  "runWhileHeld": []
+                }
+              }
+            },
+            "localVariables": []
+          }
+        },
+        "3": {
+          "0": {
+            "type": "button",
+            "style": {
+              "text": "Sc\u00c3\u00a8ne 1",
+              "textExpression": false,
+              "size": "auto",
+              "png64": null,
+              "alignment": "center:center",
+              "pngalignment": "center:center",
+              "color": 16777215,
+              "bgcolor": 13056,
+              "show_topbar": "default"
+            },
+            "options": {
+              "stepProgression": "auto",
+              "stepExpression": "",
+              "rotaryActions": false
+            },
+            "feedbacks": [],
+            "steps": {
+              "0": {
+                "action_sets": {
+                  "down": [
+                    {
+                      "id": "xvfDZwux3Jyc_sPjqQheY",
+                      "definitionId": "post",
+                      "connectionId": "JeL8gnZ7zpL1NF-eW4Ij9",
+                      "options": {
+                        "url": {
+                          "value": "http://localhost:3002/api/super/scene/0",
+                          "isExpression": false
+                        },
+                        "header": {
+                          "isExpression": false,
+                          "value": ""
+                        },
+                        "body": {
+                          "isExpression": false,
+                          "value": ""
+                        },
+                        "jsonResultDataVariable": {
+                          "isExpression": false
+                        },
+                        "result_stringify": {
+                          "isExpression": false,
+                          "value": true
+                        },
+                        "statusCodeVariable": {
+                          "isExpression": false
+                        }
+                      },
+                      "upgradeIndex": 1,
+                      "type": "action"
+                    }
+                  ],
+                  "up": []
+                },
+                "options": {
+                  "runWhileHeld": []
+                }
+              }
+            },
+            "localVariables": []
+          },
+          "1": {
+            "type": "button",
+            "style": {
+              "text": "Sc\u00c3\u00a8ne 2",
+              "textExpression": false,
+              "size": "auto",
+              "png64": null,
+              "alignment": "center:center",
+              "pngalignment": "center:center",
+              "color": 16777215,
+              "bgcolor": 13056,
+              "show_topbar": "default"
+            },
+            "options": {
+              "stepProgression": "auto",
+              "stepExpression": "",
+              "rotaryActions": false
+            },
+            "feedbacks": [],
+            "steps": {
+              "0": {
+                "action_sets": {
+                  "down": [
+                    {
+                      "id": "S5hW8F4dRt14s2zxopFmD",
+                      "definitionId": "post",
+                      "connectionId": "JeL8gnZ7zpL1NF-eW4Ij9",
+                      "options": {
+                        "url": {
+                          "value": "http://localhost:3002/api/super/scene/1",
+                          "isExpression": false
+                        },
+                        "header": {
+                          "isExpression": false,
+                          "value": ""
+                        },
+                        "body": {
+                          "isExpression": false,
+                          "value": ""
+                        },
+                        "jsonResultDataVariable": {
+                          "isExpression": false
+                        },
+                        "result_stringify": {
+                          "isExpression": false,
+                          "value": true
+                        },
+                        "statusCodeVariable": {
+                          "isExpression": false
+                        }
+                      },
+                      "upgradeIndex": 1,
+                      "type": "action"
+                    }
+                  ],
+                  "up": []
+                },
+                "options": {
+                  "runWhileHeld": []
+                }
+              }
+            },
+            "localVariables": []
+          },
+          "2": {
+            "type": "button",
+            "style": {
+              "text": "Sc\u00c3\u00a8ne 3",
+              "textExpression": false,
+              "size": "auto",
+              "png64": null,
+              "alignment": "center:center",
+              "pngalignment": "center:center",
+              "color": 16777215,
+              "bgcolor": 13056,
+              "show_topbar": "default"
+            },
+            "options": {
+              "stepProgression": "auto",
+              "stepExpression": "",
+              "rotaryActions": false
+            },
+            "feedbacks": [],
+            "steps": {
+              "0": {
+                "action_sets": {
+                  "down": [
+                    {
+                      "id": "I6eEd-YXUEkfPfBO8RvIP",
+                      "definitionId": "post",
+                      "connectionId": "JeL8gnZ7zpL1NF-eW4Ij9",
+                      "options": {
+                        "url": {
+                          "value": "http://localhost:3002/api/super/scene/2",
+                          "isExpression": false
+                        },
+                        "header": {
+                          "isExpression": false,
+                          "value": ""
+                        },
+                        "body": {
+                          "isExpression": false,
+                          "value": ""
+                        },
+                        "jsonResultDataVariable": {
+                          "isExpression": false
+                        },
+                        "result_stringify": {
+                          "isExpression": false,
+                          "value": true
+                        },
+                        "statusCodeVariable": {
+                          "isExpression": false
+                        }
+                      },
+                      "upgradeIndex": 1,
+                      "type": "action"
+                    }
+                  ],
+                  "up": []
+                },
+                "options": {
+                  "runWhileHeld": []
+                }
+              }
+            },
+            "localVariables": []
+          },
+          "3": {
+            "type": "button",
+            "style": {
+              "text": "Sc\u00c3\u00a8ne 4",
+              "textExpression": false,
+              "size": "auto",
+              "png64": null,
+              "alignment": "center:center",
+              "pngalignment": "center:center",
+              "color": 16777215,
+              "bgcolor": 13056,
+              "show_topbar": "default"
+            },
+            "options": {
+              "stepProgression": "auto",
+              "stepExpression": "",
+              "rotaryActions": false
+            },
+            "feedbacks": [],
+            "steps": {
+              "0": {
+                "action_sets": {
+                  "down": [
+                    {
+                      "id": "3zE2CcBHD6_QtOkAfJXh-",
+                      "definitionId": "post",
+                      "connectionId": "JeL8gnZ7zpL1NF-eW4Ij9",
+                      "options": {
+                        "url": {
+                          "value": "http://localhost:3002/api/super/scene/3",
+                          "isExpression": false
+                        },
+                        "header": {
+                          "isExpression": false,
+                          "value": ""
+                        },
+                        "body": {
+                          "isExpression": false,
+                          "value": ""
+                        },
+                        "jsonResultDataVariable": {
+                          "isExpression": false
+                        },
+                        "result_stringify": {
+                          "isExpression": false,
+                          "value": true
+                        },
+                        "statusCodeVariable": {
+                          "isExpression": false
+                        }
+                      },
+                      "upgradeIndex": 1,
+                      "type": "action"
+                    }
+                  ],
+                  "up": []
+                },
+                "options": {
+                  "runWhileHeld": []
+                }
+              }
+            },
+            "localVariables": []
+          },
+          "4": {
+            "type": "button",
+            "style": {
+              "text": "Sc\u00c3\u00a8ne 5",
+              "textExpression": false,
+              "size": "auto",
+              "png64": null,
+              "alignment": "center:center",
+              "pngalignment": "center:center",
+              "color": 16777215,
+              "bgcolor": 13056,
+              "show_topbar": "default"
+            },
+            "options": {
+              "stepProgression": "auto",
+              "stepExpression": "",
+              "rotaryActions": false
+            },
+            "feedbacks": [],
+            "steps": {
+              "0": {
+                "action_sets": {
+                  "down": [
+                    {
+                      "id": "TgCoug1Xlrw6uTnypxRHi",
+                      "definitionId": "post",
+                      "connectionId": "JeL8gnZ7zpL1NF-eW4Ij9",
+                      "options": {
+                        "url": {
+                          "value": "http://localhost:3002/api/super/scene/4",
+                          "isExpression": false
+                        },
+                        "header": {
+                          "isExpression": false,
+                          "value": ""
+                        },
+                        "body": {
+                          "isExpression": false,
+                          "value": ""
+                        },
+                        "jsonResultDataVariable": {
+                          "isExpression": false
+                        },
+                        "result_stringify": {
+                          "isExpression": false,
+                          "value": true
+                        },
+                        "statusCodeVariable": {
+                          "isExpression": false
+                        }
+                      },
+                      "upgradeIndex": 1,
+                      "type": "action"
+                    }
+                  ],
+                  "up": []
+                },
+                "options": {
+                  "runWhileHeld": []
+                }
+              }
+            },
+            "localVariables": []
+          },
+          "5": {
+            "type": "button",
+            "style": {
+              "text": "Sc\u00c3\u00a8ne 6",
+              "textExpression": false,
+              "size": "auto",
+              "png64": null,
+              "alignment": "center:center",
+              "pngalignment": "center:center",
+              "color": 16777215,
+              "bgcolor": 13056,
+              "show_topbar": "default"
+            },
+            "options": {
+              "stepProgression": "auto",
+              "stepExpression": "",
+              "rotaryActions": false
+            },
+            "feedbacks": [],
+            "steps": {
+              "0": {
+                "action_sets": {
+                  "down": [
+                    {
+                      "id": "pKEcJTC2WOGu0LjHT-34k",
+                      "definitionId": "post",
+                      "connectionId": "JeL8gnZ7zpL1NF-eW4Ij9",
+                      "options": {
+                        "url": {
+                          "value": "http://localhost:3002/api/super/scene/5",
+                          "isExpression": false
+                        },
+                        "header": {
+                          "isExpression": false,
+                          "value": ""
+                        },
+                        "body": {
+                          "isExpression": false,
+                          "value": ""
+                        },
+                        "jsonResultDataVariable": {
+                          "isExpression": false
+                        },
+                        "result_stringify": {
+                          "isExpression": false,
+                          "value": true
+                        },
+                        "statusCodeVariable": {
+                          "isExpression": false
+                        }
+                      },
+                      "upgradeIndex": 1,
+                      "type": "action"
+                    }
+                  ],
+                  "up": []
+                },
+                "options": {
+                  "runWhileHeld": []
+                }
+              }
+            },
+            "localVariables": []
+          },
+          "6": {
+            "type": "button",
+            "style": {
+              "text": "Sc\u00c3\u00a8ne 7",
+              "textExpression": false,
+              "size": "auto",
+              "png64": null,
+              "alignment": "center:center",
+              "pngalignment": "center:center",
+              "color": 16777215,
+              "bgcolor": 13056,
+              "show_topbar": "default"
+            },
+            "options": {
+              "stepProgression": "auto",
+              "stepExpression": "",
+              "rotaryActions": false
+            },
+            "feedbacks": [],
+            "steps": {
+              "0": {
+                "action_sets": {
+                  "down": [
+                    {
+                      "id": "W4Aq8K2keZAk9h0tmLaAF",
+                      "definitionId": "post",
+                      "connectionId": "JeL8gnZ7zpL1NF-eW4Ij9",
+                      "options": {
+                        "url": {
+                          "value": "http://localhost:3002/api/super/scene/6",
+                          "isExpression": false
+                        },
+                        "header": {
+                          "isExpression": false,
+                          "value": ""
+                        },
+                        "body": {
+                          "isExpression": false,
+                          "value": ""
+                        },
+                        "jsonResultDataVariable": {
+                          "isExpression": false
+                        },
+                        "result_stringify": {
+                          "isExpression": false,
+                          "value": true
+                        },
+                        "statusCodeVariable": {
+                          "isExpression": false
+                        }
+                      },
+                      "upgradeIndex": 1,
+                      "type": "action"
+                    }
+                  ],
+                  "up": []
+                },
+                "options": {
+                  "runWhileHeld": []
+                }
+              }
+            },
+            "localVariables": []
+          },
+          "7": {
+            "type": "button",
+            "style": {
+              "text": "Sc\u00c3\u00a8ne 8",
+              "textExpression": false,
+              "size": "auto",
+              "png64": null,
+              "alignment": "center:center",
+              "pngalignment": "center:center",
+              "color": 16777215,
+              "bgcolor": 13056,
+              "show_topbar": "default"
+            },
+            "options": {
+              "stepProgression": "auto",
+              "stepExpression": "",
+              "rotaryActions": false
+            },
+            "feedbacks": [],
+            "steps": {
+              "0": {
+                "action_sets": {
+                  "down": [
+                    {
+                      "id": "1G4vMuALtGbBNlRx-Y05d",
+                      "definitionId": "post",
+                      "connectionId": "JeL8gnZ7zpL1NF-eW4Ij9",
+                      "options": {
+                        "url": {
+                          "value": "http://localhost:3002/api/super/scene/7",
+                          "isExpression": false
+                        },
+                        "header": {
+                          "isExpression": false,
+                          "value": ""
+                        },
+                        "body": {
+                          "isExpression": false,
+                          "value": ""
+                        },
+                        "jsonResultDataVariable": {
+                          "isExpression": false
+                        },
+                        "result_stringify": {
+                          "isExpression": false,
+                          "value": true
+                        },
+                        "statusCodeVariable": {
+                          "isExpression": false
+                        }
+                      },
+                      "upgradeIndex": 1,
+                      "type": "action"
+                    }
+                  ],
+                  "up": []
+                },
+                "options": {
+                  "runWhileHeld": []
+                }
+              }
+            },
+            "localVariables": []
+          }
+        }
+      },
+      "gridSize": {
+        "minColumn": 0,
+        "maxColumn": 7,
+        "minRow": 0,
+        "maxRow": 3
+      }
+    },
+    "2": {
+      "id": "z4tMjjWktVJ-4JqfMyxqW",
+      "name": "",
+      "controls": {
+        "0": {
+          "0": {
+            "type": "pageup"
+          },
+          "3": {
+            "type": "button",
+            "style": {
+              "text": "\u00e2\u2013\u00b6 \u00c3\u2030l\u00c3\u00a9ments\nSB",
+              "textExpression": false,
+              "size": "auto",
+              "png64": null,
+              "alignment": "center:center",
+              "pngalignment": "center:center",
+              "color": 16777215,
+              "bgcolor": 13056,
+              "show_topbar": "default"
+            },
+            "options": {
+              "stepProgression": "auto",
+              "stepExpression": "",
+              "rotaryActions": false
+            },
+            "feedbacks": [],
+            "steps": {
+              "0": {
+                "action_sets": {
+                  "down": [
+                    {
+                      "id": "GGyFbjFZMJG8Tho4tutcI",
+                      "definitionId": "get",
+                      "connectionId": "JeL8gnZ7zpL1NF-eW4Ij9",
+                      "upgradeIndex": 1,
+                      "type": "action",
+                      "options": {
+                        "url": {
+                          "value": "http://localhost:3002/api/deck/scoreboard-elements/show",
+                          "isExpression": false
+                        },
+                        "header": {
+                          "isExpression": false,
+                          "value": ""
+                        },
+                        "jsonResultDataVariable": {
+                          "isExpression": false
+                        },
+                        "result_stringify": {
+                          "isExpression": false,
+                          "value": true
+                        },
+                        "statusCodeVariable": {
+                          "isExpression": false
+                        }
+                      }
+                    },
+                    {
+                      "id": "DmsKS9hm5t9Ov-QmlOsnE",
+                      "definitionId": "bgcolor",
+                      "connectionId": "internal",
+                      "type": "action",
+                      "options": {
+                        "location": {
+                          "isExpression": false,
+                          "value": "$(this:page)/$(this:row)/$(this:column)"
+                        },
+                        "color": {
+                          "value": 13056,
+                          "isExpression": false
+                        }
+                      },
+                      "children": {}
+                    }
+                  ],
+                  "up": []
+                },
+                "options": {
+                  "runWhileHeld": []
+                }
+              },
+              "1": {
+                "action_sets": {
+                  "down": [
+                    {
+                      "id": "0XZ2sE392jXYd8JkchO9g",
+                      "definitionId": "get",
+                      "connectionId": "JeL8gnZ7zpL1NF-eW4Ij9",
+                      "upgradeIndex": 1,
+                      "type": "action",
+                      "options": {
+                        "url": {
+                          "value": "http://localhost:3002/api/deck/scoreboard-elements/hide",
+                          "isExpression": false
+                        },
+                        "header": {
+                          "isExpression": false,
+                          "value": ""
+                        },
+                        "jsonResultDataVariable": {
+                          "isExpression": false
+                        },
+                        "result_stringify": {
+                          "isExpression": false,
+                          "value": true
+                        },
+                        "statusCodeVariable": {
+                          "isExpression": false
+                        }
+                      }
+                    },
+                    {
+                      "id": "ugM9wpLy-R9W7iZ_sEdow",
+                      "definitionId": "bgcolor",
+                      "connectionId": "internal",
+                      "type": "action",
+                      "options": {
+                        "location": {
+                          "isExpression": false,
+                          "value": "$(this:page)/$(this:row)/$(this:column)"
+                        },
+                        "color": {
+                          "value": 11141120,
+                          "isExpression": false
+                        }
+                      },
+                      "children": {}
+                    }
+                  ],
+                  "up": []
+                },
+                "options": {
+                  "runWhileHeld": []
+                }
+              }
+            },
+            "localVariables": []
+          },
+          "4": {
+            "type": "button",
+            "style": {
+              "text": "\u00e2\u2013\u00b6 Histori-\nque",
+              "textExpression": false,
+              "size": "auto",
+              "png64": null,
+              "alignment": "center:center",
+              "pngalignment": "center:center",
+              "color": 16777215,
+              "bgcolor": 13056,
+              "show_topbar": "default"
+            },
+            "options": {
+              "stepProgression": "auto",
+              "stepExpression": "",
+              "rotaryActions": false
+            },
+            "feedbacks": [],
+            "steps": {
+              "0": {
+                "action_sets": {
+                  "down": [
+                    {
+                      "id": "CS75iOsfBD0E9-inXMHC4",
+                      "definitionId": "get",
+                      "connectionId": "JeL8gnZ7zpL1NF-eW4Ij9",
+                      "upgradeIndex": 1,
+                      "type": "action",
+                      "options": {
+                        "url": {
+                          "value": "http://localhost:3002/api/deck/tournament-history/show",
+                          "isExpression": false
+                        },
+                        "header": {
+                          "isExpression": false,
+                          "value": ""
+                        },
+                        "jsonResultDataVariable": {
+                          "isExpression": false
+                        },
+                        "result_stringify": {
+                          "isExpression": false,
+                          "value": true
+                        },
+                        "statusCodeVariable": {
+                          "isExpression": false
+                        }
+                      }
+                    },
+                    {
+                      "id": "9PW-4Caf1fenmRAnoiN84",
+                      "definitionId": "bgcolor",
+                      "connectionId": "internal",
+                      "type": "action",
+                      "options": {
+                        "location": {
+                          "isExpression": false,
+                          "value": "$(this:page)/$(this:row)/$(this:column)"
+                        },
+                        "color": {
+                          "value": 13056,
+                          "isExpression": false
+                        }
+                      },
+                      "children": {}
+                    }
+                  ],
+                  "up": []
+                },
+                "options": {
+                  "runWhileHeld": []
+                }
+              },
+              "1": {
+                "action_sets": {
+                  "down": [
+                    {
+                      "id": "M8Jxk_qZvYeQ2uoTQki5d",
+                      "definitionId": "get",
+                      "connectionId": "JeL8gnZ7zpL1NF-eW4Ij9",
+                      "upgradeIndex": 1,
+                      "type": "action",
+                      "options": {
+                        "url": {
+                          "value": "http://localhost:3002/api/deck/tournament-history/hide",
+                          "isExpression": false
+                        },
+                        "header": {
+                          "isExpression": false,
+                          "value": ""
+                        },
+                        "jsonResultDataVariable": {
+                          "isExpression": false
+                        },
+                        "result_stringify": {
+                          "isExpression": false,
+                          "value": true
+                        },
+                        "statusCodeVariable": {
+                          "isExpression": false
+                        }
+                      }
+                    },
+                    {
+                      "id": "iwhFefPFE6Vxvdc8kEg7-",
+                      "definitionId": "bgcolor",
+                      "connectionId": "internal",
+                      "type": "action",
+                      "options": {
+                        "location": {
+                          "isExpression": false,
+                          "value": "$(this:page)/$(this:row)/$(this:column)"
+                        },
+                        "color": {
+                          "value": 11141120,
+                          "isExpression": false
+                        }
+                      },
+                      "children": {}
+                    }
+                  ],
+                  "up": []
+                },
+                "options": {
+                  "runWhileHeld": []
+                }
+              }
+            },
+            "localVariables": []
+          },
+          "6": {
+            "type": "button",
+            "style": {
+              "text": "\u00e2\u2013\u00b6 Prochains\nmatchs",
+              "textExpression": false,
+              "size": "auto",
+              "png64": null,
+              "alignment": "center:center",
+              "pngalignment": "center:center",
+              "color": 16777215,
+              "bgcolor": 13056,
+              "show_topbar": "default"
+            },
+            "options": {
+              "stepProgression": "auto",
+              "stepExpression": "",
+              "rotaryActions": false
+            },
+            "feedbacks": [],
+            "steps": {
+              "0": {
+                "action_sets": {
+                  "down": [
+                    {
+                      "id": "d6gZirbi6p7pk1FaqC6H3",
+                      "definitionId": "get",
+                      "connectionId": "JeL8gnZ7zpL1NF-eW4Ij9",
+                      "upgradeIndex": 1,
+                      "type": "action",
+                      "options": {
+                        "url": {
+                          "value": "http://localhost:3002/api/deck/upcoming/show",
+                          "isExpression": false
+                        },
+                        "header": {
+                          "isExpression": false,
+                          "value": ""
+                        },
+                        "jsonResultDataVariable": {
+                          "isExpression": false
+                        },
+                        "result_stringify": {
+                          "isExpression": false,
+                          "value": true
+                        },
+                        "statusCodeVariable": {
+                          "isExpression": false
+                        }
+                      }
+                    },
+                    {
+                      "id": "XYliej9PuBV7udobtbIn6",
+                      "definitionId": "bgcolor",
+                      "connectionId": "internal",
+                      "type": "action",
+                      "options": {
+                        "location": {
+                          "isExpression": false,
+                          "value": "$(this:page)/$(this:row)/$(this:column)"
+                        },
+                        "color": {
+                          "value": 13056,
+                          "isExpression": false
+                        }
+                      },
+                      "children": {}
+                    }
+                  ],
+                  "up": []
+                },
+                "options": {
+                  "runWhileHeld": []
+                }
+              },
+              "1": {
+                "action_sets": {
+                  "down": [
+                    {
+                      "id": "QKhZetv-s-3jPQuwZgqBT",
+                      "definitionId": "get",
+                      "connectionId": "JeL8gnZ7zpL1NF-eW4Ij9",
+                      "upgradeIndex": 1,
+                      "type": "action",
+                      "options": {
+                        "url": {
+                          "value": "http://localhost:3002/api/deck/upcoming/hide",
+                          "isExpression": false
+                        },
+                        "header": {
+                          "isExpression": false,
+                          "value": ""
+                        },
+                        "jsonResultDataVariable": {
+                          "isExpression": false
+                        },
+                        "result_stringify": {
+                          "isExpression": false,
+                          "value": true
+                        },
+                        "statusCodeVariable": {
+                          "isExpression": false
+                        }
+                      }
+                    },
+                    {
+                      "id": "D9YDAvySEL7O7l7Nop_oP",
+                      "definitionId": "bgcolor",
+                      "connectionId": "internal",
+                      "type": "action",
+                      "options": {
+                        "location": {
+                          "isExpression": false,
+                          "value": "$(this:page)/$(this:row)/$(this:column)"
+                        },
+                        "color": {
+                          "value": 11141120,
+                          "isExpression": false
+                        }
+                      },
+                      "children": {}
+                    }
+                  ],
+                  "up": []
+                },
+                "options": {
+                  "runWhileHeld": []
+                }
+              }
+            },
+            "localVariables": []
+          }
+        },
+        "1": {
+          "0": {
+            "type": "pagenum"
+          },
+          "1": {
+            "type": "button",
+            "style": {
+              "text": "\u00e2\u2013\u00b6 TW\nChat",
+              "textExpression": false,
+              "size": "auto",
+              "png64": null,
+              "alignment": "center:center",
+              "pngalignment": "center:center",
+              "color": 16777215,
+              "bgcolor": 13056,
+              "show_topbar": "default"
+            },
+            "options": {
+              "stepProgression": "auto",
+              "stepExpression": "",
+              "rotaryActions": false
+            },
+            "feedbacks": [],
+            "steps": {
+              "0": {
+                "action_sets": {
+                  "down": [
+                    {
+                      "id": "RUac9rMsAtVVjOax1qViU",
+                      "definitionId": "get",
+                      "connectionId": "JeL8gnZ7zpL1NF-eW4Ij9",
+                      "options": {
+                        "url": {
+                          "value": "http://localhost:3002/api/deck/twitch-chat/show",
+                          "isExpression": false
+                        },
+                        "header": {
+                          "isExpression": false,
+                          "value": ""
+                        },
+                        "jsonResultDataVariable": {
+                          "isExpression": false
+                        },
+                        "result_stringify": {
+                          "isExpression": false,
+                          "value": true
+                        },
+                        "statusCodeVariable": {
+                          "isExpression": false
+                        }
+                      },
+                      "upgradeIndex": 1,
+                      "type": "action"
+                    },
+                    {
+                      "id": "Lvd25smf1ktl0KaMwliqy",
+                      "definitionId": "bgcolor",
+                      "connectionId": "internal",
+                      "options": {
+                        "location": {
+                          "isExpression": false,
+                          "value": "$(this:page)/$(this:row)/$(this:column)"
+                        },
+                        "color": {
+                          "value": 13056,
+                          "isExpression": false
+                        }
+                      },
+                      "type": "action",
+                      "children": {}
+                    }
+                  ],
+                  "up": []
+                },
+                "options": {
+                  "runWhileHeld": []
+                }
+              },
+              "1": {
+                "action_sets": {
+                  "down": [
+                    {
+                      "id": "zAZm8VxjvPgAb4QwThSnl",
+                      "definitionId": "get",
+                      "connectionId": "JeL8gnZ7zpL1NF-eW4Ij9",
+                      "options": {
+                        "url": {
+                          "value": "http://localhost:3002/api/deck/twitch-chat/hide",
+                          "isExpression": false
+                        },
+                        "header": {
+                          "isExpression": false,
+                          "value": ""
+                        },
+                        "jsonResultDataVariable": {
+                          "isExpression": false
+                        },
+                        "result_stringify": {
+                          "isExpression": false,
+                          "value": true
+                        },
+                        "statusCodeVariable": {
+                          "isExpression": false
+                        }
+                      },
+                      "upgradeIndex": 1,
+                      "type": "action"
+                    },
+                    {
+                      "id": "d8wX23HeLTDMCMvVWlsyU",
+                      "definitionId": "bgcolor",
+                      "connectionId": "internal",
+                      "options": {
+                        "location": {
+                          "isExpression": false,
+                          "value": "$(this:page)/$(this:row)/$(this:column)"
+                        },
+                        "color": {
+                          "value": 11141120,
+                          "isExpression": false
+                        }
+                      },
+                      "type": "action",
+                      "children": {}
+                    }
+                  ],
+                  "up": []
+                },
+                "options": {
+                  "runWhileHeld": []
+                }
+              }
+            },
+            "localVariables": []
+          },
+          "2": {
+            "type": "button",
+            "style": {
+              "text": "\u00e2\u2013\u00b6 TW\nViewer",
+              "textExpression": false,
+              "size": "auto",
+              "png64": null,
+              "alignment": "center:center",
+              "pngalignment": "center:center",
+              "color": 16777215,
+              "bgcolor": 13056,
+              "show_topbar": "default"
+            },
+            "options": {
+              "stepProgression": "auto",
+              "stepExpression": "",
+              "rotaryActions": false
+            },
+            "feedbacks": [],
+            "steps": {
+              "0": {
+                "action_sets": {
+                  "down": [
+                    {
+                      "id": "kthWZwW6sbJOaIkjaBr1v",
+                      "definitionId": "get",
+                      "connectionId": "JeL8gnZ7zpL1NF-eW4Ij9",
+                      "options": {
+                        "url": {
+                          "value": "http://localhost:3002/api/deck/twitch-viewer/show",
+                          "isExpression": false
+                        },
+                        "header": {
+                          "isExpression": false,
+                          "value": ""
+                        },
+                        "jsonResultDataVariable": {
+                          "isExpression": false
+                        },
+                        "result_stringify": {
+                          "isExpression": false,
+                          "value": true
+                        },
+                        "statusCodeVariable": {
+                          "isExpression": false
+                        }
+                      },
+                      "upgradeIndex": 1,
+                      "type": "action"
+                    },
+                    {
+                      "id": "HJoL-W36r-qTa4qK1qYrF",
+                      "definitionId": "bgcolor",
+                      "connectionId": "internal",
+                      "options": {
+                        "location": {
+                          "isExpression": false,
+                          "value": "$(this:page)/$(this:row)/$(this:column)"
+                        },
+                        "color": {
+                          "value": 13056,
+                          "isExpression": false
+                        }
+                      },
+                      "type": "action",
+                      "children": {}
+                    }
+                  ],
+                  "up": []
+                },
+                "options": {
+                  "runWhileHeld": []
+                }
+              },
+              "1": {
+                "action_sets": {
+                  "down": [
+                    {
+                      "id": "DKMZoSGKmvA6vrRPTvyFh",
+                      "definitionId": "get",
+                      "connectionId": "JeL8gnZ7zpL1NF-eW4Ij9",
+                      "options": {
+                        "url": {
+                          "value": "http://localhost:3002/api/deck/twitch-viewer/hide",
+                          "isExpression": false
+                        },
+                        "header": {
+                          "isExpression": false,
+                          "value": ""
+                        },
+                        "jsonResultDataVariable": {
+                          "isExpression": false
+                        },
+                        "result_stringify": {
+                          "isExpression": false,
+                          "value": true
+                        },
+                        "statusCodeVariable": {
+                          "isExpression": false
+                        }
+                      },
+                      "upgradeIndex": 1,
+                      "type": "action"
+                    },
+                    {
+                      "id": "TQxUYcSe_-h4Cvw3YQDp1",
+                      "definitionId": "bgcolor",
+                      "connectionId": "internal",
+                      "options": {
+                        "location": {
+                          "isExpression": false,
+                          "value": "$(this:page)/$(this:row)/$(this:column)"
+                        },
+                        "color": {
+                          "value": 11141120,
+                          "isExpression": false
+                        }
+                      },
+                      "type": "action",
+                      "children": {}
+                    }
+                  ],
+                  "up": []
+                },
+                "options": {
+                  "runWhileHeld": []
+                }
+              }
+            },
+            "localVariables": []
+          },
+          "3": {
+            "type": "button",
+            "style": {
+              "text": "\u00e2\u2013\u00b6 YT\nChat",
+              "textExpression": false,
+              "size": "auto",
+              "png64": null,
+              "alignment": "center:center",
+              "pngalignment": "center:center",
+              "color": 16777215,
+              "bgcolor": 13056,
+              "show_topbar": "default"
+            },
+            "options": {
+              "stepProgression": "auto",
+              "stepExpression": "",
+              "rotaryActions": false
+            },
+            "feedbacks": [],
+            "steps": {
+              "0": {
+                "action_sets": {
+                  "down": [
+                    {
+                      "id": "K2PmtTVbRViUd48Z19EYo",
+                      "definitionId": "get",
+                      "connectionId": "JeL8gnZ7zpL1NF-eW4Ij9",
+                      "options": {
+                        "url": {
+                          "value": "http://localhost:3002/api/deck/youtube-chat/show",
+                          "isExpression": false
+                        },
+                        "header": {
+                          "isExpression": false,
+                          "value": ""
+                        },
+                        "jsonResultDataVariable": {
+                          "isExpression": false
+                        },
+                        "result_stringify": {
+                          "isExpression": false,
+                          "value": true
+                        },
+                        "statusCodeVariable": {
+                          "isExpression": false
+                        }
+                      },
+                      "upgradeIndex": 1,
+                      "type": "action"
+                    },
+                    {
+                      "id": "56KcgNB-Jf9F7V0zlmaZx",
+                      "definitionId": "bgcolor",
+                      "connectionId": "internal",
+                      "options": {
+                        "location": {
+                          "isExpression": false,
+                          "value": "$(this:page)/$(this:row)/$(this:column)"
+                        },
+                        "color": {
+                          "value": 13056,
+                          "isExpression": false
+                        }
+                      },
+                      "type": "action",
+                      "children": {}
+                    }
+                  ],
+                  "up": []
+                },
+                "options": {
+                  "runWhileHeld": []
+                }
+              },
+              "1": {
+                "action_sets": {
+                  "down": [
+                    {
+                      "id": "oPOz82WvltcoeN0IXrqJm",
+                      "definitionId": "get",
+                      "connectionId": "JeL8gnZ7zpL1NF-eW4Ij9",
+                      "options": {
+                        "url": {
+                          "value": "http://localhost:3002/api/deck/youtube-chat/hide",
+                          "isExpression": false
+                        },
+                        "header": {
+                          "isExpression": false,
+                          "value": ""
+                        },
+                        "jsonResultDataVariable": {
+                          "isExpression": false
+                        },
+                        "result_stringify": {
+                          "isExpression": false,
+                          "value": true
+                        },
+                        "statusCodeVariable": {
+                          "isExpression": false
+                        }
+                      },
+                      "upgradeIndex": 1,
+                      "type": "action"
+                    },
+                    {
+                      "id": "dUihvfvYb1G12ObiSe0Qs",
+                      "definitionId": "bgcolor",
+                      "connectionId": "internal",
+                      "options": {
+                        "location": {
+                          "isExpression": false,
+                          "value": "$(this:page)/$(this:row)/$(this:column)"
+                        },
+                        "color": {
+                          "value": 11141120,
+                          "isExpression": false
+                        }
+                      },
+                      "type": "action",
+                      "children": {}
+                    }
+                  ],
+                  "up": []
+                },
+                "options": {
+                  "runWhileHeld": []
+                }
+              }
+            },
+            "localVariables": []
+          }
+        },
+        "2": {
+          "0": {
+            "type": "pagedown"
+          }
+        }
+      },
+      "gridSize": {
+        "minColumn": 0,
+        "maxColumn": 7,
+        "minRow": 0,
+        "maxRow": 3
+      }
+    }
+  },
+  "triggers": {},
+  "triggerCollections": [],
+  "custom_variables": {},
+  "customVariablesCollections": [],
+  "expressionVariables": {},
+  "expressionVariablesCollections": [],
+  "instances": {
+    "JeL8gnZ7zpL1NF-eW4Ij9": {
+      "moduleInstanceType": "connection",
+      "moduleId": "generic-http",
+      "moduleVersionId": "3.0.0-0",
+      "updatePolicy": "stable",
+      "sortOrder": 1,
+      "label": "http",
+      "isFirstInit": false,
+      "config": {
+        "prefix": "http://localhost:3002",
+        "proxyAddress": "",
+        "rejectUnauthorized": false
+      },
+      "secrets": {},
+      "lastUpgradeIndex": 1,
+      "enabled": true
+    }
+  },
+  "connectionCollections": [],
+  "surfaces": {
+    "streamdeck:A00SA3322KNJL3": {
+      "groupConfig": {
+        "name": "Unnamed group",
+        "last_page_id": "GRWZet7yK7srNxyV43avq",
+        "startup_page_id": "GRWZet7yK7srNxyV43avq",
+        "use_last_page": true,
+        "restrict_pages": false,
+        "allowed_page_ids": [],
+        "last_page": 1,
+        "startup_page": 1,
+        "allowed_pages": []
+      },
+      "enabled": true,
+      "config": {
+        "brightness": 100,
+        "rotation": 0,
+        "never_lock": false,
+        "xOffset": 0,
+        "yOffset": 0,
+        "groupId": null
+      },
+      "type": "Elgato Stream Deck MK.2",
+      "integrationType": "elgato-stream-deck",
+      "gridSize": {
+        "columns": 5,
+        "rows": 3
+      },
+      "groupId": null
+    },
+    "streamdeck:A00NA5493KFEUQ": {
+      "groupConfig": {
+        "name": "Auto group",
+        "last_page_id": "GRWZet7yK7srNxyV43avq",
+        "startup_page_id": "GRWZet7yK7srNxyV43avq",
+        "use_last_page": true,
+        "restrict_pages": false,
+        "allowed_page_ids": [],
+        "page": 1,
+        "last_page": 1,
+        "startup_page": 1,
+        "allowed_pages": []
+      },
+      "enabled": true,
+      "config": {
+        "brightness": 100,
+        "rotation": 0,
+        "never_lock": false,
+        "xOffset": 0,
+        "yOffset": 0,
+        "groupId": null
+      },
+      "type": "Elgato Stream Deck XL",
+      "integrationType": "elgato-stream-deck",
+      "gridSize": {
+        "columns": 8,
+        "rows": 4
+      }
+    }
+  },
+  "surfaceGroups": {},
+  "surfacesRemote": {},
+  "surfaceInstances": {
+    "4sGtK_J-huRvMuVbzcc8M": {
+      "moduleInstanceType": "surface",
+      "moduleId": "elgato-stream-deck",
+      "moduleVersionId": "builtin",
+      "updatePolicy": "stable",
+      "sortOrder": 1,
+      "label": "elgato-stream-deck",
+      "isFirstInit": true,
+      "config": {},
+      "secrets": {},
+      "lastUpgradeIndex": -1,
+      "enabled": true
+    },
+    "FHwOXkAj2g5HQpwQ2_cSM": {
+      "moduleInstanceType": "surface",
+      "moduleId": "xkeys",
+      "moduleVersionId": "builtin",
+      "updatePolicy": "stable",
+      "sortOrder": 2,
+      "label": "xkeys",
+      "isFirstInit": true,
+      "config": {},
+      "secrets": {},
+      "lastUpgradeIndex": -1,
+      "enabled": true
+    }
+  },
+  "surfaceInstanceCollections": []
+}

@@ -262,7 +262,6 @@
       <div class="match-nav-group active">
         <button class="match-subpanel-btn match-nav-section active" data-subpanel="sb-sub-match">Scoreboard</button>
         <button class="match-subpanel-btn" data-subpanel="sb-sub-custom">Customisation</button>
-        <button class="match-subpanel-btn" data-subpanel="sb-sub-preview">Preview</button>
         <button class="match-subpanel-btn" data-subpanel="sb-sub-builder">Builder</button>
       </div>
       <span class="match-nav-sep"></span>
@@ -479,282 +478,315 @@
       </div><!-- /sb-sub-match -->
 
       <div class="match-subpanel" id="sb-sub-custom">
+        <section class="section" style="padding:0">
+          <div class="section-header" style="padding:12px 16px">
+            <h2>Customisation du scoreboard</h2>
+            <a href="/overlay" target="_blank" class="btn btn-outline btn-sm">Ouvrir l'overlay ↗</a>
+          </div>
 
-        <!-- ── Logo central / Drapeaux / Texture de fond ──────────── -->
-        <section class="section">
-          <div style="display:flex;gap:8px;align-items:flex-start">
+          <div style="display:flex;height:700px;overflow:hidden;border-top:1px solid var(--border)">
 
-            <!-- ── Logo central ───────────────────────────────────── -->
-            <div class="custom-card" style="flex:1;min-width:0">
-              <h3>Logo central</h3>
-              <p class="hint" style="margin-bottom:8px">Remplace le texte « VS » au centre.</p>
-              <div class="form-group" style="margin-bottom:8px">
-                <div style="display:flex;gap:6px">
-                  <input type="text" id="center-logo" placeholder="URL ou fichier →" style="flex:1;min-width:0" />
-                  <button id="btn-logo-file-pick" class="btn btn-outline btn-sm" title="Choisir un fichier local">📁</button>
-                  <input type="file" id="center-logo-file-input" accept="image/*" style="display:none" />
-                </div>
-              </div>
-              <div class="logo-preview-row" style="margin-bottom:10px">
-                <div class="logo-preview-box" id="center-logo-preview"><span>Aperçu</span></div>
-                <button id="btn-apply-logo" class="btn btn-primary btn-sm">Appliquer</button>
-              </div>
-              <div class="form-group" style="margin:0">
-                <label style="display:flex;align-items:center;gap:6px;cursor:pointer">
-                  <input type="checkbox" id="logo-particles-enabled" />
-                  Particules
-                </label>
-                <input type="number" id="logo-particles-num" min="1" max="100" value="3" style="width:72px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:13px;padding:4px 6px;text-align:center;display:none" />
-                <input type="range" id="logo-particles-range" min="0" max="100" value="0" style="display:none" />
-              </div>
+            <!-- Titres verticaux -->
+            <div id="sb-nav-titles" style="width:30px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:20px 0;gap:28px;border-right:1px solid var(--border);background:var(--surface)">
+              <span class="vic-nav-title" data-target="sb-sect-logo">Logo</span>
+              <span class="vic-nav-title" data-target="sb-sect-drapeaux">Drapeaux</span>
+              <span class="vic-nav-title" data-target="sb-sect-fond">Fond</span>
+              <span class="vic-nav-title" data-target="sb-sect-style">Style</span>
+              <span class="vic-nav-title" data-target="sb-sect-position">Position</span>
+              <span class="vic-nav-title" data-target="sb-sect-textes">Textes</span>
+              <span class="vic-nav-title" data-target="sb-sect-particules">Particules</span>
             </div>
 
-            <!-- ── Drapeaux ───────────────────────────────────────── -->
-            <div class="custom-card" style="flex:1;min-width:0">
-              <h3>Drapeaux</h3>
-              <div class="form-group" style="margin-bottom:8px">
-                <label>Taille</label>
-                <div class="logo-particles-row">
-                  <input type="range" id="flag-size-range" min="20" max="150" value="52" />
-                  <input type="number" id="flag-size-num" min="20" max="150" value="52" style="width:56px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:13px;padding:4px 6px;text-align:center" />
-                  <span style="font-size:12px;color:var(--text-muted)">px</span>
-                </div>
-              </div>
-              <div style="display:flex;gap:8px">
-                <div style="flex:1;min-width:0">
-                  <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;font-weight:600">J1</div>
-                  <div class="form-group" style="margin-bottom:6px">
-                    <label>X</label>
-                    <div class="logo-particles-row">
-                      <input type="range" id="p1-flag-x-range" min="-200" max="200" value="0" />
-                      <input type="number" id="p1-flag-x-num" min="-200" max="200" value="0" style="width:52px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:13px;padding:4px 4px;text-align:center" />
-                    </div>
-                  </div>
-                  <div class="form-group" style="margin:0">
-                    <label>Y</label>
-                    <div class="logo-particles-row">
-                      <input type="range" id="p1-flag-y-range" min="-200" max="200" value="0" />
-                      <input type="number" id="p1-flag-y-num" min="-200" max="200" value="0" style="width:52px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:13px;padding:4px 4px;text-align:center" />
-                    </div>
-                  </div>
-                </div>
-                <div style="flex:1;min-width:0">
-                  <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;font-weight:600">J2</div>
-                  <div class="form-group" style="margin-bottom:6px">
-                    <label>X</label>
-                    <div class="logo-particles-row">
-                      <input type="range" id="p2-flag-x-range" min="-200" max="200" value="0" />
-                      <input type="number" id="p2-flag-x-num" min="-200" max="200" value="0" style="width:52px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:13px;padding:4px 4px;text-align:center" />
-                    </div>
-                  </div>
-                  <div class="form-group" style="margin:0">
-                    <label>Y</label>
-                    <div class="logo-particles-row">
-                      <input type="range" id="p2-flag-y-range" min="-200" max="200" value="0" />
-                      <input type="number" id="p2-flag-y-num" min="-200" max="200" value="0" style="width:52px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:13px;padding:4px 4px;text-align:center" />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <!-- Config scrollable -->
+            <div id="sb-scroll-area" style="flex:1;min-width:0;overflow-y:auto;position:relative">
 
-            <!-- ── Texture de fond ────────────────────────────────── -->
-            <div class="custom-card" style="flex:1;min-width:0">
-              <h3>Texture de fond</h3>
-              <div style="display:flex;gap:8px;align-items:flex-start;margin-bottom:8px">
-                <div id="texture-preview" style="width:60px;height:48px;border:1px solid var(--border);border-radius:6px;background-size:auto;background-repeat:repeat;background-position:0 0;flex-shrink:0;position:relative;overflow:hidden;background-color:var(--surface2)">
-                  <span id="texture-preview-empty" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--text-muted)">Aucune</span>
-                </div>
-                <div style="flex:1;display:flex;flex-direction:column;gap:6px">
-                  <div style="display:flex;gap:6px">
-                    <label class="btn btn-outline btn-sm" style="cursor:pointer;font-size:11px">
-                      📁 Fichier
-                      <input type="file" id="texture-file-input" accept="image/*" style="display:none" />
+              <!-- Logo central -->
+              <div id="sb-sect-logo" style="padding:16px">
+                <div class="custom-card">
+                  <h3>Logo central</h3>
+                  <p class="hint" style="margin-bottom:8px">Remplace le texte « VS » au centre.</p>
+                  <div class="form-group" style="margin-bottom:8px">
+                    <div style="display:flex;gap:6px">
+                      <input type="text" id="center-logo" placeholder="URL ou fichier →" style="flex:1;min-width:0" />
+                      <button id="btn-logo-file-pick" class="btn btn-outline btn-sm" title="Choisir un fichier local">📁</button>
+                      <input type="file" id="center-logo-file-input" accept="image/*" style="display:none" />
+                    </div>
+                  </div>
+                  <div class="logo-preview-row" style="margin-bottom:10px">
+                    <div class="logo-preview-box" id="center-logo-preview"><span>Aperçu</span></div>
+                    <button id="btn-apply-logo" class="btn btn-primary btn-sm">Appliquer</button>
+                  </div>
+                  <div class="form-group" style="margin:0">
+                    <label style="display:flex;align-items:center;gap:6px;cursor:pointer">
+                      <input type="checkbox" id="logo-particles-enabled" />
+                      Particules
                     </label>
-                    <button id="btn-texture-clear" class="btn btn-outline btn-sm" style="color:var(--danger);border-color:var(--danger);font-size:11px">✕</button>
+                    <input type="number" id="logo-particles-num" min="1" max="100" value="3" style="width:72px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:13px;padding:4px 6px;text-align:center;display:none" />
+                    <input type="range" id="logo-particles-range" min="0" max="100" value="0" style="display:none" />
                   </div>
-                  <div class="form-group" style="margin:0">
-                    <label>Opacité</label>
+                </div>
+              </div>
+
+              <!-- Drapeaux -->
+              <div id="sb-sect-drapeaux" style="padding:0 16px 16px">
+                <div class="custom-card">
+                  <h3>Drapeaux</h3>
+                  <div class="form-group" style="margin-bottom:8px">
+                    <label>Taille</label>
                     <div class="logo-particles-row">
-                      <input type="range" id="texture-opacity-range" min="0" max="100" value="50" />
-                      <input type="number" id="texture-opacity-num" min="0" max="100" value="50" style="width:50px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:13px;padding:4px 4px;text-align:center" />
+                      <input type="range" id="flag-size-range" min="20" max="150" value="52" />
+                      <input type="number" id="flag-size-num" min="20" max="150" value="52" style="width:56px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:13px;padding:4px 6px;text-align:center" />
+                      <span style="font-size:12px;color:var(--text-muted)">px</span>
+                    </div>
+                  </div>
+                  <div style="display:flex;gap:16px">
+                    <div style="flex:1;min-width:0">
+                      <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;font-weight:600">J1</div>
+                      <div class="form-group" style="margin-bottom:6px">
+                        <label>X</label>
+                        <div class="logo-particles-row">
+                          <input type="range" id="p1-flag-x-range" min="-200" max="200" value="0" />
+                          <input type="number" id="p1-flag-x-num" min="-200" max="200" value="0" style="width:52px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:13px;padding:4px 4px;text-align:center" />
+                        </div>
+                      </div>
+                      <div class="form-group" style="margin:0">
+                        <label>Y</label>
+                        <div class="logo-particles-row">
+                          <input type="range" id="p1-flag-y-range" min="-200" max="200" value="0" />
+                          <input type="number" id="p1-flag-y-num" min="-200" max="200" value="0" style="width:52px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:13px;padding:4px 4px;text-align:center" />
+                        </div>
+                      </div>
+                    </div>
+                    <div style="flex:1;min-width:0">
+                      <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;font-weight:600">J2</div>
+                      <div class="form-group" style="margin-bottom:6px">
+                        <label>X</label>
+                        <div class="logo-particles-row">
+                          <input type="range" id="p2-flag-x-range" min="-200" max="200" value="0" />
+                          <input type="number" id="p2-flag-x-num" min="-200" max="200" value="0" style="width:52px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:13px;padding:4px 4px;text-align:center" />
+                        </div>
+                      </div>
+                      <div class="form-group" style="margin:0">
+                        <label>Y</label>
+                        <div class="logo-particles-row">
+                          <input type="range" id="p2-flag-y-range" min="-200" max="200" value="0" />
+                          <input type="number" id="p2-flag-y-num" min="-200" max="200" value="0" style="width:52px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:13px;padding:4px 4px;text-align:center" />
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
-              <div class="form-group" style="margin-bottom:6px">
-                <label>Mode de fusion</label>
-                <select id="texture-blend" style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:13px;padding:4px 6px">
-                  <option value="normal">Normal</option>
-                  <option value="multiply">Multiply</option>
-                  <option value="overlay">Overlay</option>
-                  <option value="screen">Screen</option>
-                  <option value="soft-light">Soft Light</option>
-                </select>
+
+              <!-- Fond -->
+              <div id="sb-sect-fond" style="padding:0 16px 16px">
+                <div class="custom-grid">
+                  <div class="custom-card">
+                    <h3>Texture de fond</h3>
+                    <div style="display:flex;gap:8px;align-items:flex-start;margin-bottom:8px">
+                      <div id="texture-preview" style="width:60px;height:48px;border:1px solid var(--border);border-radius:6px;background-size:auto;background-repeat:repeat;background-position:0 0;flex-shrink:0;position:relative;overflow:hidden;background-color:var(--surface2)">
+                        <span id="texture-preview-empty" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--text-muted)">Aucune</span>
+                      </div>
+                      <div style="flex:1;display:flex;flex-direction:column;gap:6px">
+                        <div style="display:flex;gap:6px">
+                          <label class="btn btn-outline btn-sm" style="cursor:pointer;font-size:11px">
+                            📁 Fichier
+                            <input type="file" id="texture-file-input" accept="image/*" style="display:none" />
+                          </label>
+                          <button id="btn-texture-clear" class="btn btn-outline btn-sm" style="color:var(--danger);border-color:var(--danger);font-size:11px">✕</button>
+                        </div>
+                        <div class="form-group" style="margin:0">
+                          <label>Opacité</label>
+                          <div class="logo-particles-row">
+                            <input type="range" id="texture-opacity-range" min="0" max="100" value="50" />
+                            <input type="number" id="texture-opacity-num" min="0" max="100" value="50" style="width:50px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:13px;padding:4px 4px;text-align:center" />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="form-group" style="margin-bottom:6px">
+                      <label>Mode de fusion</label>
+                      <select id="texture-blend" style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:13px;padding:4px 6px">
+                        <option value="normal">Normal</option>
+                        <option value="multiply">Multiply</option>
+                        <option value="overlay">Overlay</option>
+                        <option value="screen">Screen</option>
+                        <option value="soft-light">Soft Light</option>
+                      </select>
+                    </div>
+                    <div class="form-group" style="margin:0">
+                      <label>Répétition</label>
+                      <select id="texture-size" style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:13px;padding:4px 6px">
+                        <option value="repeat">Répéter (tuile)</option>
+                        <option value="cover">Couvrir</option>
+                        <option value="contain">Contenir</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="custom-card">
+                    <h3>Fond de l'overlay</h3>
+                    <div class="form-group" style="margin:0">
+                      <label>Couleur &amp; opacité</label>
+                      <div style="display:flex;gap:6px;align-items:center">
+                        <input type="color" id="sb-bg-color" value="#0E0E12" />
+                        <input type="number" id="sb-bg-opacity" value="100" min="0" max="100" style="width:56px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:13px;padding:4px 5px;text-align:center" />
+                        <span style="font-size:11px;color:var(--text-muted)">%</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
-              <div class="form-group" style="margin:0">
-                <label>Répétition</label>
-                <select id="texture-size" style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:13px;padding:4px 6px">
-                  <option value="repeat">Répéter (tuile)</option>
-                  <option value="cover">Couvrir</option>
-                  <option value="contain">Contenir</option>
-                </select>
+
+              <!-- Style -->
+              <div id="sb-sect-style" style="padding:0 16px 16px">
+                <div class="custom-card">
+                  <h3>Style d'affichage</h3>
+                  <div class="theme-btn-row" style="margin-bottom:8px;flex-wrap:wrap;gap:4px">
+                    <button class="overlay-style-btn theme-btn active" data-style="full" style="font-size:11px;padding:4px 10px">Full ▬</button>
+                    <button class="overlay-style-btn theme-btn" data-style="slim" style="font-size:11px;padding:4px 10px">Slim —</button>
+                    <button class="overlay-style-btn theme-btn" data-style="full-rounded" style="font-size:11px;padding:4px 10px">Full ◉</button>
+                    <button class="overlay-style-btn theme-btn" data-style="compact-rounded" style="font-size:11px;padding:4px 10px">Compact ◉</button>
+                    <button class="overlay-style-btn theme-btn" data-style="lower-third" style="font-size:11px;padding:4px 10px">Lower ↓</button>
+                  </div>
+                  <div style="display:flex;gap:6px">
+                    <button class="score-display-btn theme-btn active" data-display="numbers" style="font-size:11px;padding:4px 10px;flex:1">123</button>
+                    <button class="score-display-btn theme-btn" data-display="dots" style="font-size:11px;padding:4px 10px;flex:1">◉ Points</button>
+                    <button class="dots-orientation-btn theme-btn active" data-orientation="row" style="font-size:11px;padding:4px 10px;flex:1">— Ligne</button>
+                    <button class="dots-orientation-btn theme-btn" data-orientation="column" style="font-size:11px;padding:4px 10px;flex:1">| Col.</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Position -->
+              <div id="sb-sect-position" style="padding:0 16px 16px">
+                <div class="custom-grid">
+                  <div class="custom-card">
+                    <h3>Position &amp; Taille</h3>
+                    <div class="form-group" style="margin-bottom:7px">
+                      <label>Taille %</label>
+                      <div class="logo-particles-row">
+                        <input type="range" id="sb-scale-range" min="50" max="200" value="100" step="1" />
+                        <input type="number" id="sb-scale-num" min="50" max="200" value="100" step="1" style="width:54px" />
+                      </div>
+                    </div>
+                    <div class="form-group" style="margin-bottom:7px">
+                      <label>X px</label>
+                      <div class="logo-particles-row">
+                        <input type="range" id="sb-x-range" min="-960" max="960" value="0" step="1" />
+                        <input type="number" id="sb-x-num" min="-960" max="960" value="0" step="1" style="width:58px" />
+                      </div>
+                    </div>
+                    <div class="form-group" style="margin:0">
+                      <label>Y px</label>
+                      <div class="logo-particles-row">
+                        <input type="range" id="sb-y-range" min="-200" max="600" value="0" step="1" />
+                        <input type="number" id="sb-y-num" min="-200" max="600" value="0" step="1" style="width:58px" />
+                      </div>
+                    </div>
+                  </div>
+                  <div class="custom-card">
+                    <h3>Lower Third</h3>
+                    <div class="form-group" style="margin-bottom:8px">
+                      <button id="btn-lt-toggle" class="btn btn-outline btn-sm" style="width:100%">Lower Third : OFF</button>
+                    </div>
+                    <div id="lt-position-card" style="display:none">
+                      <div class="form-group" style="margin-bottom:7px">
+                        <label>Hauteur px</label>
+                        <div class="logo-particles-row">
+                          <input type="range" id="lt-bottom-range" min="0" max="500" value="150" step="1" />
+                          <input type="number" id="lt-bottom-num" min="0" max="500" value="150" step="1" style="width:58px" />
+                        </div>
+                      </div>
+                      <div class="form-group" style="margin:0">
+                        <label>Marges px</label>
+                        <div class="logo-particles-row">
+                          <input type="range" id="lt-padding-x-range" min="0" max="400" value="60" step="4" />
+                          <input type="number" id="lt-padding-x-num" min="0" max="400" value="60" step="4" style="width:58px" />
+                        </div>
+                      </div>
+                    </div>
+                    <div class="form-group" style="margin-top:12px;margin-bottom:0">
+                      <label>Position barre</label>
+                      <div style="display:flex;gap:4px;margin-top:4px">
+                        <button class="event-bar-pos-btn theme-btn active" data-pos="top" style="font-size:13px;padding:4px 14px;flex:1">↑ Haut</button>
+                        <button class="event-bar-pos-btn theme-btn" data-pos="bottom" style="font-size:13px;padding:4px 14px;flex:1">↓ Bas</button>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="custom-card">
+                    <h3>Barre événement</h3>
+                    <div class="form-group" style="margin-bottom:7px">
+                      <label>Taille px</label>
+                      <input type="number" id="event-text-size" value="12" min="8" max="32" style="width:60px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:13px;padding:4px 6px;text-align:center" />
+                    </div>
+                    <div class="form-group" style="margin:0">
+                      <label>Couleur</label>
+                      <input type="color" id="event-text-color" value="#EAB830" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Textes -->
+              <div id="sb-sect-textes" style="padding:0 16px 16px">
+                <div class="custom-card">
+                  <h3>Couleurs des textes</h3>
+                  <div style="display:flex;gap:16px;flex-wrap:wrap">
+                    <div class="form-group" style="margin:0">
+                      <label>Tag</label>
+                      <input type="color" id="tag-color" value="#E8B830" />
+                    </div>
+                    <div class="form-group" style="margin:0">
+                      <label>Pseudo</label>
+                      <input type="color" id="name-color" value="#F0EEF8" />
+                    </div>
+                    <div class="form-group" style="margin:0">
+                      <label>Pronoms</label>
+                      <input type="color" id="pronouns-color" value="#5A5A7A" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Particules -->
+              <div id="sb-sect-particules" style="padding:0 16px 16px">
+                <div class="custom-card">
+                  <h3>Particules de l'overlay</h3>
+                  <div class="form-group" style="margin-bottom:10px">
+                    <button id="btn-particles-toggle" class="btn btn-primary btn-sm" style="width:100%">⏸ Désactiver</button>
+                  </div>
+                  <div id="particles-controls">
+                    <div class="form-group" style="margin-bottom:7px">
+                      <label>Opacité %</label>
+                      <div class="logo-particles-row">
+                        <input type="range" id="particle-opacity-range" min="0" max="100" value="100" />
+                        <input type="number" id="particle-opacity-num" min="0" max="100" value="100" style="width:50px" />
+                      </div>
+                    </div>
+                    <div class="form-group" style="margin:0">
+                      <label>Quantité %</label>
+                      <div class="logo-particles-row">
+                        <input type="range" id="particle-count-range" min="0" max="500" value="100" />
+                        <input type="number" id="particle-count-num" min="0" max="500" value="100" style="width:50px" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div><!-- /sb-scroll-area -->
+
+            <!-- Preview iframe ancrée à droite -->
+            <div style="flex:0 0 40%;border-left:1px solid var(--border);background:var(--surface2);display:flex;flex-direction:column;padding:12px;gap:10px;overflow:hidden">
+              <div style="font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.08em">Preview en direct</div>
+              <div class="overlay-preview-wrap" id="preview-wrap-scoreboard" style="border-radius:8px;overflow:hidden;background:#000;box-shadow:0 4px 24px rgba(0,0,0,0.5)">
+                <iframe src="/overlay" class="overlay-preview-frame" id="preview-frame-scoreboard"></iframe>
               </div>
             </div>
 
           </div>
         </section>
-
-        <section class="section">
-          <div style="display:flex;gap:8px;align-items:flex-start">
-
-            <!-- ── Style ───────────────────────────────────────────── -->
-            <div class="custom-card" style="flex:2;min-width:0;padding:10px">
-              <h3 style="font-size:12px;margin-bottom:7px">Style</h3>
-              <div class="theme-btn-row" style="margin-bottom:5px;flex-wrap:wrap;gap:3px">
-                <button class="overlay-style-btn theme-btn active" data-style="full" style="font-size:10px;padding:3px 7px">Full ▬</button>
-                <button class="overlay-style-btn theme-btn" data-style="slim" style="font-size:10px;padding:3px 7px">Slim —</button>
-                <button class="overlay-style-btn theme-btn" data-style="full-rounded" style="font-size:10px;padding:3px 7px">Full ◉</button>
-                <button class="overlay-style-btn theme-btn" data-style="compact-rounded" style="font-size:10px;padding:3px 7px">Compact ◉</button>
-                <button class="overlay-style-btn theme-btn" data-style="lower-third" style="font-size:10px;padding:3px 7px">Lower ↓</button>
-              </div>
-              <div style="display:flex;gap:4px;margin-bottom:5px">
-                <button class="score-display-btn theme-btn active" data-display="numbers" style="font-size:10px;padding:3px 7px;flex:1">123</button>
-                <button class="score-display-btn theme-btn" data-display="dots" style="font-size:10px;padding:3px 7px;flex:1">◉ Points</button>
-                <button class="dots-orientation-btn theme-btn active" data-orientation="row" style="font-size:10px;padding:3px 7px;flex:1">— Ligne</button>
-                <button class="dots-orientation-btn theme-btn" data-orientation="column" style="font-size:10px;padding:3px 7px;flex:1">| Col.</button>
-              </div>
-              <div style="display:flex;gap:4px">
-                <button id="btn-lt-toggle" class="btn btn-outline" style="font-size:10px;padding:3px 8px;flex:1">Lower Third : OFF</button>
-                <button class="event-bar-pos-btn theme-btn active" data-pos="top" style="font-size:11px;padding:3px 10px">↑</button>
-                <button class="event-bar-pos-btn theme-btn" data-pos="bottom" style="font-size:11px;padding:3px 10px">↓</button>
-              </div>
-            </div>
-
-            <!-- ── Position & Taille ───────────────────────────────── -->
-            <div class="custom-card" style="flex:1;min-width:0;padding:10px">
-              <h3 style="font-size:12px;margin-bottom:7px">Position &amp; Taille</h3>
-              <div class="form-group" style="margin-bottom:7px">
-                <label>Taille %</label>
-                <div class="logo-particles-row">
-                  <input type="range" id="sb-scale-range" min="50" max="200" value="100" step="1" />
-                  <input type="number" id="sb-scale-num" min="50" max="200" value="100" step="1" style="width:54px" />
-                </div>
-              </div>
-              <div class="form-group" style="margin-bottom:7px">
-                <label>X px</label>
-                <div class="logo-particles-row">
-                  <input type="range" id="sb-x-range" min="-960" max="960" value="0" step="1" />
-                  <input type="number" id="sb-x-num" min="-960" max="960" value="0" step="1" style="width:58px" />
-                </div>
-              </div>
-              <div class="form-group" style="margin:0">
-                <label>Y px</label>
-                <div class="logo-particles-row">
-                  <input type="range" id="sb-y-range" min="-200" max="600" value="0" step="1" />
-                  <input type="number" id="sb-y-num" min="-200" max="600" value="0" step="1" style="width:58px" />
-                </div>
-              </div>
-            </div>
-
-            <!-- ── Lower Third position (hidden par défaut) ────────── -->
-            <div class="custom-card" id="lt-position-card" style="display:none;flex:1;min-width:0;padding:10px">
-              <h3 style="font-size:12px;margin-bottom:7px">Lower Third</h3>
-              <div class="form-group" style="margin-bottom:7px">
-                <label>Hauteur px</label>
-                <div class="logo-particles-row">
-                  <input type="range" id="lt-bottom-range" min="0" max="500" value="150" step="1" />
-                  <input type="number" id="lt-bottom-num" min="0" max="500" value="150" step="1" style="width:58px" />
-                </div>
-              </div>
-              <div class="form-group" style="margin:0">
-                <label>Marges px</label>
-                <div class="logo-particles-row">
-                  <input type="range" id="lt-padding-x-range" min="0" max="400" value="60" step="4" />
-                  <input type="number" id="lt-padding-x-num" min="0" max="400" value="60" step="4" style="width:58px" />
-                </div>
-              </div>
-            </div>
-
-            <!-- ── Barre événement ─────────────────────────────────── -->
-            <div class="custom-card" style="flex:1;min-width:0;padding:10px">
-              <h3 style="font-size:12px;margin-bottom:7px">Barre event.</h3>
-              <div class="form-group" style="margin-bottom:7px">
-                <label>Taille px</label>
-                <input type="number" id="event-text-size" value="12" min="8" max="32" style="width:60px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:13px;padding:4px 6px;text-align:center" />
-              </div>
-              <div class="form-group" style="margin:0">
-                <label>Couleur</label>
-                <input type="color" id="event-text-color" value="#EAB830" />
-              </div>
-            </div>
-
-            <!-- ── Textes joueurs ──────────────────────────────────── -->
-            <div class="custom-card" style="flex:1;min-width:0;padding:10px">
-              <h3 style="font-size:12px;margin-bottom:7px">Textes</h3>
-              <div class="form-group" style="margin-bottom:7px">
-                <label>Tag</label>
-                <input type="color" id="tag-color" value="#E8B830" />
-              </div>
-              <div class="form-group" style="margin-bottom:7px">
-                <label>Pseudo</label>
-                <input type="color" id="name-color" value="#F0EEF8" />
-              </div>
-              <div class="form-group" style="margin:0">
-                <label>Pronoms</label>
-                <input type="color" id="pronouns-color" value="#5A5A7A" />
-              </div>
-            </div>
-
-            <!-- ── Fond de l'overlay ───────────────────────────────── -->
-            <div class="custom-card" style="flex:1;min-width:0;padding:10px">
-              <h3 style="font-size:12px;margin-bottom:7px">Fond</h3>
-              <div class="form-group" style="margin:0">
-                <label>Couleur &amp; opacité</label>
-                <div style="display:flex;gap:6px;align-items:center">
-                  <input type="color" id="sb-bg-color" value="#0E0E12" />
-                  <input type="number" id="sb-bg-opacity" value="100" min="0" max="100" style="width:56px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:13px;padding:4px 5px;text-align:center" />
-                  <span style="font-size:11px;color:var(--text-muted)">%</span>
-                </div>
-              </div>
-            </div>
-
-            <!-- ── Particules ──────────────────────────────────────── -->
-            <div class="custom-card" style="flex:1;min-width:0;padding:10px">
-              <h3 style="font-size:12px;margin-bottom:7px">Particules</h3>
-              <div class="form-group" style="margin-bottom:7px">
-                <button id="btn-particles-toggle" class="btn btn-primary btn-sm" style="width:100%;font-size:11px">⏸ Désactiver</button>
-              </div>
-              <div id="particles-controls">
-                <div class="form-group" style="margin-bottom:7px">
-                  <label>Opacité %</label>
-                  <div class="logo-particles-row">
-                    <input type="range" id="particle-opacity-range" min="0" max="100" value="100" />
-                    <input type="number" id="particle-opacity-num" min="0" max="100" value="100" style="width:50px" />
-                  </div>
-                </div>
-                <div class="form-group" style="margin:0">
-                  <label>Quantité %</label>
-                  <div class="logo-particles-row">
-                    <input type="range" id="particle-count-range" min="0" max="500" value="100" />
-                    <input type="number" id="particle-count-num" min="0" max="500" value="100" style="width:50px" />
-                  </div>
-                </div>
-              </div>
-            </div>
-
-          </div>
-        </section>
-
       </div><!-- /sb-sub-custom -->
-
-      <div class="match-subpanel" id="sb-sub-preview">
-        <div class="overlay-preview-container">
-          <div class="overlay-preview-wrap" id="preview-wrap-scoreboard">
-            <iframe src="/overlay" class="overlay-preview-frame" id="preview-frame-scoreboard"></iframe>
-          </div>
-        </div>
-      </div><!-- /sb-sub-preview -->
 
       <div class="match-subpanel" id="sb-sub-builder">
         <!-- ── Créateur visuel (vue principale) ── -->
@@ -1339,7 +1371,11 @@
       <section class="section" style="padding:0">
         <div class="section-header" style="padding:12px 16px">
           <h2>VS Screen</h2>
-          <a href="/vs-screen" target="_blank" class="btn btn-outline btn-sm">OBS ↗</a>
+          <div style="display:flex;gap:8px;align-items:center">
+            <button id="btn-vs-trigger" class="btn btn-primary btn-sm">⚔ VS Anim</button>
+            <button id="btn-vs-hide" class="btn btn-outline btn-sm">Masquer</button>
+            <a href="/vs-screen" target="_blank" class="btn btn-outline btn-sm">OBS ↗</a>
+          </div>
         </div>
         <div style="display:flex;height:700px;overflow:hidden;border-top:1px solid var(--border)">
           <!-- Titres verticaux -->
@@ -3540,6 +3576,8 @@
             <div style="background:#1E1E2E;color:#aaa;border-radius:3px;padding:4px 2px;line-height:1.3;border:1px solid #2a2a3a">Top8 ↕</div>
             <div style="background:#1E1E2E;color:#aaa;border-radius:3px;padding:4px 2px;line-height:1.3;border:1px solid #2a2a3a">TW Lay. ↕</div>
             <div style="background:#1E1E2E;color:#aaa;border-radius:3px;padding:4px 2px;line-height:1.3;border:1px solid #2a2a3a">TW Chat ↕</div>
+            <div style="background:#334466;color:#88aaff;border-radius:3px;padding:4px 2px;line-height:1.3;border:1px solid #446699">VS ▶</div>
+            <div style="background:#334466;color:#88aaff;border-radius:3px;padding:4px 2px;line-height:1.3;border:1px solid #446699">VS ■</div>
           </div>
           <div style="display:flex;gap:14px;margin-top:10px;flex-wrap:wrap">
             <span style="font-size:10px;color:#666;display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:2px;background:#AA0000;display:inline-block"></span> Scores J1</span>
@@ -3547,6 +3585,7 @@
             <span style="font-size:10px;color:#666;display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:2px;background:#806200;display:inline-block"></span> Reset</span>
             <span style="font-size:10px;color:#666;display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:2px;background:#003300;display:inline-block"></span> Scènes Studio (POST)</span>
             <span style="font-size:10px;color:#666;display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:2px;background:#1E1E2E;border:1px solid #2a2a3a;display:inline-block"></span> Overlays toggle (GET)</span>
+            <span style="font-size:10px;color:#666;display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:2px;background:#334466;border:1px solid #446699;display:inline-block"></span> VS Screen (déclencher / masquer)</span>
           </div>
         </div>
 
@@ -3556,11 +3595,11 @@
           <div style="display:flex;gap:10px">
             <div style="flex:1;background:#003300;border-radius:6px;padding:10px 12px">
               <div style="font-size:11px;font-weight:700;color:#6BC96C;margin-bottom:4px">▶ Lignes 0-1 — AFFICHER</div>
-              <div style="font-size:11px;color:#888">Scoreboard · Cam · Ticker · Frames · Titre · Casters · Veto · Timer · H2H · Stats · Bracket · Top 8 · TW Chat · TW Viewer · YT Chat · Chat Combiné</div>
+              <div style="font-size:11px;color:#888">Scoreboard · Cam · Ticker · Frames · Titre · Casters · Veto · Timer · H2H · Stats · Bracket · Top 8 · TW Chat · TW Viewer · YT Chat · Chat Combiné · <strong style="color:#88aaff">VS Screen ▶</strong></div>
             </div>
             <div style="flex:1;background:#330000;border-radius:6px;padding:10px 12px">
               <div style="font-size:11px;font-weight:700;color:#E05252;margin-bottom:4px">■ Lignes 2-3 — MASQUER</div>
-              <div style="font-size:11px;color:#888">Mêmes overlays, action hide — pour forcer la disparition sans toggle.</div>
+              <div style="font-size:11px;color:#888">Mêmes overlays + <strong style="color:#88aaff">VS Screen ■</strong> — pour forcer la disparition sans toggle.</div>
             </div>
           </div>
         </div>

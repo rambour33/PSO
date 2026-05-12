@@ -8,3 +8,6 @@ simplifier l'interface nottament celle de cam overlay avec la tcheckbox
 
 
 pour la version street permet de choisir le side avec un mini jeu 
+
+il manque le vs screen dans l'api ainsi que animation entrée sortie et aussi sur companion
+fear factory en musique de waiting screen 

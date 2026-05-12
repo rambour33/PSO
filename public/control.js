@@ -11909,6 +11909,7 @@ function initScrollNav(scrollAreaId, navTitlesId) {
   });
 }
 
+initScrollNav('sb-scroll-area',      'sb-nav-titles');
 initScrollNav('vic-scroll-area',     'vic-nav-titles');
 initScrollNav('vs-scroll-area',      'vs-nav-titles');
 initScrollNav('nm-scroll-area',      'nm-nav-titles');
