@@ -5245,6 +5245,8 @@ body.regie-mode [data-subpanel$="-preview"] {
   user-select: none;
 }
 .vic-nav-title.active { color: #e05050; }
-#vic-scroll-area, #vs-scroll-area, #nm-scroll-area, #veto-scroll-area, #casters-scroll-area { scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
+/* Espacement uniforme quel que soit le nombre de titres dans le panneau */
+[id$="-nav-titles"] { justify-content: space-evenly !important; padding: 0 !important; gap: 0 !important; }
+#vic-scroll-area, #vs-scroll-area, #nm-scroll-area, #veto-scroll-area, #casters-scroll-area { scrollbar-width: thin; scrollbar-color: var(--border) transparent; position: relative; }
 #vic-scroll-area::-webkit-scrollbar, #vs-scroll-area::-webkit-scrollbar, #nm-scroll-area::-webkit-scrollbar, #veto-scroll-area::-webkit-scrollbar, #casters-scroll-area::-webkit-scrollbar { width: 4px; }
 #vic-scroll-area::-webkit-scrollbar-thumb, #vs-scroll-area::-webkit-scrollbar-thumb, #nm-scroll-area::-webkit-scrollbar-thumb, #veto-scroll-area::-webkit-scrollbar-thumb, #casters-scroll-area::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }

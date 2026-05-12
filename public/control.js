@@ -1702,9 +1702,9 @@ document.querySelectorAll('.match-subnav .match-subpanel-btn').forEach(btn => {
       setTimeout(() => window.dispatchEvent(new Event('resize')), 0);
     }
 
-    // Masquer les sections start.gg pour VS Screen et Victory
-    const hideSgg = ['vs-sub-main', 'vic-sub-main'].includes(btn.dataset.subpanel);
-    document.getElementById('tab-match')?.classList.toggle('hide-sgg', hideSgg);
+    // Sections start.gg visibles uniquement sur le Scoreboard
+    const showSgg = ['sb-sub-match', 'sb-sub-custom'].includes(btn.dataset.subpanel);
+    document.getElementById('tab-match')?.classList.toggle('hide-sgg', !showSgg);
   });
 });
 
@@ -11892,26 +11892,44 @@ function initScrollNav(scrollAreaId, navTitlesId, sects) {
   const scrollArea = document.getElementById(scrollAreaId);
   if (!scrollArea) return;
   const titles = document.querySelectorAll('#' + navTitlesId + ' .vic-nav-title');
+  const inView = new Set();
 
-  function updateActive() {
-    const atBottom = scrollArea.scrollTop + scrollArea.clientHeight >= scrollArea.scrollHeight - 2;
-    let current = sects[0];
-    if (atBottom) {
-      current = sects[sects.length - 1];
-    } else {
-      for (const id of sects) {
-        const el = document.getElementById(id);
-        if (el && el.offsetTop - scrollArea.scrollTop <= scrollArea.clientHeight * 0.4) current = id;
-      }
-    }
-    titles.forEach(t => t.classList.toggle('active', t.dataset.target === current));
+  function setActive(id) {
+    titles.forEach(t => t.classList.toggle('active', t.dataset.target === id));
   }
 
-  scrollArea.addEventListener('scroll', updateActive, { passive: true });
+  // IntersectionObserver : détecte quelles sections sont dans la zone haute (top 10%)
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => e.isIntersecting ? inView.add(e.target.id) : inView.delete(e.target.id));
+    // Cas spécial fond de page
+    const atBottom = scrollArea.scrollTop + scrollArea.clientHeight >= scrollArea.scrollHeight - 5;
+    if (atBottom && scrollArea.scrollHeight > scrollArea.clientHeight) {
+      setActive(sects[sects.length - 1]);
+      return;
+    }
+    // Section active = la première (la plus haute) qui est actuellement dans la zone
+    const current = sects.find(id => inView.has(id)) || sects[0];
+    setActive(current);
+  }, { root: scrollArea, rootMargin: '0px 0px -90% 0px', threshold: 0 });
+
+  sects.forEach(id => { const el = document.getElementById(id); if (el) io.observe(el); });
+
+  // Cas fond de page via scroll (IO ne fire pas si scrollTop change sans intersection change)
+  scrollArea.addEventListener('scroll', () => {
+    if (scrollArea.scrollTop + scrollArea.clientHeight >= scrollArea.scrollHeight - 5) {
+      setActive(sects[sects.length - 1]);
+    }
+  }, { passive: true });
+
+  // Molette sur la colonne de titres → transférer au scrollArea
+  const navEl = document.getElementById(navTitlesId);
+  if (navEl) navEl.addEventListener('wheel', e => { e.preventDefault(); scrollArea.scrollBy({ top: e.deltaY }); }, { passive: false });
+
+  // Clic sur un titre → scroll vers la section
   titles.forEach(t => {
     t.addEventListener('click', () => {
-      const target = document.getElementById(t.dataset.target);
-      if (target) scrollArea.scrollTo({ top: target.offsetTop, behavior: 'smooth' });
+      const el = document.getElementById(t.dataset.target);
+      if (el) scrollArea.scrollTo({ top: el.offsetTop, behavior: 'smooth' });
     });
   });
 }
