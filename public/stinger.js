@@ -66,8 +66,9 @@
   const EASE_IN  = 'cubic-bezier(0.86, 0, 0.07, 1)';
   const EASE_OUT = 'cubic-bezier(0.19, 1, 0.22, 1)';
 
-  let config  = { bars: 8, speed: 'normal', style: 'bars-h', logoUrl: '', logoSize: 200 };
+  let config  = { bars: 8, speed: 'normal', style: 'bars-h', logoUrl: '', logoSize: 200, bgImageUrl: '' };
   let theme   = 'default';
+  let resolvedPrimary = THEME_COLORS.default.primary;
   let isPlaying = false;
   let barEls  = [];
   let logoNatW = 0, logoNatH = 0;
@@ -93,33 +94,61 @@
      Les barres utilisent left:-8% / right:-8% (H) ou top:-8% / bottom:-8% (V)
      — la position du background est donc décalée de ce padding. */
   function getBarBg(i, isV, explicitColor) {
-    const base = explicitColor || 'var(--st-primary)';
-    const logoUrl = config.effectiveLogoUrl || config.logoUrl;
-    if (!logoUrl) return explicitColor || '';
+    const base     = explicitColor || resolvedPrimary;
+    const logoUrl  = config.effectiveLogoUrl || config.logoUrl;
+    const bgUrl    = config.bgImageUrl;
 
-    const PAD_H = 0.08 * 1920; // 153.6 px
-    const PAD_V = 0.08 * 1080; //  86.4 px
-    const { w: lw, h: lh } = getLogoDisplaySize();
-    const n = Math.max(1, config.bars);
-    const logoX = (1920 - lw) / 2;
-    const logoY = (1080 - lh) / 2;
-    let bgX, bgY;
+    const layers = [];
 
-    if (isV) {
-      bgX = logoX - i * (1920 / n);
-      bgY = logoY + PAD_V;
-    } else {
-      bgX = logoX + PAD_H;
-      bgY = logoY - i * (1080 / n);
+    if (logoUrl) {
+      const PAD_H = 0.08 * 1920;
+      const PAD_V = 0.08 * 1080;
+      const { w: lw, h: lh } = getLogoDisplaySize();
+      const n = Math.max(1, config.bars);
+      const logoX = (1920 - lw) / 2;
+      const logoY = (1080 - lh) / 2;
+      let bgX, bgY;
+      if (isV) {
+        bgX = logoX - i * (1920 / n);
+        bgY = logoY + PAD_V;
+      } else {
+        bgX = logoX + PAD_H;
+        bgY = logoY - i * (1080 / n);
+      }
+      layers.push(`url('${logoUrl}') ${Math.round(bgX)}px ${Math.round(bgY)}px / ${lw}px ${lh}px no-repeat`);
     }
 
-    return `url('${logoUrl}') ${Math.round(bgX)}px ${Math.round(bgY)}px / ${lw}px ${lh}px no-repeat, ${base}`;
+    if (bgUrl) {
+      const n = Math.max(1, config.bars);
+      const PAD_H = 0.08 * 1920;
+      const PAD_V = 0.08 * 1080;
+      let bgX, bgY;
+      if (isV) {
+        bgX = -(i * (1920 / n));
+        bgY = PAD_V;
+      } else {
+        bgX = PAD_H;
+        bgY = -(i * (1080 / n));
+      }
+      layers.push(`url('${bgUrl}') ${Math.round(bgX)}px ${Math.round(bgY)}px / 1920px 1080px no-repeat`);
+    }
+
+    layers.push(base);
+    return layers.join(', ');
+  }
+
+  /* ── Image de fond ──────────────────────────────────────── */
+  function applyBgImage() {
+    const el = document.getElementById('stinger-bg');
+    if (!el) return;
+    el.style.backgroundImage = config.bgImageUrl ? `url('${config.bgImageUrl}')` : 'none';
   }
 
   /* ── Thème ───────────────────────────────────────────────── */
   function applyTheme(t) {
     theme = t || 'default';
     const c = THEME_COLORS[theme] || THEME_COLORS.default;
+    resolvedPrimary = c.primary;
     const root = document.getElementById('stinger-root');
     root.style.setProperty('--st-primary', c.primary);
     root.style.setProperty('--st-glow',    c.glow);
@@ -239,15 +268,19 @@
   ]).then(([state, cfg]) => {
     Object.assign(config, cfg);
     applyTheme(state.overlayTheme || 'default');
+    applyBgImage();
     preloadLogo(effectiveLogo()).then(buildBars);
   });
 
   socket.on('stateUpdate',    s   => applyTheme(s.overlayTheme || 'default'));
   socket.on('stingerConfig',  cfg => {
-    const needRebuild = cfg.bars !== config.bars || cfg.style !== config.style
+    const needRebuild = cfg.bars             !== config.bars
+                      || cfg.style           !== config.style
                       || cfg.effectiveLogoUrl !== config.effectiveLogoUrl
-                      || cfg.logoSize !== config.logoSize;
+                      || cfg.logoSize        !== config.logoSize
+                      || cfg.bgImageUrl      !== config.bgImageUrl;
     Object.assign(config, cfg);
+    applyBgImage();
     if (needRebuild) preloadLogo(effectiveLogo()).then(buildBars);
     else recolorBars();
   });

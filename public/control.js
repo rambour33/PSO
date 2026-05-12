@@ -10638,6 +10638,14 @@ socket.on('stateUpdate', (s) => {
     { id: 'combined-chat',       label: 'Chat Combiné'       },
   ];
 
+  /* Scènes custom (super-overlay) — labels mis à jour depuis superState */
+  const CUSTOM_SCENE_OVERLAYS = Array.from({ length: 9 }, (_, i) => ({
+    id: `custom-scene-${i}`,
+    label: `Scène ${i + 1}`,
+    isCustomScene: true,
+    sceneIdx: i,
+  }));
+
   const ANIM_TYPES = [
     { value: 'fade',        label: 'Fondu'        },
     { value: 'slide-up',    label: 'Glisse haut'  },
@@ -10649,6 +10657,8 @@ socket.on('stateUpdate', (s) => {
     { value: 'blur',        label: 'Flou'         },
   ];
 
+  const ANIM_STINGER_ONLY = [{ value: 'stinger', label: 'Stinger' }];
+
   let animState = {}; // { id: { animIn, animOut, dur, visible } }
 
   function animSelectHtml(name, val) {
@@ -10659,7 +10669,17 @@ socket.on('stateUpdate', (s) => {
     '</select>';
   }
 
+  function animSelectHtmlFrom(types, name, val) {
+    return '<select class="anim-sel" data-key="' + name + '">' +
+      types.map(t =>
+        '<option value="' + t.value + '"' + (t.value === val ? ' selected' : '') + '>' + t.label + '</option>'
+      ).join('') +
+    '</select>';
+  }
+
   function buildCard(ov) {
+    if (ov.isCustomScene) return buildCustomSceneCard(ov);
+
     const s = animState[ov.id] || { animIn: 'fade', animOut: 'fade', dur: 500, visible: true };
     const card = document.createElement('div');
     card.className = 'anim-card';
@@ -10706,6 +10726,31 @@ socket.on('stateUpdate', (s) => {
     return card;
   }
 
+  function buildCustomSceneCard(ov) {
+    const s = animState[ov.id] || { visible: false };
+    const card = document.createElement('div');
+    card.className = 'anim-card anim-card--custom-scene';
+    card.dataset.id = ov.id;
+
+    card.innerHTML =
+      '<div class="anim-card-header">' +
+        '<span class="anim-card-status' + (s.visible ? '' : ' hidden') + '"></span>' +
+        '<span class="anim-card-name">' + ov.label + '</span>' +
+      '</div>' +
+      '<div class="anim-card-btns">' +
+        '<button class="btn btn-sm anim-btn-activate" style="background:linear-gradient(135deg,#7c3aed,#9333ea);color:#fff;border:none">▶ Activer</button>' +
+      '</div>' +
+      '<div class="anim-card-selects">' +
+        '<div><label>Transition</label>' + animSelectHtmlFrom(ANIM_STINGER_ONLY, 'animIn', 'stinger') + '</div>' +
+      '</div>';
+
+    card.querySelector('.anim-btn-activate').addEventListener('click', () => {
+      fetch('/api/transitions/' + ov.id + '/show', { method: 'POST' }).catch(() => {});
+    });
+
+    return card;
+  }
+
   function patchTransition(id, body) {
     fetch('/api/transitions/' + id, {
       method: 'PATCH',
@@ -10719,6 +10764,7 @@ socket.on('stateUpdate', (s) => {
     if (!grid) return;
     grid.innerHTML = '';
     for (const ov of ANIM_OVERLAYS) grid.appendChild(buildCard(ov));
+    for (const ov of CUSTOM_SCENE_OVERLAYS) grid.appendChild(buildCard(ov));
   }
 
   function updateCard(id, s) {
@@ -10748,6 +10794,61 @@ socket.on('stateUpdate', (s) => {
   socket.on('transitionsUpdate', data => {
     animState = data;
     for (const id of Object.keys(data)) updateCard(id, data[id]);
+  });
+
+  /* ── Scènes custom : noms dynamiques depuis superState ── */
+  function updateCustomSceneLabels(superSt) {
+    if (!superSt || !superSt.scenes) return;
+    superSt.scenes.forEach((sc, i) => {
+      const name = sc.name || `Scène ${i + 1}`;
+      /* Mettre à jour CUSTOM_SCENE_OVERLAYS */
+      CUSTOM_SCENE_OVERLAYS[i].label = name;
+      /* Mettre à jour les cartes existantes */
+      const card = document.querySelector('.anim-card[data-id="custom-scene-' + i + '"]');
+      if (card) { const n = card.querySelector('.anim-card-name'); if (n) n.textContent = name; }
+      /* Mettre à jour la colonne URLs */
+      const row = document.getElementById('obs-custom-row-' + i);
+      if (row) {
+        const lbl = row.querySelector('span');
+        if (lbl) lbl.textContent = name;
+      }
+    });
+  }
+
+  function buildCustomScenesUrlCol(superSt) {
+    const col = document.getElementById('obs-custom-scenes-col');
+    if (!col) return;
+    /* Supprimer les items existants (garder le header) */
+    col.querySelectorAll('.obs-url-item').forEach(el => el.remove());
+    const base = getServerBase();
+    const scenes = superSt && superSt.scenes ? superSt.scenes : Array.from({ length: 9 }, (_, i) => ({ name: `Scène ${i + 1}` }));
+    scenes.forEach((sc, i) => {
+      const name = sc.name || `Scène ${i + 1}`;
+      const url  = base + '/super-overlay/' + (i + 1);
+      const item = document.createElement('div');
+      item.className = 'obs-url-item';
+      item.id = 'obs-custom-row-' + i;
+      item.innerHTML = '<span>' + name + '</span><code>' + url.replace(/^https?:\/\//, '') + '</code><button class="btn-copy" data-url="' + url + '">📋</button>';
+      item.querySelector('.btn-copy').addEventListener('click', function () {
+        navigator.clipboard.writeText(this.dataset.url).catch(() => {});
+        const code = item.querySelector('code');
+        const prev = code.style.color;
+        code.style.color = '#6BC96C';
+        setTimeout(() => { code.style.color = prev; }, 600);
+      });
+      col.appendChild(item);
+    });
+  }
+
+  /* Chargement initial des scènes custom */
+  fetch('/api/super').then(r => r.json()).then(st => {
+    updateCustomSceneLabels(st);
+    buildCustomScenesUrlCol(st);
+  }).catch(() => { buildCustomScenesUrlCol(null); });
+
+  socket.on('superStateUpdate', st => {
+    updateCustomSceneLabels(st);
+    buildCustomScenesUrlCol(st);
   });
 
   /* Re-render quand on ouvre l'onglet Liens overlays */
@@ -11345,6 +11446,11 @@ socket.on('stateUpdate', (s) => {
   const logoSizeVal        = document.getElementById('stinger-logo-size-val');
   const previewWrap        = document.getElementById('stinger-preview-wrap');
   const previewIframe      = document.getElementById('stinger-preview-iframe');
+  const bgFileInput        = document.getElementById('stinger-bg-file');
+  const bgClearBtn         = document.getElementById('btn-stinger-bg-clear');
+  const bgThumb            = document.getElementById('stinger-bg-thumb');
+  const bgThumbEmpty       = document.getElementById('stinger-bg-thumb-empty');
+  const bgStatus           = document.getElementById('stinger-bg-status');
 
   /* ── Échelle iframe preview ── */
   function scalePreview() {
@@ -11424,6 +11530,51 @@ socket.on('stateUpdate', (s) => {
     });
   }
 
+  /* ── Image de fond ── */
+  function applyBgThumb(url) {
+    if (!bgThumb) return;
+    if (url) {
+      bgThumb.style.backgroundImage = `url('${url}')`;
+      if (bgThumbEmpty) bgThumbEmpty.style.display = 'none';
+    } else {
+      bgThumb.style.backgroundImage = 'none';
+      if (bgThumbEmpty) bgThumbEmpty.style.display = '';
+    }
+  }
+
+  if (bgFileInput) {
+    bgFileInput.addEventListener('change', () => {
+      const file = bgFileInput.files[0];
+      if (!file) return;
+      if (bgStatus) bgStatus.textContent = 'Envoi…';
+      const reader = new FileReader();
+      reader.onload = e => {
+        const b64 = e.target.result.split(',')[1];
+        fetch('/api/stinger/background', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ filename: file.name, data: b64 }),
+        })
+          .then(r => r.json())
+          .then(d => {
+            applyBgThumb(d.url);
+            if (bgStatus) { bgStatus.textContent = 'Image appliquée ✓'; setTimeout(() => { bgStatus.textContent = ''; }, 2000); }
+          })
+          .catch(() => { if (bgStatus) bgStatus.textContent = 'Erreur upload'; });
+      };
+      reader.readAsDataURL(file);
+      bgFileInput.value = '';
+    });
+  }
+
+  if (bgClearBtn) {
+    bgClearBtn.addEventListener('click', () => {
+      fetch('/api/stinger/background', { method: 'DELETE' })
+        .then(() => { applyBgThumb(null); if (bgStatus) { bgStatus.textContent = 'Supprimée'; setTimeout(() => { bgStatus.textContent = ''; }, 1500); } })
+        .catch(() => {});
+    });
+  }
+
   /* ── Déclencheur ── */
   let cooldown = false;
   triggerBtn.addEventListener('click', () => {
@@ -11453,6 +11604,7 @@ socket.on('stateUpdate', (s) => {
       if (logoSizeVal) logoSizeVal.textContent = cfg.logoSize + ' px';
     }
     _tournamentLogoUrl = cfg.effectiveLogoUrl || '';
+    if (cfg.bgImageUrl) applyBgThumb(cfg.bgImageUrl);
     toggleBarsTile();
     updateLogoUI();
     scalePreview();

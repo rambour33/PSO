@@ -2234,7 +2234,7 @@ kbd {
 
 .obs-url-cols {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   gap: 16px;
   align-items: start;
 }
@@ -4190,6 +4190,14 @@ body.mobile-mode .custom-card {
   color: var(--text);
 }
 
+.anim-card--custom-scene {
+  border-color: rgba(147, 51, 234, 0.35);
+  background: linear-gradient(160deg, rgba(88,28,135,0.18) 0%, var(--surface2) 100%);
+}
+
+.anim-card--custom-scene .anim-card-selects {
+  grid-template-columns: 1fr;
+}
 
 /* ══════════════════════════════════════════════════════════
    VALORANT — Sélecteur de jeu + styles onglet

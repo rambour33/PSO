@@ -3350,6 +3350,10 @@
             <span id="obs-mode-ip" style="font-size:11px;color:var(--text-muted);margin-left:4px;font-family:monospace"></span>
           </div>
           <div class="obs-url-cols">
+            <div class="obs-url-col" id="obs-custom-scenes-col">
+              <div class="obs-url-col-header" style="color:#c084fc">Scènes custom</div>
+              <!-- Populated dynamically by control.js -->
+            </div>
             <div class="obs-url-col">
               <div class="obs-url-col-header">Scoreboard</div>
               <div class="obs-url-item"><span>Scoreboard</span><code>localhost:3002/overlay</code><button class="btn-copy" data-url="http://localhost:3002/overlay">📋</button></div>
@@ -6020,6 +6024,24 @@
               <span id="stinger-logo-size-val" class="num-display" style="min-width:42px">200 px</span>
             </div>
           </div>
+        </div>
+
+        <div class="tile">
+          <div class="tile-title">Image de fond</div>
+          <p class="hint" style="margin-bottom:8px">Affichée derrière les barres, en dessous du logo.</p>
+          <div style="display:flex;gap:8px;align-items:flex-start;margin-bottom:8px">
+            <div id="stinger-bg-thumb" style="width:80px;height:45px;border:1px solid var(--border);border-radius:6px;flex-shrink:0;background-size:cover;background-position:center;background-color:var(--surface2);overflow:hidden;position:relative">
+              <span id="stinger-bg-thumb-empty" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--text-muted)">Aucune</span>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:6px">
+              <label class="btn btn-outline btn-sm" style="cursor:pointer">
+                📁 Choisir
+                <input type="file" id="stinger-bg-file" accept="image/png,image/jpeg,image/webp" style="display:none" />
+              </label>
+              <button id="btn-stinger-bg-clear" class="btn btn-outline btn-sm" style="color:var(--danger);border-color:var(--danger)">✕ Supprimer</button>
+            </div>
+          </div>
+          <p id="stinger-bg-status" class="hint" style="text-align:center;min-height:14px"></p>
         </div>
 
         <button id="stinger-trigger-btn" class="btn btn-primary stinger-trigger-btn">

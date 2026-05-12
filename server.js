@@ -3632,6 +3632,9 @@ const TRANSITION_IDS = [
   'tournament-history', 'bracket', 'top8', 'timer', 'nextmatch', 'upcoming',
   'twitch-chat', 'twitch-viewer', 'youtube-chat', 'combined-chat',
   'victory', 'vs-screen',
+  'custom-scene-0', 'custom-scene-1', 'custom-scene-2', 'custom-scene-3',
+  'custom-scene-4', 'custom-scene-5', 'custom-scene-6', 'custom-scene-7',
+  'custom-scene-8',
 ];
 
 function defaultTransition() {
@@ -3650,12 +3653,24 @@ function saveTransitionState(state) {
   saveConfig(cfg);
 }
 
+/* Durée (ms) avant que le stinger couvre complètement l'écran */
+function stingerCoverTime() {
+  const SP = { fast: { dur: 320, stagger: 28 }, normal: { dur: 420, stagger: 40 }, slow: { dur: 600, stagger: 55 } };
+  const sp = SP[stingerConfig.speed] || SP.normal;
+  const n  = Math.max(2, Math.min(20, stingerConfig.bars || 8));
+  if (stingerConfig.style === 'flash') return Math.round(sp.dur * 0.4);
+  return sp.dur + (n - 1) * sp.stagger;
+}
+
 /* Initialise les entrées manquantes */
 let transitionState = (() => {
   const saved = getTransitionState();
   const out = {};
   for (const id of TRANSITION_IDS) {
-    out[id] = Object.assign(defaultTransition(), saved[id] || {});
+    const def = id.startsWith('custom-scene-')
+      ? { animIn: 'stinger', animOut: 'stinger', dur: 500, visible: false }
+      : defaultTransition();
+    out[id] = Object.assign(def, saved[id] || {});
   }
   return out;
 })();
@@ -3685,12 +3700,24 @@ app.post('/api/transitions/:id/show', (req, res) => {
   if (!transitionState[id]) return res.status(404).json({ error: 'unknown overlay' });
   transitionState[id].visible = true;
   saveTransitionState(transitionState);
-  io.emit('overlayShow', {
-    id,
-    animIn:  transitionState[id].animIn,
-    animOut: transitionState[id].animOut,
-    dur:     transitionState[id].dur,
-  });
+
+  const csMatch = id.match(/^custom-scene-(\d)$/);
+  if (csMatch) {
+    const sceneIdx = parseInt(csMatch[1]);
+    io.emit('stingerTrigger', stingerPayload());
+    setTimeout(() => {
+      superState.activeScene = sceneIdx;
+      superBroadcast();
+    }, stingerCoverTime());
+  } else {
+    io.emit('overlayShow', {
+      id,
+      animIn:  transitionState[id].animIn,
+      animOut: transitionState[id].animOut,
+      dur:     transitionState[id].dur,
+    });
+  }
+
   io.emit('transitionsUpdate', transitionState);
   res.json({ ok: true });
 });
@@ -3739,6 +3766,9 @@ const DECK_LABELS = {
   'combined-chat':      'Chat Combiné',
   'victory':            'Victoire',
   'vs-screen':          'VS Screen',
+  ...Object.fromEntries(Array.from({ length: 9 }, (_, i) => [
+    `custom-scene-${i}`, superState.scenes[i]?.name || `Scène custom ${i + 1}`,
+  ])),
 };
 
 app.get('/api/deck', (req, res) => {
@@ -3800,11 +3830,16 @@ app.get('/api/deck/:overlay/:action', (req, res) => {
   t.visible = doShow;
   saveTransitionState(transitionState);
 
+  const csDeckMatch = overlay.match(/^custom-scene-(\d)$/);
   if (overlay === 'victory') {
     io.emit(doShow ? 'victoryTest' : 'victoryHide', doShow ? matchState : undefined);
   } else if (overlay === 'vs-screen') {
     io.emit(doShow ? 'vsScreenTrigger' : 'vsScreenHide');
-  } else {
+  } else if (csDeckMatch && doShow) {
+    const sceneIdx = parseInt(csDeckMatch[1]);
+    io.emit('stingerTrigger', stingerPayload());
+    setTimeout(() => { superState.activeScene = sceneIdx; superBroadcast(); }, stingerCoverTime());
+  } else if (!csDeckMatch) {
     io.emit(doShow ? 'overlayShow' : 'overlayHide', {
       id:     overlay,
       animIn:  t.animIn,
@@ -3953,7 +3988,7 @@ app.post('/api/tournament-config/fetch', async (req, res) => {
 
 let stingerConfig = (() => {
   const cfg = getConfig();
-  return Object.assign({ bars: 8, speed: 'normal', style: 'bars-h', logoUrl: '', logoOverride: false, logoSize: 200 }, cfg.stinger || {});
+  return Object.assign({ bars: 8, speed: 'normal', style: 'bars-h', logoUrl: '', logoOverride: false, logoSize: 200, bgImageUrl: '' }, cfg.stinger || {});
 })();
 
 function saveStingerConfig() {
@@ -3984,6 +4019,7 @@ app.post('/api/stinger', (req, res) => {
   if (req.body.logoUrl      !== undefined) stingerConfig.logoUrl      = String(req.body.logoUrl).slice(0, 500);
   if (req.body.logoOverride !== undefined) stingerConfig.logoOverride = !!req.body.logoOverride;
   if (req.body.logoSize     !== undefined) stingerConfig.logoSize     = Math.min(600, Math.max(40, parseInt(req.body.logoSize, 10)));
+  if (req.body.bgImageUrl   !== undefined) stingerConfig.bgImageUrl   = String(req.body.bgImageUrl).slice(0, 500);
   saveStingerConfig();
   const payload = stingerPayload();
   io.emit('stingerConfig', payload);
@@ -3992,6 +4028,37 @@ app.post('/api/stinger', (req, res) => {
 
 app.post('/api/stinger/trigger', (req, res) => {
   io.emit('stingerTrigger', stingerPayload());
+  res.json({ ok: true });
+});
+
+app.post('/api/stinger/background', (req, res) => {
+  const { filename, data } = req.body;
+  if (!data) return res.status(400).json({ error: 'data required' });
+  const ext = (path.extname(filename || '').toLowerCase()) || '.png';
+  if (!BG_EXTS.includes(ext)) return res.status(400).json({ error: 'Format non supporté' });
+  if (!fs.existsSync(BG_DIR)) fs.mkdirSync(BG_DIR, { recursive: true });
+  BG_EXTS.forEach(e => {
+    const old = path.join(BG_DIR, 'stinger-background' + e);
+    if (fs.existsSync(old)) fs.unlinkSync(old);
+  });
+  fs.writeFileSync(path.join(BG_DIR, 'stinger-background' + ext), Buffer.from(data, 'base64'));
+  const url = '/background/stinger-background' + ext;
+  stingerConfig.bgImageUrl = url;
+  saveStingerConfig();
+  const payload = stingerPayload();
+  io.emit('stingerConfig', payload);
+  res.json({ url });
+});
+
+app.delete('/api/stinger/background', (req, res) => {
+  BG_EXTS.forEach(e => {
+    const f = path.join(BG_DIR, 'stinger-background' + e);
+    if (fs.existsSync(f)) fs.unlinkSync(f);
+  });
+  stingerConfig.bgImageUrl = '';
+  saveStingerConfig();
+  const payload = stingerPayload();
+  io.emit('stingerConfig', payload);
   res.json({ ok: true });
 });
 

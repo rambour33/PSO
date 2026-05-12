@@ -21,10 +21,21 @@ body {
   pointer-events: none;
 }
 
+/* ── Image de fond ────────────────────────────────────────────── */
+#stinger-bg {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  z-index: 0;
+}
+
 /* ── Barres ───────────────────────────────────────────────────── */
 #stinger-bars {
   position: absolute;
   inset: 0;
+  z-index: 1;
 }
 
 .st-bar {
@@ -67,6 +78,7 @@ body {
   background: var(--st-primary);
   opacity: 0;
   will-change: opacity;
+  z-index: 2;
 }
 
 /* ── Thèmes spéciaux ──────────────────────────────────────────── */
