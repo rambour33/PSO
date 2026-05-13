@@ -316,8 +316,6 @@ html, body {
 .vs-char-img {
   max-height: 1080px;
   max-width: 780px;
-  object-fit: contain;
-  object-position: bottom center;
   filter: drop-shadow(0 0 40px rgba(0,0,0,0.8));
 }
 /* Masque de fondu vers le centre */

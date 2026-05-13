@@ -96,6 +96,8 @@ app.use((req, res, next) => {
   next();
 });
 
+
+app.use('/full', express.static(path.join(__dirname, 'public', 'full'), { maxAge: '7d' }));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/companion', express.static(path.join(__dirname, 'companion')));
 
@@ -447,6 +449,7 @@ app.get('/frames', (req, res) => res.sendFile(path.join(__dirname, 'public', 'fr
 app.get('/stream-title',  (req, res) => res.sendFile(path.join(__dirname, 'public', 'stream-title.html')));
 app.get('/super-overlay', (req, res) => res.sendFile(path.join(__dirname, 'public', 'super-overlay.html')));
 app.get('/super-scenes',  (req, res) => res.sendFile(path.join(__dirname, 'public', 'super-scenes.html')));
+app.get('/pso',           (req, res) => res.sendFile(path.join(__dirname, 'public', 'pso.html')));
 app.get('/super-overlay/:n', (req, res) => {
   const n = parseInt(req.params.n);
   if (isNaN(n) || n < 1 || n > 9) return res.status(404).send('Scène introuvable');
@@ -477,6 +480,7 @@ app.get('/api/obs-collection', (req, res) => {
     { scene: 'PSO – Stream Title',        source: 'PSO Stream Title',        path: '/stream-title' },
     { scene: 'PSO – Super Overlay',       source: 'PSO Super Overlay',       path: '/super-overlay' },
     { scene: 'PSO – Super Scènes',        source: 'PSO Super Scènes',        path: '/super-scenes' },
+    { scene: 'PSO',                        source: 'PSO',                     path: '/pso' },
     // ── Scènes custom (Créateur de scènes) ───────────────────────────────────
     ...Array.from({ length: 9 }, (_, i) => ({
       scene:  `Scene Custom ${i + 1}`,

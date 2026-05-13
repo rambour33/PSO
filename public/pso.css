@@ -1,0 +1,48 @@
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: transparent;
+  width: 1920px;
+  height: 1080px;
+  overflow: hidden;
+}
+
+#pso-root {
+  position: absolute;
+  inset: 0;
+}
+
+.pso-scene {
+  position: absolute;
+  inset: 0;
+  display: none;
+}
+
+.pso-scene-bg,
+.pso-scene-bgimg {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.pso-scene-bg    { z-index: 0; }
+.pso-scene-bgimg { z-index: 1; display: none; background-position: center; }
+
+.pso-layer {
+  position: absolute;
+  width: 1920px;
+  height: 1080px;
+  pointer-events: none;
+}
+
+.pso-layer iframe {
+  width: 1920px;
+  height: 1080px;
+  border: none;
+  display: block;
+  pointer-events: none;
+}
+
+.pso-layer.pso-hidden {
+  display: none;
+}

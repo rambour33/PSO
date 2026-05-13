@@ -173,11 +173,15 @@ function startParticles(charId1, charId2) {
   else       PS2.stop();
 }
 
-// ── Character image ──────────────────────────────────────────
-function setCharImg(imgEl, phEl, character, stockColor) {
+// ── Character image (canvas) ─────────────────────────────────
+// Utilise canvas + new Image() à chaque appel :
+//  • new Image() garantit que onload se déclenche même pour la même URL
+//  • drawImage() est une opération paint → OBS re-capture la texture GPU à chaque fois
+function setCharImg(canvasEl, phEl, character, stockColor) {
   return new Promise(resolve => {
     if (!character) {
-      imgEl.style.display = 'none';
+      canvasEl.getContext('2d').clearRect(0, 0, canvasEl.width, canvasEl.height);
+      canvasEl.style.display = 'none';
       phEl.classList.add('active');
       phEl.textContent = '?';
       return resolve();
@@ -185,16 +189,41 @@ function setCharImg(imgEl, phEl, character, stockColor) {
     const color = String(stockColor ?? 0).padStart(2, '0');
     const name  = character.name.replace(/\s*\/\s*/g, '-');
     const enc   = encodeURIComponent(name);
+
+    const drawToCanvas = (img) => {
+      const ctx = canvasEl.getContext('2d');
+      const cw = canvasEl.width, ch = canvasEl.height;
+      const iw = img.naturalWidth,  ih = img.naturalHeight;
+      ctx.clearRect(0, 0, cw, ch);
+      if (!iw || !ih) return;
+      // object-fit: contain
+      const scale = Math.min(cw / iw, ch / ih);
+      const dw = iw * scale, dh = ih * scale;
+      // object-position: bottom center
+      const dx = (cw - dw) / 2;
+      const dy = ch - dh;
+      ctx.drawImage(img, 0, 0, iw, ih, dx, dy, dw, dh);
+      canvasEl.style.display = 'block';
+      phEl.classList.remove('active');
+    };
+
     const tryLoad = (src, fallback) => {
-      imgEl.onload  = () => { imgEl.style.display = 'block'; phEl.classList.remove('active'); resolve(); };
-      imgEl.onerror = fallback;
-      imgEl.src = src;
+      const img = new Image();
+      img.onload  = () => { drawToCanvas(img); resolve(); };
+      img.onerror = fallback;
+      img.src     = src;
     };
     tryLoad(
       `/full/chara_1_${enc}_${color}.png`,
       () => tryLoad(
         `/full/chara_1_${enc}_00.png`,
-        () => { imgEl.style.display = 'none'; phEl.classList.add('active'); phEl.textContent = name.charAt(0).toUpperCase(); resolve(); }
+        () => {
+          canvasEl.getContext('2d').clearRect(0, 0, canvasEl.width, canvasEl.height);
+          canvasEl.style.display = 'none';
+          phEl.classList.add('active');
+          phEl.textContent = name.charAt(0).toUpperCase();
+          resolve();
+        }
       )
     );
   });
@@ -367,7 +396,11 @@ socket.on('vsConfigUpdate', cfg => {
 
 // ── vsScreen trigger ──────────────────────────────────────────
 socket.on('vsScreenTrigger', () => {
-  waitForImgs().then(triggerAnimation);
+  fetch('/api/state')
+    .then(r => r.json())
+    .then(s => update(s))   // update() retourne Promise.all des images
+    .then(triggerAnimation)  // anime seulement quand les images sont prêtes
+    .catch(triggerAnimation); // fallback si le fetch échoue
 });
 
 socket.on('vsScreenHide', () => {
