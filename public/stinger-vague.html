@@ -1,0 +1,82 @@
+﻿<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Stinger – Vague</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { width:1920px; height:1080px; overflow:hidden; background:transparent; position:relative; }
+
+    .col {
+      position:absolute; bottom:0; overflow:hidden;
+    }
+    .col-bg {
+      position:absolute; bottom:0;
+      background-size:1920px 1080px; background-repeat:no-repeat;
+      background-color:#0a0a14;
+    }
+    /* Phase1: monte depuis le bas | Phase2: redescend */
+    @keyframes colRise {
+      0%           { height:0; }
+      var(--peak)  { height:1080px; }
+      62%          { height:1080px; }
+      100%         { height:0; bottom:auto; top:0; }
+    }
+    /* Ligne d'écume */
+    .col-foam {
+      position:absolute; top:0; left:0; right:0; height:4px;
+      background:rgba(100,220,255,.8);
+      box-shadow:0 0 8px rgba(100,220,255,.6);
+    }
+    #logo-wrap {
+      position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+      z-index:20; pointer-events:none;
+    }
+    #logo-img { max-width:500px; max-height:340px; object-fit:contain; display:none; opacity:0; }
+    @keyframes logoLife {
+      0%,28%   { opacity:0; transform:translateY(30px); }
+      42%,58%  { opacity:1; transform:translateY(0); filter:drop-shadow(0 0 22px rgba(100,220,255,.8)); }
+      88%,100% { opacity:0; transform:translateY(-30px); }
+    }
+  </style>
+</head>
+<body>
+  <div id="cols"></div>
+  <div id="logo-wrap"><img id="logo-img" src="" alt="" /></div>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    var colsEl  = document.getElementById('cols');
+    var logoImg = document.getElementById('logo-img');
+    var DUR = 1.9;
+    var N = 20, cw = 1920/N;
+    var bgUrl = 'none';
+
+    function applyConfig(cfg) {
+      bgUrl = cfg.bgUrl ? 'url("' + cfg.bgUrl + '?v=' + Date.now() + '")' : 'none';
+      if (cfg.logoUrl) { logoImg.src = cfg.logoUrl + '?v=' + Date.now(); logoImg.style.display = 'block'; }
+      else logoImg.style.display = 'none';
+    }
+    function build() {
+      for (var i = 0; i < N; i++) {
+        var waveOffset = Math.sin(i/N * Math.PI) * 0.15; // decalage en fraction de DUR
+        var delay = i/N * 0.15 + waveOffset;
+        var col = document.createElement('div'); col.className = 'col';
+        col.style.left = (i*cw)+'px'; col.style.width = (cw+1)+'px';
+        var bg = document.createElement('div'); bg.className = 'col-bg';
+        bg.style.backgroundImage = bgUrl;
+        bg.style.width='1920px'; bg.style.height='1080px';
+        bg.style.left=(-i*cw)+'px';
+        var foam = document.createElement('div'); foam.className = 'col-foam';
+        col.appendChild(bg); col.appendChild(foam);
+        var peakPct = Math.round(30 + delay/DUR*30) + '%';
+        col.style.setProperty('--peak', peakPct);
+        col.style.animation = 'colRise ' + DUR + 's cubic-bezier(.4,0,.2,1) ' + delay + 's forwards';
+        colsEl.appendChild(col);
+      }
+      logoImg.style.animation = 'logoLife ' + DUR + 's ease forwards';
+    }
+    fetch('/api/stinger').then(function(r){return r.json();}).then(function(cfg){ applyConfig(cfg); build(); }).catch(function(){ build(); });
+    var socket = io(); socket.on('stingerConfig', function(){ location.reload(); });
+  </script>
+</body>
+</html>

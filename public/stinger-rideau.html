@@ -1,0 +1,97 @@
+﻿<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Stinger – Rideau</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { width:1920px; height:1080px; overflow:hidden; background:transparent; position:relative; }
+
+    /* Barre de rideau */
+    #rod {
+      position:absolute; top:-12px; left:0; width:1920px; height:14px;
+      background:linear-gradient(to bottom,#5a3a1a,#8a5a2a,#5a3a1a);
+      box-shadow:0 4px 12px rgba(0,0,0,.5);
+      transform:translateY(-100%); z-index:15;
+    }
+    @keyframes rodLife {
+      0%    { transform:translateY(-100%); }
+      12%,88%{ transform:translateY(0); }
+      100%  { transform:translateY(-100%); }
+    }
+
+    .panel {
+      position:absolute; top:0; overflow:hidden;
+      transform:translateY(-110%);
+    }
+    .panel-inner {
+      position:absolute; inset:0;
+      background:linear-gradient(to right, rgba(60,0,0,.0) 0%, rgba(0,0,0,.15) 30%, rgba(0,0,0,.0) 60%, rgba(0,0,0,.1) 100%);
+      pointer-events:none; z-index:2;
+    }
+    .panel-bg {
+      position:absolute; inset:0;
+      background-size:1920px 1080px; background-repeat:no-repeat;
+      background-color:#3a0000;
+    }
+    .panel-edge { position:absolute; right:0; top:0; width:2px; height:100%; background:rgba(180,120,30,.5); }
+    /* Phase1: descend | Phase2: remonte */
+    @keyframes panelDrop {
+      0%           { transform:translateY(-110%); }
+      var(--peak)  { transform:translateY(0); }
+      62%          { transform:translateY(0); }
+      100%         { transform:translateY(-110%); }
+    }
+    #logo-wrap {
+      position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+      z-index:20; pointer-events:none;
+    }
+    #logo-img { max-width:500px; max-height:340px; object-fit:contain; display:none; opacity:0; }
+    @keyframes logoLife {
+      0%,28%   { opacity:0; transform:translateY(-20px); }
+      40%,58%  { opacity:1; transform:translateY(0); filter:drop-shadow(0 0 22px rgba(200,100,30,.9)); }
+      88%,100% { opacity:0; transform:translateY(-20px); }
+    }
+  </style>
+</head>
+<body>
+  <div id="panels"></div>
+  <div id="rod"></div>
+  <div id="logo-wrap"><img id="logo-img" src="" alt="" /></div>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    var panelsEl = document.getElementById('panels');
+    var rodEl    = document.getElementById('rod');
+    var logoImg  = document.getElementById('logo-img');
+    var DUR = 1.9;
+    var N = 8, pw = 1920/N;
+    var bgUrl = 'none';
+
+    function applyConfig(cfg) {
+      bgUrl = cfg.bgUrl ? 'url("' + cfg.bgUrl + '?v=' + Date.now() + '")' : 'none';
+      if (cfg.logoUrl) { logoImg.src = cfg.logoUrl + '?v=' + Date.now(); logoImg.style.display = 'block'; }
+      else logoImg.style.display = 'none';
+    }
+    function build() {
+      rodEl.style.animation = 'rodLife ' + DUR + 's cubic-bezier(.4,0,.2,1) forwards';
+      for (var i = 0; i < N; i++) {
+        var p  = document.createElement('div'); p.className = 'panel';
+        p.style.left = (i*pw)+'px'; p.style.width = pw+'px'; p.style.height = '1080px';
+        var bg = document.createElement('div'); bg.className = 'panel-bg';
+        bg.style.backgroundImage = bgUrl; bg.style.left = (-i*pw)+'px';
+        var inner = document.createElement('div'); inner.className = 'panel-inner';
+        var edge  = document.createElement('div'); edge.className  = 'panel-edge';
+        p.appendChild(bg); p.appendChild(inner); p.appendChild(edge);
+        var delay = i * 0.025;
+        var peakPct = Math.round(25 + delay/DUR*100*0.5)+'%';
+        p.style.setProperty('--peak', peakPct);
+        p.style.animation = 'panelDrop ' + DUR + 's cubic-bezier(.22,1,.36,1) ' + delay + 's forwards';
+        panelsEl.appendChild(p);
+      }
+      logoImg.style.animation = 'logoLife ' + DUR + 's ease forwards';
+    }
+    fetch('/api/stinger').then(function(r){return r.json();}).then(function(cfg){ applyConfig(cfg); build(); }).catch(function(){ build(); });
+    var socket = io(); socket.on('stingerConfig', function(){ location.reload(); });
+  </script>
+</body>
+</html>

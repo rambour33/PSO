@@ -1,0 +1,105 @@
+﻿<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Stinger – Synthwave</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { width:1920px; height:1080px; overflow:hidden; background:transparent; position:relative; }
+
+    #sky {
+      position:absolute; top:0; left:0; width:1920px; height:1080px;
+      background:linear-gradient(to bottom,#0d0019 0%,#1a0040 30%,#2d0060 50%,#4a0080 65%,#8b0090 80%,#a01080 100%);
+      opacity:0;
+    }
+    @keyframes skyLife { 0%{opacity:0} 18%,65%{opacity:1} 100%{opacity:0} }
+
+    #floor {
+      position:absolute; bottom:0; left:0; width:1920px; height:540px;
+      background:linear-gradient(to bottom,#0d0019 0%,#1a0040 40%,#300060 100%);
+      overflow:hidden; opacity:0;
+    }
+    @keyframes floorLife { 0%{opacity:0} 15%,65%{opacity:1} 100%{opacity:0} }
+
+    #sun-wrap {
+      position:absolute; left:50%; bottom:540px;
+      transform:translateX(-50%);
+      width:400px; height:200px; overflow:hidden;
+      border-radius:200px 200px 0 0;
+    }
+    #sun {
+      position:absolute; bottom:0; left:0; width:400px; height:400px; border-radius:50%;
+      background:linear-gradient(to bottom,#ffdf00 0%,#ffdf00 10%,#ff8c00 10%,#ff8c00 22%,#ff5000 22%,#ff5000 36%,#ff3080 36%,#ff3080 52%,#ff00aa 52%,#ff00aa 70%,#cc00cc 70%,#cc00cc 85%,#8800ff 85%);
+      transform:translateY(100%);
+    }
+    @keyframes sunLife { 0%{transform:translateY(100%)} 20%,65%{transform:translateY(0)} 100%{transform:translateY(110%)} }
+
+    #mtn {
+      position:absolute; bottom:540px; left:0; width:1920px; height:240px; opacity:0;
+    }
+    @keyframes mtnLife { 0%{opacity:0} 16%,65%{opacity:1} 100%{opacity:0} }
+
+    #canvas-floor { position:absolute; inset:0; }
+
+    #logo-wrap { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; z-index:20; pointer-events:none; }
+    #logo-img { max-width:500px; max-height:340px; object-fit:contain; display:none; opacity:0; }
+    @keyframes logoLife {
+      0%,22%   { opacity:0; transform:scale(.8) translateY(30px); filter:blur(8px) hue-rotate(60deg) brightness(3); }
+      35%,58%  { opacity:1; transform:scale(1) translateY(0); filter:drop-shadow(0 0 20px rgba(255,0,170,.8)); }
+      88%,100% { opacity:0; transform:scale(.8) translateY(-20px); }
+    }
+  </style>
+</head>
+<body>
+  <div id="sky"></div>
+  <div id="mtn">
+    <svg width="1920" height="240" viewBox="0 0 1920 240">
+      <polygon points="0,240 200,80 400,200 600,40 800,160 1000,20 1200,140 1400,60 1600,180 1800,80 1920,120 1920,240" fill="#1a0040"/>
+      <polygon points="0,240 150,120 300,200 500,100 700,190 900,80 1100,160 1300,90 1500,200 1700,100 1920,160 1920,240" fill="#0d0019"/>
+    </svg>
+  </div>
+  <div id="floor"><canvas id="canvas-floor" width="1920" height="540"></canvas></div>
+  <div id="sun-wrap"><div id="sun"></div></div>
+  <div id="logo-wrap"><img id="logo-img" src="" alt="" /></div>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    var skyEl   = document.getElementById('sky');
+    var mtnEl   = document.getElementById('mtn');
+    var floorEl = document.getElementById('floor');
+    var sunEl   = document.getElementById('sun');
+    var canvas  = document.getElementById('canvas-floor');
+    var ctx     = canvas.getContext('2d');
+    var logoImg = document.getElementById('logo-img');
+    var DUR = 1.9;
+
+    function applyConfig(cfg) {
+      if (cfg.logoUrl) { logoImg.src = cfg.logoUrl + '?v=' + Date.now(); logoImg.style.display = 'block'; }
+      else logoImg.style.display = 'none';
+    }
+    function drawGrid() {
+      var W=1920,H=540,vpx=W/2;
+      ctx.clearRect(0,0,W,H);
+      for(var i=0;i<20;i++){
+        var t=i/19,y=H*Math.pow(t,1.8),a=0.1+t*0.6;
+        ctx.strokeStyle='rgba(255,0,170,'+a+')'; ctx.lineWidth=1+t*2;
+        ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke();
+      }
+      for(var j=0;j<=24;j++){
+        var x=j*(W/24);
+        ctx.strokeStyle='rgba(180,0,255,.5)'; ctx.lineWidth=1;
+        ctx.beginPath(); ctx.moveTo(vpx,0); ctx.lineTo(x,H); ctx.stroke();
+      }
+    }
+    function build() {
+      drawGrid();
+      skyEl.style.animation   = 'skyLife '+DUR+'s ease forwards';
+      mtnEl.style.animation   = 'mtnLife '+DUR+'s ease forwards';
+      floorEl.style.animation = 'floorLife '+DUR+'s ease forwards';
+      sunEl.style.animation   = 'sunLife '+DUR+'s cubic-bezier(.22,1,.36,1) forwards';
+      logoImg.style.animation = 'logoLife '+DUR+'s ease forwards';
+    }
+    fetch('/api/stinger').then(function(r){return r.json();}).then(function(cfg){ applyConfig(cfg); build(); }).catch(function(){ build(); });
+    var socket = io(); socket.on('stingerConfig', function(){ location.reload(); });
+  </script>
+</body>
+</html>

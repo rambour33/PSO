@@ -1,0 +1,116 @@
+﻿<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Stinger – Glitch</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { width:1920px; height:1080px; overflow:hidden; background:transparent; position:relative; }
+
+    /* Calques RGB */
+    .layer {
+      position:absolute; inset:0;
+      background-size:1920px 1080px; background-repeat:no-repeat;
+      background-color:#0a0a14; opacity:0;
+    }
+    /* Phase1 entre | Phase2 sort */
+    @keyframes layerR {
+      0%       { opacity:0; transform:translateX(-120%); }
+      20%      { opacity:.7; }
+      30%,62%  { transform:translateX(6px); opacity:.7; mix-blend-mode:screen; filter:hue-rotate(0deg); }
+      80%      { opacity:.5; transform:translateX(30px); }
+      100%     { opacity:0; transform:translateX(120%); }
+    }
+    @keyframes layerG {
+      0%       { opacity:0; transform:translateX(120%); }
+      20%      { opacity:.7; }
+      30%,62%  { transform:translateX(-6px); opacity:.6; mix-blend-mode:screen; }
+      80%      { opacity:.5; transform:translateX(-30px); }
+      100%     { opacity:0; transform:translateX(-120%); }
+    }
+    @keyframes layerB {
+      0%,18%   { opacity:0; }
+      25%,62%  { opacity:.5; transform:translateY(4px); mix-blend-mode:screen; }
+      85%,100% { opacity:0; transform:translateY(-60px); }
+    }
+    /* Scanlines */
+    #scan {
+      position:absolute; inset:0; pointer-events:none; z-index:5; opacity:0;
+      background:repeating-linear-gradient(to bottom,transparent 0,transparent 3px,rgba(0,0,0,.45) 3px,rgba(0,0,0,.45) 4px);
+    }
+    @keyframes scanLife { 0%,15%{opacity:0} 28%,65%{opacity:1} 88%,100%{opacity:0} }
+    /* Barres de glitch */
+    .gbar { position:absolute; left:0; width:1920px; height:var(--gh); background:var(--gc); opacity:0; }
+    @keyframes gbarLife {
+      0%,calc(var(--gt) - 2%){ opacity:0; transform:translateX(0); }
+      calc(var(--gt)){ opacity:.9; transform:translateX(var(--gx)); }
+      calc(var(--gt) + 6%){ opacity:0; }
+    }
+    /* Flash blanc */
+    #flash { position:absolute; inset:0; background:#fff; opacity:0; pointer-events:none; }
+    @keyframes flashLife {
+      0%,24%{opacity:0} 30%{opacity:.5} 36%{opacity:0}
+      55%{opacity:.2} 60%{opacity:0}
+      88%{opacity:.7} 93%{opacity:0}
+    }
+    #logo-wrap {
+      position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+      z-index:20; pointer-events:none;
+    }
+    #logo-img { max-width:500px; max-height:340px; object-fit:contain; display:none; opacity:0; }
+    @keyframes logoLife {
+      0%,25%   { opacity:0; transform:skewX(-6deg) scale(.9); }
+      38%,58%  { opacity:1; transform:skewX(0) scale(1); filter:drop-shadow(0 0 18px rgba(0,255,200,.7)); }
+      85%,100% { opacity:0; transform:skewX(8deg); }
+    }
+  </style>
+</head>
+<body>
+  <div id="layer-r" class="layer"></div>
+  <div id="layer-g" class="layer"></div>
+  <div id="layer-b" class="layer"></div>
+  <div id="scan"></div>
+  <div id="gbars"></div>
+  <div id="flash"></div>
+  <div id="logo-wrap"><img id="logo-img" src="" alt="" /></div>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    var layerR = document.getElementById('layer-r');
+    var layerG = document.getElementById('layer-g');
+    var layerB = document.getElementById('layer-b');
+    var scanEl = document.getElementById('scan');
+    var gbarsEl= document.getElementById('gbars');
+    var flashEl= document.getElementById('flash');
+    var logoImg= document.getElementById('logo-img');
+    var DUR = 1.9;
+
+    function applyConfig(cfg) {
+      var url = cfg.bgUrl ? 'url("' + cfg.bgUrl + '?v=' + Date.now() + '")' : 'none';
+      layerR.style.backgroundImage = layerG.style.backgroundImage = layerB.style.backgroundImage = url;
+      if (cfg.logoUrl) { logoImg.src = cfg.logoUrl + '?v=' + Date.now(); logoImg.style.display = 'block'; }
+      else logoImg.style.display = 'none';
+    }
+    function build() {
+      layerR.style.animation = 'layerR ' + DUR + 's ease forwards';
+      layerG.style.animation = 'layerG ' + DUR + 's ease forwards';
+      layerB.style.animation = 'layerB ' + DUR + 's ease forwards';
+      scanEl.style.animation = 'scanLife ' + DUR + 's ease forwards';
+      flashEl.style.animation= 'flashLife ' + DUR + 's ease forwards';
+      logoImg.style.animation = 'logoLife ' + DUR + 's ease forwards';
+      // Glitch bars
+      for (var i = 0; i < 12; i++) {
+        var b = document.createElement('div'); b.className = 'gbar';
+        b.style.top = (Math.random()*1050)+'px';
+        b.style.setProperty('--gh', (4+Math.random()*30)+'px');
+        b.style.setProperty('--gc', Math.random()<.5?'rgba(0,255,200,.25)':'rgba(255,0,128,.25)');
+        b.style.setProperty('--gx', ((Math.random()-.5)*80)+'px');
+        b.style.setProperty('--gt', (15+Math.random()*70)+'%');
+        b.style.animation = 'gbarLife ' + DUR + 's ' + (i*.05) + 's forwards';
+        gbarsEl.appendChild(b);
+      }
+    }
+    fetch('/api/stinger').then(function(r){return r.json();}).then(function(cfg){ applyConfig(cfg); build(); }).catch(function(){ build(); });
+    var socket = io(); socket.on('stingerConfig', function(){ location.reload(); });
+  </script>
+</body>
+</html>

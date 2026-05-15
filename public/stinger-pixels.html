@@ -1,0 +1,86 @@
+﻿<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Stinger – Pixels</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { width:1920px; height:1080px; overflow:hidden; background:transparent; position:relative; }
+
+    .cell {
+      position:absolute; overflow:hidden;
+    }
+    .cell-bg {
+      position:absolute;
+      background-size:1920px 1080px; background-repeat:no-repeat;
+      background-color:#0a0a14;
+    }
+    /* Phase1: pop in | Phase2: pop out */
+    @keyframes cellIn {
+      0%           { transform:scale(0) rotate(var(--cr)); opacity:0; }
+      var(--t1)    { transform:scale(1.08) rotate(0deg); opacity:1; }
+      calc(var(--t1) + 5%) { transform:scale(1); opacity:1; }
+      62%          { transform:scale(1); opacity:1; }
+      100%         { transform:scale(0) rotate(calc(var(--cr) * -1)); opacity:0; }
+    }
+    #logo-wrap {
+      position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+      z-index:20; pointer-events:none;
+    }
+    #logo-img { max-width:500px; max-height:340px; object-fit:contain; display:none; opacity:0; }
+    @keyframes logoLife {
+      0%,30%   { opacity:0; transform:scale(.9); }
+      42%,58%  { opacity:1; transform:scale(1); filter:drop-shadow(0 0 22px rgba(255,200,50,.8)); }
+      88%,100% { opacity:0; }
+    }
+  </style>
+</head>
+<body>
+  <div id="cells"></div>
+  <div id="logo-wrap"><img id="logo-img" src="" alt="" /></div>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    var cellsEl = document.getElementById('cells');
+    var logoImg = document.getElementById('logo-img');
+    var DUR = 1.9;
+    var COLS = 12, ROWS = 7;
+    var cw = 1920/COLS, ch = 1080/ROWS;
+    var bgUrl = 'none';
+
+    function applyConfig(cfg) {
+      bgUrl = cfg.bgUrl ? 'url("' + cfg.bgUrl + '?v=' + Date.now() + '")' : 'none';
+      if (cfg.logoUrl) { logoImg.src = cfg.logoUrl + '?v=' + Date.now(); logoImg.style.display = 'block'; }
+      else logoImg.style.display = 'none';
+    }
+    function build() {
+      var indices = [];
+      for (var i = 0; i < COLS*ROWS; i++) indices.push(i);
+      // Shuffle
+      for (var j = indices.length-1; j > 0; j--) {
+        var k = Math.floor(Math.random()*(j+1)); var tmp=indices[j]; indices[j]=indices[k]; indices[k]=tmp;
+      }
+      indices.forEach(function(idx, order) {
+        var c = idx % COLS, r = Math.floor(idx / COLS);
+        var x = c*cw, y = r*ch;
+        var el = document.createElement('div'); el.className = 'cell';
+        el.style.left = x+'px'; el.style.top = y+'px';
+        el.style.width = cw+'px'; el.style.height = ch+'px';
+        var bg = document.createElement('div'); bg.className = 'cell-bg';
+        bg.style.backgroundImage = bgUrl;
+        bg.style.width='1920px'; bg.style.height='1080px';
+        bg.style.left=(-x)+'px'; bg.style.top=(-y)+'px';
+        el.appendChild(bg);
+        var delay = (order / (COLS*ROWS)) * 0.4;
+        var t1pct = Math.round(10 + delay/DUR*100 * 0.7) + '%';
+        el.style.setProperty('--cr', ((Math.random()-.5)*30)+'deg');
+        el.style.setProperty('--t1', t1pct);
+        el.style.animation = 'cellIn ' + DUR + 's ease ' + delay + 's forwards';
+        cellsEl.appendChild(el);
+      });
+      logoImg.style.animation = 'logoLife ' + DUR + 's ease forwards';
+    }
+    fetch('/api/stinger').then(function(r){return r.json();}).then(function(cfg){ applyConfig(cfg); build(); }).catch(function(){ build(); });
+    var socket = io(); socket.on('stingerConfig', function(){ location.reload(); });
+  </script>
+</body>
+</html>

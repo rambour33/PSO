@@ -1,0 +1,108 @@
+﻿<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Stinger – Transparent</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { width:1920px; height:1080px; overflow:hidden; background:transparent; position:relative; }
+
+    .glass-panel {
+      position:absolute;
+      background:rgba(255,255,255,.12);
+      border:1px solid rgba(255,255,255,.5);
+      backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px);
+    }
+    /* Phase1: entre | Phase2: sort côté opposé */
+    @keyframes glassPanelH {
+      0%           { opacity:0; transform:translateX(var(--gsx)); }
+      25%          { opacity:1; }
+      32%,62%      { opacity:.9; transform:translateX(0); }
+      88%,100%     { opacity:0; transform:translateX(var(--gex)); }
+    }
+    @keyframes glassPanelV {
+      0%           { opacity:0; transform:translateY(var(--gsy)); }
+      25%          { opacity:1; }
+      32%,62%      { opacity:.9; transform:translateY(0); }
+      88%,100%     { opacity:0; transform:translateY(var(--gey)); }
+    }
+    /* Anneau de lumière */
+    #light-ring {
+      position:absolute; left:50%; top:50%; border-radius:50%;
+      border:4px solid rgba(255,255,255,.9); width:0; height:0;
+      box-shadow:0 0 30px rgba(200,230,255,.8),inset 0 0 30px rgba(200,230,255,.8);
+      transform:translate(-50%,-50%); pointer-events:none; z-index:15; opacity:0;
+    }
+    @keyframes ringLife { 0%,28%{width:0;height:0;opacity:1} 58%{width:2400px;height:2400px;opacity:0} }
+    /* Prismes */
+    .prism {
+      position:absolute; height:4px; opacity:0;
+      background:linear-gradient(var(--pa),transparent,rgba(180,230,255,.4),rgba(255,180,220,.4),rgba(180,255,200,.4),transparent);
+    }
+    @keyframes prismLife {
+      0%,20%{opacity:0;transform:scaleX(0)} 35%{opacity:.8;transform:scaleX(1)} 62%{opacity:.4} 88%,100%{opacity:0}
+    }
+    #logo-wrap {
+      position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+      z-index:20; pointer-events:none;
+    }
+    #logo-img { max-width:500px; max-height:340px; object-fit:contain; display:none; opacity:0; }
+    @keyframes logoLife {
+      0%,28%   { opacity:0; transform:scale(1.3); filter:blur(10px) brightness(3); }
+      40%,58%  { opacity:1; transform:scale(1); filter:drop-shadow(0 0 16px rgba(200,240,255,.9)); }
+      88%,100% { opacity:0; transform:scale(1.2); filter:blur(8px); }
+    }
+  </style>
+</head>
+<body>
+  <div id="panels"></div>
+  <div id="prisms"></div>
+  <div id="light-ring"></div>
+  <div id="logo-wrap"><img id="logo-img" src="" alt="" /></div>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    var panelsEl = document.getElementById('panels');
+    var prismsEl = document.getElementById('prisms');
+    var ringEl   = document.getElementById('light-ring');
+    var logoImg  = document.getElementById('logo-img');
+    var DUR = 1.9;
+
+    function applyConfig(cfg) {
+      if (cfg.logoUrl) { logoImg.src = cfg.logoUrl + '?v=' + Date.now(); logoImg.style.display = 'block'; }
+      else logoImg.style.display = 'none';
+    }
+    function build() {
+      var defs = [
+        { x:0,   y:0,    w:480, h:1080, sx:'-480px', sy:'0',     ex:'480px',  ey:'0',    kf:'glassPanelH' },
+        { x:480, y:0,    w:480, h:540,  sx:'0',      sy:'-540px', ex:'0',      ey:'540px', kf:'glassPanelV' },
+        { x:480, y:540,  w:480, h:540,  sx:'0',      sy:'540px',  ex:'0',      ey:'-540px',kf:'glassPanelV' },
+        { x:960, y:0,    w:480, h:540,  sx:'0',      sy:'-540px', ex:'0',      ey:'540px', kf:'glassPanelV' },
+        { x:960, y:540,  w:480, h:540,  sx:'0',      sy:'540px',  ex:'0',      ey:'-540px',kf:'glassPanelV' },
+        { x:1440,y:0,    w:480, h:1080, sx:'480px',  sy:'0',      ex:'-480px', ey:'0',    kf:'glassPanelH' },
+      ];
+      defs.forEach(function(d, i) {
+        var el = document.createElement('div'); el.className = 'glass-panel';
+        el.style.left=d.x+'px'; el.style.top=d.y+'px';
+        el.style.width=d.w+'px'; el.style.height=d.h+'px';
+        el.style.setProperty('--gsx', d.sx); el.style.setProperty('--gsy', d.sy);
+        el.style.setProperty('--gex', d.ex); el.style.setProperty('--gey', d.ey);
+        el.style.animation = d.kf+' '+DUR+'s ease '+(i*.04)+'s forwards';
+        panelsEl.appendChild(el);
+      });
+      for (var i = 0; i < 8; i++) {
+        var p = document.createElement('div'); p.className = 'prism';
+        p.style.setProperty('--pa', (20+i*25)+'deg');
+        p.style.left=(Math.random()*1500)+'px'; p.style.top=(Math.random()*900)+'px';
+        p.style.width=(200+Math.random()*400)+'px';
+        p.style.transform='rotate('+(20+i*25)+'deg)';
+        p.style.animation='prismLife '+DUR+'s '+(i*.05)+'s forwards';
+        prismsEl.appendChild(p);
+      }
+      ringEl.style.animation = 'ringLife '+DUR+'s ease forwards';
+      logoImg.style.animation = 'logoLife '+DUR+'s ease forwards';
+    }
+    fetch('/api/stinger').then(function(r){return r.json();}).then(function(cfg){ applyConfig(cfg); build(); }).catch(function(){ build(); });
+    var socket = io(); socket.on('stingerConfig', function(){ location.reload(); });
+  </script>
+</body>
+</html>

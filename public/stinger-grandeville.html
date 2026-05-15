@@ -1,0 +1,130 @@
+﻿<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Stinger – Grande Ville</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { width:1920px; height:1080px; overflow:hidden; background:transparent; position:relative; }
+
+    #city-bg {
+      position:absolute; inset:0;
+      background:linear-gradient(to bottom,#020810 0%,#040e20 40%,#061530 70%,#081a38 100%);
+      opacity:0;
+    }
+    @keyframes bgLife { 0%{opacity:0} 15%,65%{opacity:1} 100%{opacity:0} }
+
+    .building {
+      position:absolute; bottom:0; background:var(--bc);
+    }
+    /* Phase1: monte | Phase2: redescend */
+    @keyframes buildingLife {
+      0%           { transform:translateY(100%); opacity:1; }
+      var(--bp)    { transform:translateY(-2%); opacity:1; }
+      calc(var(--bp) + 4%){ transform:translateY(0); }
+      62%          { transform:translateY(0); opacity:1; }
+      100%         { transform:translateY(110%); opacity:0; }
+    }
+
+    .win { position:absolute; border-radius:1px; opacity:0; }
+    @keyframes winLife { 0%,var(--wd){opacity:0} calc(var(--wd) + 5%),60%{opacity:.9} 90%,100%{opacity:0} }
+
+    .neon { position:absolute; height:3px; border-radius:2px; box-shadow:0 0 8px 3px var(--nc),0 0 20px var(--nc); background:var(--nc); opacity:0; }
+    @keyframes neonLife { 0%,20%{opacity:0} 30%,62%{opacity:.9} 90%,100%{opacity:0} }
+
+    .bokeh { position:absolute; border-radius:50%; background:radial-gradient(circle,var(--bk) 0%,transparent 70%); opacity:0; pointer-events:none; }
+    @keyframes bokehLife { 0%{opacity:0} 30%,62%{opacity:.6} 100%{opacity:0} }
+
+    #logo-wrap { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; z-index:20; pointer-events:none; }
+    #logo-img { max-width:500px; max-height:340px; object-fit:contain; display:none; opacity:0; }
+    @keyframes logoLife {
+      0%,22%   { opacity:0; transform:scale(.85) translateY(15px); filter:blur(4px) brightness(3); }
+      35%,58%  { opacity:1; transform:scale(1); filter:drop-shadow(0 0 20px rgba(0,220,220,.7)); }
+      88%,100% { opacity:0; transform:scale(.85) translateY(-15px); }
+    }
+  </style>
+</head>
+<body>
+  <div id="city-bg"></div>
+  <div id="bokeh-layer"></div>
+  <div id="buildings"></div>
+  <div id="windows"></div>
+  <div id="neons"></div>
+  <div id="logo-wrap"><img id="logo-img" src="" alt="" /></div>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    var bgEl     = document.getElementById('city-bg');
+    var bldEl    = document.getElementById('buildings');
+    var winEl    = document.getElementById('windows');
+    var neonEl   = document.getElementById('neons');
+    var bokehEl  = document.getElementById('bokeh-layer');
+    var logoImg  = document.getElementById('logo-img');
+    var DUR = 1.9;
+
+    function applyConfig(cfg) {
+      if (cfg.logoUrl) { logoImg.src = cfg.logoUrl + '?v=' + Date.now(); logoImg.style.display = 'block'; }
+      else logoImg.style.display = 'none';
+    }
+    function build() {
+      bgEl.style.animation   = 'bgLife '+DUR+'s ease forwards';
+      logoImg.style.animation= 'logoLife '+DUR+'s ease forwards';
+      var buildings = [
+        {x:0,w:120,h:700},{x:100,w:80,h:900},{x:160,w:150,h:750},{x:290,w:100,h:850},
+        {x:370,w:200,h:650},{x:550,w:80,h:950},{x:610,w:130,h:780},{x:720,w:160,h:620},
+        {x:860,w:100,h:870},{x:940,w:200,h:700},{x:1120,w:90,h:920},{x:1190,w:170,h:680},
+        {x:1340,w:130,h:830},{x:1450,w:200,h:600},{x:1630,w:80,h:880},{x:1690,w:150,h:720},{x:1820,w:100,h:810},
+      ];
+      var bColors = ['#0a1020','#0c1428','#080e18','#0a1222','#0c1628','#060c14','#0e1a30'];
+      buildings.forEach(function(b, i) {
+        var el=document.createElement('div'); el.className='building';
+        el.style.left=b.x+'px'; el.style.width=b.w+'px'; el.style.height=b.h+'px';
+        el.style.setProperty('--bc', bColors[i%bColors.length]);
+        var bp=Math.round(18+i*0.8)+'%';
+        el.style.setProperty('--bp', bp);
+        el.style.animation='buildingLife '+DUR+'s cubic-bezier(.22,1,.36,1) '+(i*.025)+'s forwards';
+        bldEl.appendChild(el);
+        // Windows
+        for(var wy=40;wy<b.h-40;wy+=30){
+          for(var wx=10;wx<b.w-10;wx+=20){
+            if(Math.random()>.5){
+              var w=document.createElement('div'); w.className='win';
+              w.style.left=(b.x+wx)+'px'; w.style.bottom=(b.h-wy-14)+'px';
+              w.style.width='8px'; w.style.height='12px';
+              var wc=['rgba(255,220,100,.8)','rgba(150,220,255,.7)','rgba(255,150,50,.6)'];
+              w.style.background=wc[Math.floor(Math.random()*wc.length)];
+              var wd=Math.round(25+Math.random()*20)+'%';
+              w.style.setProperty('--wd',wd);
+              w.style.animation='winLife '+DUR+'s '+(Math.random()*.2)+'s forwards';
+              winEl.appendChild(w);
+            }
+          }
+        }
+      });
+      // Neons
+      var ncols=['rgba(0,220,220,1)','rgba(255,50,150,1)','rgba(100,200,255,1)'];
+      for(var i=0;i<12;i++){
+        var n=document.createElement('div'); n.className='neon';
+        n.style.left=(Math.random()*1700)+'px'; n.style.bottom=(200+Math.random()*700)+'px';
+        n.style.width=(40+Math.random()*120)+'px';
+        n.style.setProperty('--nc',ncols[i%3]);
+        n.style.animation='neonLife '+DUR+'s '+(i*.04)+'s forwards';
+        neonEl.appendChild(n);
+      }
+      // Bokeh
+      var bkcols=['rgba(0,200,255,.5)','rgba(255,50,150,.4)','rgba(255,200,50,.35)'];
+      for(var j=0;j<20;j++){
+        var bk=document.createElement('div'); bk.className='bokeh';
+        var sz=40+Math.random()*180;
+        bk.style.width=sz+'px'; bk.style.height=sz+'px';
+        bk.style.left=(Math.random()*1920)+'px'; bk.style.top=(Math.random()*1080)+'px';
+        bk.style.setProperty('--bk',bkcols[j%3]);
+        bk.style.filter='blur('+(4+Math.random()*20)+'px)';
+        bk.style.animation='bokehLife '+DUR+'s '+(Math.random()*.3)+'s forwards';
+        bokehEl.appendChild(bk);
+      }
+    }
+    fetch('/api/stinger').then(function(r){return r.json();}).then(function(cfg){ applyConfig(cfg); build(); }).catch(function(){ build(); });
+    var socket = io(); socket.on('stingerConfig', function(){ location.reload(); });
+  </script>
+</body>
+</html>

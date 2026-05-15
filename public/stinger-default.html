@@ -1,0 +1,122 @@
+﻿<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Stinger – Default</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { width:1920px; height:1080px; overflow:hidden; background:transparent; position:relative; }
+
+    /* Fond sombre qui apparaît et disparaît */
+    #dark-bg {
+      position:absolute; inset:0; background:#0a0a0a; opacity:0; pointer-events:none;
+    }
+    @keyframes darkLife { 0%{opacity:0} 20%,65%{opacity:1} 100%{opacity:0} }
+
+    .ring {
+      position:absolute; border-radius:50%;
+      border:var(--bw) solid var(--col);
+      left:50%; top:50%; width:0; height:0;
+      transform:translate(-50%,-50%); opacity:0; pointer-events:none;
+    }
+    /* Phase1: expand | Phase2: second wave expands off-screen */
+    @keyframes ringExpand {
+      0%   { width:0; height:0; opacity:var(--op); }
+      55%  { width:var(--size); height:var(--size); opacity:var(--op); }
+      100% { width:var(--size2); height:var(--size2); opacity:0; }
+    }
+    .ray {
+      position:absolute; left:50%; top:50%; height:2px;
+      transform-origin:left center; opacity:0;
+      background:linear-gradient(to right,rgba(255,200,50,.9),transparent);
+    }
+    @keyframes rayLife {
+      0%,18%   { opacity:0; width:0; }
+      30%      { opacity:1; width:var(--rl); }
+      62%      { opacity:.3; }
+      88%,100% { opacity:0; }
+    }
+    #gold-flash {
+      position:absolute; inset:0;
+      background:radial-gradient(ellipse at center,rgba(255,200,50,.6) 0%,transparent 60%);
+      opacity:0; pointer-events:none;
+    }
+    @keyframes flashLife { 0%{opacity:0} 12%{opacity:1} 40%{opacity:.2} 65%{opacity:.1} 100%{opacity:0} }
+    .gold-dot { position:absolute; border-radius:50%; opacity:0; pointer-events:none; }
+    @keyframes goldDot { 0%{opacity:1;transform:translate(0,0)} 100%{opacity:0;transform:translate(var(--gx),var(--gy))} }
+    #logo-wrap {
+      position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+      z-index:20; pointer-events:none;
+    }
+    #logo-img { max-width:500px; max-height:340px; object-fit:contain; display:none; opacity:0; }
+    @keyframes logoLife {
+      0%,18%   { opacity:0; transform:scale(.8); filter:brightness(3); }
+      30%,58%  { opacity:1; transform:scale(1); filter:drop-shadow(0 0 22px rgba(255,200,50,.7)); }
+      88%,100% { opacity:0; transform:scale(.9); filter:brightness(2); }
+    }
+  </style>
+</head>
+<body>
+  <div id="dark-bg"></div>
+  <div id="gold-flash"></div>
+  <div id="rings"></div>
+  <div id="rays"></div>
+  <div id="dots"></div>
+  <div id="logo-wrap"><img id="logo-img" src="" alt="" /></div>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    var darkEl  = document.getElementById('dark-bg');
+    var ringsEl = document.getElementById('rings');
+    var raysEl  = document.getElementById('rays');
+    var dotsEl  = document.getElementById('dots');
+    var flashEl = document.getElementById('gold-flash');
+    var logoImg = document.getElementById('logo-img');
+    var DUR = 1.9;
+
+    function applyConfig(cfg) {
+      if (cfg.logoUrl) { logoImg.src = cfg.logoUrl + '?v=' + Date.now(); logoImg.style.display = 'block'; }
+      else logoImg.style.display = 'none';
+    }
+    function build() {
+      darkEl.style.animation  = 'darkLife '+DUR+'s ease forwards';
+      flashEl.style.animation = 'flashLife '+DUR+'s ease forwards';
+      logoImg.style.animation = 'logoLife '+DUR+'s ease forwards';
+      var defs = [
+        {size:200,  size2:2600, bw:'4px', col:'rgba(255,210,60,1)',   delay:0,   dur:DUR, op:.9 },
+        {size:500,  size2:2800, bw:'3px', col:'rgba(255,200,50,.8)',  delay:.05, dur:DUR, op:.7 },
+        {size:900,  size2:3000, bw:'2px', col:'rgba(255,190,40,.65)', delay:.10, dur:DUR, op:.55},
+        {size:1300, size2:3000, bw:'2px', col:'rgba(255,180,30,.5)',  delay:.15, dur:DUR, op:.4 },
+        {size:1800, size2:3000, bw:'1px', col:'rgba(255,170,20,.35)', delay:.20, dur:DUR, op:.3 },
+      ];
+      defs.forEach(function(d) {
+        var r = document.createElement('div'); r.className = 'ring';
+        r.style.setProperty('--size', d.size+'px'); r.style.setProperty('--size2', d.size2+'px');
+        r.style.setProperty('--bw', d.bw); r.style.setProperty('--col', d.col); r.style.setProperty('--op', d.op);
+        r.style.animation = 'ringExpand '+d.dur+'s cubic-bezier(.2,.6,.3,1) '+d.delay+'s forwards';
+        ringsEl.appendChild(r);
+      });
+      for (var i = 0; i < 16; i++) {
+        var ray = document.createElement('div'); ray.className = 'ray';
+        var len = 300+Math.random()*600;
+        ray.style.setProperty('--rl', len+'px');
+        ray.style.transform = 'rotate('+(i*22.5)+'deg)';
+        ray.style.animation = 'rayLife '+DUR+'s ease '+(i*.015)+'s forwards';
+        raysEl.appendChild(ray);
+      }
+      for (var j = 0; j < 30; j++) {
+        var d2 = document.createElement('div'); d2.className = 'gold-dot';
+        var sz = 3+Math.random()*8;
+        d2.style.width=sz+'px'; d2.style.height=sz+'px';
+        d2.style.background='rgba(255,'+(180+Math.floor(Math.random()*60))+',30,0.9)';
+        d2.style.left=(960+(Math.random()-.5)*60)+'px'; d2.style.top=(540+(Math.random()-.5)*60)+'px';
+        var ang=Math.random()*Math.PI*2, dst=200+Math.random()*600;
+        d2.style.setProperty('--gx',(Math.cos(ang)*dst)+'px'); d2.style.setProperty('--gy',(Math.sin(ang)*dst)+'px');
+        d2.style.animation='goldDot '+(.4+Math.random()*.5)+'s ease-out '+(.02+j*.015)+'s forwards';
+        dotsEl.appendChild(d2);
+      }
+    }
+    fetch('/api/stinger').then(function(r){return r.json();}).then(function(cfg){ applyConfig(cfg); build(); }).catch(function(){ build(); });
+    var socket = io(); socket.on('stingerConfig', function(){ location.reload(); });
+  </script>
+</body>
+</html>

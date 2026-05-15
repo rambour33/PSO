@@ -1,0 +1,110 @@
+﻿<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Stinger – Égypte</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { width:1920px; height:1080px; overflow:hidden; background:transparent; position:relative; }
+
+    #sky {
+      position:absolute; inset:0;
+      background:linear-gradient(to bottom,#0d0700 0%,#2a1400 25%,#4a2200 45%,#8b4000 60%,#c46800 75%,#e88a00 85%,#f0a020 100%);
+      opacity:0;
+    }
+    @keyframes skyLife { 0%{opacity:0} 18%,65%{opacity:1} 100%{opacity:0} }
+
+    .pyramid {
+      position:absolute; bottom:0;
+      clip-path:polygon(50% 0%,100% 100%,0% 100%);
+      transform-origin:bottom center; opacity:0;
+    }
+    @keyframes pyramidLife {
+      0%            { opacity:0; transform:translateY(100%); }
+      var(--pp)     { opacity:1; transform:translateY(-2%); }
+      calc(var(--pp) + 5%){ transform:translateY(0); }
+      62%           { opacity:1; transform:translateY(0); }
+      100%          { opacity:0; transform:translateY(100%); }
+    }
+
+    #sun {
+      position:absolute; right:300px; top:100px; width:160px; height:160px; border-radius:50%;
+      background:radial-gradient(circle,#fff8c0,#ffd700,#ff8c00);
+      box-shadow:0 0 60px #ffd700,0 0 120px rgba(255,165,0,.6); opacity:0;
+    }
+    @keyframes sunLife { 0%{opacity:0;transform:scale(.5)} 20%,65%{opacity:1;transform:scale(1)} 100%{opacity:0;transform:scale(.3)translateY(60px)} }
+
+    #frame-border { position:absolute; inset:0; pointer-events:none; z-index:5; opacity:0; }
+    @keyframes frameLife { 0%,15%{opacity:0} 25%,65%{opacity:1} 100%{opacity:0} }
+
+    .sand-p { position:absolute; border-radius:50%; opacity:0; background:rgba(200,140,40,.7); pointer-events:none; }
+    @keyframes sandFly { 0%{opacity:.8;transform:translate(0,0)} 100%{opacity:0;transform:translate(var(--sdx),var(--sdy))} }
+
+    #logo-wrap { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; z-index:20; pointer-events:none; }
+    #logo-img { max-width:500px; max-height:340px; object-fit:contain; display:none; opacity:0; }
+    @keyframes logoLife {
+      0%,22%   { opacity:0; transform:scale(.7) translateY(20px); filter:sepia(1) brightness(3); }
+      35%,58%  { opacity:1; transform:scale(1); filter:drop-shadow(0 0 24px rgba(255,200,0,.8)); }
+      88%,100% { opacity:0; transform:scale(.7) translateY(-20px); }
+    }
+  </style>
+</head>
+<body>
+  <div id="sky"></div>
+  <div id="pyramids"></div>
+  <div id="sun"></div>
+  <svg id="frame-border" width="1920" height="1080">
+    <rect x="20" y="20" width="1880" height="1040" fill="none" stroke="rgba(255,215,0,.6)" stroke-width="3"/>
+    <rect x="35" y="35" width="1850" height="1010" fill="none" stroke="rgba(255,180,0,.3)" stroke-width="1"/>
+    <path d="M20,20 L80,20 M20,20 L20,80" stroke="rgba(255,215,0,.9)" stroke-width="4" fill="none"/>
+    <path d="M1900,20 L1840,20 M1900,20 L1900,80" stroke="rgba(255,215,0,.9)" stroke-width="4" fill="none"/>
+    <path d="M20,1060 L80,1060 M20,1060 L20,1000" stroke="rgba(255,215,0,.9)" stroke-width="4" fill="none"/>
+    <path d="M1900,1060 L1840,1060 M1900,1060 L1900,1000" stroke="rgba(255,215,0,.9)" stroke-width="4" fill="none"/>
+  </svg>
+  <div id="sand"></div>
+  <div id="logo-wrap"><img id="logo-img" src="" alt="" /></div>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    var skyEl   = document.getElementById('sky');
+    var pyrsEl  = document.getElementById('pyramids');
+    var sunEl   = document.getElementById('sun');
+    var frameEl = document.getElementById('frame-border');
+    var sandEl  = document.getElementById('sand');
+    var logoImg = document.getElementById('logo-img');
+    var DUR = 1.9;
+
+    function applyConfig(cfg) {
+      if (cfg.logoUrl) { logoImg.src = cfg.logoUrl + '?v=' + Date.now(); logoImg.style.display = 'block'; }
+      else logoImg.style.display = 'none';
+    }
+    function build() {
+      skyEl.style.animation   = 'skyLife '+DUR+'s ease forwards';
+      sunEl.style.animation   = 'sunLife '+DUR+'s cubic-bezier(.22,1,.36,1) forwards';
+      frameEl.style.animation = 'frameLife '+DUR+'s forwards';
+      logoImg.style.animation = 'logoLife '+DUR+'s ease forwards';
+      [{cx:300,w:600,h:500,col:'#5a3000',delay:0},{cx:1620,w:500,h:420,col:'#4a2800',delay:.05},{cx:960,w:400,h:340,col:'#6a3800',delay:.1}]
+        .forEach(function(d) {
+          var p=document.createElement('div'); p.className='pyramid';
+          p.style.left=(d.cx-d.w/2)+'px'; p.style.width=d.w+'px'; p.style.height=d.h+'px';
+          p.style.background=d.col;
+          var pp=Math.round(18+d.delay/DUR*100*0.5)+'%';
+          p.style.setProperty('--pp',pp);
+          p.style.animation='pyramidLife '+DUR+'s cubic-bezier(.22,1,.36,1) '+d.delay+'s forwards';
+          pyrsEl.appendChild(p);
+        });
+      for (var i = 0; i < 60; i++) {
+        var p=document.createElement('div'); p.className='sand-p';
+        var sz=2+Math.random()*6; p.style.width=sz+'px'; p.style.height=sz+'px';
+        p.style.left=(Math.random()*1920)+'px'; p.style.top=(600+Math.random()*480)+'px';
+        var ang=-Math.PI/4+(Math.random()-.5)*Math.PI/2, dst=80+Math.random()*300;
+        p.style.setProperty('--sdx',(Math.cos(ang)*dst)+'px');
+        p.style.setProperty('--sdy',-(Math.random()*200)+'px');
+        p.style.animation='sandFly '+(.5+Math.random()*.5)+'s ease-out '+(Math.random()*.3)+'s forwards';
+        sandEl.appendChild(p);
+      }
+    }
+    fetch('/api/stinger').then(function(r){return r.json();}).then(function(cfg){ applyConfig(cfg); build(); }).catch(function(){ build(); });
+    var socket = io(); socket.on('stingerConfig', function(){ location.reload(); });
+  </script>
+</body>
+</html>

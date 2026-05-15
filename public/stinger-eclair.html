@@ -1,0 +1,128 @@
+﻿<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Stinger – Éclair</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { width:1920px; height:1080px; overflow:hidden; background:transparent; position:relative; }
+
+    #bg {
+      position:absolute; inset:0;
+      background-size:1920px 1080px; background-repeat:no-repeat; background-position:center;
+      background-color:#0a0a14; opacity:0;
+    }
+    @keyframes bgLife { 0%,28%{opacity:0} 38%,60%{opacity:1} 88%,100%{opacity:0} }
+
+    #svg { position:absolute; inset:0; z-index:10; pointer-events:none; }
+    .bolt { opacity:0; }
+    @keyframes boltLife {
+      0%,8%  { opacity:0; }
+      12%    { opacity:1; }
+      22%    { opacity:.3; }
+      32%    { opacity:1; }
+      55%    { opacity:.8; }
+      72%    { opacity:0; }
+    }
+
+    #flash {
+      position:absolute; inset:0; z-index:15;
+      background:#fff; opacity:0; pointer-events:none;
+    }
+    @keyframes flashLife {
+      0%,8%  { opacity:0; }
+      12%    { opacity:.7; }
+      25%    { opacity:0; }
+      50%    { opacity:.3; }
+      60%    { opacity:0; }
+      85%,100%{ opacity:0; }
+    }
+
+    .arc-particle {
+      position:absolute; width:4px; height:4px; border-radius:50%;
+      background:#7df; box-shadow:0 0 6px 2px rgba(100,220,255,.8);
+      opacity:0;
+    }
+    @keyframes arcFly {
+      0%   { opacity:1; transform:translate(0,0) scale(1); }
+      100% { opacity:0; transform:translate(var(--dx),var(--dy)) scale(0); }
+    }
+
+    #logo-wrap {
+      position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+      z-index:20; pointer-events:none;
+    }
+    #logo-img { max-width:500px; max-height:340px; object-fit:contain; display:none; opacity:0; }
+    @keyframes logoLife {
+      0%,20%   { opacity:0; transform:scale(.5); filter:blur(8px) brightness(8) hue-rotate(180deg); }
+      35%,58%  { opacity:1; transform:scale(1); filter:drop-shadow(0 0 20px rgba(100,200,255,.8)); }
+      88%,100% { opacity:0; transform:scale(.5); filter:blur(8px); }
+    }
+  </style>
+</head>
+<body>
+  <div id="bg"></div>
+  <svg id="svg" width="1920" height="1080"></svg>
+  <div id="flash"></div>
+  <div id="arcs"></div>
+  <div id="logo-wrap"><img id="logo-img" src="" alt="" /></div>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    var bgEl    = document.getElementById('bg');
+    var svgEl   = document.getElementById('svg');
+    var flashEl = document.getElementById('flash');
+    var arcsEl  = document.getElementById('arcs');
+    var logoImg = document.getElementById('logo-img');
+    var DUR = 1.9;
+
+    function applyConfig(cfg) {
+      bgEl.style.backgroundImage = cfg.bgUrl ? 'url("' + cfg.bgUrl + '?v=' + Date.now() + '")' : 'none';
+      if (cfg.logoUrl) { logoImg.src = cfg.logoUrl + '?v=' + Date.now(); logoImg.style.display = 'block'; }
+      else logoImg.style.display = 'none';
+    }
+    function makeBolt(x1,y1,x2,y2,jitter,color,width) {
+      var pts=[[x1,y1]], steps=12+Math.floor(Math.random()*8);
+      for(var i=1;i<steps;i++){
+        var t=i/steps;
+        pts.push([x1+(x2-x1)*t+(Math.random()-.5)*jitter, y1+(y2-y1)*t+(Math.random()-.5)*jitter]);
+      }
+      pts.push([x2,y2]);
+      var pl=document.createElementNS('http://www.w3.org/2000/svg','polyline');
+      pl.setAttribute('points',pts.map(function(p){return p[0]+','+p[1];}).join(' '));
+      pl.setAttribute('stroke',color||'rgba(150,220,255,.9)');
+      pl.setAttribute('stroke-width',width||2);
+      pl.setAttribute('fill','none'); pl.setAttribute('stroke-linecap','round');
+      pl.classList.add('bolt');
+      return pl;
+    }
+    function addArcs() {
+      for(var i=0;i<20;i++){
+        var p=document.createElement('div'); p.className='arc-particle';
+        p.style.left='960px'; p.style.top='540px';
+        var a=Math.random()*Math.PI*2, d=60+Math.random()*180;
+        p.style.setProperty('--dx',Math.cos(a)*d+'px');
+        p.style.setProperty('--dy',Math.sin(a)*d+'px');
+        p.style.animation='arcFly .5s ease-out '+(i*0.025)+'s forwards';
+        arcsEl.appendChild(p);
+      }
+    }
+    function build() {
+      var b1=makeBolt(960,0,960,540,120,'rgba(200,240,255,1)',3);
+      b1.style.animation='boltLife '+DUR+'s ease forwards';
+      b1.style.filter='blur(.5px) drop-shadow(0 0 8px rgba(100,200,255,.9))';
+      svgEl.appendChild(b1);
+      [[0,0,960,540],[1920,0,960,540],[0,1080,960,540],[1920,1080,960,540]].forEach(function(s,i){
+        var b=makeBolt(s[0],s[1],s[2],s[3],80,'rgba(150,200,255,.7)',1.5);
+        b.style.animation='boltLife '+DUR+'s ease '+(0.05+i*0.06)+'s forwards';
+        b.style.filter='blur(.5px)'; svgEl.appendChild(b);
+      });
+      flashEl.style.animation='flashLife '+DUR+'s ease forwards';
+      bgEl.style.animation='bgLife '+DUR+'s ease forwards';
+      logoImg.style.animation='logoLife '+DUR+'s ease forwards';
+      setTimeout(addArcs, DUR*1000*0.35);
+    }
+    fetch('/api/stinger').then(function(r){return r.json();}).then(function(cfg){ applyConfig(cfg); build(); }).catch(function(){ build(); });
+    var socket = io(); socket.on('stingerConfig', function(){ location.reload(); });
+  </script>
+</body>
+</html>

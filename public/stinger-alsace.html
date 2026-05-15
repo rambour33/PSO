@@ -1,0 +1,109 @@
+﻿<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Stinger – Alsace</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { width:1920px; height:1080px; overflow:hidden; background:transparent; position:relative; }
+
+    .stripe-band {
+      position:absolute; width:200px; height:2200px;
+      top:-600px; left:var(--bx);
+      transform:rotate(-30deg) translateX(-110%);
+      transform-origin:center center;
+      clip-path:none;
+    }
+    /* Phase1: entre depuis la gauche | Phase2: sort par la droite */
+    @keyframes stripeLife {
+      0%           { transform:rotate(-30deg) translateX(-110%); }
+      28%,62%      { transform:rotate(-30deg) translateX(0); }
+      100%         { transform:rotate(-30deg) translateX(110%); }
+    }
+
+    #cross-h, #cross-v {
+      position:absolute; left:50%; top:50%; background:rgba(192,0,0,.4); pointer-events:none; opacity:0;
+    }
+    #cross-h { height:6px; width:0; transform:translate(-50%,-50%); }
+    #cross-v { width:6px; height:0; transform:translate(-50%,-50%); }
+    @keyframes crossH { 0%,15%{opacity:0;width:0} 28%,62%{opacity:.8;width:1920px} 88%,100%{opacity:0} }
+    @keyframes crossV { 0%,15%{opacity:0;height:0} 28%,62%{opacity:.8;height:1080px} 88%,100%{opacity:0} }
+
+    #coat-wrap {
+      position:absolute; left:50%; top:50%;
+      transform:translate(-50%,-50%) scale(0);
+      z-index:10; pointer-events:none; opacity:0;
+    }
+    @keyframes coatLife {
+      0%,25%  { opacity:0; transform:translate(-50%,-50%) scale(0) rotate(-20deg); }
+      38%,58% { opacity:1; transform:translate(-50%,-50%) scale(1) rotate(0deg); }
+      88%,100%{ opacity:0; transform:translate(-50%,-50%) scale(0) rotate(15deg); }
+    }
+
+    .red-p { position:absolute; border-radius:50%; background:rgba(200,0,0,.8); box-shadow:0 0 6px rgba(255,50,0,.6); opacity:0; pointer-events:none; }
+    @keyframes redP { 0%{opacity:1;transform:translate(0,0) scale(1)} 100%{opacity:0;transform:translate(var(--rpx),var(--rpy)) scale(0)} }
+
+    #logo-wrap { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; z-index:20; pointer-events:none; }
+    #logo-img { max-width:500px; max-height:340px; object-fit:contain; display:none; opacity:0; }
+    @keyframes logoLife {
+      0%,25%   { opacity:0; transform:scale(.7); filter:blur(6px) sepia(1) brightness(3); }
+      38%,58%  { opacity:1; transform:scale(1); filter:drop-shadow(0 0 24px rgba(192,0,0,.8)); }
+      88%,100% { opacity:0; transform:scale(.7); }
+    }
+  </style>
+</head>
+<body>
+  <div id="stripes"></div>
+  <div id="cross-h"></div>
+  <div id="cross-v"></div>
+  <div id="coat-wrap">
+    <svg width="200" height="260" viewBox="0 0 200 260">
+      <path d="M100 10 L190 40 L190 180 Q190 240 100 260 Q10 240 10 180 L10 40 Z" fill="#c00000" stroke="rgba(255,215,0,.8)" stroke-width="3"/>
+      <polygon points="100,80 108,104 134,104 114,119 121,143 100,128 79,143 86,119 66,104 92,104" fill="rgba(255,215,0,.9)"/>
+      <line x1="10" y1="140" x2="190" y2="140" stroke="rgba(255,215,0,.4)" stroke-width="2"/>
+    </svg>
+  </div>
+  <div id="particles"></div>
+  <div id="logo-wrap"><img id="logo-img" src="" alt="" /></div>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    var stripesEl = document.getElementById('stripes');
+    var crossH    = document.getElementById('cross-h');
+    var crossV    = document.getElementById('cross-v');
+    var coatEl    = document.getElementById('coat-wrap');
+    var particlesEl = document.getElementById('particles');
+    var logoImg   = document.getElementById('logo-img');
+    var DUR = 1.9;
+
+    function applyConfig(cfg) {
+      if (cfg.logoUrl) { logoImg.src = cfg.logoUrl + '?v=' + Date.now(); logoImg.style.display = 'block'; }
+      else logoImg.style.display = 'none';
+    }
+    function build() {
+      crossH.style.animation  = 'crossH '+DUR+'s forwards';
+      crossV.style.animation  = 'crossV '+DUR+'s forwards';
+      coatEl.style.animation  = 'coatLife '+DUR+'s ease forwards';
+      logoImg.style.animation = 'logoLife '+DUR+'s ease forwards';
+      var spacing = 120, count = Math.ceil(2200/spacing)+4;
+      for (var i = 0; i < count; i++) {
+        var s = document.createElement('div'); s.className = 'stripe-band';
+        s.style.background = i%2===0 ? '#c00000' : '#ffffff';
+        s.style.setProperty('--bx', (i*spacing-400)+'px');
+        s.style.animation = 'stripeLife '+DUR+'s cubic-bezier(.22,1,.36,1) '+(i*.025)+'s forwards';
+        stripesEl.appendChild(s);
+      }
+      for (var j = 0; j < 40; j++) {
+        var p = document.createElement('div'); p.className = 'red-p';
+        var sz = 3+Math.random()*8; p.style.width=sz+'px'; p.style.height=sz+'px';
+        p.style.left=(900+(Math.random()-.5)*120)+'px'; p.style.top=(490+(Math.random()-.5)*120)+'px';
+        var ang=Math.random()*Math.PI*2, dst=200+Math.random()*600;
+        p.style.setProperty('--rpx',(Math.cos(ang)*dst)+'px'); p.style.setProperty('--rpy',(Math.sin(ang)*dst)+'px');
+        p.style.animation='redP .6s ease-out '+(.55+j*.015)+'s forwards';
+        particlesEl.appendChild(p);
+      }
+    }
+    fetch('/api/stinger').then(function(r){return r.json();}).then(function(cfg){ applyConfig(cfg); build(); }).catch(function(){ build(); });
+    var socket = io(); socket.on('stingerConfig', function(){ location.reload(); });
+  </script>
+</body>
+</html>

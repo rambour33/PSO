@@ -1,0 +1,128 @@
+﻿<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Stinger – Brisure</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { width:1920px; height:1080px; overflow:hidden; background:transparent; position:relative; }
+
+    .shard {
+      position:absolute; overflow:hidden;
+    }
+    .shard-bg {
+      position:absolute;
+      background-size:1920px 1080px; background-repeat:no-repeat;
+      background-color:#0a0a14;
+    }
+    .shard::after {
+      content:''; position:absolute; inset:0;
+      border:1px solid rgba(200,230,255,.25); pointer-events:none;
+    }
+    /* Phase1: entre vers centre | Phase2: repart vers extérieur */
+    @keyframes shardIn {
+      0%           { transform:translate(var(--tx),var(--ty)) rotate(var(--tr)) scale(0.3); opacity:0; }
+      28%          { opacity:1; }
+      32%,62%      { transform:translate(0,0) rotate(0deg) scale(1); opacity:1; }
+      100%         { transform:translate(calc(var(--tx)*1.5),calc(var(--ty)*1.5)) rotate(calc(var(--tr)*-1)) scale(0.2); opacity:0; }
+    }
+    /* Lignes de fissures */
+    #cracks { position:absolute; inset:0; z-index:5; pointer-events:none; opacity:0; }
+    @keyframes crackLife { 0%,28%{opacity:0} 35%,60%{opacity:1} 88%,100%{opacity:0} }
+    /* Anneau d'impact */
+    #impact {
+      position:absolute; left:50%; top:50%; border-radius:50%;
+      border:6px solid rgba(180,220,255,.9);
+      width:0; height:0; transform:translate(-50%,-50%);
+      pointer-events:none; z-index:25; opacity:0;
+    }
+    @keyframes impactLife {
+      0%,28%{ width:0;height:0;opacity:1;border-width:10px; }
+      55%   { width:2400px;height:2400px;opacity:0;border-width:1px; }
+    }
+    #logo-wrap {
+      position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+      z-index:20; pointer-events:none;
+    }
+    #logo-img { max-width:500px; max-height:340px; object-fit:contain; display:none; opacity:0; }
+    @keyframes logoLife {
+      0%,28%   { opacity:0; transform:scale(0); filter:blur(20px) brightness(5); }
+      40%,58%  { opacity:1; transform:scale(1); filter:drop-shadow(0 0 24px rgba(180,220,255,.9)); }
+      88%,100% { opacity:0; transform:scale(0); filter:blur(10px); }
+    }
+  </style>
+</head>
+<body>
+  <div id="shards"></div>
+  <svg id="cracks" width="1920" height="1080"><g stroke="rgba(150,210,255,0.5)" stroke-width="1.5" fill="none" id="crack-lines"></g></svg>
+  <div id="impact"></div>
+  <div id="logo-wrap"><img id="logo-img" src="" alt="" /></div>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    var shardsEl = document.getElementById('shards');
+    var cracksEl = document.getElementById('cracks');
+    var crackG   = document.getElementById('crack-lines');
+    var impactEl = document.getElementById('impact');
+    var logoImg  = document.getElementById('logo-img');
+    var DUR = 1.9;
+    var bgUrl = 'none';
+
+    function applyConfig(cfg) {
+      bgUrl = cfg.bgUrl ? 'url("' + cfg.bgUrl + '?v=' + Date.now() + '")' : 'none';
+      if (cfg.logoUrl) { logoImg.src = cfg.logoUrl + '?v=' + Date.now(); logoImg.style.display = 'block'; }
+      else logoImg.style.display = 'none';
+    }
+    function build() {
+      // Points
+      var pts = [[960,540]];
+      for (var i = 0; i < 18; i++) {
+        var a = i*(360/18)*Math.PI/180, r = 700+Math.random()*200;
+        pts.push([960+Math.cos(a)*r, 540+Math.sin(a)*r]);
+      }
+      pts.push([0,0],[1920,0],[1920,1080],[0,1080],[960,0],[1920,540],[960,1080],[0,540]);
+      for (var j=0;j<20;j++) pts.push([Math.random()*1920,Math.random()*1080]);
+
+      var triangles = [];
+      for (var k=1;k<pts.length-1;k++) triangles.push([pts[0],pts[k],pts[k+1]||pts[1]]);
+      triangles = triangles.filter(function(t){
+        var area=Math.abs((t[1][0]-t[0][0])*(t[2][1]-t[0][1])-(t[2][0]-t[0][0])*(t[1][1]-t[0][1]))/2;
+        return area>200 && area<80000;
+      });
+
+      triangles.forEach(function(tri,idx){
+        var minX=Math.min(tri[0][0],tri[1][0],tri[2][0]);
+        var minY=Math.min(tri[0][1],tri[1][1],tri[2][1]);
+        var maxX=Math.max(tri[0][0],tri[1][0],tri[2][0]);
+        var maxY=Math.max(tri[0][1],tri[1][1],tri[2][1]);
+        var w=maxX-minX, h=maxY-minY;
+        if(w<2||h<2) return;
+        var div=document.createElement('div'); div.className='shard';
+        div.style.left=minX+'px'; div.style.top=minY+'px';
+        div.style.width=w+'px'; div.style.height=h+'px';
+        div.style.clipPath='polygon('+tri.map(function(p){return ((p[0]-minX)/w*100).toFixed(1)+'% '+((p[1]-minY)/h*100).toFixed(1)+'%';}).join(',')+')';
+        var bg=document.createElement('div'); bg.className='shard-bg';
+        bg.style.backgroundImage=bgUrl;
+        bg.style.width='1920px'; bg.style.height='1080px';
+        bg.style.left=(-minX)+'px'; bg.style.top=(-minY)+'px';
+        div.appendChild(bg); shardsEl.appendChild(div);
+        var cx=(minX+maxX)/2, cy=(minY+maxY)/2;
+        var dx=(cx-960)*2.2, dy=(cy-540)*2.2;
+        var rot=((Math.random()-.5)*180)+'deg';
+        div.style.setProperty('--tx',dx+'px'); div.style.setProperty('--ty',dy+'px'); div.style.setProperty('--tr',rot);
+        var delay=idx*0.005;
+        div.style.animation='shardIn '+DUR+'s cubic-bezier(.4,0,.2,1) '+delay+'s forwards';
+        // Crack
+        var line=document.createElementNS('http://www.w3.org/2000/svg','line');
+        line.setAttribute('x1',tri[0][0]); line.setAttribute('y1',tri[0][1]);
+        line.setAttribute('x2',tri[1][0]); line.setAttribute('y2',tri[1][1]);
+        crackG.appendChild(line);
+      });
+      cracksEl.style.animation = 'crackLife '+DUR+'s forwards';
+      impactEl.style.animation = 'impactLife '+DUR+'s forwards';
+      logoImg.style.animation  = 'logoLife '+DUR+'s ease forwards';
+    }
+    fetch('/api/stinger').then(function(r){return r.json();}).then(function(cfg){ applyConfig(cfg); build(); }).catch(function(){ build(); });
+    var socket = io(); socket.on('stingerConfig', function(){ location.reload(); });
+  </script>
+</body>
+</html>

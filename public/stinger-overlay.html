@@ -1,0 +1,70 @@
+﻿<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Bonus Overlay</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { width: 1920px; height: 1080px; overflow: hidden; background: transparent; position: relative; }
+
+    #bg-layer {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+    }
+
+    #logo-layer {
+      position: absolute;
+      inset: 0;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+    }
+
+    #logo-img {
+      max-width: 400px;
+      max-height: 400px;
+      object-fit: contain;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div id="bg-layer"></div>
+  <div id="logo-layer">
+    <img id="logo-img" src="" alt="" />
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const bgLayer = document.getElementById('bg-layer');
+    const logoImg = document.getElementById('logo-img');
+
+    function bust(url) { return url + '?v=' + Date.now(); }
+
+    function applyConfig(cfg) {
+      if (cfg.bgUrl) {
+        bgLayer.style.backgroundImage = `url('${bust(cfg.bgUrl)}')`;
+      } else {
+        bgLayer.style.backgroundImage = 'none';
+      }
+      if (cfg.logoUrl) {
+        logoImg.src = bust(cfg.logoUrl);
+        logoImg.style.display = 'block';
+      } else {
+        logoImg.src = '';
+        logoImg.style.display = 'none';
+      }
+    }
+
+    const socket = io();
+    socket.on('stingerConfig', applyConfig);
+    fetch('/api/stinger').then(r => r.json()).then(applyConfig).catch(() => {});
+  </script>
+</body>
+</html>

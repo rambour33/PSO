@@ -1,0 +1,117 @@
+﻿<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Stinger – Midnight</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { width:1920px; height:1080px; overflow:hidden; background:transparent; position:relative; }
+
+    #night {
+      position:absolute; inset:0;
+      background:radial-gradient(ellipse at 30% 20%,#001040 0%,#000820 40%,#000510 100%);
+      opacity:0;
+    }
+    @keyframes nightLife { 0%{opacity:0} 18%,65%{opacity:1} 100%{opacity:0} }
+
+    .star { position:absolute; border-radius:50%; opacity:0; }
+    @keyframes starLife { 0%,10%{opacity:0} 30%,62%{opacity:var(--brt)} 100%{opacity:0} }
+
+    #moon {
+      position:absolute; left:300px; top:120px; width:120px; height:120px; border-radius:50%;
+      background:#d4e8ff;
+      box-shadow:0 0 40px rgba(180,220,255,.8),0 0 80px rgba(100,160,255,.4);
+      opacity:0;
+    }
+    #moon::after {
+      content:''; position:absolute; top:-10px; left:25px; width:120px; height:120px;
+      border-radius:50%; background:#000510;
+    }
+    @keyframes moonLife { 0%{opacity:0;transform:translateY(40px)} 20%,62%{opacity:1;transform:translateY(0)} 100%{opacity:0;transform:translateY(-60px)} }
+
+    .aurora { position:absolute; top:0; left:0; height:500px; opacity:0; pointer-events:none; }
+    @keyframes auroraLife { 0%{opacity:0} 25%,58%{opacity:.4} 100%{opacity:0} }
+
+    #halo {
+      position:absolute; left:50%; top:50%; border-radius:50%;
+      transform:translate(-50%,-50%) scaleY(.3);
+      width:0; height:0;
+      background:radial-gradient(ellipse,rgba(100,160,255,.15) 0%,transparent 70%);
+      pointer-events:none; z-index:5;
+    }
+    @keyframes haloLife { 0%,28%{width:0;height:0;opacity:1} 55%{width:2000px;height:2000px;opacity:0} }
+
+    .shoot { position:absolute; height:2px; width:0; border-radius:2px; background:linear-gradient(to right,rgba(255,255,255,0),rgba(180,220,255,1),rgba(255,255,255,0)); opacity:0; }
+    @keyframes shootLife { 0%{opacity:0;width:0} 10%{opacity:1} 80%{opacity:1;width:var(--sl)} 100%{opacity:0} }
+
+    #logo-wrap { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; z-index:20; pointer-events:none; }
+    #logo-img { max-width:500px; max-height:340px; object-fit:contain; display:none; opacity:0; }
+    @keyframes logoLife {
+      0%,22%   { opacity:0; transform:translateY(20px) scale(.9); filter:blur(6px) brightness(4); }
+      35%,58%  { opacity:1; transform:translateY(0) scale(1); filter:drop-shadow(0 0 24px rgba(100,180,255,.9)); }
+      88%,100% { opacity:0; transform:translateY(-20px); }
+    }
+  </style>
+</head>
+<body>
+  <div id="night"></div>
+  <div id="moon"></div>
+  <div id="auroras"></div>
+  <div id="stars"></div>
+  <div id="shoots"></div>
+  <div id="halo"></div>
+  <div id="logo-wrap"><img id="logo-img" src="" alt="" /></div>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    var nightEl  = document.getElementById('night');
+    var moonEl   = document.getElementById('moon');
+    var starsEl  = document.getElementById('stars');
+    var shootsEl = document.getElementById('shoots');
+    var auroraEl = document.getElementById('auroras');
+    var haloEl   = document.getElementById('halo');
+    var logoImg  = document.getElementById('logo-img');
+    var DUR = 1.9;
+
+    function applyConfig(cfg) {
+      if (cfg.logoUrl) { logoImg.src = cfg.logoUrl + '?v=' + Date.now(); logoImg.style.display = 'block'; }
+      else logoImg.style.display = 'none';
+    }
+    function build() {
+      nightEl.style.animation = 'nightLife '+DUR+'s ease forwards';
+      moonEl.style.animation  = 'moonLife '+DUR+'s cubic-bezier(.22,1,.36,1) forwards';
+      haloEl.style.animation  = 'haloLife '+DUR+'s ease forwards';
+      logoImg.style.animation = 'logoLife '+DUR+'s ease forwards';
+      // Stars
+      for (var i = 0; i < 120; i++) {
+        var s = document.createElement('div'); s.className = 'star';
+        var sz = .5+Math.random()*2.5;
+        s.style.width=sz+'px'; s.style.height=sz+'px';
+        s.style.left=(Math.random()*1920)+'px'; s.style.top=(Math.random()*700)+'px';
+        s.style.background='#fff';
+        s.style.setProperty('--brt', 0.3+Math.random()*0.7);
+        s.style.animation='starLife '+DUR+'s '+(Math.random()*.3)+'s forwards';
+        starsEl.appendChild(s);
+      }
+      // Shooting stars
+      for (var j = 0; j < 8; j++) {
+        var sh = document.createElement('div'); sh.className = 'shoot';
+        sh.style.left=(Math.random()*1500)+'px'; sh.style.top=(Math.random()*500)+'px';
+        sh.style.transform='rotate(-25deg)';
+        sh.style.setProperty('--sl',(150+Math.random()*300)+'px');
+        sh.style.animation='shootLife .5s '+(j*.07)+'s forwards';
+        shootsEl.appendChild(sh);
+      }
+      // Auroras
+      ['rgba(0,200,120,.2)','rgba(0,150,255,.18)','rgba(100,0,255,.14)'].forEach(function(c,i){
+        var a=document.createElement('div'); a.className='aurora';
+        a.style.background='linear-gradient(to bottom,transparent,'+c+',transparent)';
+        a.style.left=(i*500)+'px'; a.style.width='700px';
+        a.style.animation='auroraLife '+DUR+'s '+(i*.1)+'s forwards';
+        auroraEl.appendChild(a);
+      });
+    }
+    fetch('/api/stinger').then(function(r){return r.json();}).then(function(cfg){ applyConfig(cfg); build(); }).catch(function(){ build(); });
+    var socket = io(); socket.on('stingerConfig', function(){ location.reload(); });
+  </script>
+</body>
+</html>

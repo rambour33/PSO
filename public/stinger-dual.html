@@ -1,0 +1,105 @@
+﻿<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Stinger – Dual</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { width:1920px; height:1080px; overflow:hidden; background:transparent; position:relative; }
+
+    #fill-left {
+      position:absolute; top:0; left:0; width:960px; height:1080px;
+      background:linear-gradient(135deg,#6b0000,#c0392b,#e74c3c);
+    }
+    #fill-right {
+      position:absolute; top:0; right:0; width:960px; height:1080px;
+      background:linear-gradient(225deg,#002255,#2471a3,#3498db);
+    }
+    /* Phase1: entre depuis les côtés | Phase2: repart aux côtés */
+    @keyframes slideLeft {
+      0%       { transform:translateX(-960px); }
+      32%,62%  { transform:translateX(0); }
+      100%     { transform:translateX(-960px); }
+    }
+    @keyframes slideRight {
+      0%       { transform:translateX(960px); }
+      32%,62%  { transform:translateX(0); }
+      100%     { transform:translateX(960px); }
+    }
+    /* Ligne de choc */
+    #seam {
+      position:absolute; left:957px; top:0; width:6px; height:1080px;
+      background:linear-gradient(to bottom,transparent,#fff,#fff,transparent);
+      opacity:0; z-index:10; pointer-events:none;
+    }
+    @keyframes seamLife { 0%,30%{opacity:0} 32%{opacity:1} 40%{opacity:0} 60%{opacity:.5} 70%,100%{opacity:0} }
+    /* Impact flash */
+    #impact {
+      position:absolute; left:50%; top:0; width:0; height:1080px;
+      background:radial-gradient(ellipse at center,rgba(255,255,255,.8) 0%,transparent 70%);
+      transform:translateX(-50%); opacity:0; z-index:9; pointer-events:none;
+    }
+    @keyframes impactLife { 0%,30%{opacity:0;width:0} 33%{opacity:1;width:400px} 44%{opacity:0;width:600px} }
+    .spark { position:absolute; border-radius:50%; opacity:0; pointer-events:none; z-index:11; }
+    @keyframes sparkFly { 0%{opacity:1;transform:translate(0,0) scale(1)} 100%{opacity:0;transform:translate(var(--sx),var(--sy)) scale(0)} }
+    #logo-wrap {
+      position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+      z-index:20; pointer-events:none;
+    }
+    #logo-img { max-width:500px; max-height:340px; object-fit:contain; display:none; opacity:0; }
+    @keyframes logoLife {
+      0%,28%   { opacity:0; transform:scale(.7) translateY(20px); }
+      40%,58%  { opacity:1; transform:scale(1); filter:drop-shadow(0 0 24px rgba(255,200,100,.6)); }
+      88%,100% { opacity:0; transform:scale(.7); }
+    }
+  </style>
+</head>
+<body>
+  <div id="fill-left"></div>
+  <div id="fill-right"></div>
+  <div id="seam"></div>
+  <div id="impact"></div>
+  <div id="sparks"></div>
+  <div id="logo-wrap"><img id="logo-img" src="" alt="" /></div>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    var fillL   = document.getElementById('fill-left');
+    var fillR   = document.getElementById('fill-right');
+    var seamEl  = document.getElementById('seam');
+    var impactEl= document.getElementById('impact');
+    var sparksEl= document.getElementById('sparks');
+    var logoImg = document.getElementById('logo-img');
+    var DUR = 1.9;
+
+    function applyConfig(cfg) {
+      if (cfg.logoUrl) { logoImg.src = cfg.logoUrl + '?v=' + Date.now(); logoImg.style.display = 'block'; }
+      else logoImg.style.display = 'none';
+    }
+    function addSparks() {
+      for (var i = 0; i < 35; i++) {
+        var p = document.createElement('div'); p.className = 'spark';
+        var sz = 3 + Math.random() * 6;
+        p.style.width = sz+'px'; p.style.height = sz+'px';
+        p.style.left = (940+Math.random()*40)+'px'; p.style.top = (100+Math.random()*880)+'px';
+        var isLeft = Math.random() < .5;
+        var a = (isLeft?200:-20) + (Math.random()-.5)*140, d = 100+Math.random()*350;
+        p.style.setProperty('--sx',(Math.cos(a*Math.PI/180)*d)+'px');
+        p.style.setProperty('--sy',(Math.sin(a*Math.PI/180)*d)+'px');
+        p.style.background = isLeft ? '#e74c3c' : '#3498db';
+        p.style.animation = 'sparkFly '+(.3+Math.random()*.5)+'s ease-out '+(Math.random()*.04)+'s forwards';
+        sparksEl.appendChild(p);
+      }
+    }
+    function build() {
+      fillL.style.animation   = 'slideLeft '+DUR+'s cubic-bezier(.22,1,.36,1) forwards';
+      fillR.style.animation   = 'slideRight '+DUR+'s cubic-bezier(.22,1,.36,1) forwards';
+      seamEl.style.animation  = 'seamLife '+DUR+'s forwards';
+      impactEl.style.animation= 'impactLife '+DUR+'s forwards';
+      logoImg.style.animation = 'logoLife '+DUR+'s ease forwards';
+      setTimeout(addSparks, DUR*1000*0.33);
+    }
+    fetch('/api/stinger').then(function(r){return r.json();}).then(function(cfg){ applyConfig(cfg); build(); }).catch(function(){ build(); });
+    var socket = io(); socket.on('stingerConfig', function(){ location.reload(); });
+  </script>
+</body>
+</html>

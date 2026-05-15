@@ -1,0 +1,124 @@
+﻿<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Stinger – Plage</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { width:1920px; height:1080px; overflow:hidden; background:transparent; position:relative; }
+
+    #beach-sky {
+      position:absolute; top:0; left:0; width:1920px; height:650px;
+      background:linear-gradient(to bottom,#001830 0%,#003060 20%,#0055a0 45%,#0080c8 65%,#40b0e0 80%,#80d0f0 90%,#b0e8ff 100%);
+      opacity:0;
+    }
+    @keyframes skyLife { 0%{opacity:0} 16%,65%{opacity:1} 100%{opacity:0} }
+
+    #sun {
+      position:absolute; right:350px; top:120px; width:180px; height:180px; border-radius:50%;
+      background:radial-gradient(circle,#fff8c0 0%,#ffe040 40%,#ffa000 70%,#ff6000 100%);
+      box-shadow:0 0 60px rgba(255,200,50,1),0 0 120px rgba(255,150,0,.8); opacity:0;
+    }
+    @keyframes sunLife { 0%{opacity:0;transform:scale(.4)} 18%,65%{opacity:1;transform:scale(1)} 100%{opacity:0;transform:scale(.2)translateY(80px)} }
+
+    #sand {
+      position:absolute; bottom:0; left:0; width:1920px; height:380px;
+      background:linear-gradient(to bottom,#e8c060 0%,#d4a840 20%,#c09030 50%,#a87020 100%);
+    }
+    /* Phase1: monte | Phase2: redescend */
+    @keyframes sandLife {
+      0%           { transform:translateY(100%); }
+      25%,62%      { transform:translateY(0); }
+      100%         { transform:translateY(110%); }
+    }
+
+    .wave {
+      position:absolute; left:-200px; width:2320px; height:var(--wh);
+      border-radius:var(--wh) var(--wh) 0 0; background:var(--wc);
+      bottom:380px;
+    }
+    /* Phase1: monte | Phase2: recule */
+    @keyframes waveLife {
+      0%             { transform:translateY(100%); }
+      var(--wpeak)   { transform:translateY(var(--wp)); }
+      62%            { transform:translateY(var(--wp2)); }
+      100%           { transform:translateY(150%); }
+    }
+
+    .foam { position:absolute; height:6px; border-radius:3px; background:rgba(255,255,255,.8); opacity:0; }
+    @keyframes foamLife { 0%,25%{opacity:0;transform:scaleX(0)} 38%,58%{opacity:.8;transform:scaleX(1)} 80%,100%{opacity:0} }
+
+    .droplet { position:absolute; border-radius:50%; background:rgba(180,230,255,.7); box-shadow:0 0 4px rgba(100,200,255,.5); opacity:0; }
+    @keyframes dropletFly { 0%{opacity:1;transform:translate(0,0) scale(1)} 100%{opacity:0;transform:translate(var(--ddx),var(--ddy)) scale(0)} }
+
+    #logo-wrap { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; z-index:20; pointer-events:none; }
+    #logo-img { max-width:500px; max-height:340px; object-fit:contain; display:none; opacity:0; }
+    @keyframes logoLife {
+      0%,22%   { opacity:0; transform:scale(.8) translateY(20px); filter:blur(8px) brightness(4); }
+      35%,58%  { opacity:1; transform:scale(1); filter:drop-shadow(0 0 20px rgba(255,200,50,.8)); }
+      88%,100% { opacity:0; transform:scale(.8) translateY(-20px); }
+    }
+  </style>
+</head>
+<body>
+  <div id="beach-sky"></div>
+  <div id="sun"></div>
+  <div id="waves"></div>
+  <div id="sand"></div>
+  <div id="foam-layer"></div>
+  <div id="droplets"></div>
+  <div id="logo-wrap"><img id="logo-img" src="" alt="" /></div>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    var skyEl   = document.getElementById('beach-sky');
+    var sunEl   = document.getElementById('sun');
+    var wavesEl = document.getElementById('waves');
+    var sandEl  = document.getElementById('sand');
+    var foamEl  = document.getElementById('foam-layer');
+    var dropsEl = document.getElementById('droplets');
+    var logoImg = document.getElementById('logo-img');
+    var DUR = 1.9;
+
+    function applyConfig(cfg) {
+      if (cfg.logoUrl) { logoImg.src = cfg.logoUrl + '?v=' + Date.now(); logoImg.style.display = 'block'; }
+      else logoImg.style.display = 'none';
+    }
+    function build() {
+      skyEl.style.animation  = 'skyLife '+DUR+'s ease forwards';
+      sunEl.style.animation  = 'sunLife '+DUR+'s cubic-bezier(.22,1,.36,1) forwards';
+      sandEl.style.animation = 'sandLife '+DUR+'s cubic-bezier(.22,1,.36,1) forwards';
+      logoImg.style.animation= 'logoLife '+DUR+'s ease forwards';
+      [{h:220,col:'rgba(0,140,200,.9)',  wp:'-55%',wp2:'-15%',wpeak:'28%',delay:0},
+       {h:160,col:'rgba(0,180,230,.8)',  wp:'-35%',wp2:'15%', wpeak:'30%',delay:.08},
+       {h:100,col:'rgba(100,210,240,.7)',wp:'-15%',wp2:'55%', wpeak:'32%',delay:.14},
+       {h:60, col:'rgba(180,240,255,.6)',wp:'-8%', wp2:'75%', wpeak:'33%',delay:.19}]
+        .forEach(function(d) {
+          var w=document.createElement('div'); w.className='wave';
+          w.style.setProperty('--wh',d.h+'px'); w.style.setProperty('--wc',d.col);
+          w.style.setProperty('--wp',d.wp); w.style.setProperty('--wp2',d.wp2);
+          w.style.setProperty('--wpeak',d.wpeak);
+          w.style.animation='waveLife '+DUR+'s cubic-bezier(.22,1,.36,1) '+d.delay+'s forwards';
+          wavesEl.appendChild(w);
+        });
+      for(var i=0;i<16;i++){
+        var f=document.createElement('div'); f.className='foam';
+        f.style.left=(Math.random()*1800)+'px'; f.style.bottom=(380+Math.random()*200)+'px';
+        f.style.width=(60+Math.random()*200)+'px';
+        f.style.animation='foamLife '+DUR+'s '+(i*.025)+'s forwards';
+        foamEl.appendChild(f);
+      }
+      for(var j=0;j<25;j++){
+        var d=document.createElement('div'); d.className='droplet';
+        var sz=3+Math.random()*8; d.style.width=sz+'px'; d.style.height=sz+'px';
+        d.style.left=(200+Math.random()*1500)+'px'; d.style.bottom=(360+Math.random()*120)+'px';
+        var ang=-Math.PI/2+(Math.random()-.5)*Math.PI*.8, dst=60+Math.random()*200;
+        d.style.setProperty('--ddx',(Math.cos(ang)*dst)+'px'); d.style.setProperty('--ddy',(Math.sin(ang)*dst)+'px');
+        d.style.animation='dropletFly .5s ease-out '+(.35+j*.02)+'s forwards';
+        dropsEl.appendChild(d);
+      }
+    }
+    fetch('/api/stinger').then(function(r){return r.json();}).then(function(cfg){ applyConfig(cfg); build(); }).catch(function(){ build(); });
+    var socket = io(); socket.on('stingerConfig', function(){ location.reload(); });
+  </script>
+</body>
+</html>

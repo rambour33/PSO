@@ -1,0 +1,87 @@
+﻿<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Stinger – Slash</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { width:1920px; height:1080px; overflow:hidden; background:transparent; position:relative; }
+
+    .panel {
+      position:absolute; top:-200px; height:1480px;
+      overflow:hidden; transform:skewX(-12deg);
+    }
+    .panel-bg {
+      position:absolute; inset:0; top:200px; height:1080px;
+      background-size:1920px 1080px; background-repeat:no-repeat;
+      background-color:#0a0a14; transform:skewX(12deg);
+    }
+    /* Phase1: entre depuis le bas | Phase2: sort par le haut */
+    @keyframes panelIn {
+      0%       { transform:skewX(-12deg) translateY(110%); }
+      32%,62%  { transform:skewX(-12deg) translateY(0); }
+      100%     { transform:skewX(-12deg) translateY(-110%); }
+    }
+    /* Slash beam dorée */
+    #slash-beam {
+      position:absolute; top:0; left:-100px; width:80px; height:1480px;
+      background:linear-gradient(to right,transparent,rgba(255,215,0,.9),transparent);
+      transform:skewX(-12deg); opacity:0; z-index:5; pointer-events:none;
+    }
+    @keyframes beamSlash {
+      0%,20%   { opacity:0; left:-100px; }
+      45%      { opacity:1; left:2100px; }
+      46%,100% { opacity:0; }
+    }
+    #logo-wrap {
+      position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+      z-index:20; pointer-events:none;
+    }
+    #logo-img { max-width:500px; max-height:340px; object-fit:contain; display:none; opacity:0; }
+    @keyframes logoLife {
+      0%,28%   { opacity:0; transform:scale(.85); }
+      40%,58%  { opacity:1; transform:scale(1); filter:drop-shadow(0 0 22px rgba(255,215,0,.8)); }
+      88%,100% { opacity:0; }
+    }
+  </style>
+</head>
+<body>
+  <div id="panels"></div>
+  <div id="slash-beam"></div>
+  <div id="logo-wrap"><img id="logo-img" src="" alt="" /></div>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    var panelsEl = document.getElementById('panels');
+    var beamEl   = document.getElementById('slash-beam');
+    var logoImg  = document.getElementById('logo-img');
+    var DUR = 1.9;
+    var defs = [
+      { x:-200,  w:760  },
+      { x:530,   w:760  },
+      { x:1260,  w:900  },
+    ];
+    var bgUrl = 'none';
+
+    function applyConfig(cfg) {
+      bgUrl = cfg.bgUrl ? 'url("' + cfg.bgUrl + '?v=' + Date.now() + '")' : 'none';
+      if (cfg.logoUrl) { logoImg.src = cfg.logoUrl + '?v=' + Date.now(); logoImg.style.display = 'block'; }
+      else logoImg.style.display = 'none';
+    }
+    function build() {
+      defs.forEach(function(d, i) {
+        var p  = document.createElement('div'); p.className = 'panel';
+        p.style.left = d.x + 'px'; p.style.width = d.w + 'px';
+        var bg = document.createElement('div'); bg.className = 'panel-bg';
+        bg.style.backgroundImage = bgUrl; bg.style.left = (-d.x) + 'px';
+        p.appendChild(bg);
+        p.style.animation = 'panelIn ' + DUR + 's cubic-bezier(.4,0,.2,1) ' + (i * 0.04) + 's forwards';
+        panelsEl.appendChild(p);
+      });
+      beamEl.style.animation  = 'beamSlash ' + DUR + 's ease forwards';
+      logoImg.style.animation = 'logoLife ' + DUR + 's ease forwards';
+    }
+    fetch('/api/stinger').then(function(r){return r.json();}).then(function(cfg){ applyConfig(cfg); build(); }).catch(function(){ build(); });
+    var socket = io(); socket.on('stingerConfig', function(){ location.reload(); });
+  </script>
+</body>
+</html>

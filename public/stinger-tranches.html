@@ -1,0 +1,79 @@
+﻿<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Stinger – Tranches</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { width:1920px; height:1080px; overflow:hidden; background:transparent; position:relative; }
+
+    .strip {
+      position:absolute; left:0; width:1920px;
+      overflow:hidden;
+    }
+    .strip-bg {
+      position:absolute; inset:0;
+      background-size:1920px 1080px; background-repeat:no-repeat;
+      background-color:#0a0a14;
+    }
+    .strip-line {
+      position:absolute; left:0; bottom:0; width:100%; height:2px;
+      background:linear-gradient(to right,transparent,rgba(255,200,50,.9),transparent);
+    }
+    /* Phase1: entre | Peak: tient | Phase2: sort côté opposé */
+    @keyframes stripOdd {
+      0%       { transform:translateX(-100%); }
+      32%,60%  { transform:translateX(0); }
+      100%     { transform:translateX(100%); }
+    }
+    @keyframes stripEven {
+      0%       { transform:translateX(100%); }
+      32%,60%  { transform:translateX(0); }
+      100%     { transform:translateX(-100%); }
+    }
+    #logo-wrap {
+      position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+      z-index:20; pointer-events:none;
+    }
+    #logo-img { max-width:500px; max-height:340px; object-fit:contain; display:none; opacity:0; }
+    @keyframes logoLife {
+      0%,30%   { opacity:0; transform:scale(.9); }
+      42%,58%  { opacity:1; transform:scale(1); filter:drop-shadow(0 0 20px rgba(255,200,50,.8)); }
+      90%,100% { opacity:0; transform:scale(1.1); }
+    }
+  </style>
+</head>
+<body>
+  <div id="strips"></div>
+  <div id="logo-wrap"><img id="logo-img" src="" alt="" /></div>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    var stripsEl = document.getElementById('strips');
+    var logoImg  = document.getElementById('logo-img');
+    var DUR = 1.9;
+    var N = 9, h = 1080 / N;
+    var bgUrl = 'none';
+
+    function applyConfig(cfg) {
+      bgUrl = cfg.bgUrl ? 'url("' + cfg.bgUrl + '?v=' + Date.now() + '")' : 'none';
+      if (cfg.logoUrl) { logoImg.src = cfg.logoUrl + '?v=' + Date.now(); logoImg.style.display = 'block'; }
+      else logoImg.style.display = 'none';
+    }
+    function build() {
+      for (var i = 0; i < N; i++) {
+        var s  = document.createElement('div'); s.className = 'strip';
+        s.style.top = (i * h) + 'px'; s.style.height = h + 'px';
+        var bg = document.createElement('div'); bg.className = 'strip-bg';
+        bg.style.backgroundImage = bgUrl; bg.style.top = (-i * h) + 'px';
+        var ln = document.createElement('div'); ln.className = 'strip-line';
+        s.appendChild(bg); s.appendChild(ln);
+        s.style.animation = (i % 2 === 0 ? 'stripOdd' : 'stripEven') + ' ' + DUR + 's cubic-bezier(.4,0,.2,1) forwards';
+        stripsEl.appendChild(s);
+      }
+      logoImg.style.animation = 'logoLife ' + DUR + 's ease forwards';
+    }
+    fetch('/api/stinger').then(function(r){return r.json();}).then(function(cfg){ applyConfig(cfg); build(); }).catch(function(){ build(); });
+    var socket = io(); socket.on('stingerConfig', function(){ location.reload(); });
+  </script>
+</body>
+</html>

@@ -1,0 +1,99 @@
+﻿<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Stinger – Explosion</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { width:1920px; height:1080px; overflow:hidden; background:transparent; position:relative; }
+
+    .frag {
+      position:absolute; overflow:hidden;
+    }
+    .frag-bg {
+      position:absolute;
+      background-size:1920px 1080px; background-repeat:no-repeat;
+      background-color:#0a0a14;
+    }
+    /* Phase1: entre du bord vers centre | Phase2: repart vers bord */
+    @keyframes fragIn {
+      0%    { transform:translate(var(--dx),var(--dy)) scale(.4); opacity:0; }
+      28%   { opacity:1; }
+      32%,62%{ transform:translate(0,0) scale(1); opacity:1; }
+      100%  { transform:translate(var(--dx),var(--dy)) scale(.4); opacity:0; }
+    }
+    /* Onde de choc */
+    #shockwave {
+      position:absolute; left:50%; top:50%; border-radius:50%;
+      border:6px solid rgba(255,150,0,.9);
+      width:0; height:0; transform:translate(-50%,-50%);
+      pointer-events:none; z-index:10; opacity:0;
+    }
+    @keyframes shock1 { 0%{width:0;height:0;opacity:1} 100%{width:2000px;height:2000px;opacity:0} }
+    @keyframes shock2 { 0%{width:0;height:0;opacity:.6;border-color:rgba(255,220,80,.6)} 100%{width:2800px;height:2800px;opacity:0} }
+    #logo-wrap {
+      position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+      z-index:20; pointer-events:none;
+    }
+    #logo-img { max-width:500px; max-height:340px; object-fit:contain; display:none; opacity:0; }
+    @keyframes logoLife {
+      0%,28%   { opacity:0; transform:scale(.6); }
+      40%,58%  { opacity:1; transform:scale(1); filter:drop-shadow(0 0 24px rgba(255,150,0,.8)); }
+      88%,100% { opacity:0; transform:scale(1.1); }
+    }
+  </style>
+</head>
+<body>
+  <div id="frags"></div>
+  <div id="shockwave"></div>
+  <div id="logo-wrap"><img id="logo-img" src="" alt="" /></div>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    var fragsEl  = document.getElementById('frags');
+    var shockEl  = document.getElementById('shockwave');
+    var logoImg  = document.getElementById('logo-img');
+    var DUR = 1.9;
+    var COLS = 6, ROWS = 5;
+    var fw = 1920/COLS, fh = 1080/ROWS;
+    var cx = 960, cy = 540;
+    var bgUrl = 'none';
+
+    function applyConfig(cfg) {
+      bgUrl = cfg.bgUrl ? 'url("' + cfg.bgUrl + '?v=' + Date.now() + '")' : 'none';
+      if (cfg.logoUrl) { logoImg.src = cfg.logoUrl + '?v=' + Date.now(); logoImg.style.display = 'block'; }
+      else logoImg.style.display = 'none';
+    }
+    function build() {
+      for (var r = 0; r < ROWS; r++) {
+        for (var c = 0; c < COLS; c++) {
+          var x = c * fw, y = r * fh;
+          var fragCx = x + fw/2, fragCy = y + fh/2;
+          var dx = (fragCx - cx) * 2.2;
+          var dy = (fragCy - cy) * 2.2;
+          var f  = document.createElement('div'); f.className = 'frag';
+          f.style.left = x+'px'; f.style.top = y+'px';
+          f.style.width = fw+'px'; f.style.height = fh+'px';
+          f.style.setProperty('--dx', dx+'px');
+          f.style.setProperty('--dy', dy+'px');
+          var bg = document.createElement('div'); bg.className = 'frag-bg';
+          bg.style.backgroundImage = bgUrl;
+          bg.style.width = '1920px'; bg.style.height = '1080px';
+          bg.style.left = (-x)+'px'; bg.style.top = (-y)+'px';
+          f.appendChild(bg);
+          var delay = (Math.abs(dx)+Math.abs(dy)) / 8000 * 0.15;
+          f.style.animation = 'fragIn ' + DUR + 's cubic-bezier(.22,1,.36,1) ' + delay + 's forwards';
+          fragsEl.appendChild(f);
+        }
+      }
+      setTimeout(function(){
+        shockEl.style.animation = 'shock1 .6s ease-out forwards';
+        var s2 = shockEl.cloneNode(); s2.style.animation='shock2 .8s .1s ease-out forwards';
+        document.body.appendChild(s2);
+      }, DUR * 1000 * 0.32);
+      logoImg.style.animation = 'logoLife ' + DUR + 's ease forwards';
+    }
+    fetch('/api/stinger').then(function(r){return r.json();}).then(function(cfg){ applyConfig(cfg); build(); }).catch(function(){ build(); });
+    var socket = io(); socket.on('stingerConfig', function(){ location.reload(); });
+  </script>
+</body>
+</html>

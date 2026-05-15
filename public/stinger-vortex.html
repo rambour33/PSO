@@ -1,0 +1,77 @@
+﻿<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Stinger – Vortex</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { width:1920px; height:1080px; overflow:hidden; background:transparent; position:relative; perspective:1400px; }
+
+    .blade {
+      position:absolute; left:50%; top:50%;
+      width:1400px; height:360px;
+      transform-origin:left center;
+      overflow:hidden;
+    }
+    .blade-bg {
+      position:absolute; top:0; left:0;
+      width:1920px; height:1080px;
+      background-size:1920px 1080px; background-repeat:no-repeat;
+      background-color:#0a0a14;
+    }
+    /* Phase1: deplie (rotateX 80→0) | Phase2: replie (rotateX 0→-80) */
+    @keyframes bladeLife {
+      0%           { transform:rotate(var(--bz)) rotateX(80deg); opacity:0; }
+      20%          { opacity:1; }
+      32%,62%      { transform:rotate(var(--bz)) rotateX(0deg); opacity:1; }
+      88%,100%     { transform:rotate(var(--bz)) rotateX(-80deg); opacity:0; }
+    }
+    #logo-wrap {
+      position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+      z-index:30; pointer-events:none;
+    }
+    #logo-img { max-width:500px; max-height:340px; object-fit:contain; display:none; opacity:0; }
+    @keyframes logoLife {
+      0%,28%   { opacity:0; transform:scale(.8) rotate(-10deg); }
+      40%,58%  { opacity:1; transform:scale(1) rotate(0deg); filter:drop-shadow(0 0 24px rgba(150,100,255,.8)); }
+      88%,100% { opacity:0; transform:scale(.8) rotate(10deg); }
+    }
+  </style>
+</head>
+<body>
+  <div id="blades"></div>
+  <div id="logo-wrap"><img id="logo-img" src="" alt="" /></div>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    var bladesEl = document.getElementById('blades');
+    var logoImg  = document.getElementById('logo-img');
+    var DUR = 1.9;
+    var N = 8;
+    var bgUrl = 'none';
+
+    function applyConfig(cfg) {
+      bgUrl = cfg.bgUrl ? 'url("' + cfg.bgUrl + '?v=' + Date.now() + '")' : 'none';
+      if (cfg.logoUrl) { logoImg.src = cfg.logoUrl + '?v=' + Date.now(); logoImg.style.display = 'block'; }
+      else logoImg.style.display = 'none';
+    }
+    function build() {
+      for (var i = 0; i < N; i++) {
+        var b  = document.createElement('div'); b.className = 'blade';
+        var angle = i * (360/N);
+        b.style.setProperty('--bz', angle+'deg');
+        var bg = document.createElement('div'); bg.className = 'blade-bg';
+        bg.style.backgroundImage = bgUrl;
+        // Offset bg to center
+        bg.style.marginLeft = '-960px';
+        bg.style.marginTop  = '-180px';
+        b.appendChild(bg);
+        b.style.animation = 'bladeLife ' + DUR + 's cubic-bezier(.4,0,.2,1) ' + (i*0.04) + 's forwards';
+        bladesEl.appendChild(b);
+      }
+      logoImg.style.animation = 'logoLife ' + DUR + 's ease forwards';
+    }
+    fetch('/api/stinger').then(function(r){return r.json();}).then(function(cfg){ applyConfig(cfg); build(); }).catch(function(){ build(); });
+    var socket = io(); socket.on('stingerConfig', function(){ location.reload(); });
+  </script>
+</body>
+</html>

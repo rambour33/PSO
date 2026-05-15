@@ -1,0 +1,92 @@
+﻿<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Stinger – Zoom</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { width:1920px; height:1080px; overflow:hidden; background:transparent; position:relative; }
+
+    #bg {
+      position:absolute; inset:0;
+      background-size:1920px 1080px; background-repeat:no-repeat; background-position:center;
+      background-color:#0a0a14; opacity:0;
+    }
+    /* Phase1: zoom in depuis scale(4) | Phase2: zoom out vers scale(6) + fade */
+    @keyframes bgZoom {
+      0%       { opacity:0; transform:scale(4); }
+      18%      { opacity:1; }
+      32%,62%  { opacity:1; transform:scale(1); }
+      88%      { opacity:1; transform:scale(6); filter:blur(8px); }
+      100%     { opacity:0; transform:scale(6); }
+    }
+    /* Rayons radiaux */
+    .ray {
+      position:absolute; left:50%; top:50%; height:2px;
+      background:linear-gradient(to right,rgba(255,220,80,.8),transparent);
+      transform-origin:left center; opacity:0;
+    }
+    @keyframes rayLife {
+      0%,20%   { opacity:0; width:0; }
+      35%      { opacity:1; width:var(--rl); }
+      60%      { opacity:.3; }
+      75%,100% { opacity:0; }
+    }
+    /* Anneau */
+    #ring {
+      position:absolute; left:50%; top:50%; border-radius:50%;
+      border:4px solid rgba(255,200,50,.9); width:0; height:0;
+      transform:translate(-50%,-50%); pointer-events:none; z-index:5; opacity:0;
+    }
+    @keyframes ringLife {
+      0%,28%   { width:0; height:0; opacity:1; }
+      58%      { width:2400px; height:2400px; opacity:0; }
+    }
+    #logo-wrap {
+      position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+      z-index:20; pointer-events:none;
+    }
+    #logo-img { max-width:500px; max-height:340px; object-fit:contain; display:none; opacity:0; }
+    @keyframes logoLife {
+      0%,28%   { opacity:0; transform:scale(3); filter:blur(12px); }
+      40%,58%  { opacity:1; transform:scale(1); filter:drop-shadow(0 0 20px rgba(255,200,50,.7)); }
+      85%,100% { opacity:0; transform:scale(.1); filter:blur(8px); }
+    }
+  </style>
+</head>
+<body>
+  <div id="bg"></div>
+  <div id="rays"></div>
+  <div id="ring"></div>
+  <div id="logo-wrap"><img id="logo-img" src="" alt="" /></div>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    var bgEl   = document.getElementById('bg');
+    var raysEl = document.getElementById('rays');
+    var ringEl = document.getElementById('ring');
+    var logoImg= document.getElementById('logo-img');
+    var DUR = 1.9;
+
+    function applyConfig(cfg) {
+      bgEl.style.backgroundImage = cfg.bgUrl ? 'url("' + cfg.bgUrl + '?v=' + Date.now() + '")' : 'none';
+      if (cfg.logoUrl) { logoImg.src = cfg.logoUrl + '?v=' + Date.now(); logoImg.style.display = 'block'; }
+      else logoImg.style.display = 'none';
+    }
+    function build() {
+      bgEl.style.animation   = 'bgZoom ' + DUR + 's cubic-bezier(.4,0,.2,1) forwards';
+      ringEl.style.animation = 'ringLife ' + DUR + 's ease forwards';
+      logoImg.style.animation= 'logoLife ' + DUR + 's ease forwards';
+      for (var i = 0; i < 16; i++) {
+        var r = document.createElement('div'); r.className = 'ray';
+        var len = 400 + Math.random() * 600;
+        r.style.setProperty('--rl', len+'px');
+        r.style.transform = 'rotate('+(i*22.5)+'deg)';
+        r.style.animation = 'rayLife ' + DUR + 's ease ' + (i*.015) + 's forwards';
+        raysEl.appendChild(r);
+      }
+    }
+    fetch('/api/stinger').then(function(r){return r.json();}).then(function(cfg){ applyConfig(cfg); build(); }).catch(function(){ build(); });
+    var socket = io(); socket.on('stingerConfig', function(){ location.reload(); });
+  </script>
+</body>
+</html>

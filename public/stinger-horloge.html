@@ -1,0 +1,117 @@
+﻿<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Stinger – Horloge</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { width:1920px; height:1080px; overflow:hidden; background:transparent; position:relative; }
+    #bg {
+      position:absolute; inset:0;
+      background-size:1920px 1080px; background-repeat:no-repeat; background-position:center;
+      background-color:#0a0a14; opacity:0;
+    }
+    @keyframes bgLife { 0%,30%{opacity:0} 38%,62%{opacity:1} 88%,100%{opacity:0} }
+    #canvas { position:absolute; inset:0; }
+    #beam {
+      position:absolute; left:50%; top:50%; width:1200px; height:3px;
+      background:linear-gradient(to right,transparent,rgba(255,200,50,.9),transparent);
+      transform-origin:left center; opacity:0; pointer-events:none;
+    }
+    @keyframes beamSpin {
+      0%,15%   { opacity:0; transform:rotate(-90deg); }
+      25%,60%  { opacity:.6; }
+      65%,100% { opacity:0; }
+    }
+    #logo-wrap {
+      position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+      z-index:20; pointer-events:none;
+    }
+    #logo-img { max-width:500px; max-height:340px; object-fit:contain; display:none; opacity:0; }
+    @keyframes logoLife {
+      0%,28%   { opacity:0; transform:scale(.8); }
+      40%,58%  { opacity:1; transform:scale(1); filter:drop-shadow(0 0 22px rgba(255,200,50,.8)); }
+      88%,100% { opacity:0; transform:scale(.8); }
+    }
+  </style>
+</head>
+<body>
+  <div id="bg"></div>
+  <canvas id="canvas" width="1920" height="1080"></canvas>
+  <div id="beam"></div>
+  <div id="logo-wrap"><img id="logo-img" src="" alt="" /></div>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    var bgEl   = document.getElementById('bg');
+    var canvas = document.getElementById('canvas');
+    var ctx    = canvas.getContext('2d');
+    var beamEl = document.getElementById('beam');
+    var logoImg= document.getElementById('logo-img');
+    var DUR    = 1.9; // secondes
+    var CX = 960, CY = 540, R = Math.sqrt(CX*CX+CY*CY) + 10;
+    var PHASE1_END = 0.34; // fraction where Phase1 ends (screen covered)
+    var PHASE2_START = 0.62; // fraction where Phase2 starts (screen uncovers)
+    var startTime = null, rafId;
+
+    function applyConfig(cfg) {
+      bgEl.style.backgroundImage = cfg.bgUrl ? 'url("' + cfg.bgUrl + '?v=' + Date.now() + '")' : 'none';
+      if (cfg.logoUrl) { logoImg.src = cfg.logoUrl + '?v=' + Date.now(); logoImg.style.display = 'block'; }
+      else logoImg.style.display = 'none';
+    }
+
+    function draw(t) {
+      // t: 0..1 normalized time
+      ctx.clearRect(0, 0, 1920, 1080);
+      if (t <= 0 || t >= 1) return;
+
+      if (t < PHASE1_END) {
+        // Phase1: balayage horaire (masque noir qui se remplit)
+        var progress = t / PHASE1_END;
+        var angle = -Math.PI/2 + progress * Math.PI * 2;
+        ctx.beginPath();
+        ctx.moveTo(CX, CY);
+        ctx.arc(CX, CY, R, -Math.PI/2, angle, false);
+        ctx.closePath();
+        ctx.fillStyle = '#0a0a14';
+        ctx.fill();
+      } else if (t < PHASE2_START) {
+        // Peak: écran couvert
+        ctx.fillStyle = '#0a0a14';
+        ctx.fillRect(0, 0, 1920, 1080);
+      } else {
+        // Phase2: balayage antihoraire (masque noir qui se vide)
+        var progress2 = (t - PHASE2_START) / (1 - PHASE2_START);
+        var angle2 = -Math.PI/2 + (1 - progress2) * Math.PI * 2;
+        if (progress2 < 1) {
+          ctx.beginPath();
+          ctx.moveTo(CX, CY);
+          ctx.arc(CX, CY, R, angle2, -Math.PI/2 + Math.PI*2, false);
+          ctx.closePath();
+          ctx.fillStyle = '#0a0a14';
+          ctx.fill();
+        }
+      }
+    }
+
+    function animate(ts) {
+      if (!startTime) startTime = ts;
+      var elapsed = (ts - startTime) / 1000;
+      var t = Math.min(elapsed / DUR, 1);
+      draw(t);
+      // Rotate beam proportionally
+      var tBeam = Math.min(t, PHASE1_END) / PHASE1_END;
+      beamEl.style.transform = 'rotate(' + (-90 + tBeam * 360) + 'deg)';
+      if (t < 1) rafId = requestAnimationFrame(animate);
+    }
+
+    function build() {
+      bgEl.style.animation   = 'bgLife ' + DUR + 's ease forwards';
+      beamEl.style.animation = 'beamSpin ' + DUR + 's linear forwards';
+      logoImg.style.animation= 'logoLife ' + DUR + 's ease forwards';
+      requestAnimationFrame(animate);
+    }
+    fetch('/api/stinger').then(function(r){return r.json();}).then(function(cfg){ applyConfig(cfg); build(); }).catch(function(){ build(); });
+    var socket = io(); socket.on('stingerConfig', function(){ location.reload(); });
+  </script>
+</body>
+</html>

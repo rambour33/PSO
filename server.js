@@ -3666,22 +3666,13 @@ function saveTransitionState(state) {
   saveConfig(cfg);
 }
 
-/* Durée (ms) avant que le stinger couvre complètement l'écran */
-function stingerCoverTime() {
-  const SP = { fast: { dur: 320, stagger: 28 }, normal: { dur: 420, stagger: 40 }, slow: { dur: 600, stagger: 55 } };
-  const sp = SP[stingerConfig.speed] || SP.normal;
-  const n  = Math.max(2, Math.min(20, stingerConfig.bars || 8));
-  if (stingerConfig.style === 'flash') return Math.round(sp.dur * 0.4);
-  return sp.dur + (n - 1) * sp.stagger;
-}
-
 /* Initialise les entrées manquantes */
 let transitionState = (() => {
   const saved = getTransitionState();
   const out = {};
   for (const id of TRANSITION_IDS) {
     const def = id.startsWith('custom-scene-')
-      ? { animIn: 'stinger', animOut: 'fade',    dur: 500, visible: false }
+      ? { animIn: 'fade',    animOut: 'fade',    dur: 500, visible: false }
       : defaultTransition();
     out[id] = Object.assign(def, saved[id] || {});
   }
@@ -3717,13 +3708,7 @@ app.post('/api/transitions/:id/show', (req, res) => {
   const csMatch = id.match(/^custom-scene-(\d)$/);
   if (csMatch) {
     const t = transitionState[id];
-    if (t.animIn === 'stinger') {
-      const sceneIdx = parseInt(csMatch[1]);
-      io.emit('stingerTrigger', stingerPayload());
-      setTimeout(() => { superState.activeScene = sceneIdx; superBroadcast(); }, stingerCoverTime());
-    } else {
-      io.emit('overlayShow', { id, animIn: t.animIn, animOut: t.animOut, dur: t.dur });
-    }
+    io.emit('overlayShow', { id, animIn: t.animIn, animOut: t.animOut, dur: t.dur });
   } else {
     io.emit('overlayShow', {
       id,
@@ -3838,7 +3823,8 @@ app.get('/api/deck/:overlay/:action', (req, res) => {
   const { overlay, action } = req.params;
   if (!['show', 'hide', 'toggle', 'reveal'].includes(action))
     return res.status(400).json({ error: `Action invalide: ${action}` });
-  if (!transitionState[overlay])
+
+if (!transitionState[overlay])
     return res.status(404).json({ error: `Overlay inconnu: ${overlay}`, available: TRANSITION_IDS });
 
   const t = transitionState[overlay];
@@ -3853,14 +3839,7 @@ app.get('/api/deck/:overlay/:action', (req, res) => {
   } else if (overlay === 'vs-screen') {
     io.emit(doShow ? 'vsScreenTrigger' : 'vsScreenHide');
   } else if (csDeckMatch && doShow && !isReveal) {
-    if (t.animIn === 'stinger') {
-      const sceneIdx = parseInt(csDeckMatch[1]);
-      io.emit('stingerTrigger', stingerPayload());
-      io.emit('overlayShow', { id: overlay, animIn: 'fade', animOut: t.animOut || 'fade', dur: t.dur || 500 });
-      setTimeout(() => { superState.activeScene = sceneIdx; superBroadcast(); }, stingerCoverTime());
-    } else {
-      io.emit('overlayShow', { id: overlay, animIn: t.animIn || 'fade', animOut: t.animOut || 'fade', dur: t.dur || 500 });
-    }
+    io.emit('overlayShow', { id: overlay, animIn: t.animIn || 'fade', animOut: t.animOut || 'fade', dur: t.dur || 500 });
   } else if (csDeckMatch) {
     io.emit(doShow ? 'overlayShow' : 'overlayHide', {
       id:     overlay,
@@ -3964,7 +3943,6 @@ app.post('/api/tournament-config', (req, res) => {
   }
   const tc = getTournamentConfig();
   io.emit('tournamentConfigUpdate', tc);
-  io.emit('stingerConfig', stingerPayload());
   res.json(tc);
 });
 
@@ -4013,11 +3991,11 @@ app.post('/api/tournament-config/fetch', async (req, res) => {
   }
 });
 
-// ─── Stinger ──────────────────────────────────────────────────────────────────
+// ─── Stinger overlay ──────────────────────────────────────────────────────────
 
 let stingerConfig = (() => {
   const cfg = getConfig();
-  return Object.assign({ bars: 8, speed: 'normal', style: 'bars-h', logoUrl: '', logoOverride: false, logoSize: 200, bgImageUrl: '' }, cfg.stinger || {});
+  return Object.assign({ logoUrl: '', bgUrl: '' }, cfg.stinger || cfg.bonus || {});
 })();
 
 function saveStingerConfig() {
@@ -4026,37 +4004,54 @@ function saveStingerConfig() {
   saveConfig(cfg);
 }
 
-function getEffectiveStingerLogo() {
-  if (stingerConfig.logoOverride && stingerConfig.logoUrl) return stingerConfig.logoUrl;
-  return getTournamentConfig().logoUrl || '';
-}
+app.get('/stinger-overlay',    (req, res) => res.sendFile(path.join(__dirname, 'public', 'stinger-overlay.html')));
+app.get('/stinger-tranches',   (req, res) => res.sendFile(path.join(__dirname, 'public', 'stinger-tranches.html')));
+app.get('/stinger-slash',      (req, res) => res.sendFile(path.join(__dirname, 'public', 'stinger-slash.html')));
+app.get('/stinger-explosion',  (req, res) => res.sendFile(path.join(__dirname, 'public', 'stinger-explosion.html')));
+app.get('/stinger-glitch',     (req, res) => res.sendFile(path.join(__dirname, 'public', 'stinger-glitch.html')));
+app.get('/stinger-zoom',       (req, res) => res.sendFile(path.join(__dirname, 'public', 'stinger-zoom.html')));
+app.get('/stinger-horloge',    (req, res) => res.sendFile(path.join(__dirname, 'public', 'stinger-horloge.html')));
+app.get('/stinger-stores',     (req, res) => res.sendFile(path.join(__dirname, 'public', 'stinger-stores.html')));
+app.get('/stinger-pixels',     (req, res) => res.sendFile(path.join(__dirname, 'public', 'stinger-pixels.html')));
+app.get('/stinger-vague',      (req, res) => res.sendFile(path.join(__dirname, 'public', 'stinger-vague.html')));
+app.get('/stinger-rideau',     (req, res) => res.sendFile(path.join(__dirname, 'public', 'stinger-rideau.html')));
+app.get('/stinger-vortex',     (req, res) => res.sendFile(path.join(__dirname, 'public', 'stinger-vortex.html')));
+app.get('/stinger-brisure',    (req, res) => res.sendFile(path.join(__dirname, 'public', 'stinger-brisure.html')));
+app.get('/stinger-diamants',   (req, res) => res.sendFile(path.join(__dirname, 'public', 'stinger-diamants.html')));
+app.get('/stinger-eclair',       (req, res) => res.sendFile(path.join(__dirname, 'public', 'stinger-eclair.html')));
+app.get('/stinger-dual',         (req, res) => res.sendFile(path.join(__dirname, 'public', 'stinger-dual.html')));
+app.get('/stinger-transparent',  (req, res) => res.sendFile(path.join(__dirname, 'public', 'stinger-transparent.html')));
+app.get('/stinger-default',      (req, res) => res.sendFile(path.join(__dirname, 'public', 'stinger-default.html')));
+app.get('/stinger-cyberpunk',    (req, res) => res.sendFile(path.join(__dirname, 'public', 'stinger-cyberpunk.html')));
+app.get('/stinger-synthwave',    (req, res) => res.sendFile(path.join(__dirname, 'public', 'stinger-synthwave.html')));
+app.get('/stinger-midnight',     (req, res) => res.sendFile(path.join(__dirname, 'public', 'stinger-midnight.html')));
+app.get('/stinger-egypte',       (req, res) => res.sendFile(path.join(__dirname, 'public', 'stinger-egypte.html')));
+app.get('/stinger-grandeville',  (req, res) => res.sendFile(path.join(__dirname, 'public', 'stinger-grandeville.html')));
+app.get('/stinger-plage',        (req, res) => res.sendFile(path.join(__dirname, 'public', 'stinger-plage.html')));
+app.get('/stinger-alsace',       (req, res) => res.sendFile(path.join(__dirname, 'public', 'stinger-alsace.html')));
 
-function stingerPayload() {
-  return { ...stingerConfig, effectiveLogoUrl: getEffectiveStingerLogo() };
-}
+app.get('/api/stinger', (req, res) => res.json(stingerConfig));
 
-app.get('/stinger', (req, res) => res.sendFile(path.join(__dirname, 'public', 'stinger.html')));
-
-app.get('/api/stinger', (req, res) => res.json(stingerPayload()));
-
-app.post('/api/stinger', (req, res) => {
-  const VALID_STYLES = ['bars-h', 'bars-v', 'flash'];
-  const VALID_SPEEDS = ['slow', 'normal', 'fast'];
-  if (req.body.bars         !== undefined) stingerConfig.bars         = Math.min(20, Math.max(2, parseInt(req.body.bars, 10)));
-  if (req.body.speed        !== undefined && VALID_SPEEDS.includes(req.body.speed)) stingerConfig.speed = req.body.speed;
-  if (req.body.style        !== undefined && VALID_STYLES.includes(req.body.style)) stingerConfig.style = req.body.style;
-  if (req.body.logoUrl      !== undefined) stingerConfig.logoUrl      = String(req.body.logoUrl).slice(0, 500);
-  if (req.body.logoOverride !== undefined) stingerConfig.logoOverride = !!req.body.logoOverride;
-  if (req.body.logoSize     !== undefined) stingerConfig.logoSize     = Math.min(600, Math.max(40, parseInt(req.body.logoSize, 10)));
-  if (req.body.bgImageUrl   !== undefined) stingerConfig.bgImageUrl   = String(req.body.bgImageUrl).slice(0, 500);
+app.post('/api/stinger/logo', (req, res) => {
+  const { filename, data } = req.body;
+  if (!data) return res.status(400).json({ error: 'data required' });
+  const ext = (path.extname(filename || '').toLowerCase()) || '.png';
+  if (!BG_EXTS.includes(ext)) return res.status(400).json({ error: 'Format non supporté' });
+  if (!fs.existsSync(BG_DIR)) fs.mkdirSync(BG_DIR, { recursive: true });
+  BG_EXTS.forEach(e => { const old = path.join(BG_DIR, 'stinger-logo' + e); if (fs.existsSync(old)) fs.unlinkSync(old); });
+  fs.writeFileSync(path.join(BG_DIR, 'stinger-logo' + ext), Buffer.from(data, 'base64'));
+  const url = '/background/stinger-logo' + ext;
+  stingerConfig.logoUrl = url;
   saveStingerConfig();
-  const payload = stingerPayload();
-  io.emit('stingerConfig', payload);
-  res.json(payload);
+  io.emit('stingerConfig', stingerConfig);
+  res.json({ url });
 });
 
-app.post('/api/stinger/trigger', (req, res) => {
-  io.emit('stingerTrigger', stingerPayload());
+app.delete('/api/stinger/logo', (req, res) => {
+  BG_EXTS.forEach(e => { const f = path.join(BG_DIR, 'stinger-logo' + e); if (fs.existsSync(f)) fs.unlinkSync(f); });
+  stingerConfig.logoUrl = '';
+  saveStingerConfig();
+  io.emit('stingerConfig', stingerConfig);
   res.json({ ok: true });
 });
 
@@ -4066,28 +4061,20 @@ app.post('/api/stinger/background', (req, res) => {
   const ext = (path.extname(filename || '').toLowerCase()) || '.png';
   if (!BG_EXTS.includes(ext)) return res.status(400).json({ error: 'Format non supporté' });
   if (!fs.existsSync(BG_DIR)) fs.mkdirSync(BG_DIR, { recursive: true });
-  BG_EXTS.forEach(e => {
-    const old = path.join(BG_DIR, 'stinger-background' + e);
-    if (fs.existsSync(old)) fs.unlinkSync(old);
-  });
-  fs.writeFileSync(path.join(BG_DIR, 'stinger-background' + ext), Buffer.from(data, 'base64'));
-  const url = '/background/stinger-background' + ext;
-  stingerConfig.bgImageUrl = url;
+  BG_EXTS.forEach(e => { const old = path.join(BG_DIR, 'stinger-bg' + e); if (fs.existsSync(old)) fs.unlinkSync(old); });
+  fs.writeFileSync(path.join(BG_DIR, 'stinger-bg' + ext), Buffer.from(data, 'base64'));
+  const url = '/background/stinger-bg' + ext;
+  stingerConfig.bgUrl = url;
   saveStingerConfig();
-  const payload = stingerPayload();
-  io.emit('stingerConfig', payload);
+  io.emit('stingerConfig', stingerConfig);
   res.json({ url });
 });
 
 app.delete('/api/stinger/background', (req, res) => {
-  BG_EXTS.forEach(e => {
-    const f = path.join(BG_DIR, 'stinger-background' + e);
-    if (fs.existsSync(f)) fs.unlinkSync(f);
-  });
-  stingerConfig.bgImageUrl = '';
+  BG_EXTS.forEach(e => { const f = path.join(BG_DIR, 'stinger-bg' + e); if (fs.existsSync(f)) fs.unlinkSync(f); });
+  stingerConfig.bgUrl = '';
   saveStingerConfig();
-  const payload = stingerPayload();
-  io.emit('stingerConfig', payload);
+  io.emit('stingerConfig', stingerConfig);
   res.json({ ok: true });
 });
 

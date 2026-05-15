@@ -1,0 +1,115 @@
+﻿<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Stinger – Cyberpunk</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { width:1920px; height:1080px; overflow:hidden; background:transparent; position:relative; }
+
+    #dark-bg { position:absolute; inset:0; background:#05000e; opacity:0; }
+    @keyframes darkLife { 0%{opacity:0} 18%,65%{opacity:1} 100%{opacity:0} }
+
+    #grid {
+      position:absolute; inset:0; opacity:0; pointer-events:none;
+      background-image:linear-gradient(rgba(200,0,255,.15) 1px,transparent 1px),linear-gradient(90deg,rgba(200,0,255,.15) 1px,transparent 1px);
+      background-size:80px 80px;
+    }
+    @keyframes gridLife { 0%{opacity:0} 22%{opacity:1} 65%{opacity:.5} 100%{opacity:0} }
+
+    #scan {
+      position:absolute; inset:0; pointer-events:none; z-index:3; opacity:0;
+      background:repeating-linear-gradient(to bottom,transparent 0,transparent 3px,rgba(0,0,0,.45) 3px,rgba(0,0,0,.45) 4px);
+    }
+    @keyframes scanLife { 0%,15%{opacity:0} 28%,65%{opacity:1} 100%{opacity:0} }
+
+    /* Panel cyber principal: balaye de gauche à droite (Phase1) puis de droite à gauche (Phase2) */
+    #cyber-panel {
+      position:absolute; top:0; left:-1920px; width:1920px; height:1080px;
+      background:linear-gradient(135deg,rgba(20,0,50,.9) 0%,rgba(50,0,100,.95) 50%,rgba(20,0,50,.9) 100%);
+    }
+    @keyframes cyberPanel {
+      0%       { left:-1920px; }
+      28%      { left:0; }
+      62%      { left:0; }
+      100%     { left:1920px; }
+    }
+
+    .hex { position:absolute; opacity:0; clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%); }
+    @keyframes hexLife { 0%{opacity:0;transform:scale(0)} 30%,62%{opacity:.7;transform:scale(1)} 100%{opacity:0;transform:scale(0)} }
+    .data-line { position:absolute; height:2px; width:0; background:linear-gradient(to right,transparent,var(--dc),transparent); opacity:0; }
+    @keyframes dataLife { 0%{opacity:0;width:0} 25%{opacity:1;width:var(--dw)} 62%{opacity:.4} 100%{opacity:0} }
+
+    #rgb-r { position:absolute; inset:0; background:rgba(255,0,100,.12); mix-blend-mode:screen; opacity:0; pointer-events:none; }
+    #rgb-g { position:absolute; inset:0; background:rgba(0,255,200,.1);  mix-blend-mode:screen; opacity:0; pointer-events:none; }
+    @keyframes rgbLife { 0%,100%{opacity:0} 25%,62%{opacity:1} }
+
+    #logo-wrap { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; z-index:20; pointer-events:none; }
+    #logo-img { max-width:500px; max-height:340px; object-fit:contain; display:none; opacity:0; }
+    @keyframes logoLife {
+      0%,22%   { opacity:0; transform:skewX(-8deg) scale(.9); filter:blur(4px) hue-rotate(90deg) brightness(4); }
+      35%,58%  { opacity:1; transform:skewX(0) scale(1); filter:drop-shadow(0 0 18px rgba(200,0,255,.8)) drop-shadow(0 0 6px rgba(0,255,200,.6)); }
+      88%,100% { opacity:0; transform:skewX(8deg) scale(.9); }
+    }
+  </style>
+</head>
+<body>
+  <div id="dark-bg"></div>
+  <div id="cyber-panel"></div>
+  <div id="grid"></div>
+  <div id="rgb-r"></div>
+  <div id="rgb-g"></div>
+  <div id="hexes"></div>
+  <div id="data-lines"></div>
+  <div id="scan"></div>
+  <div id="logo-wrap"><img id="logo-img" src="" alt="" /></div>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    var darkEl   = document.getElementById('dark-bg');
+    var panelEl  = document.getElementById('cyber-panel');
+    var gridEl   = document.getElementById('grid');
+    var scanEl   = document.getElementById('scan');
+    var hexesEl  = document.getElementById('hexes');
+    var dataEl   = document.getElementById('data-lines');
+    var rgbR     = document.getElementById('rgb-r');
+    var rgbG     = document.getElementById('rgb-g');
+    var logoImg  = document.getElementById('logo-img');
+    var DUR = 1.9;
+
+    function applyConfig(cfg) {
+      if (cfg.logoUrl) { logoImg.src = cfg.logoUrl + '?v=' + Date.now(); logoImg.style.display = 'block'; }
+      else logoImg.style.display = 'none';
+    }
+    function build() {
+      darkEl.style.animation  = 'darkLife '+DUR+'s ease forwards';
+      panelEl.style.animation = 'cyberPanel '+DUR+'s cubic-bezier(.4,0,.2,1) forwards';
+      gridEl.style.animation  = 'gridLife '+DUR+'s ease forwards';
+      scanEl.style.animation  = 'scanLife '+DUR+'s ease forwards';
+      rgbR.style.animation    = 'rgbLife '+DUR+'s .05s forwards';
+      rgbG.style.animation    = 'rgbLife '+DUR+'s .1s forwards';
+      logoImg.style.animation = 'logoLife '+DUR+'s ease forwards';
+      var hcols = ['rgba(255,0,128,.5)','rgba(180,0,255,.5)','rgba(0,255,200,.4)'];
+      for (var i = 0; i < 10; i++) {
+        var h = document.createElement('div'); h.className = 'hex';
+        var sz = 60+Math.random()*120;
+        h.style.width=sz+'px'; h.style.height=sz+'px';
+        h.style.left=(Math.random()*1800)+'px'; h.style.top=(Math.random()*1000)+'px';
+        h.style.background=hcols[i%3];
+        h.style.animation='hexLife '+DUR+'s ease '+(i*.05)+'s forwards';
+        hexesEl.appendChild(h);
+      }
+      var dcols = ['rgba(255,0,128,.9)','rgba(180,0,255,.9)','rgba(0,255,200,.9)'];
+      for (var j = 0; j < 12; j++) {
+        var l = document.createElement('div'); l.className = 'data-line';
+        var dw = 200+Math.random()*600;
+        l.style.top=(50+Math.random()*980)+'px'; l.style.left=(Math.random()*1000)+'px';
+        l.style.setProperty('--dc',dcols[j%3]); l.style.setProperty('--dw',dw+'px');
+        l.style.animation='dataLife '+DUR+'s ease '+(j*.04)+'s forwards';
+        dataEl.appendChild(l);
+      }
+    }
+    fetch('/api/stinger').then(function(r){return r.json();}).then(function(cfg){ applyConfig(cfg); build(); }).catch(function(){ build(); });
+    var socket = io(); socket.on('stingerConfig', function(){ location.reload(); });
+  </script>
+</body>
+</html>

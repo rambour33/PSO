@@ -1,0 +1,106 @@
+﻿<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Stinger – Diamants</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { width:1920px; height:1080px; overflow:hidden; background:transparent; position:relative; }
+
+    .diamond {
+      position:absolute; overflow:hidden;
+      transform:rotate(45deg) scale(0);
+    }
+    .diamond-inner {
+      position:absolute; width:1920px; height:1080px;
+      background-size:1920px 1080px; background-repeat:no-repeat;
+      background-color:#0a0a14;
+      transform:rotate(-45deg); transform-origin:top left;
+    }
+    .diamond::after {
+      content:''; position:absolute; inset:0;
+      border:2px solid rgba(255,215,0,.4); pointer-events:none;
+    }
+    /* Phase1: pop in | Phase2: pop out dans direction opposée */
+    @keyframes diamondLife {
+      0%           { transform:rotate(45deg) scale(0); opacity:0; }
+      var(--t1)    { transform:rotate(45deg) scale(1.06); opacity:1; }
+      calc(var(--t1) + 4%) { transform:rotate(45deg) scale(1); opacity:1; }
+      62%          { transform:rotate(45deg) scale(1); opacity:1; }
+      88%          { transform:rotate(calc(45deg + var(--exitR))) scale(0); opacity:0; }
+      100%         { transform:rotate(calc(45deg + var(--exitR))) scale(0); opacity:0; }
+    }
+    /* Pulse */
+    #pulse {
+      position:absolute; left:50%; top:50%;
+      width:0; height:0;
+      border:6px solid rgba(255,215,0,.9);
+      transform:translate(-50%,-50%) rotate(45deg);
+      pointer-events:none; z-index:25;
+    }
+    @keyframes pulseLife {
+      0%,30%  { width:0; height:0; opacity:1; border-width:10px; }
+      58%     { width:2800px; height:2800px; opacity:0; border-width:1px; }
+    }
+    #logo-wrap {
+      position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+      z-index:20; pointer-events:none;
+    }
+    #logo-img { max-width:500px; max-height:340px; object-fit:contain; display:none; opacity:0; }
+    @keyframes logoLife {
+      0%,28%   { opacity:0; transform:rotate(45deg) scale(0); filter:brightness(4); }
+      40%,58%  { opacity:1; transform:rotate(0deg) scale(1); filter:drop-shadow(0 0 28px rgba(255,215,0,.9)); }
+      88%,100% { opacity:0; transform:rotate(-30deg) scale(0); }
+    }
+  </style>
+</head>
+<body>
+  <div id="diamonds"></div>
+  <div id="pulse"></div>
+  <div id="logo-wrap"><img id="logo-img" src="" alt="" /></div>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    var diamEl  = document.getElementById('diamonds');
+    var pulseEl = document.getElementById('pulse');
+    var logoImg = document.getElementById('logo-img');
+    var DUR = 1.9;
+    var S = 200, cols = Math.ceil(1920/S)+2, rows = Math.ceil(1080/S)+2;
+    var cx = 960, cy = 540;
+    var maxDist = Math.sqrt(cx*cx+cy*cy);
+    var bgUrl = 'none';
+
+    function applyConfig(cfg) {
+      bgUrl = cfg.bgUrl ? 'url("' + cfg.bgUrl + '?v=' + Date.now() + '")' : 'none';
+      if (cfg.logoUrl) { logoImg.src = cfg.logoUrl + '?v=' + Date.now(); logoImg.style.display = 'block'; }
+      else logoImg.style.display = 'none';
+    }
+    function build() {
+      var SPREAD = 0.9, D_DUR = 0.4;
+      for (var r=0;r<rows;r++) {
+        for (var c=0;c<cols;c++) {
+          var x = c*S - S/2 + (r%2===0?0:S/2);
+          var y = r*S*0.7 - S/2;
+          var div = document.createElement('div'); div.className = 'diamond';
+          div.style.left = x+'px'; div.style.top = y+'px';
+          div.style.width = S+'px'; div.style.height = S+'px';
+          var inner = document.createElement('div'); inner.className = 'diamond-inner';
+          inner.style.backgroundImage = bgUrl;
+          inner.style.left = (-x-S/2)+'px'; inner.style.top = (-y-S/2)+'px';
+          div.appendChild(inner); diamEl.appendChild(div);
+          var d = Math.sqrt(Math.pow(x-cx,2)+Math.pow(y-cy,2));
+          var delay = (d/maxDist)*SPREAD;
+          var t1pct = Math.round((delay+D_DUR)/DUR*100)+'%';
+          var exitR = ((Math.random()-.5)*90)+'deg';
+          div.style.setProperty('--t1', t1pct);
+          div.style.setProperty('--exitR', exitR);
+          div.style.animation = 'diamondLife '+DUR+'s cubic-bezier(.22,1,.36,1) forwards';
+        }
+      }
+      pulseEl.style.animation = 'pulseLife '+DUR+'s ease forwards';
+      logoImg.style.animation = 'logoLife '+DUR+'s ease forwards';
+    }
+    fetch('/api/stinger').then(function(r){return r.json();}).then(function(cfg){ applyConfig(cfg); build(); }).catch(function(){ build(); });
+    var socket = io(); socket.on('stingerConfig', function(){ location.reload(); });
+  </script>
+</body>
+</html>

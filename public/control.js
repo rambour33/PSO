@@ -753,7 +753,7 @@ function applyUrlMode(mode) {
       const urlPath = new URL(btn.dataset.url).pathname;
       btn.dataset.url = base + urlPath;
       const code = btn.previousElementSibling;
-      if (code && code.tagName === 'CODE') code.textContent = base.replace(/^https?:\/\//, '') + urlPath;
+      if (code && code.tagName === 'CODE') code.textContent = base + urlPath;
     } catch(e) {}
   });
   document.getElementById('btn-mode-local')?.classList.toggle('active', mode === 'local');
@@ -10663,11 +10663,6 @@ socket.on('stateUpdate', (s) => {
     { value: 'blur',        label: 'Flou'         },
   ];
 
-  const ANIM_TYPES_WITH_STINGER = [
-    { value: 'stinger', label: 'Stinger' },
-    ...ANIM_TYPES,
-  ];
-
   let animState = {}; // { id: { animIn, animOut, dur, visible } }
 
   function animSelectHtml(types, name, val) {
@@ -10679,14 +10674,11 @@ socket.on('stateUpdate', (s) => {
   }
 
   function buildCard(ov) {
-    const defIn  = ov.isCustomScene ? 'stinger' : 'fade';
     const defVis = !ov.isCustomScene;
-    const s = animState[ov.id] || { animIn: defIn, animOut: 'fade', dur: 500, visible: defVis };
+    const s = animState[ov.id] || { animIn: 'fade', animOut: 'fade', dur: 500, visible: defVis };
     const card = document.createElement('div');
     card.className = 'anim-card';
     card.dataset.id = ov.id;
-
-    const animInTypes = ov.isCustomScene ? ANIM_TYPES_WITH_STINGER : ANIM_TYPES;
 
     card.innerHTML =
       '<div class="anim-card-header">' +
@@ -10698,7 +10690,7 @@ socket.on('stateUpdate', (s) => {
         '<button class="btn btn-sm anim-btn-hide">Masquer</button>' +
       '</div>' +
       '<div class="anim-card-selects">' +
-        '<div><label>Entrée</label>' + animSelectHtml(animInTypes, 'animIn', s.animIn) + '</div>' +
+        '<div><label>Entrée</label>' + animSelectHtml(ANIM_TYPES, 'animIn', s.animIn) + '</div>' +
         '<div><label>Sortie</label>' + animSelectHtml(ANIM_TYPES,  'animOut', s.animOut) + '</div>' +
       '</div>' +
       '<div class="anim-dur-row">' +
@@ -11402,191 +11394,6 @@ socket.on('stateUpdate', (s) => {
 })();
 
 // ═══════════════════════════════════════════════════════════════
-// STINGER
-// ═══════════════════════════════════════════════════════════════
-(function () {
-  const triggerBtn         = document.getElementById('stinger-trigger-btn');
-  if (!triggerBtn) return;
-
-  const barsSlider         = document.getElementById('stinger-bars');
-  const barsVal            = document.getElementById('stinger-bars-val');
-  const barsTile           = document.getElementById('stinger-bars-tile');
-  const styleGroup         = document.getElementById('stinger-style-group');
-  const speedGroup         = document.getElementById('stinger-speed-group');
-  const logoOverrideChk    = document.getElementById('stinger-logo-override');
-  const logoCustomRow      = document.getElementById('stinger-logo-custom-row');
-  const logoUrlInput       = document.getElementById('stinger-logo-url');
-  const logoTournamentName = document.getElementById('stinger-logo-tournament-name');
-  const logoSizeSlider     = document.getElementById('stinger-logo-size');
-  const logoSizeVal        = document.getElementById('stinger-logo-size-val');
-  const previewWrap        = document.getElementById('stinger-preview-wrap');
-  const previewIframe      = document.getElementById('stinger-preview-iframe');
-  const bgFileInput        = document.getElementById('stinger-bg-file');
-  const bgClearBtn         = document.getElementById('btn-stinger-bg-clear');
-  const bgThumb            = document.getElementById('stinger-bg-thumb');
-  const bgThumbEmpty       = document.getElementById('stinger-bg-thumb-empty');
-  const bgStatus           = document.getElementById('stinger-bg-status');
-
-  /* ── Échelle iframe preview ── */
-  function scalePreview() {
-    if (!previewWrap || !previewIframe) return;
-    const scale = previewWrap.offsetWidth / 1920;
-    previewIframe.style.transform = `scale(${scale})`;
-    previewWrap.style.height = (1080 * scale) + 'px';
-  }
-  window.addEventListener('resize', scalePreview);
-  if (previewWrap) new ResizeObserver(scalePreview).observe(previewWrap);
-  scalePreview();
-
-  /* ── Helpers ── */
-  function getStyleVal() {
-    const checked = styleGroup.querySelector('input[name="stinger-style"]:checked');
-    return checked ? checked.value : 'bars-h';
-  }
-  function getSpeedVal() {
-    const checked = speedGroup.querySelector('input[name="stinger-speed"]:checked');
-    return checked ? checked.value : 'normal';
-  }
-  function toggleBarsTile() {
-    if (barsTile) barsTile.style.display = getStyleVal() === 'flash' ? 'none' : '';
-  }
-
-  function updateLogoUI(tournamentLogoUrl) {
-    const override = logoOverrideChk ? logoOverrideChk.checked : false;
-    if (logoCustomRow) logoCustomRow.style.display = override ? 'flex' : 'none';
-    if (logoTournamentName) {
-      const url = tournamentLogoUrl || _tournamentLogoUrl;
-      if (url) {
-        const short = url.split('/').pop().split('?')[0].slice(0, 30);
-        logoTournamentName.textContent = short || 'Chargé';
-      } else {
-        logoTournamentName.textContent = 'Aucun';
-      }
-    }
-  }
-
-  let _tournamentLogoUrl = '';
-
-  /* ── Sauvegarde config ── */
-  let _debounce = null;
-  function saveConfig() {
-    clearTimeout(_debounce);
-    _debounce = setTimeout(() => {
-      fetch('/api/stinger', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          bars:         parseInt(barsSlider.value, 10),
-          speed:        getSpeedVal(),
-          style:        getStyleVal(),
-          logoOverride: logoOverrideChk ? logoOverrideChk.checked : false,
-          logoUrl:      logoUrlInput    ? logoUrlInput.value.trim() : '',
-          logoSize:     logoSizeSlider  ? parseInt(logoSizeSlider.value, 10) : 200,
-        }),
-      }).catch(() => {});
-    }, 120);
-  }
-
-  barsSlider.addEventListener('input', () => { barsVal.textContent = barsSlider.value; saveConfig(); });
-  styleGroup.querySelectorAll('input').forEach(r => r.addEventListener('change', () => { toggleBarsTile(); saveConfig(); }));
-  speedGroup.querySelectorAll('input').forEach(r => r.addEventListener('change', saveConfig));
-
-  if (logoOverrideChk) {
-    logoOverrideChk.addEventListener('change', () => { updateLogoUI(); saveConfig(); });
-  }
-  if (logoUrlInput) {
-    logoUrlInput.addEventListener('change', saveConfig);
-    logoUrlInput.addEventListener('blur',   saveConfig);
-  }
-  if (logoSizeSlider) {
-    logoSizeSlider.addEventListener('input', () => {
-      if (logoSizeVal) logoSizeVal.textContent = logoSizeSlider.value + ' px';
-      saveConfig();
-    });
-  }
-
-  /* ── Image de fond ── */
-  function applyBgThumb(url) {
-    if (!bgThumb) return;
-    if (url) {
-      bgThumb.style.backgroundImage = `url('${url}')`;
-      if (bgThumbEmpty) bgThumbEmpty.style.display = 'none';
-    } else {
-      bgThumb.style.backgroundImage = 'none';
-      if (bgThumbEmpty) bgThumbEmpty.style.display = '';
-    }
-  }
-
-  if (bgFileInput) {
-    bgFileInput.addEventListener('change', () => {
-      const file = bgFileInput.files[0];
-      if (!file) return;
-      if (bgStatus) bgStatus.textContent = 'Envoi…';
-      const reader = new FileReader();
-      reader.onload = e => {
-        const b64 = e.target.result.split(',')[1];
-        fetch('/api/stinger/background', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ filename: file.name, data: b64 }),
-        })
-          .then(r => r.json())
-          .then(d => {
-            applyBgThumb(d.url);
-            if (bgStatus) { bgStatus.textContent = 'Image appliquée ✓'; setTimeout(() => { bgStatus.textContent = ''; }, 2000); }
-          })
-          .catch(() => { if (bgStatus) bgStatus.textContent = 'Erreur upload'; });
-      };
-      reader.readAsDataURL(file);
-      bgFileInput.value = '';
-    });
-  }
-
-  if (bgClearBtn) {
-    bgClearBtn.addEventListener('click', () => {
-      fetch('/api/stinger/background', { method: 'DELETE' })
-        .then(() => { applyBgThumb(null); if (bgStatus) { bgStatus.textContent = 'Supprimée'; setTimeout(() => { bgStatus.textContent = ''; }, 1500); } })
-        .catch(() => {});
-    });
-  }
-
-  /* ── Déclencheur ── */
-  let cooldown = false;
-  triggerBtn.addEventListener('click', () => {
-    if (cooldown) return;
-    cooldown = true;
-    triggerBtn.disabled = true;
-    triggerBtn.textContent = '⏳ …';
-    fetch('/api/stinger/trigger', { method: 'POST' }).catch(() => {});
-    setTimeout(() => { cooldown = false; triggerBtn.disabled = false; triggerBtn.textContent = '🎬 Déclencher'; }, 2200);
-  });
-
-  /* ── Mise à jour quand le logo du tournoi change ── */
-  socket.on('tournamentConfigUpdate', tc => {
-    _tournamentLogoUrl = tc.logoUrl || '';
-    updateLogoUI();
-  });
-
-  /* ── Chargement config initiale ── */
-  fetch('/api/stinger').then(r => r.json()).then(cfg => {
-    if (cfg.bars  !== undefined) { barsSlider.value = cfg.bars; barsVal.textContent = cfg.bars; }
-    if (cfg.speed !== undefined) { const r = speedGroup.querySelector(`input[value="${cfg.speed}"]`); if (r) r.checked = true; }
-    if (cfg.style !== undefined) { const r = styleGroup.querySelector(`input[value="${cfg.style}"]`); if (r) r.checked = true; }
-    if (cfg.logoOverride !== undefined && logoOverrideChk) logoOverrideChk.checked = cfg.logoOverride;
-    if (cfg.logoUrl !== undefined && logoUrlInput) logoUrlInput.value = cfg.logoUrl;
-    if (cfg.logoSize !== undefined && logoSizeSlider) {
-      logoSizeSlider.value = cfg.logoSize;
-      if (logoSizeVal) logoSizeVal.textContent = cfg.logoSize + ' px';
-    }
-    _tournamentLogoUrl = cfg.effectiveLogoUrl || '';
-    if (cfg.bgImageUrl) applyBgThumb(cfg.bgImageUrl);
-    toggleBarsTile();
-    updateLogoUI();
-    scalePreview();
-  }).catch(() => {});
-})();
-
-// ═══════════════════════════════════════════════════════════════
 // PROCHAINS MATCHS (stream queue)
 // ═══════════════════════════════════════════════════════════════
 (function () {
@@ -12042,3 +11849,6 @@ initScrollNav('vs-scroll-area',      'vs-nav-titles');
 initScrollNav('nm-scroll-area',      'nm-nav-titles');
 initScrollNav('veto-scroll-area',    'veto-nav-titles');
 initScrollNav('casters-scroll-area', 'casters-nav-titles');
+
+// ═══════════════════════════════════════════════════════════════
+// BONUS OVERLAY — géré par script inline dans control.html
