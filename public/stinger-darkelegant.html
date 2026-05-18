@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Stinger – Dark Élégant</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { width:1920px; height:1080px; overflow:hidden; background:transparent; position:relative; }
+    @keyframes panel-in  { 0%{transform:translateX(-100%)} 35%{transform:translateX(0)} 70%{transform:translateX(0)} 100%{transform:translateX(100%)} }
+    @keyframes gold-line { 0%{transform:scaleX(0);opacity:0} 25%{opacity:1;transform:scaleX(1)} 75%{opacity:1;transform:scaleX(1)} 100%{transform:scaleX(0);opacity:0} }
+    @keyframes logo-in   { 0%,30%{opacity:0} 55%{opacity:1} 78%{opacity:1} 100%{opacity:0} }
+    #dark-panel { position:absolute; inset:0; background:#0A0A0F; }
+    #gold-line  { position:absolute; top:50%; left:10%; width:80%; height:2px; background:linear-gradient(90deg,transparent,#C9A84C,transparent); transform:scaleX(0); transform-origin:center; margin-top:-1px; }
+  </style>
+</head>
+<body>
+  <div id="dark-panel"></div>
+  <div id="gold-line"></div>
+  <div id="logo-wrap" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:100">
+    <img id="logo-img" src="" alt="" style="max-width:500px;max-height:340px;display:none;opacity:0" />
+  </div>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    var DUR = 1.9;
+    function applyConfig(cfg) {
+      if (cfg && cfg.logoUrl) {
+        var img = document.getElementById('logo-img');
+        img.src = cfg.logoUrl; img.style.display = 'block';
+      }
+    }
+    function build() {
+      var d = DUR+'s';
+      document.getElementById('dark-panel').style.animation = 'panel-in '+d+' cubic-bezier(.76,0,.24,1) forwards';
+      document.getElementById('gold-line').style.animation  = 'gold-line '+d+' ease forwards';
+      document.getElementById('logo-img').style.animation   = 'logo-in '+d+' ease forwards';
+    }
+    fetch('/api/stinger').then(function(r){return r.json();}).then(function(cfg){applyConfig(cfg);build();}).catch(function(){build();});
+    var socket = io();
+    socket.on('stingerConfig', function(){ location.reload(); });
+  </script>
+</body>
+</html>

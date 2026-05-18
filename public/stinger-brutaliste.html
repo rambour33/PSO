@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Stinger – Grid Brutaliste</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { width:1920px; height:1080px; overflow:hidden; background:transparent; position:relative; }
+    @keyframes h-in  { from{transform:scaleX(0)} to{transform:scaleX(1)} }
+    @keyframes v-in  { from{transform:scaleY(0)} to{transform:scaleY(1)} }
+    @keyframes bg-in { 0%{opacity:0} 40%{opacity:1} 75%{opacity:1} 100%{opacity:0} }
+    @keyframes logo-in { 0%,45%{opacity:0;transform:scale(1.1)} 70%{opacity:1;transform:scale(1)} 88%{opacity:1} 100%{opacity:0} }
+    .hline { position:absolute; left:0; width:1920px; height:6px; background:#000; transform:scaleX(0); transform-origin:left; }
+    .vline { position:absolute; top:0; width:6px; height:1080px; background:#000; transform:scaleY(0); transform-origin:top; }
+    #gbg   { position:absolute; inset:0; background:#fff; opacity:0; }
+  </style>
+</head>
+<body>
+  <div id="gbg"></div>
+  <div class="hline" style="top:270px"></div>
+  <div class="hline" style="top:540px"></div>
+  <div class="hline" style="top:810px"></div>
+  <div class="vline" style="left:480px"></div>
+  <div class="vline" style="left:960px"></div>
+  <div class="vline" style="left:1440px"></div>
+  <div id="logo-wrap" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:100">
+    <img id="logo-img" src="" alt="" style="max-width:500px;max-height:340px;display:none;opacity:0" />
+  </div>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    var DUR = 1.9;
+    function applyConfig(cfg) {
+      if (cfg && cfg.logoUrl) {
+        var img = document.getElementById('logo-img');
+        img.src = cfg.logoUrl; img.style.display = 'block';
+      }
+    }
+    function build() {
+      var d = DUR+'s';
+      document.getElementById('gbg').style.animation = 'bg-in '+d+' ease forwards';
+      document.querySelectorAll('.hline').forEach(function(el,i){ el.style.animation='h-in '+d+' '+(i*0.08)+'s cubic-bezier(.22,1,.36,1) forwards'; });
+      document.querySelectorAll('.vline').forEach(function(el,i){ el.style.animation='v-in '+d+' '+(i*0.08+0.12)+'s cubic-bezier(.22,1,.36,1) forwards'; });
+      document.getElementById('logo-img').style.animation = 'logo-in '+d+' ease forwards';
+    }
+    fetch('/api/stinger').then(function(r){return r.json();}).then(function(cfg){applyConfig(cfg);build();}).catch(function(){build();});
+    var socket = io();
+    socket.on('stingerConfig', function(){ location.reload(); });
+  </script>
+</body>
+</html>

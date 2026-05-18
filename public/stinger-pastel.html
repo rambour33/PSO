@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Stinger – Pastel Doux</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { width:1920px; height:1080px; overflow:hidden; background:transparent; position:relative; }
+    @keyframes circle-grow { 0%{transform:scale(0);opacity:0} 40%{transform:scale(1);opacity:.85} 75%{transform:scale(1);opacity:.85} 100%{transform:scale(1.2);opacity:0} }
+    @keyframes logo-in     { 0%,35%{opacity:0} 60%{opacity:1} 80%{opacity:1} 100%{opacity:0} }
+    .pcircle { position:absolute; border-radius:50%; opacity:0; }
+    #pc1 { width:1400px; height:1400px; top:-200px; left:-200px; background:#FFB3D9; }
+    #pc2 { width:1200px; height:1200px; top:0; right:-150px; background:#B3D9FF; }
+    #pc3 { width:1000px; height:1000px; bottom:-100px; left:50%; margin-left:-500px; background:#FFE5A0; }
+  </style>
+</head>
+<body>
+  <div class="pcircle" id="pc1"></div>
+  <div class="pcircle" id="pc2"></div>
+  <div class="pcircle" id="pc3"></div>
+  <div id="logo-wrap" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:100">
+    <img id="logo-img" src="" alt="" style="max-width:500px;max-height:340px;display:none;opacity:0" />
+  </div>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    var DUR = 1.9;
+    function applyConfig(cfg) {
+      if (cfg && cfg.logoUrl) {
+        var img = document.getElementById('logo-img');
+        img.src = cfg.logoUrl; img.style.display = 'block';
+      }
+    }
+    function build() {
+      var d = DUR+'s';
+      document.getElementById('pc1').style.animation = 'circle-grow '+d+' cubic-bezier(.22,1,.36,1) forwards';
+      document.getElementById('pc2').style.animation = 'circle-grow '+d+' .12s cubic-bezier(.22,1,.36,1) forwards';
+      document.getElementById('pc3').style.animation = 'circle-grow '+d+' .22s cubic-bezier(.22,1,.36,1) forwards';
+      document.getElementById('logo-img').style.animation = 'logo-in '+d+' ease forwards';
+    }
+    fetch('/api/stinger').then(function(r){return r.json();}).then(function(cfg){applyConfig(cfg);build();}).catch(function(){build();});
+    var socket = io();
+    socket.on('stingerConfig', function(){ location.reload(); });
+  </script>
+</body>
+</html>

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Stinger – Neumorphism</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { width:1920px; height:1080px; overflow:hidden; background:transparent; position:relative; }
+    @keyframes neuro-grow { 0%{opacity:0;transform:translate(-50%,-50%) scale(.5)} 55%{opacity:1;transform:translate(-50%,-50%) scale(1)} 85%{opacity:1;transform:translate(-50%,-50%) scale(1)} 100%{opacity:0;transform:translate(-50%,-50%) scale(1)} }
+    @keyframes logo-in    { 0%,35%{opacity:0} 60%{opacity:1} 85%{opacity:1} 100%{opacity:0} }
+    @keyframes bg-fade    { 0%{opacity:0} 15%{opacity:1} 85%{opacity:1} 100%{opacity:0} }
+    #neuro-bg   { position:absolute; inset:0; background:#E0E5EC; opacity:0; }
+    #neuro-card { position:absolute; top:50%; left:50%; width:860px; height:460px; border-radius:32px; background:#E0E5EC; box-shadow:14px 14px 28px #b8bec7,-14px -14px 28px #ffffff; opacity:0; }
+  </style>
+</head>
+<body>
+  <div id="neuro-bg"></div>
+  <div id="neuro-card"></div>
+  <div id="logo-wrap" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:100">
+    <img id="logo-img" src="" alt="" style="max-width:500px;max-height:340px;display:none;opacity:0" />
+  </div>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    var DUR = 1.9;
+    function applyConfig(cfg) {
+      if (cfg && cfg.logoUrl) {
+        var img = document.getElementById('logo-img');
+        img.src = cfg.logoUrl; img.style.display = 'block';
+      }
+    }
+    function build() {
+      var d = DUR+'s';
+      document.getElementById('neuro-bg').style.animation = 'bg-fade '+d+' ease forwards';
+      document.getElementById('neuro-card').style.animation = 'neuro-grow '+d+' cubic-bezier(.34,1.56,.64,1) forwards';
+      document.getElementById('logo-img').style.animation = 'logo-in '+d+' ease forwards';
+    }
+    fetch('/api/stinger').then(function(r){return r.json();}).then(function(cfg){applyConfig(cfg);build();}).catch(function(){build();});
+    var socket = io();
+    socket.on('stingerConfig', function(){ location.reload(); });
+  </script>
+</body>
+</html>

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Stinger – Pixel Art</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { width:1920px; height:1080px; overflow:hidden; background:transparent; position:relative; }
+    @keyframes pixel-fill { 0%{opacity:0} 30%{opacity:1} 80%{opacity:1} 100%{opacity:0} }
+    @keyframes logo-in    { 0%,28%{opacity:0} 52%{opacity:1} 80%{opacity:1} 100%{opacity:0} }
+    #px-bg      { position:absolute; inset:0; background:#0F0F2D; }
+    #px-overlay { position:absolute; inset:0; background:repeating-linear-gradient(0deg,transparent,transparent 7px,rgba(0,0,0,.3) 8px),repeating-linear-gradient(90deg,transparent,transparent 7px,rgba(0,0,0,.3) 8px); opacity:0; }
+    #px1 { position:absolute; top:0; left:0;    width:480px; height:540px; background:#FF0077; opacity:0; }
+    #px2 { position:absolute; top:0; right:0;   width:480px; height:540px; background:#FFFF00; opacity:0; }
+    #px3 { position:absolute; bottom:0; left:0; width:480px; height:540px; background:#00FFCC; opacity:0; }
+    #px4 { position:absolute; bottom:0; right:0;width:480px; height:540px; background:#5577FF; opacity:0; }
+  </style>
+</head>
+<body>
+  <div id="px-bg"></div>
+  <div id="px1"></div><div id="px2"></div>
+  <div id="px3"></div><div id="px4"></div>
+  <div id="px-overlay"></div>
+  <div id="logo-wrap" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:100">
+    <img id="logo-img" src="" alt="" style="max-width:500px;max-height:340px;display:none;opacity:0" />
+  </div>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    var DUR = 1.9;
+    function applyConfig(cfg) {
+      if (cfg && cfg.logoUrl) {
+        var img = document.getElementById('logo-img');
+        img.src = cfg.logoUrl; img.style.display = 'block';
+      }
+    }
+    function build() {
+      var d = DUR+'s';
+      [['px1',0],['px2',.1],['px3',.2],['px4',.15]].forEach(function(p){
+        document.getElementById(p[0]).style.animation = 'pixel-fill '+d+' '+p[1]+'s steps(4) forwards';
+      });
+      document.getElementById('px-overlay').style.animation = 'pixel-fill '+d+' .05s ease forwards';
+      document.getElementById('logo-img').style.animation = 'logo-in '+d+' ease forwards';
+    }
+    fetch('/api/stinger').then(function(r){return r.json();}).then(function(cfg){applyConfig(cfg);build();}).catch(function(){build();});
+    var socket = io();
+    socket.on('stingerConfig', function(){ location.reload(); });
+  </script>
+</body>
+</html>

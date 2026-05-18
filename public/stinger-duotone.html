@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Stinger – Duotone</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { width:1920px; height:1080px; overflow:hidden; background:transparent; position:relative; }
+    @keyframes dt-left  { 0%{transform:translateX(-100%)} 38%{transform:translateX(0)} 68%{transform:translateX(0)} 100%{transform:translateX(-100%)} }
+    @keyframes dt-right { 0%{transform:translateX(100%)}  38%{transform:translateX(0)} 68%{transform:translateX(0)} 100%{transform:translateX(100%)} }
+    @keyframes logo-in  { 0%,33%{opacity:0} 55%{opacity:1} 68%{opacity:1} 100%{opacity:0} }
+    #dt1 { position:absolute; top:0; left:0;  width:960px; height:1080px; background:#0D0221; }
+    #dt2 { position:absolute; top:0; right:0; width:960px; height:1080px; background:#FF6EC7; }
+  </style>
+</head>
+<body>
+  <div id="dt1"></div>
+  <div id="dt2"></div>
+  <div id="logo-wrap" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:100">
+    <img id="logo-img" src="" alt="" style="max-width:500px;max-height:340px;display:none;opacity:0" />
+  </div>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    var DUR = 1.9;
+    function applyConfig(cfg) {
+      if (cfg && cfg.logoUrl) {
+        var img = document.getElementById('logo-img');
+        img.src = cfg.logoUrl; img.style.display = 'block';
+      }
+    }
+    function build() {
+      var d = DUR+'s';
+      document.getElementById('dt1').style.animation = 'dt-left '+d+' cubic-bezier(.76,0,.24,1) forwards';
+      document.getElementById('dt2').style.animation = 'dt-right '+d+' cubic-bezier(.76,0,.24,1) forwards';
+      document.getElementById('logo-img').style.animation = 'logo-in '+d+' ease forwards';
+    }
+    fetch('/api/stinger').then(function(r){return r.json();}).then(function(cfg){applyConfig(cfg);build();}).catch(function(){build();});
+    var socket = io();
+    socket.on('stingerConfig', function(){ location.reload(); });
+  </script>
+</body>
+</html>

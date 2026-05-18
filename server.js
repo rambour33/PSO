@@ -8,18 +8,6 @@ const os = require('os');
 const crypto = require('crypto');
 
 const RULESETS_FILE      = path.join(__dirname, 'data', 'rulesets.json');
-const THEME_PRESETS_FILE = path.join(__dirname, 'data', 'theme-presets.json');
-
-function loadThemePresets() {
-  try {
-    if (!fs.existsSync(THEME_PRESETS_FILE)) return [];
-    return JSON.parse(fs.readFileSync(THEME_PRESETS_FILE, 'utf8'));
-  } catch { return []; }
-}
-
-function saveThemePresets(list) {
-  fs.writeFileSync(THEME_PRESETS_FILE, JSON.stringify(list, null, 2));
-}
 
 function loadRulesets() {
   try {
@@ -456,7 +444,6 @@ app.get('/super-overlay/:n', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'super-overlay.html'));
 });
 app.get('/avsync',              (req, res) => res.sendFile(path.join(__dirname, 'public', 'avsync.html')));
-app.get('/scoreboard-elements', (req, res) => res.sendFile(path.join(__dirname, 'public', 'scoreboard-elements.html')));
 
 // ─── Collection OBS ───────────────────────────────────────────────────────────
 app.get('/api/obs-collection', (req, res) => {
@@ -465,22 +452,29 @@ app.get('/api/obs-collection', (req, res) => {
 
   const OVERLAYS = [
     // ── Smash / Général ──────────────────────────────────────────────────────
-    { scene: 'PSO – Scoreboard',          source: 'PSO Scoreboard',          path: '/overlay' },
-    { scene: 'PSO – VS Screen',           source: 'PSO VS Screen',           path: '/vs-screen' },
-    { scene: 'PSO – Victory',            source: 'PSO Victory',            path: '/victory' },
-    { scene: 'PSO – Casters',             source: 'PSO Casters',             path: '/casters' },
-    { scene: 'PSO – Head to Head',        source: 'PSO Head to Head',        path: '/h2h' },
-    { scene: 'PSO – Stage Veto',          source: 'PSO Stage Veto',          path: '/stageveto' },
-    { scene: 'PSO – Stats Joueur',        source: 'PSO Stats Joueur',        path: '/player-stats' },
-    { scene: 'PSO – Historique Tournoi',  source: 'PSO Historique Tournoi',  path: '/tournament-history' },
+    { scene: 'PSO – Scoreboard',           source: 'PSO Scoreboard',           path: '/overlay' },
+    { scene: 'PSO – Scoreboard Slim',      source: 'PSO Scoreboard Slim',      path: '/overlay-slim' },
+    { scene: 'PSO – Scoreboard Custom',    source: 'PSO Scoreboard Custom',    path: '/scoreboard-custom' },
+    { scene: 'PSO – VS Screen',            source: 'PSO VS Screen',            path: '/vs-screen' },
+    { scene: 'PSO – Victory',              source: 'PSO Victory',              path: '/victory' },
+    { scene: 'PSO – Casters',              source: 'PSO Casters',              path: '/casters' },
+    { scene: 'PSO – Casters Custom',       source: 'PSO Casters Custom',       path: '/casters-custom' },
+    { scene: 'PSO – Head to Head',         source: 'PSO Head to Head',         path: '/h2h' },
+    { scene: 'PSO – Stage Veto',           source: 'PSO Stage Veto',           path: '/stageveto' },
+    { scene: 'PSO – Stats Joueur',         source: 'PSO Stats Joueur',         path: '/player-stats' },
+    { scene: 'PSO – Historique Tournoi',   source: 'PSO Historique Tournoi',   path: '/tournament-history' },
+    { scene: 'PSO – Bracket',              source: 'PSO Bracket',              path: '/bracket' },
+    { scene: 'PSO – Top 8',               source: 'PSO Top 8',               path: '/top8' },
+    { scene: 'PSO – Timer',               source: 'PSO Timer',               path: '/timer' },
+    { scene: 'PSO – Prochain Match',       source: 'PSO Prochain Match',       path: '/upcoming' },
     // ── Caméra & layout ──────────────────────────────────────────────────────
-    { scene: 'PSO – Cam Overlay',         source: 'PSO Cam Overlay',         path: '/cam' },
-    { scene: 'PSO – Cadres',              source: 'PSO Cadres',              path: '/frames' },
-    { scene: 'PSO – Ticker',              source: 'PSO Ticker',              path: '/ticker' },
-    { scene: 'PSO – Stream Title',        source: 'PSO Stream Title',        path: '/stream-title' },
-    { scene: 'PSO – Super Overlay',       source: 'PSO Super Overlay',       path: '/super-overlay' },
-    { scene: 'PSO – Super Scènes',        source: 'PSO Super Scènes',        path: '/super-scenes' },
-    { scene: 'PSO',                        source: 'PSO',                     path: '/pso' },
+    { scene: 'PSO – Cam Overlay',          source: 'PSO Cam Overlay',          path: '/cam' },
+    { scene: 'PSO – Cadres',               source: 'PSO Cadres',               path: '/frames' },
+    { scene: 'PSO – Ticker',               source: 'PSO Ticker',               path: '/ticker' },
+    { scene: 'PSO – Stream Title',         source: 'PSO Stream Title',         path: '/stream-title' },
+    { scene: 'PSO – Super Overlay',        source: 'PSO Super Overlay',        path: '/super-overlay' },
+    { scene: 'PSO – Super Scènes',         source: 'PSO Super Scènes',         path: '/super-scenes' },
+    { scene: 'PSO',                         source: 'PSO',                      path: '/pso' },
     // ── Scènes custom (Créateur de scènes) ───────────────────────────────────
     ...Array.from({ length: 9 }, (_, i) => ({
       scene:  `Scene Custom ${i + 1}`,
@@ -489,8 +483,15 @@ app.get('/api/obs-collection', (req, res) => {
     })),
     // ── Twitch ───────────────────────────────────────────────────────────────
     { scene: 'PSO – Next Match',           source: 'PSO Next Match',           path: '/nextmatch' },
-    { scene: 'PSO – Twitch Viewers',      source: 'PSO Twitch Viewers',      path: '/twitch-viewer' },
-    { scene: 'PSO – Twitch Chat',         source: 'PSO Twitch Chat',         path: '/twitch-chat' },
+    { scene: 'PSO – Twitch Viewers',       source: 'PSO Twitch Viewers',       path: '/twitch-viewer' },
+    { scene: 'PSO – Twitch Chat',          source: 'PSO Twitch Chat',          path: '/twitch-chat' },
+    { scene: 'PSO – Twitch Alertes',       source: 'PSO Twitch Alertes',       path: '/twitch-alerts' },
+    // ── YouTube ───────────────────────────────────────────────────────────────
+    { scene: 'PSO – YouTube Viewers',      source: 'PSO YouTube Viewers',      path: '/youtube-viewer' },
+    { scene: 'PSO – YouTube Chat',         source: 'PSO YouTube Chat',         path: '/youtube-chat' },
+    { scene: 'PSO – YouTube Alertes',      source: 'PSO YouTube Alertes',      path: '/youtube-alerts' },
+    // ── Chat & Divers ─────────────────────────────────────────────────────────
+    { scene: 'PSO – Chat Combiné',         source: 'PSO Chat Combiné',         path: '/combined-chat' },
   ];
 
   function makeBrowserSource(name, url) {
@@ -590,42 +591,6 @@ app.get('/api/obs-collection', (req, res) => {
   res.json(collection);
 });
 
-// ─── Éléments libres (overlay transparent indépendant) ───────────────────────
-
-let elementsOverlayState = {
-  visible: true,
-  elements: {
-    // Positions calquées sur le layout du scoreboard principal (top, full-width)
-    // Les éléments du scoreboard couvrent env. y:0→145px en haut de l'écran
-    p1char:     { x:  54,  y:  91, visible: true, size: 100 },
-    p1flag:     { x:  54,  y: 190, visible: true, size:  60 },
-    p1seed:     { x: 175,  y:  72, visible: true, size:  11 },
-    p1tag:      { x: 250,  y:  84, visible: true, size:  16 },
-    p1name:     { x: 360,  y:  95, visible: true, size:  24 },
-    p1pronouns: { x: 490,  y:  84, visible: true, size:  14 },
-    p1score:    { x: 868,  y:  75, visible: true, size:  52 },
-    p2char:     { x: 1866, y:  91, visible: true, size: 100 },
-    p2flag:     { x: 1866, y: 190, visible: true, size:  60 },
-    p2seed:     { x: 1745, y:  72, visible: true, size:  11 },
-    p2tag:      { x: 1670, y:  84, visible: true, size:  16 },
-    p2name:     { x: 1560, y:  95, visible: true, size:  24 },
-    p2pronouns: { x: 1430, y:  84, visible: true, size:  14 },
-    p2score:    { x: 1052, y:  75, visible: true, size:  52 },
-    event:      { x: 960,  y:  20, visible: true, size:  12 },
-    phase:      { x: 960,  y:  20, visible: true, size:  12 },
-    format:     { x: 960,  y:  20, visible: true, size:  12 },
-  },
-};
-
-app.get('/api/elements-overlay', (req, res) => res.json(elementsOverlayState));
-app.post('/api/elements-overlay', (req, res) => {
-  elementsOverlayState = { ...elementsOverlayState, ...req.body };
-  if (req.body.elements) {
-    elementsOverlayState.elements = { ...elementsOverlayState.elements, ...req.body.elements };
-  }
-  io.emit('elementsOverlayUpdate', elementsOverlayState);
-  res.json(elementsOverlayState);
-});
 
 // ─── Titre du stream ──────────────────────────────────────────────────────────
 
@@ -669,7 +634,6 @@ const SUPER_LAYER_DEFS = [
   { id: 'overlay',            label: 'Overlay principal',   url: '/overlay',            category: 'Scoreboard'          },
   { id: 'overlay-slim',       label: 'Scoreboard slim',     url: '/overlay-slim',       category: 'Scoreboard'          },
   { id: 'scoreboard-custom',  label: 'Scoreboard custom',   url: '/scoreboard-custom',  category: 'Scoreboard'          },
-  { id: 'scoreboard-elements',label: 'Éléments scoreboard', url: '/scoreboard-elements',category: 'Scoreboard'          },
   // Casters
   { id: 'casters',            label: 'Casters',             url: '/casters',            category: 'Casters'             },
   { id: 'casters-custom',     label: 'Casters personnalisés',url: '/casters-custom',    category: 'Casters'             },
@@ -842,7 +806,6 @@ function getOverlaySnapshot(id) {
     'player-stats':       () => playerStatsState,
     'tournament-history': () => tournamentHistoryState,
     'twitch-chat':        () => twitchChatState,
-    'scoreboard-elements': () => elementsOverlayState,
   };
   const getter = map[id];
   return getter ? JSON.parse(JSON.stringify(getter())) : null;
@@ -860,7 +823,6 @@ function applyOverlaySnapshot(id, snapshot) {
     case 'player-stats':       playerStatsState      = { ...playerStatsState,      ...snapshot }; io.emit('playerStatsUpdate',      playerStatsState);      break;
     case 'tournament-history': tournamentHistoryState= { ...tournamentHistoryState,...snapshot }; io.emit('tournamentHistoryUpdate',tournamentHistoryState);break;
     case 'twitch-chat':        twitchChatState       = { ...twitchChatState,       ...snapshot }; io.emit('twitchChatUpdate',       twitchChatState);       break;
-    case 'scoreboard-elements': elementsOverlayState = { ...elementsOverlayState, ...snapshot }; io.emit('elementsOverlayUpdate', elementsOverlayState);   break;
   }
 }
 
@@ -2163,24 +2125,6 @@ app.delete('/api/rulesets/saved/:name', (req, res) => {
   res.json(list);
 });
 
-// ── Theme presets ──────────────────────────────────────────────────────────────
-
-app.get('/api/theme-presets', (req, res) => res.json(loadThemePresets()));
-
-app.post('/api/theme-presets', (req, res) => {
-  const { name, preset } = req.body;
-  if (!name) return res.status(400).json({ error: 'name required' });
-  const list = loadThemePresets().filter(p => p.name !== name);
-  list.push({ name, preset });
-  saveThemePresets(list);
-  res.json(list);
-});
-
-app.delete('/api/theme-presets/:name', (req, res) => {
-  const list = loadThemePresets().filter(p => p.name !== decodeURIComponent(req.params.name));
-  saveThemePresets(list);
-  res.json(list);
-});
 
 // ─── Socket.io ────────────────────────────────────────────────────────────────
 
@@ -2211,7 +2155,6 @@ io.on('connection', (socket) => {
   socket.emit('superStateUpdate', superState);
   socket.emit('titleUpdate', titleState);
   socket.emit('top8Update', top8State);
-  socket.emit('elementsOverlayUpdate', elementsOverlayState);
 
   // Déclenche l'animation d'entrée sur la VS screen
   socket.on('triggerVsScreen', () => {
@@ -3639,7 +3582,7 @@ app.get('/casters-custom', (req, res) => {
 // ─── Transitions / Animations overlays ───────────────────────────────────────
 
 const TRANSITION_IDS = [
-  'scoreboard', 'scoreboard-elements', 'casters', 'stageveto',
+  'scoreboard', 'casters', 'stageveto',
   'ticker', 'cam', 'frames', 'stream-title', 'h2h', 'player-stats',
   'tournament-history', 'bracket', 'top8', 'timer', 'nextmatch', 'upcoming',
   'twitch-chat', 'twitch-viewer', 'youtube-chat', 'combined-chat',
@@ -3745,7 +3688,6 @@ app.post('/api/transitions/:id/hide', (req, res) => {
 
 const DECK_LABELS = {
   'scoreboard':         'Scoreboard',
-  'scoreboard-elements':'Éléments Scoreboard',
   'casters':            'Commentateurs',
   'stageveto':          'Stage Veto',
   'ticker':             'Bandeau défilant',
@@ -4020,7 +3962,6 @@ app.get('/stinger-brisure',    (req, res) => res.sendFile(path.join(__dirname, '
 app.get('/stinger-diamants',   (req, res) => res.sendFile(path.join(__dirname, 'public', 'stinger-diamants.html')));
 app.get('/stinger-eclair',       (req, res) => res.sendFile(path.join(__dirname, 'public', 'stinger-eclair.html')));
 app.get('/stinger-dual',         (req, res) => res.sendFile(path.join(__dirname, 'public', 'stinger-dual.html')));
-app.get('/stinger-transparent',  (req, res) => res.sendFile(path.join(__dirname, 'public', 'stinger-transparent.html')));
 app.get('/stinger-default',      (req, res) => res.sendFile(path.join(__dirname, 'public', 'stinger-default.html')));
 app.get('/stinger-cyberpunk',    (req, res) => res.sendFile(path.join(__dirname, 'public', 'stinger-cyberpunk.html')));
 app.get('/stinger-synthwave',    (req, res) => res.sendFile(path.join(__dirname, 'public', 'stinger-synthwave.html')));
@@ -4029,6 +3970,35 @@ app.get('/stinger-egypte',       (req, res) => res.sendFile(path.join(__dirname,
 app.get('/stinger-grandeville',  (req, res) => res.sendFile(path.join(__dirname, 'public', 'stinger-grandeville.html')));
 app.get('/stinger-plage',        (req, res) => res.sendFile(path.join(__dirname, 'public', 'stinger-plage.html')));
 app.get('/stinger-alsace',       (req, res) => res.sendFile(path.join(__dirname, 'public', 'stinger-alsace.html')));
+app.get('/stinger-whitespace',   (req, res) => res.sendFile(path.join(__dirname, 'public', 'stinger-whitespace.html')));
+app.get('/stinger-monochrome',   (req, res) => res.sendFile(path.join(__dirname, 'public', 'stinger-monochrome.html')));
+app.get('/stinger-brutaliste',   (req, res) => res.sendFile(path.join(__dirname, 'public', 'stinger-brutaliste.html')));
+app.get('/stinger-flatdesign',   (req, res) => res.sendFile(path.join(__dirname, 'public', 'stinger-flatdesign.html')));
+app.get('/stinger-glass',        (req, res) => res.sendFile(path.join(__dirname, 'public', 'stinger-glass.html')));
+app.get('/stinger-neuro',        (req, res) => res.sendFile(path.join(__dirname, 'public', 'stinger-neuro.html')));
+app.get('/stinger-clay',         (req, res) => res.sendFile(path.join(__dirname, 'public', 'stinger-clay.html')));
+app.get('/stinger-paper',        (req, res) => res.sendFile(path.join(__dirname, 'public', 'stinger-paper.html')));
+app.get('/stinger-grain',        (req, res) => res.sendFile(path.join(__dirname, 'public', 'stinger-grain.html')));
+app.get('/stinger-darkelegant',  (req, res) => res.sendFile(path.join(__dirname, 'public', 'stinger-darkelegant.html')));
+app.get('/stinger-neonoir',      (req, res) => res.sendFile(path.join(__dirname, 'public', 'stinger-neonoir.html')));
+app.get('/stinger-pastel',       (req, res) => res.sendFile(path.join(__dirname, 'public', 'stinger-pastel.html')));
+app.get('/stinger-duotone',      (req, res) => res.sendFile(path.join(__dirname, 'public', 'stinger-duotone.html')));
+app.get('/stinger-aurora',       (req, res) => res.sendFile(path.join(__dirname, 'public', 'stinger-aurora.html')));
+app.get('/stinger-bauhaus',      (req, res) => res.sendFile(path.join(__dirname, 'public', 'stinger-bauhaus.html')));
+app.get('/stinger-artdeco',      (req, res) => res.sendFile(path.join(__dirname, 'public', 'stinger-artdeco.html')));
+app.get('/stinger-y2k',          (req, res) => res.sendFile(path.join(__dirname, 'public', 'stinger-y2k.html')));
+app.get('/stinger-wabisabi',     (req, res) => res.sendFile(path.join(__dirname, 'public', 'stinger-wabisabi.html')));
+app.get('/stinger-swiss',        (req, res) => res.sendFile(path.join(__dirname, 'public', 'stinger-swiss.html')));
+app.get('/stinger-biomorphic',   (req, res) => res.sendFile(path.join(__dirname, 'public', 'stinger-biomorphic.html')));
+app.get('/stinger-earthy',       (req, res) => res.sendFile(path.join(__dirname, 'public', 'stinger-earthy.html')));
+app.get('/stinger-botanik',      (req, res) => res.sendFile(path.join(__dirname, 'public', 'stinger-botanik.html')));
+app.get('/stinger-aquarelle',    (req, res) => res.sendFile(path.join(__dirname, 'public', 'stinger-aquarelle.html')));
+app.get('/stinger-cosmos',       (req, res) => res.sendFile(path.join(__dirname, 'public', 'stinger-cosmos.html')));
+app.get('/stinger-brutalism',    (req, res) => res.sendFile(path.join(__dirname, 'public', 'stinger-brutalism.html')));
+app.get('/stinger-skeuo',        (req, res) => res.sendFile(path.join(__dirname, 'public', 'stinger-skeuo.html')));
+app.get('/stinger-hud',          (req, res) => res.sendFile(path.join(__dirname, 'public', 'stinger-hud.html')));
+app.get('/stinger-pixelart',     (req, res) => res.sendFile(path.join(__dirname, 'public', 'stinger-pixelart.html')));
+app.get('/stinger-dataviz',      (req, res) => res.sendFile(path.join(__dirname, 'public', 'stinger-dataviz.html')));
 
 app.get('/api/stinger', (req, res) => res.json(stingerConfig));
 

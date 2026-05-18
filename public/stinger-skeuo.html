@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Stinger – Skéuomorphisme</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { width:1920px; height:1080px; overflow:hidden; background:transparent; position:relative; }
+    @keyframes curtain-open-l { 0%{transform:scaleX(1)} 50%{transform:scaleX(0)} 80%{transform:scaleX(0)} 100%{transform:scaleX(1)} }
+    @keyframes curtain-open-r { 0%{transform:scaleX(1)} 50%{transform:scaleX(0)} 80%{transform:scaleX(0)} 100%{transform:scaleX(1)} }
+    @keyframes logo-in        { 0%,42%{opacity:0} 65%{opacity:1} 82%{opacity:1} 100%{opacity:0} }
+    #sk-bg        { position:absolute; inset:0; background:linear-gradient(160deg,#2C2C2C,#1A1A1A,#383838); }
+    #sk-curtain-l { position:absolute; top:0; left:0;  width:960px; height:1080px; background:linear-gradient(90deg,#3A3020,#B8A060,#2A2010); transform-origin:left; }
+    #sk-curtain-r { position:absolute; top:0; right:0; width:960px; height:1080px; background:linear-gradient(90deg,#2A2010,#B8A060,#3A3020); transform-origin:right; }
+  </style>
+</head>
+<body>
+  <div id="sk-bg"></div>
+  <div id="sk-curtain-l"></div>
+  <div id="sk-curtain-r"></div>
+  <div id="logo-wrap" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:100">
+    <img id="logo-img" src="" alt="" style="max-width:500px;max-height:340px;display:none;opacity:0" />
+  </div>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    var DUR = 1.9;
+    function applyConfig(cfg) {
+      if (cfg && cfg.logoUrl) {
+        var img = document.getElementById('logo-img');
+        img.src = cfg.logoUrl; img.style.display = 'block';
+      }
+    }
+    function build() {
+      var d = DUR+'s';
+      document.getElementById('sk-curtain-l').style.animation = 'curtain-open-l '+d+' cubic-bezier(.76,0,.24,1) forwards';
+      document.getElementById('sk-curtain-r').style.animation = 'curtain-open-r '+d+' cubic-bezier(.76,0,.24,1) forwards';
+      document.getElementById('logo-img').style.animation = 'logo-in '+d+' ease forwards';
+    }
+    fetch('/api/stinger').then(function(r){return r.json();}).then(function(cfg){applyConfig(cfg);build();}).catch(function(){build();});
+    var socket = io();
+    socket.on('stingerConfig', function(){ location.reload(); });
+  </script>
+</body>
+</html>

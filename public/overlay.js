@@ -601,19 +601,24 @@ function update(s) {
   const p1Img = document.getElementById('p1-char-img');
   const p1Ph  = document.getElementById('p1-char-placeholder');
   if (s.player1.character) {
-    const n1     = s.player1.character.name.replace(/\s*\/\s*/g, '-');
-    const mural  = s.charDisplayMode === 'mural';
-    p1Img.src    = mural ? `/murals/chara_1_${n1}_mural.png`
-                         : `/full/chara_1_${n1}_${String(s.player1.stockColor ?? 0).padStart(2,'0')}.png`;
+    const n1    = s.player1.character.name.replace(/\s*\/\s*/g, '-');
+    const mural = s.charDisplayMode === 'mural';
+    const src1  = mural ? `/murals/chara_1_${n1}_mural.png`
+                        : `/full/chara_1_${n1}_${String(s.player1.stockColor ?? 0).padStart(2,'0')}.png`;
+    p1Img.onerror = null;
+    p1Img.onerror = mural
+      ? () => { p1Img.onerror = null; p1Img.style.display = 'none'; p1Ph.style.display = 'flex'; p1Ph.textContent = n1.charAt(0); }
+      : () => {
+          console.warn('[PSO] p1 img error for', src1, '— trying _00 fallback');
+          p1Img.onerror = () => { p1Img.onerror = null; p1Img.style.display = 'none'; p1Ph.style.display = 'flex'; p1Ph.textContent = n1.charAt(0); };
+          p1Img.src = `/full/chara_1_${n1}_00.png`;
+        };
+    console.log('[PSO] p1 char src →', src1);
+    p1Img.src = src1;
     p1Img.style.display = 'block';
     p1Ph.style.display = 'none';
-    p1Img.onerror = mural
-      ? () => { p1Img.style.display = 'none'; p1Ph.style.display = 'flex'; p1Ph.textContent = n1.charAt(0); }
-      : () => {
-          p1Img.src = `/full/chara_1_${n1}_00.png`;
-          p1Img.onerror = () => { p1Img.style.display = 'none'; p1Ph.style.display = 'flex'; p1Ph.textContent = n1.charAt(0); };
-        };
   } else {
+    p1Img.onerror = null;
     p1Img.style.display = 'none';
     p1Ph.style.display = 'flex';
     p1Ph.textContent = '?';
@@ -624,12 +629,15 @@ function update(s) {
   const p1Sep   = document.getElementById('p1-icon-sep');
   if (s.player1.character) {
     const color1 = String(s.player1.stockColor ?? 0).padStart(2, '0');
-    const name1 = s.player1.character.name.replace(/\s*\/\s*/g, '-');
-    p1Stock.src = `/Stock Icons/chara_2_${name1}_${color1}.png`;
+    const name1  = s.player1.character.name.replace(/\s*\/\s*/g, '-');
+    const src1s  = `/Stock Icons/chara_2_${name1}_${color1}.png`;
+    p1Stock.onerror = null;
+    p1Stock.onerror = () => { p1Stock.onerror = null; p1Stock.style.display = 'none'; p1Sep.style.display = 'none'; };
+    p1Stock.src = src1s;
     p1Stock.style.display = 'block';
     p1Sep.style.display = 'block';
-    p1Stock.onerror = () => { p1Stock.style.display = 'none'; p1Sep.style.display = 'none'; };
   } else {
+    p1Stock.onerror = null;
     p1Stock.style.display = 'none';
     p1Sep.style.display = 'none';
   }
@@ -638,19 +646,24 @@ function update(s) {
   const p2Img = document.getElementById('p2-char-img');
   const p2Ph  = document.getElementById('p2-char-placeholder');
   if (s.player2.character) {
-    const n2     = s.player2.character.name.replace(/\s*\/\s*/g, '-');
+    const n2    = s.player2.character.name.replace(/\s*\/\s*/g, '-');
     const mural2 = s.charDisplayMode === 'mural';
-    p2Img.src    = mural2 ? `/murals/chara_1_${n2}_mural.png`
-                          : `/full/chara_1_${n2}_${String(s.player2.stockColor ?? 0).padStart(2,'0')}.png`;
+    const src2  = mural2 ? `/murals/chara_1_${n2}_mural.png`
+                         : `/full/chara_1_${n2}_${String(s.player2.stockColor ?? 0).padStart(2,'0')}.png`;
+    p2Img.onerror = null;
+    p2Img.onerror = mural2
+      ? () => { p2Img.onerror = null; p2Img.style.display = 'none'; p2Ph.style.display = 'flex'; p2Ph.textContent = n2.charAt(0); }
+      : () => {
+          console.warn('[PSO] p2 img error for', src2, '— trying _00 fallback');
+          p2Img.onerror = () => { p2Img.onerror = null; p2Img.style.display = 'none'; p2Ph.style.display = 'flex'; p2Ph.textContent = n2.charAt(0); };
+          p2Img.src = `/full/chara_1_${n2}_00.png`;
+        };
+    console.log('[PSO] p2 char src →', src2);
+    p2Img.src = src2;
     p2Img.style.display = 'block';
     p2Ph.style.display = 'none';
-    p2Img.onerror = mural2
-      ? () => { p2Img.style.display = 'none'; p2Ph.style.display = 'flex'; p2Ph.textContent = n2.charAt(0); }
-      : () => {
-          p2Img.src = `/full/chara_1_${n2}_00.png`;
-          p2Img.onerror = () => { p2Img.style.display = 'none'; p2Ph.style.display = 'flex'; p2Ph.textContent = n2.charAt(0); };
-        };
   } else {
+    p2Img.onerror = null;
     p2Img.style.display = 'none';
     p2Ph.style.display = 'flex';
     p2Ph.textContent = '?';
@@ -661,12 +674,15 @@ function update(s) {
   const p2Sep   = document.getElementById('p2-icon-sep');
   if (s.player2.character) {
     const color2 = String(s.player2.stockColor ?? 0).padStart(2, '0');
-    const name2 = s.player2.character.name.replace(/\s*\/\s*/g, '-');
-    p2Stock.src = `/Stock Icons/chara_2_${name2}_${color2}.png`;
+    const name2  = s.player2.character.name.replace(/\s*\/\s*/g, '-');
+    const src2s  = `/Stock Icons/chara_2_${name2}_${color2}.png`;
+    p2Stock.onerror = null;
+    p2Stock.onerror = () => { p2Stock.onerror = null; p2Stock.style.display = 'none'; p2Sep.style.display = 'none'; };
+    p2Stock.src = src2s;
     p2Stock.style.display = 'block';
     p2Sep.style.display = 'block';
-    p2Stock.onerror = () => { p2Stock.style.display = 'none'; p2Sep.style.display = 'none'; };
   } else {
+    p2Stock.onerror = null;
     p2Stock.style.display = 'none';
     p2Sep.style.display = 'none';
   }
@@ -790,7 +806,11 @@ function update(s) {
   currentState = JSON.parse(JSON.stringify(s));
 }
 
-socket.on('stateUpdate', update);
+socket.on('stateUpdate', (s) => {
+  console.log('[PSO] stateUpdate — p1 char:', s.player1?.character?.name ?? 'none', '| p2 char:', s.player2?.character?.name ?? 'none', '| mode:', s.charDisplayMode);
+  window._psoLastState = s;
+  update(s);
+});
 
 PS.init();
 

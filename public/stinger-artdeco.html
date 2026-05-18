@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Stinger – Art Déco</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { width:1920px; height:1080px; overflow:hidden; background:transparent; position:relative; }
+    @keyframes fan-open { 0%{transform:scaleY(0);opacity:0} 50%{transform:scaleY(1);opacity:1} 80%{opacity:1} 100%{opacity:0} }
+    @keyframes deco-bg  { 0%{opacity:0} 20%{opacity:1} 80%{opacity:1} 100%{opacity:0} }
+    @keyframes logo-in  { 0%,38%{opacity:0} 62%{opacity:1} 82%{opacity:1} 100%{opacity:0} }
+    #deco-bg { position:absolute; inset:0; background:#1A1206; opacity:0; }
+    .deco-bar { position:absolute; top:0; height:1080px; width:12px; background:linear-gradient(180deg,#C9A84C,#8B6A2A,#C9A84C); transform-origin:top center; transform:scaleY(0); opacity:0; }
+  </style>
+</head>
+<body>
+  <div id="deco-bg"></div>
+  <div class="deco-bar" style="left:calc(50% - 320px)"></div>
+  <div class="deco-bar" style="left:calc(50% - 220px)"></div>
+  <div class="deco-bar" style="left:calc(50% - 120px)"></div>
+  <div class="deco-bar" style="left:calc(50% - 6px)"></div>
+  <div class="deco-bar" style="left:calc(50% + 108px)"></div>
+  <div class="deco-bar" style="left:calc(50% + 208px)"></div>
+  <div class="deco-bar" style="left:calc(50% + 308px)"></div>
+  <div id="logo-wrap" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:100">
+    <img id="logo-img" src="" alt="" style="max-width:500px;max-height:340px;display:none;opacity:0" />
+  </div>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    var DUR = 1.9;
+    function applyConfig(cfg) {
+      if (cfg && cfg.logoUrl) {
+        var img = document.getElementById('logo-img');
+        img.src = cfg.logoUrl; img.style.display = 'block';
+      }
+    }
+    function build() {
+      var d = DUR+'s';
+      document.getElementById('deco-bg').style.animation = 'deco-bg '+d+' ease forwards';
+      var delays = [0,.06,.12,.18,.12,.06,0];
+      document.querySelectorAll('.deco-bar').forEach(function(el,i){
+        el.style.animation = 'fan-open '+d+' '+delays[i]+'s cubic-bezier(.34,1.26,.64,1) forwards';
+      });
+      document.getElementById('logo-img').style.animation = 'logo-in '+d+' ease forwards';
+    }
+    fetch('/api/stinger').then(function(r){return r.json();}).then(function(cfg){applyConfig(cfg);build();}).catch(function(){build();});
+    var socket = io();
+    socket.on('stingerConfig', function(){ location.reload(); });
+  </script>
+</body>
+</html>

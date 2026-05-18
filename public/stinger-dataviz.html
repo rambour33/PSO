@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Stinger – Datavisualization</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { width:1920px; height:1080px; overflow:hidden; background:transparent; position:relative; }
+    @keyframes bar-rise { 0%{transform:scaleY(0)} 50%{transform:scaleY(1)} 80%{transform:scaleY(1)} 100%{transform:scaleY(0)} }
+    @keyframes logo-in  { 0%,40%{opacity:0} 62%{opacity:1} 80%{opacity:1} 100%{opacity:0} }
+    #dv-bg   { position:absolute; inset:0; background:#0A1628; }
+    #dv-grid { position:absolute; inset:0; background-image:linear-gradient(rgba(78,196,207,.08) 1px,transparent 1px); background-size:100% 108px; }
+    .dv-bar  { position:absolute; bottom:0; transform-origin:bottom; transform:scaleY(0); border-radius:4px 4px 0 0; }
+    #b1 {left:80px;  width:100px;height:700px;background:linear-gradient(0deg,#FF6B35,#FF9A6C);}
+    #b2 {left:220px; width:100px;height:500px;background:linear-gradient(0deg,#4EC4CF,#7FE5EE);}
+    #b3 {left:360px; width:100px;height:850px;background:linear-gradient(0deg,#FF6B35,#FF9A6C);}
+    #b4 {left:500px; width:100px;height:400px;background:linear-gradient(0deg,#9966FF,#BB99FF);}
+    #b5 {left:640px; width:100px;height:620px;background:linear-gradient(0deg,#4EC4CF,#7FE5EE);}
+    #b6 {left:780px; width:100px;height:780px;background:linear-gradient(0deg,#FF6B35,#FF9A6C);}
+    #b7 {left:920px; width:100px;height:550px;background:linear-gradient(0deg,#9966FF,#BB99FF);}
+    #b8 {left:1060px;width:100px;height:680px;background:linear-gradient(0deg,#4EC4CF,#7FE5EE);}
+    #b9 {left:1200px;width:100px;height:460px;background:linear-gradient(0deg,#FF6B35,#FF9A6C);}
+    #b10{left:1340px;width:100px;height:820px;background:linear-gradient(0deg,#9966FF,#BB99FF);}
+    #b11{left:1480px;width:100px;height:590px;background:linear-gradient(0deg,#4EC4CF,#7FE5EE);}
+    #b12{left:1620px;width:100px;height:730px;background:linear-gradient(0deg,#FF6B35,#FF9A6C);}
+    #b13{left:1760px;width:100px;height:380px;background:linear-gradient(0deg,#9966FF,#BB99FF);}
+  </style>
+</head>
+<body>
+  <div id="dv-bg"></div>
+  <div id="dv-grid"></div>
+  <div class="dv-bar" id="b1"></div><div class="dv-bar" id="b2"></div><div class="dv-bar" id="b3"></div>
+  <div class="dv-bar" id="b4"></div><div class="dv-bar" id="b5"></div><div class="dv-bar" id="b6"></div>
+  <div class="dv-bar" id="b7"></div><div class="dv-bar" id="b8"></div><div class="dv-bar" id="b9"></div>
+  <div class="dv-bar" id="b10"></div><div class="dv-bar" id="b11"></div><div class="dv-bar" id="b12"></div>
+  <div class="dv-bar" id="b13"></div>
+  <div id="logo-wrap" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:100">
+    <img id="logo-img" src="" alt="" style="max-width:500px;max-height:340px;display:none;opacity:0" />
+  </div>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    var DUR = 1.9;
+    function applyConfig(cfg) {
+      if (cfg && cfg.logoUrl) {
+        var img = document.getElementById('logo-img');
+        img.src = cfg.logoUrl; img.style.display = 'block';
+      }
+    }
+    function build() {
+      var d = DUR+'s';
+      var delays = [0,.06,.12,.18,.24,.30,.36,.30,.24,.18,.12,.06,0];
+      document.querySelectorAll('.dv-bar').forEach(function(el,i){
+        el.style.animation = 'bar-rise '+d+' '+delays[i]+'s cubic-bezier(.22,1,.36,1) forwards';
+      });
+      document.getElementById('logo-img').style.animation = 'logo-in '+d+' ease forwards';
+    }
+    fetch('/api/stinger').then(function(r){return r.json();}).then(function(cfg){applyConfig(cfg);build();}).catch(function(){build();});
+    var socket = io();
+    socket.on('stingerConfig', function(){ location.reload(); });
+  </script>
+</body>
+</html>

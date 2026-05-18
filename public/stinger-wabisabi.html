@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Stinger – Wabi-Sabi</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { width:1920px; height:1080px; overflow:hidden; background:transparent; position:relative; }
+    @keyframes ink-spread { 0%{clip-path:circle(0% at 50% 50%)} 55%{clip-path:circle(80% at 50% 50%)} 80%{clip-path:circle(80% at 50% 50%)} 100%{clip-path:circle(0% at 50% 50%)} }
+    @keyframes logo-in    { 0%,38%{opacity:0} 62%{opacity:1} 82%{opacity:1} 100%{opacity:0} }
+    #ws-bg  { position:absolute; inset:0; background:#F5F0E8; }
+    #ws-ink { position:absolute; inset:0; background:radial-gradient(ellipse at 50% 50%,#3C3228 0%,#6B5C4E 40%,#8C7B6B 70%,transparent 100%); clip-path:circle(0% at 50% 50%); }
+  </style>
+</head>
+<body>
+  <div id="ws-bg"></div>
+  <div id="ws-ink"></div>
+  <div id="logo-wrap" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:100">
+    <img id="logo-img" src="" alt="" style="max-width:500px;max-height:340px;display:none;opacity:0" />
+  </div>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    var DUR = 1.9;
+    function applyConfig(cfg) {
+      if (cfg && cfg.logoUrl) {
+        var img = document.getElementById('logo-img');
+        img.src = cfg.logoUrl; img.style.display = 'block';
+      }
+    }
+    function build() {
+      var d = DUR+'s';
+      document.getElementById('ws-ink').style.animation = 'ink-spread '+d+' cubic-bezier(.37,0,.63,1) forwards';
+      document.getElementById('logo-img').style.animation = 'logo-in '+d+' ease forwards';
+    }
+    fetch('/api/stinger').then(function(r){return r.json();}).then(function(cfg){applyConfig(cfg);build();}).catch(function(){build();});
+    var socket = io();
+    socket.on('stingerConfig', function(){ location.reload(); });
+  </script>
+</body>
+</html>

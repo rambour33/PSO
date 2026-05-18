@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Stinger – Aurora Boréale</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { width:1920px; height:1080px; overflow:hidden; background:transparent; position:relative; }
+    @keyframes aurora-shift { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
+    @keyframes aurora-fade  { 0%{opacity:0} 30%{opacity:1} 75%{opacity:1} 100%{opacity:0} }
+    @keyframes logo-in      { 0%,30%{opacity:0} 55%{opacity:1} 78%{opacity:1} 100%{opacity:0} }
+    #aurora-bg   { position:absolute; inset:0; background:#0D1B2A; }
+    #aurora-wave { position:absolute; inset:0; background:linear-gradient(135deg,#50FA7B,#7FFFD4,#9966FF,#FF6EC7,#50FA7B); background-size:400% 400%; opacity:0; }
+  </style>
+</head>
+<body>
+  <div id="aurora-bg"></div>
+  <div id="aurora-wave"></div>
+  <div id="logo-wrap" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:100">
+    <img id="logo-img" src="" alt="" style="max-width:500px;max-height:340px;display:none;opacity:0" />
+  </div>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    var DUR = 1.9;
+    function applyConfig(cfg) {
+      if (cfg && cfg.logoUrl) {
+        var img = document.getElementById('logo-img');
+        img.src = cfg.logoUrl; img.style.display = 'block';
+      }
+    }
+    function build() {
+      var d = DUR+'s';
+      document.getElementById('aurora-wave').style.animation = 'aurora-shift 3s ease infinite, aurora-fade '+d+' ease forwards';
+      document.getElementById('logo-img').style.animation = 'logo-in '+d+' ease forwards';
+    }
+    fetch('/api/stinger').then(function(r){return r.json();}).then(function(cfg){applyConfig(cfg);build();}).catch(function(){build();});
+    var socket = io();
+    socket.on('stingerConfig', function(){ location.reload(); });
+  </script>
+</body>
+</html>

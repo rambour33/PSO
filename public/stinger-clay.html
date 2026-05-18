@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Stinger – Clay 3D</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { width:1920px; height:1080px; overflow:hidden; background:transparent; position:relative; }
+    @keyframes blob1 { 0%{opacity:0;transform:scale(0) translate(-80px,-60px)} 55%{opacity:1;transform:scale(1) translate(-80px,-60px)} 80%{opacity:1} 100%{opacity:0} }
+    @keyframes blob2 { 0%{opacity:0;transform:scale(0) translate(80px,-60px)}  55%{opacity:1;transform:scale(1) translate(80px,-60px)}  80%{opacity:1} 100%{opacity:0} }
+    @keyframes blob3 { 0%{opacity:0;transform:scale(0) translate(0,80px)}      55%{opacity:1;transform:scale(1) translate(0,80px)}      80%{opacity:1} 100%{opacity:0} }
+    @keyframes logo-in { 0%,40%{opacity:0} 65%{opacity:1} 85%{opacity:1} 100%{opacity:0} }
+    .clay-blob { position:absolute; top:50%; left:50%; }
+    #cb1 { width:600px; height:600px; margin:-300px 0 0 -300px; background:#FF7F7F; border-radius:60% 40% 70% 30%/30% 60% 40% 70%; box-shadow:inset -20px -20px 40px rgba(0,0,0,.15),inset 20px 20px 40px rgba(255,255,255,.4); opacity:0; }
+    #cb2 { width:500px; height:500px; margin:-250px 0 0 -250px; background:#FFD700; border-radius:40% 60% 30% 70%/60% 40% 70% 30%; box-shadow:inset -16px -16px 32px rgba(0,0,0,.15),inset 16px 16px 32px rgba(255,255,255,.4); opacity:0; }
+    #cb3 { width:550px; height:550px; margin:-275px 0 0 -275px; background:#77DDAA; border-radius:70% 30% 50% 50%/40% 60% 40% 60%; box-shadow:inset -18px -18px 36px rgba(0,0,0,.15),inset 18px 18px 36px rgba(255,255,255,.4); opacity:0; }
+  </style>
+</head>
+<body>
+  <div class="clay-blob" id="cb1"></div>
+  <div class="clay-blob" id="cb2"></div>
+  <div class="clay-blob" id="cb3"></div>
+  <div id="logo-wrap" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:100">
+    <img id="logo-img" src="" alt="" style="max-width:500px;max-height:340px;display:none;opacity:0" />
+  </div>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    var DUR = 1.9;
+    function applyConfig(cfg) {
+      if (cfg && cfg.logoUrl) {
+        var img = document.getElementById('logo-img');
+        img.src = cfg.logoUrl; img.style.display = 'block';
+      }
+    }
+    function build() {
+      var d = DUR+'s';
+      document.getElementById('cb1').style.animation = 'blob1 '+d+' cubic-bezier(.34,1.56,.64,1) forwards';
+      document.getElementById('cb2').style.animation = 'blob2 '+d+' .1s cubic-bezier(.34,1.56,.64,1) forwards';
+      document.getElementById('cb3').style.animation = 'blob3 '+d+' .2s cubic-bezier(.34,1.56,.64,1) forwards';
+      document.getElementById('logo-img').style.animation = 'logo-in '+d+' ease forwards';
+    }
+    fetch('/api/stinger').then(function(r){return r.json();}).then(function(cfg){applyConfig(cfg);build();}).catch(function(){build();});
+    var socket = io();
+    socket.on('stingerConfig', function(){ location.reload(); });
+  </script>
+</body>
+</html>

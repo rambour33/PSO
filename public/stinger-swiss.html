@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Stinger – Swiss Style</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { width:1920px; height:1080px; overflow:hidden; background:transparent; position:relative; }
+    @keyframes rule-shoot { 0%{transform:scaleX(0);transform-origin:left} 30%{transform:scaleX(1);transform-origin:left} 60%{transform:scaleX(1);transform-origin:right} 100%{transform:scaleX(0);transform-origin:right} }
+    @keyframes block-drop { 0%{transform:translateY(-100%)} 25%{transform:translateY(0)} 75%{transform:translateY(0)} 100%{transform:translateY(-100%)} }
+    @keyframes logo-in    { 0%,30%{opacity:0} 55%{opacity:1} 78%{opacity:1} 100%{opacity:0} }
+    #sw-bg    { position:absolute; inset:0; background:#FFFFFF; }
+    #sw-block { position:absolute; top:0; left:0; width:1920px; height:380px; background:#FF0000; }
+    #sw-rule  { position:absolute; top:380px; left:0; width:1920px; height:10px; background:#000; transform:scaleX(0); transform-origin:left; }
+  </style>
+</head>
+<body>
+  <div id="sw-bg"></div>
+  <div id="sw-block"></div>
+  <div id="sw-rule"></div>
+  <div id="logo-wrap" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:100">
+    <img id="logo-img" src="" alt="" style="max-width:500px;max-height:340px;display:none;opacity:0" />
+  </div>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    var DUR = 1.9;
+    function applyConfig(cfg) {
+      if (cfg && cfg.logoUrl) {
+        var img = document.getElementById('logo-img');
+        img.src = cfg.logoUrl; img.style.display = 'block';
+      }
+    }
+    function build() {
+      var d = DUR+'s';
+      document.getElementById('sw-block').style.animation = 'block-drop '+d+' cubic-bezier(.22,1,.36,1) forwards';
+      document.getElementById('sw-rule').style.animation  = 'rule-shoot '+d+' .1s ease forwards';
+      document.getElementById('logo-img').style.animation = 'logo-in '+d+' ease forwards';
+    }
+    fetch('/api/stinger').then(function(r){return r.json();}).then(function(cfg){applyConfig(cfg);build();}).catch(function(){build();});
+    var socket = io();
+    socket.on('stingerConfig', function(){ location.reload(); });
+  </script>
+</body>
+</html>

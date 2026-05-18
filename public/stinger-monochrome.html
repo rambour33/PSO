@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Stinger – Monochrome Strict</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { width:1920px; height:1080px; overflow:hidden; background:transparent; position:relative; }
+    @keyframes sweep { 0%{transform:scaleX(0);transform-origin:left} 45%{transform:scaleX(1);transform-origin:left} 46%{transform:scaleX(1);transform-origin:right} 100%{transform:scaleX(0);transform-origin:right} }
+    @keyframes logo-pop { 0%,40%{opacity:0} 60%{opacity:1} 100%{opacity:1} }
+    #mono-bar { position:absolute; top:0; left:0; width:1920px; height:1080px; background:#111111; transform:scaleX(0); transform-origin:left; }
+  </style>
+</head>
+<body>
+  <div id="mono-bar"></div>
+  <div id="logo-wrap" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:100">
+    <img id="logo-img" src="" alt="" style="max-width:500px;max-height:340px;display:none;opacity:0" />
+  </div>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    var DUR = 1.9;
+    function applyConfig(cfg) {
+      if (cfg && cfg.logoUrl) {
+        var img = document.getElementById('logo-img');
+        img.src = cfg.logoUrl; img.style.display = 'block';
+      }
+    }
+    function build() {
+      document.getElementById('mono-bar').style.animation = 'sweep '+DUR+'s ease forwards';
+      document.getElementById('logo-img').style.animation = 'logo-pop '+DUR+'s ease forwards';
+    }
+    fetch('/api/stinger').then(function(r){return r.json();}).then(function(cfg){applyConfig(cfg);build();}).catch(function(){build();});
+    var socket = io();
+    socket.on('stingerConfig', function(){ location.reload(); });
+  </script>
+</body>
+</html>

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Stinger – Glassmorphism</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { width:1920px; height:1080px; overflow:hidden; background:transparent; position:relative; }
+    @keyframes glass-expand { 0%{opacity:0;transform:translate(-50%,-50%) scale(.6)} 50%{opacity:1;transform:translate(-50%,-50%) scale(1)} 85%{opacity:1;transform:translate(-50%,-50%) scale(1)} 100%{opacity:0;transform:translate(-50%,-50%) scale(1.05)} }
+    @keyframes logo-in { 0%,30%{opacity:0} 60%{opacity:1} 85%{opacity:1} 100%{opacity:0} }
+    #glasspanel { position:absolute; top:50%; left:50%; width:900px; height:500px; border-radius:24px; background:rgba(255,255,255,.18); backdrop-filter:blur(32px); -webkit-backdrop-filter:blur(32px); border:1.5px solid rgba(255,255,255,.45); box-shadow:0 8px 64px rgba(0,0,0,.18); opacity:0; }
+  </style>
+</head>
+<body>
+  <div id="glasspanel"></div>
+  <div id="logo-wrap" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:100">
+    <img id="logo-img" src="" alt="" style="max-width:500px;max-height:340px;display:none;opacity:0" />
+  </div>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    var DUR = 1.9;
+    function applyConfig(cfg) {
+      if (cfg && cfg.logoUrl) {
+        var img = document.getElementById('logo-img');
+        img.src = cfg.logoUrl; img.style.display = 'block';
+      }
+    }
+    function build() {
+      var d = DUR+'s';
+      document.getElementById('glasspanel').style.animation = 'glass-expand '+d+' ease forwards';
+      document.getElementById('logo-img').style.animation = 'logo-in '+d+' ease forwards';
+    }
+    fetch('/api/stinger').then(function(r){return r.json();}).then(function(cfg){applyConfig(cfg);build();}).catch(function(){build();});
+    var socket = io();
+    socket.on('stingerConfig', function(){ location.reload(); });
+  </script>
+</body>
+</html>

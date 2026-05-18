@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Stinger – HUD Sci-Fi</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { width:1920px; height:1080px; overflow:hidden; background:transparent; position:relative; }
+    @keyframes scan-v   { from{top:-4px;opacity:0} 5%{opacity:1} 95%{opacity:1} to{top:1084px;opacity:0} }
+    @keyframes hud-fade { 0%,5%{opacity:0} 20%{opacity:1} 80%{opacity:1} 100%{opacity:0} }
+    @keyframes logo-in  { 0%,30%{opacity:0} 55%{opacity:1} 80%{opacity:1} 100%{opacity:0} }
+    #hud-bg      { position:absolute; inset:0; background:#000A00; }
+    #hud-grid    { position:absolute; inset:0; background-image:linear-gradient(rgba(0,255,65,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(0,255,65,.06) 1px,transparent 1px); background-size:60px 60px; opacity:0; }
+    #hud-scan    { position:absolute; left:0; width:1920px; height:4px; top:-4px; background:rgba(0,255,65,.8); box-shadow:0 0 20px 6px rgba(0,255,65,.5); }
+    #hud-cross-h { position:absolute; top:50%; left:10%; width:80%; height:2px; background:rgba(0,255,65,.5); margin-top:-1px; opacity:0; }
+    #hud-cross-v { position:absolute; left:50%; top:10%; width:2px; height:80%; background:rgba(0,255,65,.5); margin-left:-1px; opacity:0; }
+  </style>
+</head>
+<body>
+  <div id="hud-bg"></div>
+  <div id="hud-grid"></div>
+  <div id="hud-cross-h"></div>
+  <div id="hud-cross-v"></div>
+  <div id="hud-scan"></div>
+  <div id="logo-wrap" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:100">
+    <img id="logo-img" src="" alt="" style="max-width:500px;max-height:340px;display:none;opacity:0" />
+  </div>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    var DUR = 1.9;
+    function applyConfig(cfg) {
+      if (cfg && cfg.logoUrl) {
+        var img = document.getElementById('logo-img');
+        img.src = cfg.logoUrl; img.style.display = 'block';
+      }
+    }
+    function build() {
+      var d = DUR+'s';
+      document.getElementById('hud-scan').style.animation    = 'scan-v '+d+' linear forwards';
+      document.getElementById('hud-grid').style.animation    = 'hud-fade '+d+' ease forwards';
+      document.getElementById('hud-cross-h').style.animation = 'hud-fade '+d+' .1s ease forwards';
+      document.getElementById('hud-cross-v').style.animation = 'hud-fade '+d+' .2s ease forwards';
+      document.getElementById('logo-img').style.animation    = 'logo-in '+d+' ease forwards';
+    }
+    fetch('/api/stinger').then(function(r){return r.json();}).then(function(cfg){applyConfig(cfg);build();}).catch(function(){build();});
+    var socket = io();
+    socket.on('stingerConfig', function(){ location.reload(); });
+  </script>
+</body>
+</html>

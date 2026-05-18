@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Stinger – Brutalism Digital</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { width:1920px; height:1080px; overflow:hidden; background:transparent; position:relative; }
+    @keyframes hard-in  { 0%{transform:translateX(-100%)} 40%{transform:translateX(0)} 70%{transform:translateX(0)} 100%{transform:translateX(100%)} }
+    @keyframes glitch   { 0%{clip-path:inset(0 0 100% 0)} 15%{clip-path:inset(0 0 70% 0)} 30%{clip-path:inset(10% 0 50% 0)} 45%{clip-path:inset(25% 0 30% 0)} 60%{clip-path:inset(40% 0 10% 0)} 75%{clip-path:inset(60% 0 0)} 85%,100%{clip-path:inset(0)} }
+    @keyframes logo-in  { 0%,38%{opacity:0} 60%{opacity:1} 78%{opacity:1} 100%{opacity:0} }
+    #br-red   { position:absolute; inset:0; background:#FF3300; }
+    #br-white { position:absolute; inset:0; background:#fff; }
+    #br-black { position:absolute; inset:0; background:#000; clip-path:inset(0 0 100% 0); }
+  </style>
+</head>
+<body>
+  <div id="br-red"></div>
+  <div id="br-white"></div>
+  <div id="br-black"></div>
+  <div id="logo-wrap" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:100">
+    <img id="logo-img" src="" alt="" style="max-width:500px;max-height:340px;display:none;opacity:0" />
+  </div>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    var DUR = 1.9;
+    function applyConfig(cfg) {
+      if (cfg && cfg.logoUrl) {
+        var img = document.getElementById('logo-img');
+        img.src = cfg.logoUrl; img.style.display = 'block';
+      }
+    }
+    function build() {
+      var d = DUR+'s';
+      document.getElementById('br-red').style.animation   = 'hard-in '+d+' cubic-bezier(.76,0,.24,1) forwards';
+      document.getElementById('br-black').style.animation = 'glitch '+d+' steps(1) forwards';
+      document.getElementById('logo-img').style.animation = 'logo-in '+d+' ease forwards';
+    }
+    fetch('/api/stinger').then(function(r){return r.json();}).then(function(cfg){applyConfig(cfg);build();}).catch(function(){build();});
+    var socket = io();
+    socket.on('stingerConfig', function(){ location.reload(); });
+  </script>
+</body>
+</html>

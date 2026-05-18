@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Stinger – Blanc Négatif</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { width:1920px; height:1080px; overflow:hidden; background:transparent; position:relative; }
+    @keyframes wipe-top { 0%{transform:translateY(0)} 100%{transform:translateY(-100%)} }
+    @keyframes wipe-bot { 0%{transform:translateY(0)} 100%{transform:translateY(100%)} }
+    @keyframes logo-in  { 0%{opacity:0;transform:scale(.92)} 60%{opacity:1;transform:scale(1)} 85%{opacity:1} 100%{opacity:0} }
+    .ws-panel { position:absolute; left:0; width:1920px; height:540px; background:#ffffff; }
+    #wsp-top  { top:0; }
+    #wsp-bot  { bottom:0; }
+  </style>
+</head>
+<body>
+  <div class="ws-panel" id="wsp-top"></div>
+  <div class="ws-panel" id="wsp-bot"></div>
+  <div id="logo-wrap" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:100">
+    <img id="logo-img" src="" alt="" style="max-width:500px;max-height:340px;display:none;opacity:0" />
+  </div>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    var DUR = 1.9;
+    function applyConfig(cfg) {
+      if (cfg && cfg.logoUrl) {
+        var img = document.getElementById('logo-img');
+        img.src = cfg.logoUrl; img.style.display = 'block';
+      }
+    }
+    function build() {
+      var d = DUR+'s';
+      document.getElementById('wsp-top').style.animation = 'wipe-top '+d+' .55s cubic-bezier(.76,0,.24,1) forwards';
+      document.getElementById('wsp-bot').style.animation = 'wipe-bot '+d+' .55s cubic-bezier(.76,0,.24,1) forwards';
+      document.getElementById('logo-img').style.animation = 'logo-in '+d+' ease forwards';
+    }
+    fetch('/api/stinger').then(function(r){return r.json();}).then(function(cfg){applyConfig(cfg);build();}).catch(function(){build();});
+    var socket = io();
+    socket.on('stingerConfig', function(){ location.reload(); });
+  </script>
+</body>
+</html>

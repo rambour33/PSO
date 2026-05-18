@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Stinger – Bauhaus</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { width:1920px; height:1080px; overflow:hidden; background:transparent; position:relative; }
+    @keyframes circle-drop { 0%{transform:translateY(-600px) scale(.5);opacity:0} 55%{transform:translateY(0) scale(1);opacity:1} 80%{opacity:1} 100%{opacity:0} }
+    @keyframes rect-slide  { 0%{transform:translateX(800px);opacity:0} 50%{transform:translateX(0);opacity:1} 80%{opacity:1} 100%{opacity:0} }
+    @keyframes tri-rise    { 0%{transform:translateY(600px);opacity:0} 60%{transform:translateY(0);opacity:1} 80%{opacity:1} 100%{opacity:0} }
+    @keyframes logo-in     { 0%,42%{opacity:0} 65%{opacity:1} 82%{opacity:1} 100%{opacity:0} }
+    #bh-bg     { position:absolute; inset:0; background:#FFFFFF; }
+    #bh-circle { position:absolute; width:520px; height:520px; border-radius:50%; background:#CC0000; top:50%; left:50%; margin:-260px 0 0 -560px; opacity:0; }
+    #bh-rect   { position:absolute; width:380px; height:260px; background:#002FA7; top:50%; left:50%; margin:-130px 0 0 50px; opacity:0; }
+    #bh-tri    { position:absolute; width:0; height:0; border-left:200px solid transparent; border-right:200px solid transparent; border-bottom:346px solid #FFCC00; top:50%; left:50%; margin:-180px 0 0 200px; opacity:0; }
+  </style>
+</head>
+<body>
+  <div id="bh-bg"></div>
+  <div id="bh-circle"></div>
+  <div id="bh-rect"></div>
+  <div id="bh-tri"></div>
+  <div id="logo-wrap" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:100">
+    <img id="logo-img" src="" alt="" style="max-width:500px;max-height:340px;display:none;opacity:0" />
+  </div>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    var DUR = 1.9;
+    function applyConfig(cfg) {
+      if (cfg && cfg.logoUrl) {
+        var img = document.getElementById('logo-img');
+        img.src = cfg.logoUrl; img.style.display = 'block';
+      }
+    }
+    function build() {
+      var d = DUR+'s';
+      document.getElementById('bh-circle').style.animation = 'circle-drop '+d+' cubic-bezier(.34,1.56,.64,1) forwards';
+      document.getElementById('bh-rect').style.animation   = 'rect-slide '+d+' .08s cubic-bezier(.22,1,.36,1) forwards';
+      document.getElementById('bh-tri').style.animation    = 'tri-rise '+d+' .16s cubic-bezier(.34,1.56,.64,1) forwards';
+      document.getElementById('logo-img').style.animation  = 'logo-in '+d+' ease forwards';
+    }
+    fetch('/api/stinger').then(function(r){return r.json();}).then(function(cfg){applyConfig(cfg);build();}).catch(function(){build();});
+    var socket = io();
+    socket.on('stingerConfig', function(){ location.reload(); });
+  </script>
+</body>
+</html>

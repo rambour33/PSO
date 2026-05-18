@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Stinger – Y2K</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { width:1920px; height:1080px; overflow:hidden; background:transparent; position:relative; }
+    @keyframes chrome-in { 0%{transform:scaleX(0)} 45%{transform:scaleX(1)} 75%{transform:scaleX(1)} 100%{transform:scaleX(0)} }
+    @keyframes star-spin { 0%{transform:rotate(0deg) scale(0);opacity:0} 40%{transform:rotate(180deg) scale(1);opacity:1} 80%{opacity:1} 100%{opacity:0;transform:rotate(360deg) scale(0)} }
+    @keyframes logo-in   { 0%,35%{opacity:0} 58%{opacity:1} 80%{opacity:1} 100%{opacity:0} }
+    #y2k-bg { position:absolute; inset:0; background:linear-gradient(135deg,#C0C0C0,#E8E8E8,#A0A0A0); }
+    .chrome-bar { position:absolute; left:0; width:1920px; height:80px; background:linear-gradient(180deg,#E8E8E8,#888,#E8E8E8); transform:scaleX(0); transform-origin:left; }
+    .y2k-star { position:absolute; width:80px; height:80px; clip-path:polygon(50% 0%,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%); background:#FFD700; opacity:0; }
+  </style>
+</head>
+<body>
+  <div id="y2k-bg"></div>
+  <div class="chrome-bar" style="top:200px"></div>
+  <div class="chrome-bar" style="top:460px"></div>
+  <div class="chrome-bar" style="top:720px"></div>
+  <div class="y2k-star" style="top:150px;left:200px"></div>
+  <div class="y2k-star" style="top:700px;right:250px"></div>
+  <div class="y2k-star" style="top:400px;left:100px;width:60px;height:60px"></div>
+  <div id="logo-wrap" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:100">
+    <img id="logo-img" src="" alt="" style="max-width:500px;max-height:340px;display:none;opacity:0" />
+  </div>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    var DUR = 1.9;
+    function applyConfig(cfg) {
+      if (cfg && cfg.logoUrl) {
+        var img = document.getElementById('logo-img');
+        img.src = cfg.logoUrl; img.style.display = 'block';
+      }
+    }
+    function build() {
+      var d = DUR+'s';
+      document.querySelectorAll('.chrome-bar').forEach(function(el,i){
+        el.style.animation = 'chrome-in '+d+' '+(i*0.1)+'s cubic-bezier(.22,1,.36,1) forwards';
+      });
+      document.querySelectorAll('.y2k-star').forEach(function(el,i){
+        el.style.animation = 'star-spin '+d+' '+(i*0.12)+'s cubic-bezier(.34,1.56,.64,1) forwards';
+      });
+      document.getElementById('logo-img').style.animation = 'logo-in '+d+' ease forwards';
+    }
+    fetch('/api/stinger').then(function(r){return r.json();}).then(function(cfg){applyConfig(cfg);build();}).catch(function(){build();});
+    var socket = io();
+    socket.on('stingerConfig', function(){ location.reload(); });
+  </script>
+</body>
+</html>

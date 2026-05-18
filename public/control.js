@@ -4159,22 +4159,185 @@ const THEMES = {
     castersBgColor:  '#050505',
     castersBgOpacity: 95,
   },
+
+  // ── Design & Styles ──────────────────────────────────────────────────────
+  whitespace: {
+    sbBgColor: '#FFFFFF', sbBgOpacity: 100,
+    eventTextColor: '#111111', eventTextSize: 12,
+    tagColor: '#333333', nameColor: '#111111', pronounsColor: '#888888',
+    castersBgColor: '#F5F5F5', castersBgOpacity: 100,
+  },
+  monochrome: {
+    sbBgColor: '#000000', sbBgOpacity: 100,
+    eventTextColor: '#FFFFFF', eventTextSize: 12,
+    tagColor: '#CCCCCC', nameColor: '#FFFFFF', pronounsColor: '#888888',
+    castersBgColor: '#111111', castersBgOpacity: 100,
+  },
+  brutaliste: {
+    sbBgColor: '#FFFFFF', sbBgOpacity: 100,
+    eventTextColor: '#000000', eventTextSize: 14,
+    tagColor: '#FF0000', nameColor: '#000000', pronounsColor: '#555555',
+    castersBgColor: '#000000', castersBgOpacity: 100,
+  },
+  flatdesign: {
+    sbBgColor: '#3498DB', sbBgOpacity: 100,
+    eventTextColor: '#FFFFFF', eventTextSize: 12,
+    tagColor: '#E74C3C', nameColor: '#FFFFFF', pronounsColor: '#BDC3C7',
+    castersBgColor: '#2980B9', castersBgOpacity: 100,
+  },
+  glass: {
+    sbBgColor: '#FFFFFF', sbBgOpacity: 15,
+    eventTextColor: '#FFFFFF', eventTextSize: 12,
+    tagColor: '#FFFFFF', nameColor: '#FFFFFF', pronounsColor: '#CCCCCC',
+    castersBgColor: '#FFFFFF', castersBgOpacity: 10,
+  },
+  neuro: {
+    sbBgColor: '#E0E5EC', sbBgOpacity: 100,
+    eventTextColor: '#555577', eventTextSize: 12,
+    tagColor: '#6B7DDD', nameColor: '#333355', pronounsColor: '#8899AA',
+    castersBgColor: '#D5DAE4', castersBgOpacity: 100,
+  },
+  clay: {
+    sbBgColor: '#FF7F7F', sbBgOpacity: 100,
+    eventTextColor: '#FFFFFF', eventTextSize: 12,
+    tagColor: '#FFD700', nameColor: '#FFFFFF', pronounsColor: '#FFB3B3',
+    castersBgColor: '#FF6666', castersBgOpacity: 100,
+  },
+  paper: {
+    sbBgColor: '#F5F0E8', sbBgOpacity: 100,
+    eventTextColor: '#3C3228', eventTextSize: 12,
+    tagColor: '#8B7355', nameColor: '#3C3228', pronounsColor: '#9C8C7C',
+    castersBgColor: '#EDE8DC', castersBgOpacity: 100,
+  },
+  grain: {
+    sbBgColor: '#1A1A2E', sbBgOpacity: 100,
+    eventTextColor: '#E8D5B7', eventTextSize: 12,
+    tagColor: '#C9A84C', nameColor: '#E8D5B7', pronounsColor: '#7A6A5A',
+    castersBgColor: '#16213E', castersBgOpacity: 100,
+  },
+  darkelegant: {
+    sbBgColor: '#0A0A0F', sbBgOpacity: 100,
+    eventTextColor: '#C9A84C', eventTextSize: 12,
+    tagColor: '#C9A84C', nameColor: '#E8E6F0', pronounsColor: '#555577',
+    castersBgColor: '#0F0F1A', castersBgOpacity: 100,
+  },
+  neonoir: {
+    sbBgColor: '#000000', sbBgOpacity: 100,
+    eventTextColor: '#FF007F', eventTextSize: 12,
+    tagColor: '#00FFCC', nameColor: '#FFFFFF', pronounsColor: '#FF007F',
+    castersBgColor: '#050510', castersBgOpacity: 100,
+  },
+  pastel: {
+    sbBgColor: '#FFF0F5', sbBgOpacity: 100,
+    eventTextColor: '#8B6888', eventTextSize: 12,
+    tagColor: '#FFB3D9', nameColor: '#6B4E71', pronounsColor: '#C9A0C4',
+    castersBgColor: '#FFE8F0', castersBgOpacity: 100,
+  },
+  duotone: {
+    sbBgColor: '#0D0221', sbBgOpacity: 100,
+    eventTextColor: '#FF6EC7', eventTextSize: 12,
+    tagColor: '#FF6EC7', nameColor: '#FFFFFF', pronounsColor: '#AA44AA',
+    castersBgColor: '#1A0330', castersBgOpacity: 100,
+  },
+  aurora: {
+    sbBgColor: '#0D1B2A', sbBgOpacity: 100,
+    eventTextColor: '#7FFFD4', eventTextSize: 12,
+    tagColor: '#50FA7B', nameColor: '#E0F0FF', pronounsColor: '#5577AA',
+    castersBgColor: '#0A1520', castersBgOpacity: 100,
+  },
+  bauhaus: {
+    sbBgColor: '#FFFFFF', sbBgOpacity: 100,
+    eventTextColor: '#000000', eventTextSize: 13,
+    tagColor: '#CC0000', nameColor: '#000000', pronounsColor: '#444444',
+    castersBgColor: '#FFCC00', castersBgOpacity: 100,
+  },
+  artdeco: {
+    sbBgColor: '#1A1206', sbBgOpacity: 100,
+    eventTextColor: '#C9A84C', eventTextSize: 12,
+    tagColor: '#C9A84C', nameColor: '#F0E6C0', pronounsColor: '#8B7340',
+    castersBgColor: '#221800', castersBgOpacity: 100,
+  },
+  y2k: {
+    sbBgColor: '#C0C0C0', sbBgOpacity: 100,
+    eventTextColor: '#FF00FF', eventTextSize: 12,
+    tagColor: '#00CCFF', nameColor: '#0000CC', pronounsColor: '#FF69B4',
+    castersBgColor: '#D0D0D0', castersBgOpacity: 100,
+  },
+  wabisabi: {
+    sbBgColor: '#F5F0E8', sbBgOpacity: 100,
+    eventTextColor: '#5C5248', eventTextSize: 12,
+    tagColor: '#8C7B6B', nameColor: '#3C3228', pronounsColor: '#AA9988',
+    castersBgColor: '#EDE8DC', castersBgOpacity: 100,
+  },
+  swiss: {
+    sbBgColor: '#FFFFFF', sbBgOpacity: 100,
+    eventTextColor: '#FF0000', eventTextSize: 14,
+    tagColor: '#FF0000', nameColor: '#000000', pronounsColor: '#666666',
+    castersBgColor: '#F0F0F0', castersBgOpacity: 100,
+  },
+  biomorphic: {
+    sbBgColor: '#0D2B1E', sbBgOpacity: 100,
+    eventTextColor: '#7FFF7F', eventTextSize: 12,
+    tagColor: '#50C878', nameColor: '#E0FFE0', pronounsColor: '#336644',
+    castersBgColor: '#0A2018', castersBgOpacity: 100,
+  },
+  earthy: {
+    sbBgColor: '#3D2B1F', sbBgOpacity: 100,
+    eventTextColor: '#D4A574', eventTextSize: 12,
+    tagColor: '#C4855A', nameColor: '#F0DCC8', pronounsColor: '#8B6A50',
+    castersBgColor: '#2D1F15', castersBgOpacity: 100,
+  },
+  botanik: {
+    sbBgColor: '#1A2E1A', sbBgOpacity: 100,
+    eventTextColor: '#90EE90', eventTextSize: 12,
+    tagColor: '#228B22', nameColor: '#E8F5E8', pronounsColor: '#558855',
+    castersBgColor: '#152515', castersBgOpacity: 100,
+  },
+  aquarelle: {
+    sbBgColor: '#EEF5FF', sbBgOpacity: 90,
+    eventTextColor: '#3355AA', eventTextSize: 12,
+    tagColor: '#6688CC', nameColor: '#223366', pronounsColor: '#8899BB',
+    castersBgColor: '#E5EEFF', castersBgOpacity: 85,
+  },
+  cosmos: {
+    sbBgColor: '#020818', sbBgOpacity: 100,
+    eventTextColor: '#E8D5FF', eventTextSize: 12,
+    tagColor: '#9966FF', nameColor: '#FFFFFF', pronounsColor: '#665588',
+    castersBgColor: '#050D25', castersBgOpacity: 100,
+  },
+  brutalism: {
+    sbBgColor: '#FFFFFF', sbBgOpacity: 100,
+    eventTextColor: '#000000', eventTextSize: 15,
+    tagColor: '#FF3300', nameColor: '#000000', pronounsColor: '#333333',
+    castersBgColor: '#FFFF00', castersBgOpacity: 100,
+  },
+  skeuo: {
+    sbBgColor: '#2C2C2C', sbBgOpacity: 100,
+    eventTextColor: '#E8E8E0', eventTextSize: 12,
+    tagColor: '#B8A060', nameColor: '#F0F0E8', pronounsColor: '#888880',
+    castersBgColor: '#383838', castersBgOpacity: 100,
+  },
+  hud: {
+    sbBgColor: '#000A00', sbBgOpacity: 95,
+    eventTextColor: '#00FF41', eventTextSize: 12,
+    tagColor: '#00CC33', nameColor: '#00FF41', pronounsColor: '#007722',
+    castersBgColor: '#000800', castersBgOpacity: 90,
+  },
+  pixelart: {
+    sbBgColor: '#0F0F2D', sbBgOpacity: 100,
+    eventTextColor: '#FFFF00', eventTextSize: 12,
+    tagColor: '#FF0077', nameColor: '#FFFFFF', pronounsColor: '#5577FF',
+    castersBgColor: '#1A1A3D', castersBgOpacity: 100,
+  },
+  dataviz: {
+    sbBgColor: '#0A1628', sbBgOpacity: 100,
+    eventTextColor: '#4EC4CF', eventTextSize: 12,
+    tagColor: '#FF6B35', nameColor: '#E0F0FF', pronounsColor: '#336688',
+    castersBgColor: '#0D1F38', castersBgOpacity: 100,
+  },
 };
 
 function applyTheme(key) {
-  // Thème transparent — pas de couleurs à appliquer, juste changer la clé
-  if (key === 'transparent') {
-    state.overlayTheme = 'transparent';
-    emitState(buildStateFromForm());
-    document.querySelectorAll('.theme-preset-card').forEach(c => {
-      c.classList.toggle('active', c.dataset.theme === 'transparent');
-    });
-    const tpPanel = document.getElementById('transparent-pos-panel');
-    if (tpPanel) tpPanel.style.display = 'block';
-    showThemeConfigPanel('transparent');
-    setStatus('Thème "Transparent" appliqué');
-    return;
-  }
   const t = THEMES[key];
   if (!t) return;
 
@@ -4211,10 +4374,6 @@ function applyTheme(key) {
   document.querySelectorAll('.theme-preset-card').forEach(c => {
     c.classList.toggle('active', c.dataset.theme === key);
   });
-
-  // Show/hide transparent position panel
-  const tpPanel = document.getElementById('transparent-pos-panel');
-  if (tpPanel) tpPanel.style.display = key === 'transparent' ? 'block' : 'none';
 
   // Show theme config panel
   showThemeConfigPanel(key);
@@ -4451,73 +4610,6 @@ function applyThemePreset(preset) {
   }
   emitState(buildStateFromForm());
 }
-
-function renderSavedThemePresets(list) {
-  const container = document.getElementById('saved-theme-presets-list');
-  if (!container) return;
-  container.innerHTML = '';
-  if (!list.length) {
-    container.innerHTML = '<div style="font-size:12px;color:var(--text-muted);text-align:center;padding:8px">Aucun thème sauvegardé</div>';
-    return;
-  }
-  list.forEach(({ name, preset }) => {
-    const row = document.createElement('div');
-    row.style.cssText = 'display:flex;align-items:center;gap:6px;padding:5px 0;border-bottom:1px solid var(--border)';
-
-    const themeChip = document.createElement('span');
-    themeChip.style.cssText = 'font-size:10px;color:var(--text-muted);background:var(--surface2);border-radius:3px;padding:1px 5px;flex-shrink:0';
-    themeChip.textContent = preset.overlayTheme || 'default';
-
-    const label = document.createElement('span');
-    label.style.cssText = 'flex:1;font-size:12px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap';
-    label.textContent = name;
-
-    const loadBtn = document.createElement('button');
-    loadBtn.className = 'btn btn-outline btn-sm';
-    loadBtn.textContent = 'Charger';
-    loadBtn.addEventListener('click', () => {
-      applyThemePreset(preset);
-      setStatus(`Thème "${name}" chargé`);
-    });
-
-    const delBtn = document.createElement('button');
-    delBtn.style.cssText = 'background:none;border:none;color:var(--danger);cursor:pointer;font-size:16px;line-height:1;padding:0 2px;flex-shrink:0';
-    delBtn.textContent = '×';
-    delBtn.addEventListener('click', () => {
-      fetch(`/api/theme-presets/${encodeURIComponent(name)}`, { method: 'DELETE' })
-        .then(r => r.json()).then(renderSavedThemePresets);
-      setStatus(`Thème "${name}" supprimé`);
-    });
-
-    row.appendChild(themeChip);
-    row.appendChild(label);
-    row.appendChild(loadBtn);
-    row.appendChild(delBtn);
-    container.appendChild(row);
-  });
-}
-
-document.getElementById('btn-theme-preset-save')?.addEventListener('click', () => {
-  const name = document.getElementById('theme-preset-save-name').value.trim();
-  if (!name) { setStatus('Nom requis pour enregistrer'); return; }
-  fetch('/api/theme-presets', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ name, preset: buildThemePreset() }),
-  })
-    .then(r => r.json())
-    .then(list => {
-      renderSavedThemePresets(list);
-      document.getElementById('theme-preset-save-name').value = '';
-      setStatus(`Thème "${name}" enregistré`);
-    })
-    .catch(err => setStatus('Erreur lors de la sauvegarde : ' + err.message));
-});
-
-fetch('/api/theme-presets')
-  .then(r => r.json())
-  .then(renderSavedThemePresets)
-  .catch(() => {});
 
 // ── Onglet Twitch Layout ──────────────────────────────────────────
 
@@ -5734,7 +5826,6 @@ const LAYER_COLORS = {
   'overlay':             '#E8B830',
   'overlay-slim':        '#D4A020',
   'scoreboard-custom':   '#F4A460',
-  'scoreboard-elements': '#C8A020',
   // Casters
   'casters':             '#FF6EC7',
   'casters-custom':      '#FF8ED4',
@@ -5932,7 +6023,6 @@ function recalcStudioScale() {
 const SNAPSHOT_SUPPORTED = new Set([
   'overlay','cam','ticker','stream-title','frames',
   'player-stats','tournament-history','twitch-chat',
-  'scoreboard-elements',
 ]);
 
 /* ── Rendu de la liste de calques ──────────────────────────── */
@@ -7585,411 +7675,6 @@ document.querySelectorAll('.conn-copy-btn').forEach(btn => {
   });
 });
 
-// ── Créateur de thème custom ──────────────────────────────────────────────
-
-const CT_DEFAULTS = {
-  bgType: 'gradient', bgColor1: '#0E0E12', bgColor2: '#16161E', bgAngle: 135,
-  bgTexture: null, bgTextureOpacity: 80, bgTextureSize: 'cover',
-  accentColor: '#E8B830', p1Color: '#E83030', p2Color: '#3070E8',
-  nameColor: '#F0EEF8', tagColor: '#E8B830', pronounsColor: '#5A5A7A',
-  scoreColor: '#F0EEF8', eventColor: '#5A5A7A', scoreSepColor: '#E8B830',
-  neonEnabled: false, neonColor: '#E8B830', neonIntensity: 8,
-  neonName: true, neonScore: true, neonTag: false, neonEvent: false, neonAccent: true,
-  fontFamily: 'Russo One', letterSpacing: 2, nameFontSize: 24,
-  particleType: 'sparkle', particleCount: 0,
-  coverImage: null, coverOpacity: 50, coverMode: 'cover',
-};
-
-let customTheme = { ...CT_DEFAULTS };
-
-function ctGet() {
-  customTheme.bgType           = document.querySelector('input[name="ct-bg-type"]:checked')?.value || 'gradient';
-  customTheme.bgColor1         = document.getElementById('ct-bg-color1')?.value    || CT_DEFAULTS.bgColor1;
-  customTheme.bgColor2         = document.getElementById('ct-bg-color2')?.value    || CT_DEFAULTS.bgColor2;
-  customTheme.bgAngle          = parseInt(document.getElementById('ct-bg-angle-num')?.value    || 135);
-  customTheme.bgTextureOpacity = parseInt(document.getElementById('ct-bg-texture-opacity-num')?.value ?? 80);
-  customTheme.bgTextureSize    = document.getElementById('ct-bg-texture-size')?.value || 'cover';
-  customTheme.accentColor = document.getElementById('ct-accent-color')?.value || CT_DEFAULTS.accentColor;
-  customTheme.p1Color     = document.getElementById('ct-p1-color')?.value     || CT_DEFAULTS.p1Color;
-  customTheme.p2Color     = document.getElementById('ct-p2-color')?.value     || CT_DEFAULTS.p2Color;
-  customTheme.nameColor   = document.getElementById('ct-name-color')?.value   || CT_DEFAULTS.nameColor;
-  customTheme.tagColor    = document.getElementById('ct-tag-color')?.value    || CT_DEFAULTS.tagColor;
-  customTheme.pronounsColor = document.getElementById('ct-pronouns-color')?.value || CT_DEFAULTS.pronounsColor;
-  customTheme.scoreColor  = document.getElementById('ct-score-color')?.value  || CT_DEFAULTS.scoreColor;
-  customTheme.eventColor  = document.getElementById('ct-event-color')?.value  || CT_DEFAULTS.eventColor;
-  customTheme.scoreSepColor = document.getElementById('ct-sep-color')?.value  || CT_DEFAULTS.scoreSepColor;
-  customTheme.neonEnabled   = document.getElementById('ct-neon-enabled')?.checked  || false;
-  customTheme.neonColor     = document.getElementById('ct-neon-color')?.value      || CT_DEFAULTS.neonColor;
-  customTheme.neonIntensity = parseInt(document.getElementById('ct-neon-intensity-num')?.value || 8);
-  customTheme.neonName      = document.getElementById('ct-neon-name')?.checked    || false;
-  customTheme.neonScore     = document.getElementById('ct-neon-score')?.checked   || false;
-  customTheme.neonTag       = document.getElementById('ct-neon-tag')?.checked     || false;
-  customTheme.neonEvent     = document.getElementById('ct-neon-event')?.checked   || false;
-  customTheme.neonAccent    = document.getElementById('ct-neon-accent')?.checked  || false;
-  customTheme.fontFamily    = document.getElementById('ct-font-family')?.value    || 'Russo One';
-  customTheme.letterSpacing = parseInt(document.getElementById('ct-letter-spacing-num')?.value || 2);
-  customTheme.nameFontSize  = parseInt(document.getElementById('ct-name-size-num')?.value      || 24);
-  customTheme.particleType  = document.getElementById('ct-particle-type')?.value  || 'sparkle';
-  customTheme.particleCount = parseInt(document.getElementById('ct-particle-count-num')?.value || 60);
-  customTheme.coverOpacity  = parseInt(document.getElementById('ct-cover-opacity-num')?.value  || 50);
-  customTheme.coverMode     = document.getElementById('ct-cover-mode')?.value     || 'cover';
-  return customTheme;
-}
-
-function ctSend() {
-  ctGet();
-  const ns = { ...state, customTheme: { ...customTheme } };
-  state = ns;
-  socket.emit('updateState', ns);
-  ctUpdatePreview();
-}
-
-function ctUpdatePreview() {
-  const ct = customTheme;
-  const bg = document.getElementById('ct-preview-bg');
-  if (bg) {
-    let bgVal;
-    if (ct.bgType === 'transparent') {
-      bgVal = 'repeating-conic-gradient(#444 0% 25%, #222 0% 50%) 0 0 / 12px 12px';
-    } else if (ct.bgType === 'texture' && ct.bgTexture) {
-      const sz = ct.bgTextureSize === 'repeat' ? 'auto' : (ct.bgTextureSize || 'cover');
-      const rp = ct.bgTextureSize === 'repeat' ? 'repeat' : 'no-repeat';
-      bgVal = `url('${ct.bgTexture}') center / ${sz} ${rp}`;
-    } else if (ct.bgType === 'gradient') {
-      bgVal = `linear-gradient(${ct.bgAngle}deg, ${ct.bgColor1}, ${ct.bgColor2})`;
-    } else {
-      bgVal = ct.bgColor1;
-    }
-    if (ct.coverImage && ct.bgType !== 'transparent') {
-      bgVal = `url('${ct.coverImage}') center / ${ct.coverMode || 'cover'} no-repeat, ` + bgVal;
-    }
-    bg.style.background = bgVal;
-  }
-
-  const applyText = (id, color, neonOn, neonColor, neonPx) => {
-    const el = document.getElementById(id);
-    if (!el) return;
-    el.style.color = color;
-    el.style.textShadow = neonOn ? `0 0 ${neonPx}px ${neonColor}, 0 0 ${neonPx * 2}px ${neonColor}` : 'none';
-  };
-
-  applyText('ct-preview-p1',     ct.nameColor,     ct.neonEnabled && ct.neonName,  ct.neonColor, ct.neonIntensity);
-  applyText('ct-preview-p2',     ct.nameColor,     ct.neonEnabled && ct.neonName,  ct.neonColor, ct.neonIntensity);
-  applyText('ct-preview-score1', ct.scoreColor,    ct.neonEnabled && ct.neonScore, ct.neonColor, ct.neonIntensity);
-  applyText('ct-preview-score2', ct.scoreColor,    ct.neonEnabled && ct.neonScore, ct.neonColor, ct.neonIntensity);
-  applyText('ct-preview-vs',     ct.scoreSepColor, ct.neonEnabled && ct.neonScore, ct.neonColor, ct.neonIntensity);
-
-  ['ct-preview-p1','ct-preview-p2','ct-preview-score1','ct-preview-score2','ct-preview-vs'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) {
-      el.style.fontFamily    = `'${ct.fontFamily}', sans-serif`;
-      el.style.letterSpacing = ct.letterSpacing + 'px';
-    }
-  });
-  ['ct-preview-p1','ct-preview-p2'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.style.fontSize = ct.nameFontSize + 'px';
-  });
-
-  // Badge actif (dans le créateur)
-  const isActive = (state && state.overlayTheme === 'custom');
-  const badge = document.getElementById('ct-active-badge');
-  if (badge) badge.style.display = isActive ? '' : 'none';
-
-  // ── Mise à jour de la carte dans la grille de thèmes ──
-  const cardBg = document.getElementById('theme-card-custom-bg');
-  if (cardBg) {
-    let bgVal = ct.bgType === 'gradient'
-      ? `linear-gradient(${ct.bgAngle || 135}deg, ${ct.bgColor1 || '#0E0E12'}, ${ct.bgColor2 || '#16161E'})`
-      : (ct.bgColor1 || '#0E0E12');
-    if (ct.coverImage) bgVal = `url('${ct.coverImage}') center / ${ct.coverMode || 'cover'} no-repeat, ` + bgVal;
-    cardBg.style.background = bgVal;
-  }
-  const neon = ct.neonEnabled ? `0 0 ${ct.neonIntensity || 8}px ${ct.neonColor || '#E8B830'}, 0 0 ${(ct.neonIntensity || 8) * 2}px ${ct.neonColor || '#E8B830'}` : 'none';
-  const applyCard = (id, color, useNeon) => {
-    const el = document.getElementById(id);
-    if (!el) return;
-    el.style.color = color;
-    el.style.textShadow = useNeon ? neon : 'none';
-    el.style.fontFamily = `'${ct.fontFamily || 'Russo One'}', sans-serif`;
-  };
-  applyCard('theme-card-custom-p1', ct.nameColor || '#F0EEF8', ct.neonEnabled && ct.neonName);
-  applyCard('theme-card-custom-p2', ct.nameColor || '#F0EEF8', ct.neonEnabled && ct.neonName);
-  applyCard('theme-card-custom-s1', ct.scoreColor || '#F0EEF8', ct.neonEnabled && ct.neonScore);
-  applyCard('theme-card-custom-s2', ct.scoreColor || '#F0EEF8', ct.neonEnabled && ct.neonScore);
-  applyCard('theme-card-custom-vs', ct.scoreSepColor || '#E8B830', ct.neonEnabled && ct.neonScore);
-  const cardBadge = document.getElementById('theme-card-custom-badge');
-  if (cardBadge) cardBadge.style.display = isActive ? '' : 'none';
-
-  // Sync hex text inputs alongside color pickers
-  const syncHex = (pickerId, textSelector) => {
-    const picker = document.getElementById(pickerId);
-    if (!picker) return;
-    // find sibling text input
-    const txt = picker.parentElement?.querySelector('input[type="text"]');
-    if (txt && txt.value !== picker.value) txt.value = picker.value;
-  };
-  ['ct-bg-color1','ct-bg-color2','ct-accent-color','ct-p1-color','ct-p2-color',
-   'ct-name-color','ct-tag-color','ct-pronouns-color','ct-score-color','ct-event-color','ct-sep-color',
-   'ct-neon-color'].forEach(id => syncHex(id));
-}
-
-function updateBgTypeVisibility(bgType) {
-  const isGrad   = bgType === 'gradient';
-  const isSolid  = bgType === 'solid';
-  const isTransp = bgType === 'transparent';
-  const isTexture= bgType === 'texture';
-  const colorsGrp = document.getElementById('ct-bg-colors-group');
-  const col2      = document.getElementById('ct-bg-color2-group');
-  const angGrp    = document.getElementById('ct-bg-angle-group');
-  const transpGrp = document.getElementById('ct-bg-transparent-group');
-  const texGrp    = document.getElementById('ct-bg-texture-group');
-  if (colorsGrp) colorsGrp.style.display = (isGrad || isSolid) ? '' : 'none';
-  if (col2)      col2.style.display      = isGrad ? '' : 'none';
-  if (angGrp)    angGrp.style.display    = isGrad ? '' : 'none';
-  if (transpGrp) transpGrp.style.display = isTransp ? '' : 'none';
-  if (texGrp)    texGrp.style.display    = isTexture ? '' : 'none';
-}
-
-function ctWire() {
-  // Color pickers
-  const colorIds = [
-    'ct-bg-color1','ct-bg-color2','ct-accent-color','ct-p1-color','ct-p2-color',
-    'ct-name-color','ct-tag-color','ct-pronouns-color','ct-score-color','ct-event-color','ct-sep-color',
-    'ct-neon-color',
-  ];
-  colorIds.forEach(id => {
-    const el = document.getElementById(id);
-    if (!el) return;
-    el.addEventListener('input', () => {
-      // Also update sibling hex text input
-      const txt = el.parentElement?.querySelector('input[type="text"]');
-      if (txt) txt.value = el.value;
-      ctSend();
-    });
-  });
-
-  // Background type radios
-  document.querySelectorAll('input[name="ct-bg-type"]').forEach(r => {
-    r.addEventListener('change', () => {
-      const bgType = document.querySelector('input[name="ct-bg-type"]:checked')?.value || 'gradient';
-      updateBgTypeVisibility(bgType);
-      ctSend();
-    });
-  });
-
-  // Range ↔ number input pairs
-  const sliderPairs = [
-    ['ct-bg-angle-range',         'ct-bg-angle-num'],
-    ['ct-neon-intensity-range',   'ct-neon-intensity-num'],
-    ['ct-name-size-range',        'ct-name-size-num'],
-    ['ct-letter-spacing-range',   'ct-letter-spacing-num'],
-    ['ct-particle-count-range',   'ct-particle-count-num'],
-    ['ct-cover-opacity-range',    'ct-cover-opacity-num'],
-    ['ct-bg-texture-opacity-range', 'ct-bg-texture-opacity-num'],
-  ];
-  sliderPairs.forEach(([rId, nId]) => {
-    const r = document.getElementById(rId);
-    const n = document.getElementById(nId);
-    if (r && n) {
-      r.addEventListener('input', () => { n.value = r.value; ctSend(); });
-      n.addEventListener('input', () => { r.value = n.value; ctSend(); });
-    }
-  });
-
-  // Checkboxes
-  ['ct-neon-enabled','ct-neon-name','ct-neon-score','ct-neon-tag','ct-neon-event','ct-neon-accent'].forEach(id => {
-    const el = document.getElementById(id);
-    if (!el) return;
-    el.addEventListener('change', () => {
-      if (id === 'ct-neon-enabled') {
-        const neonControls = document.getElementById('ct-neon-controls');
-        if (neonControls) neonControls.style.display = el.checked ? '' : 'none';
-      }
-      ctSend();
-    });
-  });
-
-  // Select dropdowns
-  ['ct-font-family','ct-particle-type','ct-cover-mode','ct-bg-texture-size'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.addEventListener('change', ctSend);
-  });
-
-  // Cover image upload
-  const coverInput = document.getElementById('ct-cover-input');
-  if (coverInput) {
-    coverInput.addEventListener('change', (e) => {
-      const file = e.target.files?.[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = (ev) => {
-        customTheme.coverImage = ev.target.result;
-        const preview = document.getElementById('ct-cover-preview');
-        if (preview) { preview.src = ev.target.result; preview.style.display = 'block'; }
-        const empty = document.getElementById('ct-cover-empty');
-        if (empty) empty.style.display = 'none';
-        ctSend();
-      };
-      reader.readAsDataURL(file);
-    });
-  }
-
-  // Cover image clear
-  document.getElementById('ct-cover-clear')?.addEventListener('click', () => {
-    customTheme.coverImage = null;
-    const preview = document.getElementById('ct-cover-preview');
-    if (preview) { preview.src = ''; preview.style.display = 'none'; }
-    const empty = document.getElementById('ct-cover-empty');
-    if (empty) empty.style.display = '';
-    const inp = document.getElementById('ct-cover-input');
-    if (inp) inp.value = '';
-    ctSend();
-  });
-
-  // Texture image upload
-  const textureInput = document.getElementById('ct-bg-texture-input');
-  if (textureInput) {
-    textureInput.addEventListener('change', (e) => {
-      const file = e.target.files?.[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = (ev) => {
-        customTheme.bgTexture = ev.target.result;
-        const preview = document.getElementById('ct-bg-texture-preview');
-        if (preview) { preview.src = ev.target.result; preview.style.display = 'block'; }
-        const empty = document.getElementById('ct-bg-texture-empty');
-        if (empty) empty.style.display = 'none';
-        ctSend();
-      };
-      reader.readAsDataURL(file);
-    });
-  }
-
-  // Texture image clear
-  document.getElementById('ct-bg-texture-clear')?.addEventListener('click', () => {
-    customTheme.bgTexture = null;
-    const preview = document.getElementById('ct-bg-texture-preview');
-    if (preview) { preview.src = ''; preview.style.display = 'none'; }
-    const empty = document.getElementById('ct-bg-texture-empty');
-    if (empty) empty.style.display = '';
-    const inp = document.getElementById('ct-bg-texture-input');
-    if (inp) inp.value = '';
-    ctSend();
-  });
-
-  // Activate button
-  const activateCustomTheme = () => {
-    ctGet();
-    const ns = buildStateFromForm();
-    ns.overlayTheme = 'custom';
-    ns.customTheme  = { ...customTheme };
-    emitState(ns);
-    document.querySelectorAll('.theme-preset-card').forEach(c => c.classList.remove('active'));
-    document.querySelector('[data-theme="custom"]')?.classList.add('active');
-    ctUpdatePreview();
-  };
-
-  document.getElementById('btn-ct-apply')?.addEventListener('click', activateCustomTheme);
-
-  // Clic sur la carte dans la grille
-  document.getElementById('theme-card-custom')?.addEventListener('click', activateCustomTheme);
-}
-
-function ctLoad(ct) {
-  if (!ct) return;
-  customTheme = { ...CT_DEFAULTS, ...ct };
-
-  const set = (id, val) => {
-    const el = document.getElementById(id);
-    if (el) el.value = val;
-    // Also sync sibling hex text input for color pickers
-    if (el && el.type === 'color') {
-      const txt = el.parentElement?.querySelector('input[type="text"]');
-      if (txt) txt.value = val;
-    }
-  };
-  const setCheck = (id, val) => { const el = document.getElementById(id); if (el) el.checked = !!val; };
-
-  // bg type radio
-  const bgRad = document.querySelector(`input[name="ct-bg-type"][value="${customTheme.bgType}"]`);
-  if (bgRad) bgRad.checked = true;
-  updateBgTypeVisibility(customTheme.bgType || 'gradient');
-
-  set('ct-bg-color1', customTheme.bgColor1);
-  set('ct-bg-color2', customTheme.bgColor2);
-  set('ct-bg-angle-range',  customTheme.bgAngle);
-  set('ct-bg-angle-num',    customTheme.bgAngle);
-  set('ct-accent-color',    customTheme.accentColor);
-  set('ct-p1-color',        customTheme.p1Color);
-  set('ct-p2-color',        customTheme.p2Color);
-  set('ct-name-color',      customTheme.nameColor);
-  set('ct-tag-color',       customTheme.tagColor);
-  set('ct-pronouns-color',  customTheme.pronounsColor);
-  set('ct-score-color',     customTheme.scoreColor);
-  set('ct-event-color',     customTheme.eventColor);
-  set('ct-sep-color',       customTheme.scoreSepColor);
-  setCheck('ct-neon-enabled', customTheme.neonEnabled);
-  set('ct-neon-color',         customTheme.neonColor);
-  set('ct-neon-intensity-range', customTheme.neonIntensity);
-  set('ct-neon-intensity-num',   customTheme.neonIntensity);
-  setCheck('ct-neon-name',    customTheme.neonName);
-  setCheck('ct-neon-score',   customTheme.neonScore);
-  setCheck('ct-neon-tag',     customTheme.neonTag);
-  setCheck('ct-neon-event',   customTheme.neonEvent);
-  setCheck('ct-neon-accent',  customTheme.neonAccent);
-  set('ct-font-family',        customTheme.fontFamily);
-  set('ct-name-size-range',    customTheme.nameFontSize);
-  set('ct-name-size-num',      customTheme.nameFontSize);
-  set('ct-letter-spacing-range', customTheme.letterSpacing);
-  set('ct-letter-spacing-num',   customTheme.letterSpacing);
-  set('ct-particle-type',      customTheme.particleType);
-  set('ct-particle-count-range', customTheme.particleCount);
-  set('ct-particle-count-num',   customTheme.particleCount);
-  set('ct-cover-opacity-range',  customTheme.coverOpacity);
-  set('ct-cover-opacity-num',    customTheme.coverOpacity);
-  set('ct-cover-mode',           customTheme.coverMode);
-
-  if (customTheme.coverImage) {
-    const preview = document.getElementById('ct-cover-preview');
-    if (preview) { preview.src = customTheme.coverImage; preview.style.display = 'block'; }
-    const empty = document.getElementById('ct-cover-empty');
-    if (empty) empty.style.display = 'none';
-  }
-
-  set('ct-bg-texture-opacity-range', customTheme.bgTextureOpacity ?? 80);
-  set('ct-bg-texture-opacity-num',   customTheme.bgTextureOpacity ?? 80);
-  set('ct-bg-texture-size',          customTheme.bgTextureSize || 'cover');
-  if (customTheme.bgTexture) {
-    const prev = document.getElementById('ct-bg-texture-preview');
-    if (prev) { prev.src = customTheme.bgTexture; prev.style.display = 'block'; }
-    const empty = document.getElementById('ct-bg-texture-empty');
-    if (empty) empty.style.display = 'none';
-  } else {
-    const prev = document.getElementById('ct-bg-texture-preview');
-    if (prev) { prev.src = ''; prev.style.display = 'none'; }
-    const empty = document.getElementById('ct-bg-texture-empty');
-    if (empty) empty.style.display = '';
-  }
-
-  const neonControls = document.getElementById('ct-neon-controls');
-  if (neonControls) neonControls.style.display = customTheme.neonEnabled ? '' : 'none';
-
-  ctUpdatePreview();
-}
-
-// Wire all events
-ctWire();
-
-// Load from initial state if available
-if (typeof state !== 'undefined' && state && state.customTheme) {
-  ctLoad(state.customTheme);
-}
-
-// Sync on socket state updates
-socket.on('stateUpdate', (s) => {
-  if (s && s.customTheme) ctLoad(s.customTheme);
-});
 
 // ─── Onglet Overlay multi-PC ─────────────────────────────────────────────────
 
@@ -8069,143 +7754,6 @@ socket.on('stateUpdate', (s) => {
   document.getElementById('tab-select-mobile')?.addEventListener('change', function() {
     if (this.value === 'overlayip') loadIPs();
   });
-})();
-
-// ─── Onglet Éléments libres ──────────────────────────────────────────────────
-
-(function initSelElements() {
-  let _debounce = null;
-  let _loaded = false;
-
-  // Envoie l'état complet de tous les éléments
-  function sendAll() {
-    clearTimeout(_debounce);
-    _debounce = setTimeout(() => {
-      const elements = {};
-      document.querySelectorAll('.sel-row').forEach(row => {
-        const visEl  = row.querySelector('.sel-vis');
-        const xEl    = row.querySelector('.sel-x');
-        const yEl    = row.querySelector('.sel-y');
-        const sizeEl = row.querySelector('.sel-size');
-        if (!xEl) return;
-        const key = xEl.dataset.key;
-        elements[key] = {
-          x:       parseInt(xEl.value)    || 0,
-          y:       parseInt(yEl.value)    || 0,
-          visible: visEl ? visEl.checked : true,
-          size:    sizeEl ? (parseInt(sizeEl.value) || 0) : undefined,
-        };
-        if (elements[key].size === undefined) delete elements[key].size;
-      });
-
-      const visible = document.getElementById('sel-visible')?.checked ?? true;
-      fetch('/api/elements-overlay', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ visible, elements }),
-      });
-    }, 80);
-  }
-
-  // Charge l'état depuis le serveur et remplit les inputs
-  function loadState() {
-    if (_loaded) return;
-    fetch('/api/elements-overlay').then(r => r.json()).then(s => {
-      _loaded = true;
-
-      const visEl = document.getElementById('sel-visible');
-      if (visEl) visEl.checked = s.visible !== false;
-
-      const els = s.elements || {};
-      for (const [key, conf] of Object.entries(els)) {
-        const xEl    = document.querySelector(`.sel-x[data-key="${key}"]`);
-        const yEl    = document.querySelector(`.sel-y[data-key="${key}"]`);
-        const sEl    = document.querySelector(`.sel-size[data-key="${key}"]`);
-        const vEl    = document.querySelector(`.sel-vis[data-key="${key}"]`);
-        if (xEl) xEl.value = conf.x ?? xEl.value;
-        if (yEl) yEl.value = conf.y ?? yEl.value;
-        if (sEl && conf.size != null) sEl.value = conf.size;
-        if (vEl) vEl.checked = conf.visible !== false;
-      }
-    }).catch(() => {});
-  }
-
-  // Wire les événements
-  function wire() {
-    document.querySelectorAll('.sel-x, .sel-y, .sel-size, .sel-vis').forEach(inp => {
-      inp.addEventListener('input', sendAll);
-    });
-    const visEl = document.getElementById('sel-visible');
-    if (visEl) visEl.addEventListener('change', sendAll);
-  }
-
-  // Charge quand l'onglet est ouvert
-  document.querySelectorAll('.tab-btn[data-tab="builder"]').forEach(btn => {
-    btn.addEventListener('click', loadState);
-  });
-
-  wire();
-})();
-
-// ─── Boutons copier URL par élément (onglet Éléments libres) ────────────────
-
-(function initSelCopyButtons() {
-  function buildButtons() {
-    document.querySelectorAll('#tab-builder .sel-row').forEach(row => {
-      if (row.querySelector('.sel-copy-btn')) return; // déjà ajouté
-
-      const xInput = row.querySelector('.sel-x');
-      if (!xInput) return;
-      const key = xInput.dataset.key;
-      const url = `${location.origin}/scoreboard-elements?el=${key}`;
-
-      // Bouton +Canvas
-      const canvasBtn = document.createElement('button');
-      canvasBtn.className = 'btn btn-sm btn-primary sel-canvas-btn';
-      canvasBtn.textContent = '+';
-      canvasBtn.title = 'Ajouter au canvas du builder';
-      canvasBtn.style.cssText = 'font-size:13px;padding:2px 7px;min-width:24px;';
-      canvasBtn.addEventListener('click', () => {
-        if (window.sbbAddFromElement) window.sbbAddFromElement(key);
-        canvasBtn.textContent = '✓';
-        setTimeout(() => { canvasBtn.textContent = '+'; }, 1000);
-      });
-      row.appendChild(canvasBtn);
-
-      // Bouton OBS (copier URL)
-      const wrap = document.createElement('div');
-      wrap.className = 'sel-copy-wrap';
-      wrap.title = url;
-
-      const code = document.createElement('code');
-      code.className = 'sel-copy-url';
-      code.textContent = `?el=${key}`;
-
-      const btn = document.createElement('button');
-      btn.className = 'btn btn-sm btn-outline sel-copy-btn';
-      btn.textContent = 'OBS';
-      btn.addEventListener('click', () => {
-        navigator.clipboard.writeText(url).then(() => {
-          btn.textContent = '✓';
-          setTimeout(() => { btn.textContent = 'OBS'; }, 1400);
-        });
-      });
-
-      wrap.appendChild(code);
-      wrap.appendChild(btn);
-      row.appendChild(wrap);
-    });
-  }
-
-  // Injecte lors de l'ouverture de l'onglet
-  document.querySelectorAll('.tab-btn[data-tab="builder"]').forEach(btn => {
-    btn.addEventListener('click', buildButtons);
-  });
-
-  // Injecte immédiatement si l'onglet est actif au chargement
-  if (document.getElementById('tab-builder')?.classList.contains('active')) {
-    buildButtons();
-  }
 })();
 
 // ══════════════════════════════════════════════════════════════
@@ -10623,7 +10171,6 @@ socket.on('stateUpdate', (s) => {
 (function () {
   const ANIM_OVERLAYS = [
     { id: 'scoreboard',          label: 'Scoreboard'         },
-    { id: 'scoreboard-elements', label: 'Éléments Scoreboard'},
     { id: 'casters',             label: 'Commentateurs'      },
     { id: 'stageveto',           label: 'Stage Veto'         },
     { id: 'ticker',              label: 'Bandeau défilant'   },

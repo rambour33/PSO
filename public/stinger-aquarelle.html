@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Stinger – Aquarelle</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { width:1920px; height:1080px; overflow:hidden; background:transparent; position:relative; }
+    @keyframes wash { 0%{filter:blur(60px);opacity:0;transform:scale(.8)} 45%{filter:blur(8px);opacity:.9;transform:scale(1)} 75%{filter:blur(8px);opacity:.9} 100%{filter:blur(60px);opacity:0;transform:scale(1.1)} }
+    @keyframes logo-in { 0%,38%{opacity:0} 62%{opacity:1} 78%{opacity:1} 100%{opacity:0} }
+    #aq-bg   { position:absolute; inset:0; background:#EEF5FF; }
+    #aq-wash { position:absolute; inset:-60px; background:radial-gradient(ellipse at 30% 40%,#99BBFF 0%,#6688CC 25%,#AADDEE 50%,#FFB3D9 75%,#B3DDFF 100%); filter:blur(60px); opacity:0; }
+  </style>
+</head>
+<body>
+  <div id="aq-bg"></div>
+  <div id="aq-wash"></div>
+  <div id="logo-wrap" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:100">
+    <img id="logo-img" src="" alt="" style="max-width:500px;max-height:340px;display:none;opacity:0" />
+  </div>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    var DUR = 1.9;
+    function applyConfig(cfg) {
+      if (cfg && cfg.logoUrl) {
+        var img = document.getElementById('logo-img');
+        img.src = cfg.logoUrl; img.style.display = 'block';
+      }
+    }
+    function build() {
+      var d = DUR+'s';
+      document.getElementById('aq-wash').style.animation = 'wash '+d+' ease forwards';
+      document.getElementById('logo-img').style.animation = 'logo-in '+d+' ease forwards';
+    }
+    fetch('/api/stinger').then(function(r){return r.json();}).then(function(cfg){applyConfig(cfg);build();}).catch(function(){build();});
+    var socket = io();
+    socket.on('stingerConfig', function(){ location.reload(); });
+  </script>
+</body>
+</html>

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Stinger – Botanique</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { width:1920px; height:1080px; overflow:hidden; background:transparent; position:relative; }
+    @keyframes leaf-unfurl { 0%{transform:scale(0) rotate(-45deg);opacity:0} 50%{transform:scale(1) rotate(0deg);opacity:1} 80%{opacity:1} 100%{opacity:0} }
+    @keyframes logo-in     { 0%,38%{opacity:0} 62%{opacity:1} 82%{opacity:1} 100%{opacity:0} }
+    #bot-bg { position:absolute; inset:0; background:#1A2E1A; }
+    #l1 { position:absolute; width:700px; height:700px; top:-100px; left:-100px; border-radius:0 50% 0 50%; background:radial-gradient(circle at 30% 30%,#2D7A2D,#1A4A1A); opacity:0; }
+    #l2 { position:absolute; width:600px; height:600px; bottom:-80px; right:-80px; border-radius:50% 0 50% 0; background:radial-gradient(circle at 70% 70%,#3DAA3D,#228B22); opacity:0; }
+    #l3 { position:absolute; width:400px; height:400px; top:50%; left:50%; margin:-200px; border-radius:30% 70% 60% 40%; background:radial-gradient(circle at 50% 30%,#50C878,#1A5C1A); opacity:0; }
+  </style>
+</head>
+<body>
+  <div id="bot-bg"></div>
+  <div id="l1"></div>
+  <div id="l2"></div>
+  <div id="l3"></div>
+  <div id="logo-wrap" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:100">
+    <img id="logo-img" src="" alt="" style="max-width:500px;max-height:340px;display:none;opacity:0" />
+  </div>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    var DUR = 1.9;
+    function applyConfig(cfg) {
+      if (cfg && cfg.logoUrl) {
+        var img = document.getElementById('logo-img');
+        img.src = cfg.logoUrl; img.style.display = 'block';
+      }
+    }
+    function build() {
+      var d = DUR+'s';
+      document.getElementById('l1').style.animation = 'leaf-unfurl '+d+' cubic-bezier(.34,1.26,.64,1) forwards';
+      document.getElementById('l2').style.animation = 'leaf-unfurl '+d+' .15s cubic-bezier(.34,1.26,.64,1) forwards';
+      document.getElementById('l3').style.animation = 'leaf-unfurl '+d+' .3s cubic-bezier(.34,1.26,.64,1) forwards';
+      document.getElementById('logo-img').style.animation = 'logo-in '+d+' ease forwards';
+    }
+    fetch('/api/stinger').then(function(r){return r.json();}).then(function(cfg){applyConfig(cfg);build();}).catch(function(){build();});
+    var socket = io();
+    socket.on('stingerConfig', function(){ location.reload(); });
+  </script>
+</body>
+</html>
