@@ -1,4 +1,4 @@
-const socket = io();
+﻿const socket = io();
 
 // ─── Server base URL (updated from /api/server-info) ──────────────────────────
 let _serverBase = window.location.origin;
@@ -3037,6 +3037,105 @@ const THEMES = {
     castersBgColor:  '#0A0200',
     castersBgOpacity: 95,
   },
+  botw: {
+    sbBgColor:       '#0C1A06',
+    sbBgOpacity:     93,
+    eventTextColor:  '#7EC850',
+    eventTextSize:   12,
+    tagColor:        '#7EC850',
+    nameColor:       '#F0F8E8',
+    pronounsColor:   '#5A8A38',
+    castersBgColor:  '#0C1A06',
+    castersBgOpacity: 93,
+  },
+  totk: {
+    sbBgColor:       '#0C0800',
+    sbBgOpacity:     94,
+    eventTextColor:  '#FF7800',
+    eventTextSize:   13,
+    tagColor:        '#FF7800',
+    nameColor:       '#FFF0E0',
+    pronounsColor:   '#50DCB4',
+    castersBgColor:  '#0C0800',
+    castersBgOpacity: 94,
+  },
+  yoshiwool: {
+    sbBgColor:       '#1A0414',
+    sbBgOpacity:     94,
+    eventTextColor:  '#FF6B9F',
+    eventTextSize:   12,
+    tagColor:        '#FF6B9F',
+    nameColor:       '#FFF0F6',
+    pronounsColor:   '#7ED957',
+    castersBgColor:  '#1A0414',
+    castersBgOpacity: 94,
+  },
+  mario64: {
+    sbBgColor:       '#120000',
+    sbBgOpacity:     95,
+    eventTextColor:  '#FF2222',
+    eventTextSize:   13,
+    tagColor:        '#FF2222',
+    nameColor:       '#FFEECC',
+    pronounsColor:   '#FFD700',
+    castersBgColor:  '#120000',
+    castersBgOpacity: 95,
+  },
+  minecraft: {
+    sbBgColor:       '#0A0C08',
+    sbBgOpacity:     96,
+    eventTextColor:  '#5DCB14',
+    eventTextSize:   12,
+    tagColor:        '#5DCB14',
+    nameColor:       '#E8F0E0',
+    pronounsColor:   '#8B5A2B',
+    castersBgColor:  '#0A0C08',
+    castersBgOpacity: 96,
+  },
+  pacman: {
+    sbBgColor:       '#00001E',
+    sbBgOpacity:     97,
+    eventTextColor:  '#FFDC00',
+    eventTextSize:   13,
+    tagColor:        '#FFDC00',
+    nameColor:       '#FFFCE0',
+    pronounsColor:   '#FF8C00',
+    castersBgColor:  '#00001E',
+    castersBgOpacity: 97,
+  },
+  megaman: {
+    sbBgColor:       '#000612',
+    sbBgOpacity:     95,
+    eventTextColor:  '#00B4FF',
+    eventTextSize:   13,
+    tagColor:        '#00B4FF',
+    nameColor:       '#E0F8FF',
+    pronounsColor:   '#00FFFF',
+    castersBgColor:  '#000612',
+    castersBgOpacity: 95,
+  },
+  tekken: {
+    sbBgColor:       '#0A0000',
+    sbBgOpacity:     96,
+    eventTextColor:  '#DC1414',
+    eventTextSize:   13,
+    tagColor:        '#DC1414',
+    nameColor:       '#FFF0E0',
+    pronounsColor:   '#FFD700',
+    castersBgColor:  '#0A0000',
+    castersBgOpacity: 96,
+  },
+  sf2: {
+    sbBgColor:       '#000412',
+    sbBgOpacity:     96,
+    eventTextColor:  '#00A0FF',
+    eventTextSize:   13,
+    tagColor:        '#00A0FF',
+    nameColor:       '#E0F0FF',
+    pronounsColor:   '#FF4400',
+    castersBgColor:  '#000412',
+    castersBgOpacity: 96,
+  },
   flag_fr: {
     sbBgColor:       '#000510',
     sbBgOpacity:     95,
@@ -5859,824 +5958,13 @@ const LAYER_COLORS = {
   'avsync':              '#78909C',
 };
 
-// Couleurs primaires par thème (pour "Couleur thème" du fond studio)
-const STUDIO_THEME_PRIMARY = {
-  default:    '#E8B830', dual:       '#E8B830', cyberpunk:  '#00F5FF',
-  synthwave:  '#FF6EC7', midnight:   '#4488FF', egypt:      '#D4A017',
-  city:       '#A0C4D8', eco:        '#6BC96C', water:      '#29B6F6',
-  fire:       '#FF6B00', rainbow:    '#FF6EC7', trans:      '#55CDFC',
-  pan:        '#FF218C', bi:         '#9B59D0', lesbian:    '#FF4500',
-  plage:      '#F4D35E', smario:     '#E52222', ssonic:     '#1E90FF',
-  spikachu:   '#FFD700', ssephiroth: '#C0C0C0', transparent:'#E8B830',
-};
 
-// État complet multi-scènes (synchronisé depuis le serveur)
-let superFullState = { activeScene: 0, scenes: [] };
-// Vue locale de la scène active (utilisée par renderLayerList/renderCanvas)
-let superLocal = { bgColor: 'transparent', bgImage: null, bgImageMode: 'texture', bgImageBlend: 'normal', bgImageOpacity: 100, bgParticlesEnabled: false, bgParticlesOpacity: 100, bgParticlesCount: 100, layers: [] };
-let studioScale = 0.5;
-
-/* ── Scène active → superLocal ─────────────────────────────── */
-function syncSceneToLocal() {
-  const scene = superFullState.scenes[superFullState.activeScene];
-  if (!scene) return;
-  superLocal.bgColor           = scene.bgColor;
-  superLocal.bgImage           = scene.bgImage           ?? null;
-  superLocal.bgImageMode       = scene.bgImageMode       ?? 'texture';
-  superLocal.bgImageBlend      = scene.bgImageBlend      ?? 'normal';
-  superLocal.bgImageOpacity    = scene.bgImageOpacity    ?? 100;
-  superLocal.bgParticlesEnabled= scene.bgParticlesEnabled?? false;
-  superLocal.bgParticlesOpacity= scene.bgParticlesOpacity?? 100;
-  superLocal.bgParticlesCount  = scene.bgParticlesCount  ?? 100;
-  superLocal.layers            = scene.layers;
-  syncBgImageUI();
-  syncParticlesUI();
-}
-
-/* ── Rendu du sélecteur de scènes ──────────────────────────── */
-function renderSceneButtons() {
-  const container = document.getElementById('studio-scene-btns');
-  if (!container) return;
-  container.innerHTML = '';
-  superFullState.scenes.forEach((scene, i) => {
-    const btn = document.createElement('button');
-    btn.className = 'btn btn-sm scene-select-btn' + (i === superFullState.activeScene ? ' btn-primary' : ' btn-outline');
-    btn.dataset.idx = i;
-    btn.title = 'Double-clic pour renommer';
-    btn.innerHTML = `<span style="font-size:10px;color:inherit;opacity:0.6;display:block;line-height:1">${i + 1}</span><span style="font-size:11px;font-weight:600;max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block">${scene.name}</span>`;
-    btn.addEventListener('click', () => switchScene(i));
-    btn.addEventListener('dblclick', () => startRename(i));
-    container.appendChild(btn);
-  });
-  renderSceneUrls();
-}
-
-/* ── URLs par scène pour OBS ────────────────────────────────── */
-function renderSceneUrls() {
-  const container = document.getElementById('studio-scene-urls');
-  if (!container) return;
-  container.innerHTML = '';
-  const base = getServerBase();
-  superFullState.scenes.forEach((scene, i) => {
-    const url      = base + '/super-overlay/' + (i + 1);
-    const isActive = i === superFullState.activeScene;
-    const row = document.createElement('div');
-    row.style.cssText = 'display:flex;align-items:center;gap:6px;' +
-      (isActive ? 'background:rgba(232,184,48,0.07);border:1px solid rgba(232,184,48,0.3);border-radius:6px;padding:4px 6px;' : '');
-    row.innerHTML = `
-      <span style="min-width:76px;font-size:11px;font-weight:600;color:${isActive ? 'var(--gold)' : 'var(--text-muted)'};white-space:nowrap;flex-shrink:0">
-        ${isActive ? '▶ ' : ''}Scène ${i + 1}
-      </span>
-      <input type="text" readonly value="${url}"
-        style="flex:1;font-size:11px;padding:4px 8px;background:var(--surface2);border:1px solid var(--border);color:var(--text-muted);border-radius:4px;min-width:0" />
-      <button class="btn btn-outline btn-sm scene-url-copy-btn" data-url="${url}" style="font-size:11px;padding:3px 8px;flex-shrink:0">Copier</button>
-      <a href="${url}" target="_blank" class="btn btn-outline btn-sm" style="font-size:11px;padding:3px 8px;flex-shrink:0">↗</a>
-    `;
-    container.appendChild(row);
-  });
-  container.querySelectorAll('.scene-url-copy-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      navigator.clipboard.writeText(btn.dataset.url).then(() => {
-        const orig = btn.textContent;
-        btn.textContent = '✓';
-        setTimeout(() => { btn.textContent = orig; }, 1200);
-      });
-    });
-  });
-}
-
-function switchScene(idx) {
-  if (idx === superFullState.activeScene) return;
-  superFullState.activeScene = idx;
-  syncSceneToLocal();
-  renderSceneButtons();
-  renderLayerList();
-  renderCanvas();
-  renderLayerControls();
-  // Sync fond
-  document.querySelectorAll('.so-bg-preset').forEach(btn => {
-    btn.classList.toggle('active-sep', btn.dataset.bg === superLocal.bgColor);
-  });
-  fetch(`/api/super/scene/${idx}`, { method: 'POST' }).catch(() => {});
-}
-
-function startRename(idx) {
-  const row   = document.getElementById('studio-scene-rename-row');
-  const input = document.getElementById('studio-scene-name-input');
-  if (!row || !input) return;
-  input.value = superFullState.scenes[idx].name;
-  input.dataset.idx = idx;
-  row.style.display = 'flex';
-  input.focus();
-  input.select();
-}
-
-document.getElementById('btn-scene-rename-ok')?.addEventListener('click', () => {
-  const input = document.getElementById('studio-scene-name-input');
-  const row   = document.getElementById('studio-scene-rename-row');
-  if (!input) return;
-  const idx  = parseInt(input.dataset.idx);
-  const name = input.value.trim() || `Scène ${idx + 1}`;
-  superFullState.scenes[idx].name = name;
-  row.style.display = 'none';
-  renderSceneButtons();
-  fetch(`/api/super/scene/${idx}/name`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ name }),
-  }).catch(() => {});
-});
-document.getElementById('btn-scene-rename-cancel')?.addEventListener('click', () => {
-  const row = document.getElementById('studio-scene-rename-row');
-  if (row) row.style.display = 'none';
-});
-
-/* ── Envoi au serveur ────────────────────────────────────────── */
-let _superDebounce = null;
-function superSend() {
-  clearTimeout(_superDebounce);
-  _superDebounce = setTimeout(() => {
-    fetch('/api/super', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(superLocal),
-    }).catch(e => setStatus('Erreur Studio : ' + e.message));
-  }, 120);
-}
-
-/* ── Calcul du scale selon la largeur du container ──────────── */
-function recalcStudioScale() {
-  const container = document.getElementById('studio-canvas-container');
-  const wrap      = document.getElementById('studio-canvas-wrap');
-  const inner     = document.getElementById('studio-canvas-inner');
-  if (!container || !wrap || !inner) return;
-
-  const availW  = container.offsetWidth;
-  studioScale   = Math.min(availW / 1920, 1);
-
-  wrap.style.width  = (1920 * studioScale) + 'px';
-  wrap.style.height = (1080 * studioScale) + 'px';
-  inner.style.transform = `scale(${studioScale})`;
-}
-
-// Overlays qui supportent les snapshots
-const SNAPSHOT_SUPPORTED = new Set([
-  'overlay','cam','ticker','stream-title','frames',
-  'player-stats','tournament-history','twitch-chat',
-]);
-
-/* ── Rendu de la liste de calques ──────────────────────────── */
-function renderLayerList() {
-  const list = document.getElementById('studio-layer-list');
-  if (!list) return;
-
-  const sorted = superLocal.layers.slice().sort((a, b) => a.order - b.order);
-  list.innerHTML = '';
-
-  const groups = {};
-  const groupOrder = [];
-  sorted.forEach(layer => {
-    const cat = layer.category || 'Autres';
-    if (!groups[cat]) { groups[cat] = []; groupOrder.push(cat); }
-    groups[cat].push(layer);
-  });
-
-  groupOrder.forEach(cat => {
-    const header = document.createElement('li');
-    header.className = 'studio-layer-category';
-    header.textContent = cat;
-    list.appendChild(header);
-
-    groups[cat].forEach(layer => {
-      const color = LAYER_COLORS[layer.id] || '#888';
-      const hasSnap = !!layer.snapshot;
-      const canSnap = SNAPSHOT_SUPPORTED.has(layer.id);
-      const li = document.createElement('li');
-      li.className  = 'studio-layer-item' + (layer.visible ? '' : ' sli-disabled');
-      li.draggable  = true;
-      li.dataset.id = layer.id;
-
-      const snapBtns = canSnap ? `
-        <button class="btn btn-sm sli-snap-btn ${hasSnap ? 'sli-snap-saved' : 'sli-snap-empty'}"
-          data-id="${layer.id}"
-          title="Shift+clic pour supprimer le snapshot">
-          ${hasSnap ? '💾 Sauvegardé' : '💾 Sauvegarder'}
-        </button>
-      ` : '';
-
-      li.innerHTML = `
-        <span class="sli-drag" title="Glisser pour réordonner">⠿</span>
-        <span class="sli-dot" style="background:${color}"></span>
-        <label class="sli-vis-wrap" title="Visible dans le Super Overlay">
-          <input type="checkbox" class="sli-vis" data-id="${layer.id}" ${layer.visible ? 'checked' : ''} />
-          <span style="font-size:11px;">${layer.visible ? 'ON' : 'OFF'}</span>
-        </label>
-        <span class="sli-name">${layer.label}</span>
-        <span class="sli-snap-wrap">${snapBtns}</span>
-      `;
-
-      list.appendChild(li);
-    });
-  });
-
-  bindListDrag();
-  bindVisToggles();
-  bindSnapButtons();
-}
-
-function bindSnapButtons() {
-  document.querySelectorAll('.sli-snap-btn').forEach(btn => {
-    btn.addEventListener('click', async (e) => {
-      e.stopPropagation();
-      const id       = btn.dataset.id;
-      const sceneIdx = superFullState.activeScene;
-      btn.disabled   = true;
-
-      try {
-        if (e.shiftKey) {
-          const r = await fetch(`/api/super/scene/${sceneIdx}/layer/${id}/snapshot`, { method: 'DELETE' });
-          if (!r.ok) throw new Error((await r.json()).error || r.statusText);
-          setStatus(`Snapshot supprimé — ${id}`);
-        } else {
-          btn.textContent = '⏳';
-          const r = await fetch(`/api/super/scene/${sceneIdx}/layer/${id}/snapshot`, { method: 'POST' });
-          if (!r.ok) throw new Error((await r.json()).error || r.statusText);
-          setStatus(`💾 Snapshot sauvegardé — ${id}`);
-        }
-      } catch (err) {
-        setStatus(`Erreur snapshot : ${err.message}`);
-      }
-      btn.disabled = false;
-    });
-  });
-}
-
-function saveLayerSnapshot(id) {
-  const sceneIdx = superFullState.activeScene;
-  fetch(`/api/super/scene/${sceneIdx}/layer/${id}/snapshot`, { method: 'POST' })
-    .then(r => r.json())
-    .then(d => { if (d.error) setStatus('Erreur : ' + d.error); else setStatus(`💾 Snapshot sauvegardé — ${id}`); })
-    .catch(e => setStatus('Erreur snapshot : ' + e.message));
-}
-
-/* ── Drag-to-reorder la liste ──────────────────────────────── */
-let _dragListEl = null;
-
-function bindListDrag() {
-  const list = document.getElementById('studio-layer-list');
-  if (!list) return;
-
-  list.querySelectorAll('.studio-layer-item').forEach(li => {
-    li.addEventListener('dragstart', e => {
-      _dragListEl = li;
-      li.classList.add('dragging');
-      e.dataTransfer.effectAllowed = 'move';
-    });
-    li.addEventListener('dragend', () => {
-      li.classList.remove('dragging');
-      _dragListEl = null;
-      // Réindexer l'order selon position DOM
-      const items = [...list.querySelectorAll('.studio-layer-item')];
-      items.forEach((item, idx) => {
-        const layer = superLocal.layers.find(l => l.id === item.dataset.id);
-        if (layer) layer.order = idx;
-      });
-      superSend();
-      renderCanvas();
-      renderLayerControls();
-    });
-    li.addEventListener('dragover', e => {
-      e.preventDefault();
-      if (!_dragListEl || li === _dragListEl) return;
-      li.classList.add('drag-over');
-      const rect = li.getBoundingClientRect();
-      if (e.clientY < rect.top + rect.height / 2) {
-        list.insertBefore(_dragListEl, li);
-      } else {
-        list.insertBefore(_dragListEl, li.nextSibling);
-      }
-    });
-    li.addEventListener('dragleave', () => li.classList.remove('drag-over'));
-    li.addEventListener('drop', e => {
-      e.preventDefault();
-      li.classList.remove('drag-over');
-    });
-  });
-}
-
-/* ── Toggles de visibilité dans la liste ──────────────────── */
-function bindVisToggles() {
-  document.querySelectorAll('.sli-vis').forEach(chk => {
-    chk.addEventListener('change', () => {
-      const layer = superLocal.layers.find(l => l.id === chk.dataset.id);
-      if (!layer) return;
-      layer.visible = chk.checked;
-
-      // Mettre à jour le label ON/OFF
-      const li = chk.closest('.studio-layer-item');
-      if (li) {
-        li.classList.toggle('sli-disabled', !chk.checked);
-        const span = chk.nextElementSibling;
-        if (span) span.textContent = chk.checked ? 'ON' : 'OFF';
-      }
-
-      superSend();
-      renderCanvas();
-      renderLayerControls();
-    });
-  });
-}
-
-/* ── Rendu du canvas (iframes + overlays drag) ───────────────── */
-function renderCanvas() {
-  const inner     = document.getElementById('studio-canvas-inner');
-  const dragLayer = document.getElementById('studio-drag-layer');
-  if (!inner || !dragLayer) return;
-
-  recalcStudioScale();
-
-  // Fond couleur + image
-  inner.style.backgroundColor    = (superLocal.bgColor && superLocal.bgColor !== 'transparent') ? superLocal.bgColor : 'transparent';
-  if (superLocal.bgImage) {
-    const _isImg = superLocal.bgImageMode === 'image';
-    inner.style.backgroundImage    = `url('${superLocal.bgImage}')`;
-    inner.style.backgroundSize     = _isImg ? 'cover' : 'auto';
-    inner.style.backgroundRepeat   = _isImg ? 'no-repeat' : 'repeat';
-    inner.style.backgroundPosition = 'center';
-  } else {
-    inner.style.backgroundImage = '';
-  }
-
-  const sorted = superLocal.layers.slice().sort((a, b) => a.order - b.order);
-
-  /* ── Iframes ── */
-  sorted.forEach((layer, idx) => {
-    let wrap = document.getElementById('sc-wrap-' + layer.id);
-    if (!wrap) {
-      wrap = document.createElement('div');
-      wrap.id        = 'sc-wrap-' + layer.id;
-      wrap.className = 'sc-iframe-wrap';
-      wrap.style.cssText = 'position:absolute;width:1920px;height:1080px;pointer-events:none;';
-
-      const iframe = document.createElement('iframe');
-      iframe.src       = layer.url;
-      iframe.scrolling = 'no';
-      iframe.title     = layer.label;
-      iframe.style.cssText = 'width:1920px;height:1080px;border:none;pointer-events:none;';
-      wrap.appendChild(iframe);
-      inner.appendChild(wrap);
-    }
-    wrap.style.left    = layer.x + 'px';
-    wrap.style.top     = layer.y + 'px';
-    wrap.style.zIndex  = idx;
-    wrap.style.opacity = layer.visible ? (layer.opacity ?? 1) : 0.12;
-    wrap.style.filter  = layer.visible ? 'none' : 'grayscale(100%)';
-  });
-
-  /* ── Overlays drag pleine taille (coords écran) ── */
-  dragLayer.innerHTML = '';
-  const visibleSorted = sorted.filter(l => l.visible);
-  visibleSorted.forEach((layer, i) => {
-    const color   = LAYER_COLORS[layer.id] || '#888';
-    const overlay = document.createElement('div');
-    overlay.className  = 'sc-drag-overlay';
-    overlay.id         = 'sc-overlay-' + layer.id;
-    overlay.dataset.id = layer.id;
-    overlay.style.left   = (layer.x * studioScale) + 'px';
-    overlay.style.top    = (layer.y * studioScale) + 'px';
-    overlay.style.width  = (1920 * studioScale) + 'px';
-    overlay.style.height = (1080 * studioScale) + 'px';
-    overlay.style.zIndex = i;
-    overlay.style.setProperty('--sc-color', color);
-    overlay.innerHTML = `<div class="sc-overlay-badge" style="background:${color};">${layer.label}</div>`;
-    dragLayer.appendChild(overlay);
-  });
-
-  dragLayer.style.pointerEvents = visibleSorted.length ? 'auto' : 'none';
-  bindHandleDrag();
-}
-
-/* ── Drag des overlays dans le canvas ────────────────────────── */
-let _dragging = null;
-let _dragStart = null;
-
-function bindHandleDrag() {
-  document.querySelectorAll('.sc-drag-overlay').forEach(overlay => {
-    overlay.addEventListener('mousedown', e => {
-      _dragging = overlay.dataset.id;
-      const layer = superLocal.layers.find(l => l.id === _dragging);
-      if (!layer) return;
-      _dragStart = { mx: e.clientX, my: e.clientY, lx: layer.x, ly: layer.y };
-      overlay.classList.add('sc-dragging');
-      e.preventDefault();
-      e.stopPropagation();
-    });
-  });
-}
-
-document.addEventListener('mousemove', e => {
-  if (!_dragging || !_dragStart) return;
-  const layer = superLocal.layers.find(l => l.id === _dragging);
-  if (!layer) return;
-
-  const dx = (e.clientX - _dragStart.mx) / studioScale;
-  const dy = (e.clientY - _dragStart.my) / studioScale;
-  layer.x  = Math.round(_dragStart.lx + dx);
-  layer.y  = Math.round(_dragStart.ly + dy);
-
-  /* Déplacer l'overlay drag */
-  const overlay = document.getElementById('sc-overlay-' + _dragging);
-  if (overlay) {
-    overlay.style.left = (layer.x * studioScale) + 'px';
-    overlay.style.top  = (layer.y * studioScale) + 'px';
-  }
-  /* Déplacer l'iframe */
-  const wrap = document.getElementById('sc-wrap-' + _dragging);
-  if (wrap) { wrap.style.left = layer.x + 'px'; wrap.style.top = layer.y + 'px'; }
-
-  /* Sync les inputs X/Y */
-  const xi = document.querySelector(`.sc-x-input[data-id="${_dragging}"]`);
-  const yi = document.querySelector(`.sc-y-input[data-id="${_dragging}"]`);
-  if (xi) xi.value = layer.x;
-  if (yi) yi.value = layer.y;
-});
-
-document.addEventListener('mouseup', () => {
-  if (_dragging) {
-    const overlay = document.getElementById('sc-overlay-' + _dragging);
-    if (overlay) overlay.classList.remove('sc-dragging');
-    superSend();
-    _dragging  = null;
-    _dragStart = null;
-  }
-});
-
-/* ── Contrôles par calque visible ──────────────────────────── */
-function renderLayerControls() {
-  const container = document.getElementById('studio-layer-controls');
-  if (!container) return;
-
-  const visible = superLocal.layers
-    .filter(l => l.visible)
-    .sort((a, b) => a.order - b.order);
-
-  if (!visible.length) { container.innerHTML = ''; return; }
-
-  // Garder les valeurs des inputs actifs pendant le rendu
-  const focused = document.activeElement?.dataset?.id;
-
-  container.innerHTML = '';
-
-  const wrap = document.createElement('div');
-  wrap.className = 'custom-card';
-  wrap.style.padding = '10px 14px';
-
-  const title = document.createElement('h3');
-  title.style.marginBottom = '10px';
-  title.textContent = 'Position & opacité des calques actifs';
-  wrap.appendChild(title);
-
-  visible.forEach(layer => {
-    const color = LAYER_COLORS[layer.id] || '#888';
-    const row   = document.createElement('div');
-    row.className = 'studio-ctrl-card';
-
-    const hasSnap   = !!layer.snapshot;
-    const canSnap   = SNAPSHOT_SUPPORTED.has(layer.id);
-    const snapStyle = hasSnap ? 'color:var(--success);border-color:var(--success)' : '';
-    const snapLabel = hasSnap ? '💾 À jour' : '💾 Sauvegarder l\'état';
-    const snapBtn   = canSnap
-      ? `<button class="btn btn-outline btn-sm sc-snap-btn" data-id="${layer.id}" style="${snapStyle}" title="Sauvegarde les paramètres actuels de cet overlay dans cette scène">${snapLabel}</button>`
-      : '';
-
-    row.innerHTML = `
-      <span class="studio-ctrl-dot" style="background:${color}"></span>
-      <span class="studio-ctrl-name">${layer.label}</span>
-
-      <span class="studio-ctrl-field">
-        <label>X</label>
-        <input type="number" class="sc-x-input" data-id="${layer.id}" value="${layer.x}" min="-1920" max="1920" />
-      </span>
-      <span class="studio-ctrl-field">
-        <label>Y</label>
-        <input type="number" class="sc-y-input" data-id="${layer.id}" value="${layer.y}" min="-1080" max="1080" />
-      </span>
-      <span class="studio-ctrl-field" style="flex:1;min-width:160px;">
-        <label>Opacité</label>
-        <input type="range" class="sc-opacity" data-id="${layer.id}" min="0" max="1" step="0.05" value="${layer.opacity ?? 1}" />
-        <span class="studio-ctrl-opacity-val" id="sc-opval-${layer.id}">${Math.round((layer.opacity ?? 1) * 100)}%</span>
-      </span>
-      <button class="btn btn-outline btn-sm sc-reset-pos" data-id="${layer.id}" title="Remettre à X=0 Y=0">↺ 0,0</button>
-      ${snapBtn}
-    `;
-    wrap.appendChild(row);
-  });
-  container.appendChild(wrap);
-
-  bindLayerControlInputs();
-}
-
-function bindLayerControlInputs() {
-  document.querySelectorAll('.sc-x-input').forEach(el => {
-    el.addEventListener('change', () => {
-      const layer = superLocal.layers.find(l => l.id === el.dataset.id);
-      if (!layer) return;
-      layer.x = Number(el.value);
-      updateCanvasLayerPos(layer);
-      superSend();
-    });
-  });
-  document.querySelectorAll('.sc-y-input').forEach(el => {
-    el.addEventListener('change', () => {
-      const layer = superLocal.layers.find(l => l.id === el.dataset.id);
-      if (!layer) return;
-      layer.y = Number(el.value);
-      updateCanvasLayerPos(layer);
-      superSend();
-    });
-  });
-  document.querySelectorAll('.sc-opacity').forEach(el => {
-    el.addEventListener('input', () => {
-      const layer = superLocal.layers.find(l => l.id === el.dataset.id);
-      if (!layer) return;
-      layer.opacity = Number(el.value);
-      const val = document.getElementById('sc-opval-' + el.dataset.id);
-      if (val) val.textContent = Math.round(layer.opacity * 100) + '%';
-      const wrap = document.getElementById('sc-wrap-' + el.dataset.id);
-      if (wrap) wrap.style.opacity = layer.opacity;
-      superSend();
-    });
-  });
-  document.querySelectorAll('.sc-reset-pos').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const layer = superLocal.layers.find(l => l.id === btn.dataset.id);
-      if (!layer) return;
-      layer.x = 0; layer.y = 0;
-      const xi = document.querySelector(`.sc-x-input[data-id="${btn.dataset.id}"]`);
-      const yi = document.querySelector(`.sc-y-input[data-id="${btn.dataset.id}"]`);
-      if (xi) xi.value = 0;
-      if (yi) yi.value = 0;
-      updateCanvasLayerPos(layer);
-      superSend();
-    });
-  });
-
-  document.querySelectorAll('.sc-snap-btn').forEach(btn => {
-    btn.addEventListener('click', async () => {
-      const id = btn.dataset.id;
-      btn.disabled = true;
-      btn.textContent = '⏳';
-      try {
-        const r = await fetch(`/api/super/scene/${superFullState.activeScene}/layer/${id}/snapshot`, { method: 'POST' });
-        const d = await r.json();
-        if (d.error) throw new Error(d.error);
-        setStatus(`💾 État de "${id}" sauvegardé dans la scène`);
-      } catch (err) {
-        setStatus('Erreur : ' + err.message);
-      }
-      btn.disabled = false;
-    });
-  });
-}
-
-function updateCanvasLayerPos(layer) {
-  const wrap   = document.getElementById('sc-wrap-' + layer.id);
-  const handle = document.getElementById('sc-handle-' + layer.id);
-  if (wrap)   { wrap.style.left = layer.x + 'px'; wrap.style.top = layer.y + 'px'; }
-  if (handle) { handle.style.left = (layer.x * studioScale + 6) + 'px'; handle.style.top = (layer.y * studioScale + 6) + 'px'; }
-}
-
-/* ── Bouton "Tout masquer" ───────────────────────────────────── */
-document.getElementById('btn-super-none')?.addEventListener('click', () => {
-  superLocal.layers.forEach(l => { l.visible = false; });
-  superSend();
-  renderLayerList();
-  renderCanvas();
-  renderLayerControls();
-});
-
-/* ── Réinitialiser toutes les positions ─────────────────────── */
-document.getElementById('btn-reset-all-pos')?.addEventListener('click', () => {
-  superLocal.layers.forEach(l => { l.x = 0; l.y = 0; });
-  superSend();
-  renderCanvas();
-  renderLayerControls();
-});
-
-/* ── Fond du Super Overlay — couleur ────────────────────────── */
-document.querySelectorAll('.so-bg-preset').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.so-bg-preset').forEach(b => b.classList.remove('active-sep'));
-    btn.classList.add('active-sep');
-    superLocal.bgColor = btn.dataset.bg;
-    renderCanvas();
-    superSend();
-  });
-});
-document.getElementById('so-bg-color-picker')?.addEventListener('input', function () {
-  document.querySelectorAll('.so-bg-preset').forEach(b => b.classList.remove('active-sep'));
-  superLocal.bgColor = this.value;
-  renderCanvas();
-  superSend();
-});
-document.getElementById('btn-so-bg-theme')?.addEventListener('click', () => {
-  const primary = STUDIO_THEME_PRIMARY[state.overlayTheme] || '#E8B830';
-  document.querySelectorAll('.so-bg-preset').forEach(b => b.classList.remove('active-sep'));
-  superLocal.bgColor = primary;
-  renderCanvas();
-  superSend();
-});
-
-/* ── Fond du Super Overlay — image / texture ─────────────────── */
-function syncBgImageUI() {
-  const preview   = document.getElementById('so-bg-img-preview');
-  const emptySpan = document.getElementById('so-bg-img-preview-empty');
-  const blend     = document.getElementById('so-bg-img-blend');
-  const opacity   = document.getElementById('so-bg-img-opacity');
-  if (preview) {
-    if (superLocal.bgImage) {
-      preview.style.backgroundImage = `url('${superLocal.bgImage}')`;
-      if (emptySpan) emptySpan.style.display = 'none';
-    } else {
-      preview.style.backgroundImage = '';
-      if (emptySpan) emptySpan.style.display = '';
-    }
-  }
-  if (blend)   blend.value   = superLocal.bgImageBlend  || 'normal';
-  if (opacity) opacity.value = superLocal.bgImageOpacity ?? 100;
-  document.querySelectorAll('.so-bg-img-mode-btn').forEach(b => {
-    b.classList.toggle('active-sep', b.dataset.mode === (superLocal.bgImageMode || 'texture'));
-  });
-}
-
-document.querySelectorAll('.so-bg-img-mode-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.so-bg-img-mode-btn').forEach(b => b.classList.remove('active-sep'));
-    btn.classList.add('active-sep');
-    superLocal.bgImageMode = btn.dataset.mode;
-    superSend();
-  });
-});
-
-document.getElementById('so-bg-img-file')?.addEventListener('change', function () {
-  const file = this.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = e => {
-    fetch('/api/super/bg-upload', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ dataUrl: e.target.result }),
-    })
-      .then(r => r.json())
-      .then(d => {
-        if (!d.url) return;
-        superLocal.bgImage = d.url;
-        syncBgImageUI();
-        renderCanvas();
-        superSend();
-      })
-      .catch(err => setStatus('Erreur upload image : ' + err.message));
-  };
-  reader.readAsDataURL(file);
-  this.value = '';
-});
-
-document.getElementById('btn-so-bg-img-clear')?.addEventListener('click', () => {
-  superLocal.bgImage = null;
-  syncBgImageUI();
-  superSend();
-});
-
-document.getElementById('so-bg-img-blend')?.addEventListener('change', function () {
-  superLocal.bgImageBlend = this.value;
-  superSend();
-});
-
-document.getElementById('so-bg-img-opacity')?.addEventListener('input', function () {
-  superLocal.bgImageOpacity = Math.max(0, Math.min(100, parseInt(this.value) || 100));
-  superSend();
-});
-
-/* ── Fond du Super Overlay — particules ─────────────────────── */
-function syncParticlesUI() {
-  const cb      = document.getElementById('so-particles-enabled');
-  const ctrls   = document.getElementById('so-particles-controls');
-  const opRange = document.getElementById('so-particles-opacity-range');
-  const opNum   = document.getElementById('so-particles-opacity-num');
-  const ctRange = document.getElementById('so-particles-count-range');
-  const ctNum   = document.getElementById('so-particles-count-num');
-  const on = superLocal.bgParticlesEnabled;
-  if (cb)    cb.checked = on;
-  if (ctrls) ctrls.style.display = on ? 'flex' : 'none';
-  if (opRange) opRange.value = superLocal.bgParticlesOpacity;
-  if (opNum)   opNum.value   = superLocal.bgParticlesOpacity;
-  if (ctRange) ctRange.value = superLocal.bgParticlesCount;
-  if (ctNum)   ctNum.value   = superLocal.bgParticlesCount;
-}
-
-document.getElementById('so-particles-enabled')?.addEventListener('change', function () {
-  superLocal.bgParticlesEnabled = this.checked;
-  document.getElementById('so-particles-controls').style.display = this.checked ? 'flex' : 'none';
-  superSend();
-});
-
-['opacity', 'count'].forEach(key => {
-  const range = document.getElementById(`so-particles-${key}-range`);
-  const num   = document.getElementById(`so-particles-${key}-num`);
-  if (range) range.addEventListener('input', function () {
-    if (num) num.value = this.value;
-    superLocal[key === 'opacity' ? 'bgParticlesOpacity' : 'bgParticlesCount'] = parseInt(this.value);
-    superSend();
-  });
-  if (num) num.addEventListener('input', function () {
-    if (range) range.value = this.value;
-    superLocal[key === 'opacity' ? 'bgParticlesOpacity' : 'bgParticlesCount'] = parseInt(this.value) || 0;
-    superSend();
-  });
-});
-
-/* ── Copier URL ──────────────────────────────────────────────── */
-document.getElementById('btn-copy-super-url')?.addEventListener('click', () => {
-  const el = document.getElementById('super-url');
-  if (!el) return;
-  navigator.clipboard.writeText(el.value)
-    .then(() => setStatus('URL Super Overlay copiée'))
-    .catch(() => { el.select(); document.execCommand('copy'); setStatus('URL Super Overlay copiée'); });
-});
-
-/* ── Mise à jour complète depuis le serveur (superStateUpdate) ── */
-function updateStudioFullState(s) {
-  superFullState = s;
-  syncSceneToLocal();
-  renderSceneButtons();
-  renderLayerList();
-  renderCanvas();
-  renderLayerControls();
-  document.querySelectorAll('.so-bg-preset').forEach(btn => {
-    btn.classList.toggle('active-sep', btn.dataset.bg === superLocal.bgColor);
-  });
-}
-
-/* ── Mise à jour scène active uniquement (superUpdate) ─────── */
-function updateStudioUI(s) {
-  const scene = superFullState.scenes[superFullState.activeScene];
-  if (scene) {
-    scene.bgColor            = s.bgColor;
-    scene.bgImage            = s.bgImage            ?? scene.bgImage;
-    scene.bgImageMode        = s.bgImageMode        ?? scene.bgImageMode;
-    scene.bgImageBlend       = s.bgImageBlend       ?? scene.bgImageBlend;
-    scene.bgImageOpacity     = s.bgImageOpacity     ?? scene.bgImageOpacity;
-    scene.bgParticlesEnabled = s.bgParticlesEnabled ?? scene.bgParticlesEnabled;
-    scene.bgParticlesOpacity = s.bgParticlesOpacity ?? scene.bgParticlesOpacity;
-    scene.bgParticlesCount   = s.bgParticlesCount   ?? scene.bgParticlesCount;
-    scene.layers             = s.layers;
-  }
-  syncSceneToLocal();
-  renderLayerList();
-  renderCanvas();
-  renderLayerControls();
-  document.querySelectorAll('.so-bg-preset').forEach(btn => {
-    btn.classList.toggle('active-sep', btn.dataset.bg === superLocal.bgColor);
-  });
-}
-
-/* ── Init ────────────────────────────────────────────────────── */
-fetch('/api/super').then(r => r.json()).then(updateStudioFullState).catch(() => {});
-
-// Recalcul scale si le panneau est redimensionné
-if (typeof ResizeObserver !== 'undefined') {
-  const ro = new ResizeObserver(() => {
-    recalcStudioScale();
-    // Repositionner les handles
-    superLocal.layers.filter(l => l.visible).forEach((layer, i) => {
-      const handle = document.getElementById('sc-handle-' + layer.id);
-      if (handle) {
-        handle.style.left = (layer.x * studioScale + 6 + i * 2) + 'px';
-        handle.style.top  = (layer.y * studioScale + 6 + i * 2) + 'px';
-      }
-    });
-  });
-  const container = document.getElementById('studio-canvas-container');
-  if (container) ro.observe(container);
-}
-
-// Recalcul quand on entre dans l'onglet Studio
-document.querySelectorAll('.tab-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    if (btn.dataset.tab === 'studio') {
-      setTimeout(() => { recalcStudioScale(); renderCanvas(); }, 80);
-    }
-  });
-});
 
 // Réception Socket.IO
 if (typeof socket !== 'undefined') {
   socket.on('titleUpdate',  updateTitleUI);
   socket.on('tickerUpdate', updateTickerUI);
   socket.on('framesUpdate', updateFramesUI);
-  socket.on('superUpdate',      updateStudioUI);
-  socket.on('superStateUpdate', updateStudioFullState);
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -10188,16 +9476,7 @@ document.querySelectorAll('.conn-copy-btn').forEach(btn => {
     { id: 'twitch-viewer',       label: 'Viewers Twitch'     },
     { id: 'youtube-chat',        label: 'Chat YouTube'       },
     { id: 'combined-chat',       label: 'Chat Combiné'       },
-    { id: 'super-scenes',        label: 'Super Scènes'       },
   ];
-
-  /* Scènes custom (super-overlay) — labels mis à jour depuis superState */
-  const CUSTOM_SCENE_OVERLAYS = Array.from({ length: 9 }, (_, i) => ({
-    id: `custom-scene-${i}`,
-    label: `Scène ${i + 1}`,
-    isCustomScene: true,
-    sceneIdx: i,
-  }));
 
   const ANIM_TYPES = [
     { value: 'fade',        label: 'Fondu'        },
@@ -10278,7 +9557,6 @@ document.querySelectorAll('.conn-copy-btn').forEach(btn => {
     if (!grid) return;
     grid.innerHTML = '';
     for (const ov of ANIM_OVERLAYS) grid.appendChild(buildCard(ov));
-    for (const ov of CUSTOM_SCENE_OVERLAYS) grid.appendChild(buildCard(ov));
   }
 
   function updateCard(id, s) {
@@ -10310,60 +9588,6 @@ document.querySelectorAll('.conn-copy-btn').forEach(btn => {
     for (const id of Object.keys(data)) updateCard(id, data[id]);
   });
 
-  /* ── Scènes custom : noms dynamiques depuis superState ── */
-  function updateCustomSceneLabels(superSt) {
-    if (!superSt || !superSt.scenes) return;
-    superSt.scenes.forEach((sc, i) => {
-      const name = sc.name || `Scène ${i + 1}`;
-      /* Mettre à jour CUSTOM_SCENE_OVERLAYS */
-      CUSTOM_SCENE_OVERLAYS[i].label = name;
-      /* Mettre à jour les cartes existantes */
-      const card = document.querySelector('.anim-card[data-id="custom-scene-' + i + '"]');
-      if (card) { const n = card.querySelector('.anim-card-name'); if (n) n.textContent = name; }
-      /* Mettre à jour la colonne URLs */
-      const row = document.getElementById('obs-custom-row-' + i);
-      if (row) {
-        const lbl = row.querySelector('span');
-        if (lbl) lbl.textContent = name;
-      }
-    });
-  }
-
-  function buildCustomScenesUrlCol(superSt) {
-    const col = document.getElementById('obs-custom-scenes-col');
-    if (!col) return;
-    /* Supprimer les items existants (garder le header) */
-    col.querySelectorAll('.obs-url-item').forEach(el => el.remove());
-    const base = getServerBase();
-    const scenes = superSt && superSt.scenes ? superSt.scenes : Array.from({ length: 9 }, (_, i) => ({ name: `Scène ${i + 1}` }));
-    scenes.forEach((sc, i) => {
-      const name = sc.name || `Scène ${i + 1}`;
-      const url  = base + '/super-overlay/' + (i + 1);
-      const item = document.createElement('div');
-      item.className = 'obs-url-item';
-      item.id = 'obs-custom-row-' + i;
-      item.innerHTML = '<span>' + name + '</span><code>' + url.replace(/^https?:\/\//, '') + '</code><button class="btn-copy" data-url="' + url + '">📋</button>';
-      item.querySelector('.btn-copy').addEventListener('click', function () {
-        navigator.clipboard.writeText(this.dataset.url).catch(() => {});
-        const code = item.querySelector('code');
-        const prev = code.style.color;
-        code.style.color = '#6BC96C';
-        setTimeout(() => { code.style.color = prev; }, 600);
-      });
-      col.appendChild(item);
-    });
-  }
-
-  /* Chargement initial des scènes custom */
-  fetch('/api/super').then(r => r.json()).then(st => {
-    updateCustomSceneLabels(st);
-    buildCustomScenesUrlCol(st);
-  }).catch(() => { buildCustomScenesUrlCol(null); });
-
-  socket.on('superStateUpdate', st => {
-    updateCustomSceneLabels(st);
-    buildCustomScenesUrlCol(st);
-  });
 
   /* Re-render quand on ouvre l'onglet Liens overlays */
   document.querySelectorAll('.tab-btn[data-tab="custom"]').forEach(btn => {
@@ -10779,7 +10003,7 @@ document.querySelectorAll('.conn-copy-btn').forEach(btn => {
   const KEY = 'pso_regie_mode';
 
   // Onglets visibles en mode régie
-  const REGIE_TABS    = ['match', 'startgg', 'studio'];
+  const REGIE_TABS    = ['match', 'startgg'];
   // Sous-panneaux à masquer (config/builder/preview)
   const HIDE_SUBPANEL = ['-custom', '-builder', '-preview'];
 

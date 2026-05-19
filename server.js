@@ -435,14 +435,7 @@ app.get('/combined-chat',   (req, res) => res.sendFile(path.join(__dirname, 'pub
 app.get('/ticker', (req, res) => res.sendFile(path.join(__dirname, 'public', 'ticker.html')));
 app.get('/frames', (req, res) => res.sendFile(path.join(__dirname, 'public', 'frames.html')));
 app.get('/stream-title',  (req, res) => res.sendFile(path.join(__dirname, 'public', 'stream-title.html')));
-app.get('/super-overlay', (req, res) => res.sendFile(path.join(__dirname, 'public', 'super-overlay.html')));
-app.get('/super-scenes',  (req, res) => res.sendFile(path.join(__dirname, 'public', 'super-scenes.html')));
 app.get('/pso',           (req, res) => res.sendFile(path.join(__dirname, 'public', 'pso.html')));
-app.get('/super-overlay/:n', (req, res) => {
-  const n = parseInt(req.params.n);
-  if (isNaN(n) || n < 1 || n > 9) return res.status(404).send('Scène introuvable');
-  res.sendFile(path.join(__dirname, 'public', 'super-overlay.html'));
-});
 app.get('/avsync',              (req, res) => res.sendFile(path.join(__dirname, 'public', 'avsync.html')));
 
 // ─── Collection OBS ───────────────────────────────────────────────────────────
@@ -472,15 +465,7 @@ app.get('/api/obs-collection', (req, res) => {
     { scene: 'PSO – Cadres',               source: 'PSO Cadres',               path: '/frames' },
     { scene: 'PSO – Ticker',               source: 'PSO Ticker',               path: '/ticker' },
     { scene: 'PSO – Stream Title',         source: 'PSO Stream Title',         path: '/stream-title' },
-    { scene: 'PSO – Super Overlay',        source: 'PSO Super Overlay',        path: '/super-overlay' },
-    { scene: 'PSO – Super Scènes',         source: 'PSO Super Scènes',         path: '/super-scenes' },
     { scene: 'PSO',                         source: 'PSO',                      path: '/pso' },
-    // ── Scènes custom (Créateur de scènes) ───────────────────────────────────
-    ...Array.from({ length: 9 }, (_, i) => ({
-      scene:  `Scene Custom ${i + 1}`,
-      source: `PSO Scene Custom ${i + 1}`,
-      path:   `/super-overlay/${i + 1}`,
-    })),
     // ── Twitch ───────────────────────────────────────────────────────────────
     { scene: 'PSO – Next Match',           source: 'PSO Next Match',           path: '/nextmatch' },
     { scene: 'PSO – Twitch Viewers',       source: 'PSO Twitch Viewers',       path: '/twitch-viewer' },
@@ -624,255 +609,6 @@ app.post('/api/title', (req, res) => {
   numbers.forEach(k => { if (req.body[k] !== undefined) titleState[k] = Number(req.body[k]); });
   strings.forEach(k => { if (req.body[k] !== undefined) titleState[k] = String(req.body[k]); });
   io.emit('titleUpdate', titleState);
-  res.json({ ok: true });
-});
-
-// ─── Super Overlay / Créateur de scènes ────────────────────────────────────────
-
-const SUPER_LAYER_DEFS = [
-  // Scoreboard
-  { id: 'overlay',            label: 'Overlay principal',   url: '/overlay',            category: 'Scoreboard'          },
-  { id: 'overlay-slim',       label: 'Scoreboard slim',     url: '/overlay-slim',       category: 'Scoreboard'          },
-  { id: 'scoreboard-custom',  label: 'Scoreboard custom',   url: '/scoreboard-custom',  category: 'Scoreboard'          },
-  // Casters
-  { id: 'casters',            label: 'Casters',             url: '/casters',            category: 'Casters'             },
-  { id: 'casters-custom',     label: 'Casters personnalisés',url: '/casters-custom',    category: 'Casters'             },
-  // Veto
-  { id: 'stageveto',          label: 'Stage Veto',          url: '/stageveto',          category: 'Veto'                },
-  // VS Screen
-  { id: 'vs-screen',          label: 'VS Screen',           url: '/vs-screen',          category: 'VS Screen'           },
-  { id: 'victory',            label: 'Écran victoire',      url: '/victory',            category: 'VS Screen'           },
-  // Overlays génériques
-  { id: 'ticker',             label: 'Bandeau',             url: '/ticker',             category: 'Overlays génériques' },
-  { id: 'frames',             label: 'Cadres',              url: '/frames',             category: 'Overlays génériques' },
-  { id: 'cam',                label: 'Cam Overlay',         url: '/cam',                category: 'Overlays génériques' },
-  { id: 'stream-title',       label: 'Titre du stream',     url: '/stream-title',       category: 'Overlays génériques' },
-  { id: 'h2h',                label: 'H2H',                 url: '/h2h',                category: 'Overlays génériques' },
-  { id: 'player-stats',       label: 'Stats joueurs',       url: '/player-stats',       category: 'Overlays génériques' },
-  { id: 'tournament-history', label: 'Historique tournoi',  url: '/tournament-history', category: 'Overlays génériques' },
-  { id: 'bracket',            label: 'Bracket',             url: '/bracket',            category: 'Overlays génériques' },
-  { id: 'top8',               label: 'Top 8',               url: '/top8',               category: 'Overlays génériques' },
-  { id: 'timer',              label: 'Minuteur',            url: '/timer',              category: 'Overlays génériques' },
-  // Twitch
-  { id: 'nextmatch',          label: 'Next Match',          url: '/nextmatch',          category: 'Twitch'              },
-  { id: 'upcoming',           label: 'Prochains matchs',    url: '/upcoming',           category: 'Twitch'              },
-  { id: 'twitch-viewer',      label: 'Viewers Twitch',      url: '/twitch-viewer',      category: 'Twitch'              },
-  { id: 'twitch-chat',        label: 'Chat Twitch',         url: '/twitch-chat',        category: 'Twitch'              },
-  { id: 'twitch-alerts',      label: 'Alertes Twitch',      url: '/twitch-alerts',      category: 'Twitch'              },
-  // YouTube
-  { id: 'youtube-chat',       label: 'Chat YouTube',        url: '/youtube-chat',       category: 'YouTube'             },
-  { id: 'youtube-viewer',     label: 'Viewers YouTube',     url: '/youtube-viewer',     category: 'YouTube'             },
-  { id: 'youtube-alerts',     label: 'Alertes YouTube',     url: '/youtube-alerts',     category: 'YouTube'             },
-  // Outils streaming
-  { id: 'combined-chat',      label: 'Chat combiné',        url: '/combined-chat',      category: 'Outils streaming'    },
-  { id: 'avsync',             label: 'AV Sync',             url: '/avsync',             category: 'Outils streaming'    },
-];
-
-function makeSceneLayers() {
-  return SUPER_LAYER_DEFS.map((d, i) => ({ ...d, visible: false, x: 0, y: 0, opacity: 1.0, order: i }));
-}
-
-function makeDefaultSuperState() {
-  return {
-    activeScene: 0,
-    scenes: Array.from({ length: 9 }, (_, i) => ({
-      name: `Scène ${i + 1}`,
-      bgColor: 'transparent',
-      bgImage: null,
-      bgImageMode: 'texture',
-      bgImageBlend: 'normal',
-      bgImageOpacity: 100,
-      bgParticlesEnabled: false,
-      bgParticlesOpacity: 100,
-      bgParticlesCount:   100,
-      layers: makeSceneLayers(),
-    })),
-  };
-}
-
-function loadSuperState() {
-  try {
-    const raw  = fs.readFileSync(path.join(__dirname, 'config.json'), 'utf8');
-    const saved = JSON.parse(raw).superState;
-    if (!saved || !Array.isArray(saved.scenes)) return makeDefaultSuperState();
-    const def = makeDefaultSuperState();
-    return {
-      activeScene: Math.max(0, Math.min(8, saved.activeScene ?? 0)),
-      scenes: def.scenes.map((defScene, i) => {
-        const s = saved.scenes[i];
-        if (!s) return defScene;
-        const layers = defScene.layers.map(defLayer => {
-          const sl = (s.layers || []).find(l => l.id === defLayer.id);
-          return sl ? { ...defLayer, ...sl } : defLayer;
-        });
-        return {
-          name:               s.name               ?? defScene.name,
-          bgColor:            s.bgColor             ?? defScene.bgColor,
-          bgImage:            s.bgImage             ?? null,
-          bgImageMode:        s.bgImageMode          ?? defScene.bgImageMode,
-          bgImageBlend:       s.bgImageBlend         ?? defScene.bgImageBlend,
-          bgImageOpacity:     s.bgImageOpacity       ?? defScene.bgImageOpacity,
-          bgParticlesEnabled: s.bgParticlesEnabled   ?? defScene.bgParticlesEnabled,
-          bgParticlesOpacity: s.bgParticlesOpacity   ?? defScene.bgParticlesOpacity,
-          bgParticlesCount:   s.bgParticlesCount     ?? defScene.bgParticlesCount,
-          layers,
-        };
-      }),
-    };
-  } catch { return makeDefaultSuperState(); }
-}
-
-let superState = loadSuperState();
-
-let _superSaveTimer = null;
-function saveSuperState() {
-  try {
-    const cfgPath = path.join(__dirname, 'config.json');
-    const cfg = (() => { try { return JSON.parse(fs.readFileSync(cfgPath, 'utf8')); } catch { return {}; } })();
-    cfg.superState = superState;
-    fs.writeFileSync(cfgPath, JSON.stringify(cfg, null, 2));
-  } catch (e) { console.error('[superState] save error:', e.message); }
-}
-
-function getActiveScene() { return superState.scenes[superState.activeScene]; }
-function superBroadcast() {
-  const scene = getActiveScene();
-  io.emit('superUpdate', {
-    bgColor: scene.bgColor,
-    bgImage: scene.bgImage,
-    bgImageMode: scene.bgImageMode,
-    bgImageBlend: scene.bgImageBlend,
-    bgImageOpacity: scene.bgImageOpacity,
-    bgParticlesEnabled: scene.bgParticlesEnabled,
-    bgParticlesOpacity: scene.bgParticlesOpacity,
-    bgParticlesCount:   scene.bgParticlesCount,
-    layers: scene.layers,
-  });
-  io.emit('superStateUpdate', superState);
-  clearTimeout(_superSaveTimer);
-  _superSaveTimer = setTimeout(saveSuperState, 600);
-}
-
-app.get('/api/super', (req, res) => res.json(superState));
-
-app.post('/api/super', (req, res) => {
-  const scene = getActiveScene();
-  const { bgColor, bgImage, bgImageMode, bgImageBlend, bgImageOpacity, layers } = req.body;
-  if (bgColor      !== undefined) scene.bgColor      = String(bgColor);
-  if (bgImage      !== undefined) scene.bgImage      = bgImage === null ? null : String(bgImage);
-  if (bgImageMode  !== undefined) scene.bgImageMode  = String(bgImageMode);
-  if (bgImageBlend !== undefined) scene.bgImageBlend = String(bgImageBlend);
-  if (bgImageOpacity   !== undefined) scene.bgImageOpacity   = Math.max(0, Math.min(100, Number(bgImageOpacity)));
-  if (req.body.bgParticlesEnabled !== undefined) scene.bgParticlesEnabled = Boolean(req.body.bgParticlesEnabled);
-  if (req.body.bgParticlesOpacity !== undefined) scene.bgParticlesOpacity = Math.max(0, Math.min(100, Number(req.body.bgParticlesOpacity)));
-  if (req.body.bgParticlesCount   !== undefined) scene.bgParticlesCount   = Math.max(0, Math.min(500, Number(req.body.bgParticlesCount)));
-  if (Array.isArray(layers)) {
-    layers.forEach(incoming => {
-      const t = scene.layers.find(l => l.id === incoming.id);
-      if (!t) return;
-      if (incoming.visible  !== undefined) t.visible  = !!incoming.visible;
-      if (incoming.x        !== undefined) t.x        = Number(incoming.x);
-      if (incoming.y        !== undefined) t.y        = Number(incoming.y);
-      if (incoming.opacity  !== undefined) t.opacity  = Math.max(0, Math.min(1, Number(incoming.opacity)));
-      if (incoming.order    !== undefined) t.order    = Number(incoming.order);
-    });
-  }
-  superBroadcast();
-  res.json({ ok: true });
-});
-
-app.post('/api/super/bg-upload', (req, res) => {
-  const { dataUrl } = req.body;
-  if (!dataUrl || !dataUrl.startsWith('data:')) return res.status(400).json({ error: 'Données invalides' });
-  const m = dataUrl.match(/^data:([^;]+);base64,(.+)$/s);
-  if (!m) return res.status(400).json({ error: 'Format invalide' });
-  const ext  = (m[1].split('/')[1] || 'png').replace(/[^a-z0-9]/g, '');
-  const data = Buffer.from(m[2], 'base64');
-  const dir  = path.join(__dirname, 'public', 'uploads');
-  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-  const fname = `bg-${Date.now()}.${ext}`;
-  fs.writeFileSync(path.join(dir, fname), data);
-  res.json({ url: `/uploads/${fname}` });
-});
-
-// Mapping layer id → getter de l'état courant de l'overlay
-function getOverlaySnapshot(id) {
-  const map = {
-    'overlay':            () => matchState,
-    'cam':                () => camState,
-    'ticker':             () => tickerState,
-    'stream-title':       () => titleState,
-    'frames':             () => framesState,
-    'player-stats':       () => playerStatsState,
-    'tournament-history': () => tournamentHistoryState,
-    'twitch-chat':        () => twitchChatState,
-  };
-  const getter = map[id];
-  return getter ? JSON.parse(JSON.stringify(getter())) : null;
-}
-
-// Applique un snapshot sauvegardé à l'overlay correspondant
-function applyOverlaySnapshot(id, snapshot) {
-  if (!snapshot) return;
-  switch (id) {
-    case 'overlay':            matchState            = { ...matchState,            ...snapshot }; io.emit('stateUpdate',            matchState);            break;
-    case 'cam':                camState              = { ...camState,              ...snapshot }; io.emit('camUpdate',              camState);              break;
-    case 'ticker':             tickerState           = { ...tickerState,           ...snapshot }; io.emit('tickerUpdate',           tickerState);           break;
-    case 'stream-title':       titleState            = { ...titleState,            ...snapshot }; io.emit('titleUpdate',            titleState);            break;
-    case 'frames':             framesState           = { ...framesState,           ...snapshot }; io.emit('framesUpdate',           framesState);           break;
-    case 'player-stats':       playerStatsState      = { ...playerStatsState,      ...snapshot }; io.emit('playerStatsUpdate',      playerStatsState);      break;
-    case 'tournament-history': tournamentHistoryState= { ...tournamentHistoryState,...snapshot }; io.emit('tournamentHistoryUpdate',tournamentHistoryState);break;
-    case 'twitch-chat':        twitchChatState       = { ...twitchChatState,       ...snapshot }; io.emit('twitchChatUpdate',       twitchChatState);       break;
-  }
-}
-
-app.post('/api/super/scene/:n', (req, res) => {
-  const n = parseInt(req.params.n);
-  if (isNaN(n) || n < 0 || n > 8) return res.status(400).json({ error: 'Scène invalide' });
-  superState.activeScene = n;
-  // Appliquer les snapshots de la scène activée
-  const scene = superState.scenes[n];
-  scene.layers.forEach(layer => {
-    if (layer.snapshot) applyOverlaySnapshot(layer.id, layer.snapshot);
-  });
-  superBroadcast();
-  res.json({ ok: true });
-});
-
-// Sauvegarde l'état courant d'un overlay dans la scène
-app.post('/api/super/scene/:n/layer/:id/snapshot', (req, res) => {
-  const n = parseInt(req.params.n);
-  if (isNaN(n) || n < 0 || n > 8) return res.status(400).json({ error: 'Scène invalide' });
-  const scene = superState.scenes[n];
-  const layer = scene.layers.find(l => l.id === req.params.id);
-  if (!layer) return res.status(404).json({ error: 'Calque introuvable' });
-  const snap = getOverlaySnapshot(req.params.id);
-  if (!snap) return res.status(400).json({ error: 'Cet overlay ne supporte pas les snapshots' });
-  layer.snapshot = snap;
-  io.emit('superStateUpdate', superState);
-  saveSuperState();
-  res.json({ ok: true });
-});
-
-// Supprime le snapshot d'un calque
-app.delete('/api/super/scene/:n/layer/:id/snapshot', (req, res) => {
-  const n = parseInt(req.params.n);
-  if (isNaN(n) || n < 0 || n > 8) return res.status(400).json({ error: 'Scène invalide' });
-  const layer = superState.scenes[n].layers.find(l => l.id === req.params.id);
-  if (!layer) return res.status(404).json({ error: 'Calque introuvable' });
-  layer.snapshot = null;
-  io.emit('superStateUpdate', superState);
-  saveSuperState();
-  res.json({ ok: true });
-});
-
-app.post('/api/super/scene/:n/name', (req, res) => {
-  const n = parseInt(req.params.n);
-  if (isNaN(n) || n < 0 || n > 8) return res.status(400).json({ error: 'Scène invalide' });
-  const name = String(req.body.name || '').trim() || `Scène ${n + 1}`;
-  superState.scenes[n].name = name;
-  io.emit('superStateUpdate', superState);
-  saveSuperState();
   res.json({ ok: true });
 });
 
@@ -2140,19 +1876,6 @@ io.on('connection', (socket) => {
   socket.emit('tickerUpdate', tickerState);
   socket.emit('camUpdate', camState);
   socket.emit('framesUpdate', framesState);
-  const _activeScene = getActiveScene();
-  socket.emit('superUpdate', {
-    bgColor: _activeScene.bgColor,
-    bgImage: _activeScene.bgImage,
-    bgImageMode: _activeScene.bgImageMode,
-    bgImageBlend: _activeScene.bgImageBlend,
-    bgImageOpacity: _activeScene.bgImageOpacity,
-    bgParticlesEnabled: _activeScene.bgParticlesEnabled,
-    bgParticlesOpacity: _activeScene.bgParticlesOpacity,
-    bgParticlesCount: _activeScene.bgParticlesCount,
-    layers: _activeScene.layers,
-  });
-  socket.emit('superStateUpdate', superState);
   socket.emit('titleUpdate', titleState);
   socket.emit('top8Update', top8State);
 
@@ -3587,10 +3310,6 @@ const TRANSITION_IDS = [
   'tournament-history', 'bracket', 'top8', 'timer', 'nextmatch', 'upcoming',
   'twitch-chat', 'twitch-viewer', 'youtube-chat', 'combined-chat',
   'victory', 'vs-screen',
-  'custom-scene-0', 'custom-scene-1', 'custom-scene-2', 'custom-scene-3',
-  'custom-scene-4', 'custom-scene-5', 'custom-scene-6', 'custom-scene-7',
-  'custom-scene-8',
-  'super-scenes',
 ];
 
 function defaultTransition() {
@@ -3614,10 +3333,7 @@ let transitionState = (() => {
   const saved = getTransitionState();
   const out = {};
   for (const id of TRANSITION_IDS) {
-    const def = id.startsWith('custom-scene-')
-      ? { animIn: 'fade',    animOut: 'fade',    dur: 500, visible: false }
-      : defaultTransition();
-    out[id] = Object.assign(def, saved[id] || {});
+    out[id] = Object.assign(defaultTransition(), saved[id] || {});
   }
   return out;
 })();
@@ -3648,19 +3364,12 @@ app.post('/api/transitions/:id/show', (req, res) => {
   transitionState[id].visible = true;
   saveTransitionState(transitionState);
 
-  const csMatch = id.match(/^custom-scene-(\d)$/);
-  if (csMatch) {
-    const t = transitionState[id];
-    io.emit('overlayShow', { id, animIn: t.animIn, animOut: t.animOut, dur: t.dur });
-  } else {
-    io.emit('overlayShow', {
-      id,
-      animIn:  transitionState[id].animIn,
-      animOut: transitionState[id].animOut,
-      dur:     transitionState[id].dur,
-    });
-  }
-
+  io.emit('overlayShow', {
+    id,
+    animIn:  transitionState[id].animIn,
+    animOut: transitionState[id].animOut,
+    dur:     transitionState[id].dur,
+  });
   io.emit('transitionsUpdate', transitionState);
   res.json({ ok: true });
 });
@@ -3708,10 +3417,6 @@ const DECK_LABELS = {
   'combined-chat':      'Chat Combiné',
   'victory':            'Victoire',
   'vs-screen':          'VS Screen',
-  ...Object.fromEntries(Array.from({ length: 9 }, (_, i) => [
-    `custom-scene-${i}`, superState.scenes[i]?.name || `Scène custom ${i + 1}`,
-  ])),
-  'super-scenes':       'Super Scènes',
 };
 
 app.get('/api/deck', (req, res) => {
@@ -3775,20 +3480,10 @@ if (!transitionState[overlay])
   t.visible = doShow;
   saveTransitionState(transitionState);
 
-  const csDeckMatch = overlay.match(/^custom-scene-(\d)$/);
   if (overlay === 'victory') {
     io.emit(doShow ? 'victoryTest' : 'victoryHide', doShow ? matchState : undefined);
   } else if (overlay === 'vs-screen') {
     io.emit(doShow ? 'vsScreenTrigger' : 'vsScreenHide');
-  } else if (csDeckMatch && doShow && !isReveal) {
-    io.emit('overlayShow', { id: overlay, animIn: t.animIn || 'fade', animOut: t.animOut || 'fade', dur: t.dur || 500 });
-  } else if (csDeckMatch) {
-    io.emit(doShow ? 'overlayShow' : 'overlayHide', {
-      id:     overlay,
-      animIn:  t.animIn  || 'fade',
-      animOut: t.animOut || 'fade',
-      dur:     t.dur     || 500,
-    });
   } else {
     io.emit(doShow ? 'overlayShow' : 'overlayHide', {
       id:     overlay,

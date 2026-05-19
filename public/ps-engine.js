@@ -1675,6 +1675,15 @@ const THEME_PARTICLES = {
   smii_brawl:  { type:'ring',      count:50 },
   smii_sword:  { type:'sparkle',   count:50 },
   smii_gun:    { type:'ring',      count:50 },
+  botw:        { type:'leaf',      count:45 },
+  totk:        { type:'rune',      count:40 },
+  yoshiwool:   { type:'sparkle',   count:55 },
+  mario64:     { type:'star',      count:60 },
+  minecraft:   { type:'block',     count:40 },
+  pacman:      { type:'sparkle',   count:70 },
+  megaman:     { type:'bolt',      count:55 },
+  tekken:      { type:'flame',     count:120 },
+  sf2:         { type:'ring',      count:40 },
 };
 
 

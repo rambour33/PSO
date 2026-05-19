@@ -2139,6 +2139,283 @@ body {
 .scoreboard.theme-alsace .slim-score         { color:#FFD700; text-shadow:0 0 10px rgba(255,215,0,0.85); }
 .scoreboard.theme-alsace .theme-logo-bg img  { filter:drop-shadow(0 0 6px #FFD700) drop-shadow(0 0 14px rgba(255,215,0,0.60)); }
 
+/* ── Zelda: Breath of the Wild ───────────────────────────────── */
+
+@keyframes botw-sky {
+  0%,100% { box-shadow: 0 0 18px rgba(91,173,32,0.55), inset 0 0 30px rgba(4,18,0,0.5); }
+  50%      { box-shadow: 0 0 8px  rgba(91,173,32,0.25), inset 0 0 30px rgba(4,18,0,0.5); }
+}
+@keyframes botw-text {
+  0%,100% { text-shadow: 0 0 8px #7EC850, 0 0 20px rgba(126,200,80,0.5); }
+  50%      { text-shadow: 0 0 3px #5BAD20, 0 0 8px rgba(91,173,32,0.4); }
+}
+@keyframes botw-wind {
+  0%   { background-position: 0 0; }
+  100% { background-position: 200px 60px; }
+}
+.scoreboard.theme-botw .players-container { border-color:#7EC850; animation:botw-sky 3.5s ease-in-out infinite; }
+.scoreboard.theme-botw .players-container::before {
+  content:''; position:absolute; inset:0; pointer-events:none; z-index:0;
+  background-image:
+    repeating-linear-gradient(120deg, transparent 0,transparent 30px, rgba(126,200,80,0.04) 30px, rgba(126,200,80,0.04) 31px),
+    repeating-linear-gradient(60deg,  transparent 0,transparent 45px, rgba(232,184,48,0.03) 45px, rgba(232,184,48,0.03) 46px);
+  animation: botw-wind 18s linear infinite;
+}
+.scoreboard.theme-botw .event-bar         { border-bottom-color:#7EC850; box-shadow:0 2px 14px rgba(126,200,80,0.4); text-shadow:0 0 8px rgba(126,200,80,0.6); }
+.scoreboard.theme-botw .player-tag        { animation:botw-text 3.2s ease-in-out infinite; }
+.scoreboard.theme-botw .score             { text-shadow:0 0 10px rgba(126,200,80,0.7),0 0 24px rgba(232,184,48,0.3); }
+.scoreboard.theme-botw .score-center      { border-left-color:#7EC850; border-right-color:#E8B830; }
+.scoreboard.theme-botw .player-character  { border-color:#7EC850; box-shadow:0 0 12px rgba(126,200,80,0.5); }
+.scoreboard.theme-botw .player-left       { border-bottom-color:#7EC850; }
+.scoreboard.theme-botw .player-right      { border-bottom-color:#E8B830; }
+.scoreboard.theme-botw .slim-bar          { border-color:#7EC850; box-shadow:0 0 12px rgba(126,200,80,0.45); }
+.scoreboard.theme-botw .slim-name         { animation:botw-text 3.2s ease-in-out infinite; }
+.scoreboard.theme-botw .slim-score        { text-shadow:0 0 8px rgba(126,200,80,0.7); }
+
+/* ── Zelda: Tears of the Kingdom ────────────────────────────── */
+
+@keyframes totk-rune {
+  0%,100% { box-shadow:0 0 18px rgba(255,120,0,0.55), inset 0 0 28px rgba(8,4,0,0.6); }
+  50%      { box-shadow:0 0 7px  rgba(255,120,0,0.25), inset 0 0 28px rgba(8,4,0,0.6); }
+}
+@keyframes totk-glyph {
+  0%,100% { text-shadow:0 0 8px #FF7800, 0 0 20px rgba(255,120,0,0.6); }
+  50%      { text-shadow:0 0 3px #CC5500, 0 0 8px rgba(200,85,0,0.4); }
+}
+@keyframes totk-drift {
+  0%   { background-position:0 0; }
+  100% { background-position:120px 40px; }
+}
+.scoreboard.theme-totk .players-container { border-color:#FF7800; animation:totk-rune 3.2s ease-in-out infinite; }
+.scoreboard.theme-totk .players-container::before {
+  content:''; position:absolute; inset:0; pointer-events:none; z-index:0;
+  background-image:
+    radial-gradient(1px 1px at 15% 30%, rgba(255,120,0,0.25) 0%,transparent 100%),
+    radial-gradient(1px 1px at 55% 70%, rgba(80,220,180,0.18) 0%,transparent 100%),
+    radial-gradient(1px 1px at 80% 20%, rgba(255,120,0,0.20) 0%,transparent 100%),
+    radial-gradient(1px 1px at 35% 85%, rgba(80,220,180,0.15) 0%,transparent 100%);
+  animation:totk-drift 14s linear infinite;
+}
+.scoreboard.theme-totk .event-bar         { border-bottom-color:#FF7800; box-shadow:0 2px 14px rgba(255,120,0,0.45); text-shadow:0 0 8px rgba(255,120,0,0.65); }
+.scoreboard.theme-totk .player-tag        { animation:totk-glyph 3s ease-in-out infinite; }
+.scoreboard.theme-totk .score             { text-shadow:0 0 10px rgba(255,120,0,0.75),0 0 26px rgba(80,220,180,0.25); }
+.scoreboard.theme-totk .score-center      { border-left-color:#FF7800; border-right-color:#50DCB4; }
+.scoreboard.theme-totk .player-character  { border-color:#FF7800; box-shadow:0 0 13px rgba(255,120,0,0.55); }
+.scoreboard.theme-totk .player-left       { border-bottom-color:#FF7800; }
+.scoreboard.theme-totk .player-right      { border-bottom-color:#50DCB4; }
+.scoreboard.theme-totk .slim-bar          { border-color:#FF7800; box-shadow:0 0 12px rgba(255,120,0,0.5); }
+.scoreboard.theme-totk .slim-name         { animation:totk-glyph 3s ease-in-out infinite; }
+.scoreboard.theme-totk .slim-score        { text-shadow:0 0 9px rgba(255,120,0,0.75); }
+
+/* ── Yoshi's Woolly World ────────────────────────────────────── */
+
+@keyframes wool-border {
+  0%,100% { box-shadow:0 0 16px rgba(255,107,159,0.60), inset 0 0 26px rgba(20,4,12,0.5); }
+  50%      { box-shadow:0 0 6px  rgba(255,107,159,0.25), inset 0 0 26px rgba(20,4,12,0.5); }
+}
+@keyframes wool-text {
+  0%,100% { text-shadow:0 0 8px #FF6B9F, 0 0 18px rgba(255,107,159,0.5); }
+  50%      { text-shadow:0 0 3px #E0507A, 0 0 8px rgba(224,80,122,0.35); }
+}
+.scoreboard.theme-yoshiwool .players-container { border-color:#FF6B9F; animation:wool-border 3.5s ease-in-out infinite; }
+.scoreboard.theme-yoshiwool .event-bar         { border-bottom-color:#FF6B9F; box-shadow:0 2px 14px rgba(255,107,159,0.45); }
+.scoreboard.theme-yoshiwool .player-tag        { animation:wool-text 3.2s ease-in-out infinite; }
+.scoreboard.theme-yoshiwool .score             { text-shadow:0 0 10px rgba(255,107,159,0.7),0 0 24px rgba(255,220,100,0.3); }
+.scoreboard.theme-yoshiwool .score-center      { border-left-color:#FF6B9F; border-right-color:#7ED957; }
+.scoreboard.theme-yoshiwool .player-character  { border-color:#FF6B9F; box-shadow:0 0 12px rgba(255,107,159,0.5); }
+.scoreboard.theme-yoshiwool .player-left       { border-bottom-color:#FF6B9F; }
+.scoreboard.theme-yoshiwool .player-right      { border-bottom-color:#7ED957; }
+.scoreboard.theme-yoshiwool .slim-bar          { border-color:#FF6B9F; box-shadow:0 0 12px rgba(255,107,159,0.45); }
+.scoreboard.theme-yoshiwool .slim-name         { animation:wool-text 3.2s ease-in-out infinite; }
+.scoreboard.theme-yoshiwool .slim-score        { text-shadow:0 0 8px rgba(255,107,159,0.7); }
+
+/* ── Mario 64 ────────────────────────────────────────────────── */
+
+@keyframes m64-star {
+  0%,100% { box-shadow:0 0 18px rgba(229,34,34,0.60), inset 0 0 28px rgba(18,0,0,0.55); }
+  50%      { box-shadow:0 0 7px  rgba(229,34,34,0.25), inset 0 0 28px rgba(18,0,0,0.55); }
+}
+@keyframes m64-text {
+  0%,100% { text-shadow:0 0 8px #FF2222, 0 0 20px rgba(255,34,34,0.55); }
+  50%      { text-shadow:0 0 3px #CC0000, 0 0 8px rgba(200,0,0,0.4); }
+}
+@keyframes m64-sky {
+  0%,100% { opacity:0.55; } 50% { opacity:0.2; }
+}
+.scoreboard.theme-mario64 .players-container { border-color:#FF2222; animation:m64-star 3.2s ease-in-out infinite; }
+.scoreboard.theme-mario64 .players-container::before {
+  content:''; position:absolute; inset:0; pointer-events:none; z-index:0;
+  background-image:
+    radial-gradient(2px 2px at 12% 28%, rgba(255,215,0,0.55) 0%,transparent 100%),
+    radial-gradient(2px 2px at 38% 65%, rgba(255,34,34,0.40) 0%,transparent 100%),
+    radial-gradient(2px 2px at 62% 18%, rgba(255,215,0,0.50) 0%,transparent 100%),
+    radial-gradient(2px 2px at 85% 75%, rgba(255,34,34,0.45) 0%,transparent 100%),
+    radial-gradient(1px 1px at 50% 45%, rgba(255,215,0,0.35) 0%,transparent 100%);
+  animation:m64-sky 4.5s ease-in-out infinite;
+}
+.scoreboard.theme-mario64 .event-bar         { border-bottom-color:#FF2222; box-shadow:0 2px 14px rgba(255,34,34,0.45); }
+.scoreboard.theme-mario64 .player-tag        { animation:m64-text 3s ease-in-out infinite; }
+.scoreboard.theme-mario64 .score             { text-shadow:0 0 10px rgba(255,34,34,0.75),0 0 26px rgba(255,215,0,0.35); }
+.scoreboard.theme-mario64 .score-center      { border-left-color:#FF2222; border-right-color:#FFD700; }
+.scoreboard.theme-mario64 .player-character  { border-color:#FF2222; box-shadow:0 0 12px rgba(255,34,34,0.55); }
+.scoreboard.theme-mario64 .player-left       { border-bottom-color:#FF2222; }
+.scoreboard.theme-mario64 .player-right      { border-bottom-color:#FFD700; }
+.scoreboard.theme-mario64 .slim-bar          { border-color:#FF2222; box-shadow:0 0 12px rgba(255,34,34,0.5); }
+.scoreboard.theme-mario64 .slim-name         { animation:m64-text 3s ease-in-out infinite; }
+.scoreboard.theme-mario64 .slim-score        { text-shadow:0 0 8px rgba(255,34,34,0.75); }
+
+/* ── Minecraft ───────────────────────────────────────────────── */
+
+@keyframes mc-border {
+  0%,100% { box-shadow:0 0 16px rgba(93,203,20,0.55), inset 0 0 28px rgba(4,10,2,0.6); }
+  50%      { box-shadow:0 0 6px  rgba(93,203,20,0.22), inset 0 0 28px rgba(4,10,2,0.6); }
+}
+@keyframes mc-text {
+  0%,100% { text-shadow:0 0 8px #5DCB14, 0 0 18px rgba(93,203,20,0.5); }
+  50%      { text-shadow:0 0 3px #3D9A0C, 0 0 8px rgba(61,154,12,0.35); }
+}
+.scoreboard.theme-minecraft .players-container { border-color:#5DCB14; animation:mc-border 3.8s ease-in-out infinite; border-radius:0 !important; }
+.scoreboard.theme-minecraft .players-container::before {
+  content:''; position:absolute; inset:0; pointer-events:none; z-index:0;
+  background-image:
+    repeating-linear-gradient(0deg, transparent 0, transparent 15px, rgba(93,203,20,0.04) 15px, rgba(93,203,20,0.04) 16px),
+    repeating-linear-gradient(90deg, transparent 0, transparent 15px, rgba(93,203,20,0.03) 15px, rgba(93,203,20,0.03) 16px);
+}
+.scoreboard.theme-minecraft .event-bar         { border-bottom-color:#5DCB14; box-shadow:0 2px 12px rgba(93,203,20,0.4); border-radius:0 !important; }
+.scoreboard.theme-minecraft .player-tag        { animation:mc-text 3.5s ease-in-out infinite; }
+.scoreboard.theme-minecraft .score             { text-shadow:0 0 10px rgba(93,203,20,0.7),0 0 24px rgba(139,90,43,0.3); }
+.scoreboard.theme-minecraft .score-center      { border-left-color:#5DCB14; border-right-color:#8B5A2B; }
+.scoreboard.theme-minecraft .player-character  { border-color:#5DCB14; box-shadow:0 0 11px rgba(93,203,20,0.5); border-radius:0 !important; }
+.scoreboard.theme-minecraft .player-left       { border-bottom-color:#5DCB14; }
+.scoreboard.theme-minecraft .player-right      { border-bottom-color:#8B5A2B; }
+.scoreboard.theme-minecraft .slim-bar          { border-color:#5DCB14; box-shadow:0 0 11px rgba(93,203,20,0.45); border-radius:0 !important; }
+.scoreboard.theme-minecraft .slim-name         { animation:mc-text 3.5s ease-in-out infinite; }
+.scoreboard.theme-minecraft .slim-score        { text-shadow:0 0 8px rgba(93,203,20,0.7); }
+
+/* ── Pac-Man ─────────────────────────────────────────────────── */
+
+@keyframes pac-chomp {
+  0%,100% { box-shadow:0 0 20px rgba(255,220,0,0.65), inset 0 0 28px rgba(0,0,12,0.7); }
+  50%      { box-shadow:0 0 8px  rgba(255,220,0,0.30), inset 0 0 28px rgba(0,0,12,0.7); }
+}
+@keyframes pac-text {
+  0%,100% { text-shadow:0 0 8px #FFDC00, 0 0 20px rgba(255,220,0,0.6); }
+  50%      { text-shadow:0 0 3px #CCA800, 0 0 8px rgba(204,168,0,0.4); }
+}
+@keyframes pac-maze {
+  0%   { background-position:0 0; }
+  100% { background-position:0 80px; }
+}
+.scoreboard.theme-pacman .players-container { border-color:#FFDC00; animation:pac-chomp 3s ease-in-out infinite; }
+.scoreboard.theme-pacman .players-container::before {
+  content:''; position:absolute; inset:0; pointer-events:none; z-index:0;
+  background-image:
+    repeating-linear-gradient(0deg, transparent 0, transparent 36px, rgba(0,0,255,0.06) 36px, rgba(0,0,255,0.06) 38px),
+    repeating-linear-gradient(90deg, transparent 0, transparent 36px, rgba(0,0,255,0.05) 36px, rgba(0,0,255,0.05) 38px);
+  animation:pac-maze 20s linear infinite;
+}
+.scoreboard.theme-pacman .event-bar         { border-bottom-color:#FFDC00; box-shadow:0 2px 16px rgba(255,220,0,0.5); text-shadow:0 0 10px rgba(255,220,0,0.7); }
+.scoreboard.theme-pacman .player-tag        { animation:pac-text 3s ease-in-out infinite; }
+.scoreboard.theme-pacman .score             { text-shadow:0 0 12px rgba(255,220,0,0.85),0 0 28px rgba(255,150,0,0.35); }
+.scoreboard.theme-pacman .score-center      { border-left-color:#FFDC00; border-right-color:#FF8C00; }
+.scoreboard.theme-pacman .player-character  { border-color:#FFDC00; box-shadow:0 0 13px rgba(255,220,0,0.6); }
+.scoreboard.theme-pacman .player-left       { border-bottom-color:#FFDC00; }
+.scoreboard.theme-pacman .player-right      { border-bottom-color:#FF8C00; }
+.scoreboard.theme-pacman .slim-bar          { border-color:#FFDC00; box-shadow:0 0 13px rgba(255,220,0,0.55); }
+.scoreboard.theme-pacman .slim-name         { animation:pac-text 3s ease-in-out infinite; }
+.scoreboard.theme-pacman .slim-score        { text-shadow:0 0 10px rgba(255,220,0,0.85); }
+
+/* ── Mega Man ─────────────────────────────────────────────────── */
+
+@keyframes mega-charge {
+  0%,100% { box-shadow:0 0 18px rgba(0,180,255,0.60), inset 0 0 28px rgba(0,6,18,0.6); }
+  50%      { box-shadow:0 0 7px  rgba(0,180,255,0.25), inset 0 0 28px rgba(0,6,18,0.6); }
+}
+@keyframes mega-text {
+  0%,100% { text-shadow:0 0 8px #00B4FF, 0 0 20px rgba(0,180,255,0.55); }
+  50%      { text-shadow:0 0 3px #0088CC, 0 0 8px rgba(0,136,204,0.4); }
+}
+@keyframes mega-scan {
+  0%   { background-position:0 0; }
+  100% { background-position:0 48px; }
+}
+.scoreboard.theme-megaman .players-container { border-color:#00B4FF; animation:mega-charge 3s ease-in-out infinite; }
+.scoreboard.theme-megaman .players-container::before {
+  content:''; position:absolute; inset:0; pointer-events:none; z-index:0;
+  background-image:
+    repeating-linear-gradient(0deg, transparent 0, transparent 22px, rgba(0,180,255,0.05) 22px, rgba(0,180,255,0.05) 23px);
+  animation:mega-scan 8s linear infinite;
+}
+.scoreboard.theme-megaman .event-bar         { border-bottom-color:#00B4FF; box-shadow:0 2px 14px rgba(0,180,255,0.45); text-shadow:0 0 8px rgba(0,180,255,0.65); }
+.scoreboard.theme-megaman .player-tag        { animation:mega-text 3s ease-in-out infinite; }
+.scoreboard.theme-megaman .score             { text-shadow:0 0 10px rgba(0,180,255,0.75),0 0 26px rgba(0,255,255,0.25); }
+.scoreboard.theme-megaman .score-center      { border-left-color:#00B4FF; border-right-color:#00FFFF; }
+.scoreboard.theme-megaman .player-character  { border-color:#00B4FF; box-shadow:0 0 13px rgba(0,180,255,0.55); }
+.scoreboard.theme-megaman .player-left       { border-bottom-color:#00B4FF; }
+.scoreboard.theme-megaman .player-right      { border-bottom-color:#00FFFF; }
+.scoreboard.theme-megaman .slim-bar          { border-color:#00B4FF; box-shadow:0 0 13px rgba(0,180,255,0.5); }
+.scoreboard.theme-megaman .slim-name         { animation:mega-text 3s ease-in-out infinite; }
+.scoreboard.theme-megaman .slim-score        { text-shadow:0 0 9px rgba(0,180,255,0.75); }
+
+/* ── Tekken ──────────────────────────────────────────────────── */
+
+@keyframes tekken-fire {
+  0%,100% { box-shadow:0 0 20px rgba(220,20,20,0.65), inset 0 0 30px rgba(10,0,0,0.65); }
+  50%      { box-shadow:0 0 8px  rgba(220,20,20,0.28), inset 0 0 30px rgba(10,0,0,0.65); }
+}
+@keyframes tekken-text {
+  0%,100% { text-shadow:0 0 8px #DC1414, 0 0 20px rgba(220,20,20,0.6); }
+  33%      { text-shadow:0 0 10px #FF6600, 0 0 22px rgba(255,102,0,0.55); }
+  66%      { text-shadow:0 0 8px #FFD700, 0 0 18px rgba(255,215,0,0.4); }
+}
+.scoreboard.theme-tekken .players-container { border-color:#DC1414; animation:tekken-fire 3s ease-in-out infinite; }
+.scoreboard.theme-tekken .players-container::before {
+  content:''; position:absolute; inset:0; pointer-events:none; z-index:0;
+  background-image:
+    repeating-linear-gradient(90deg,transparent 0,transparent 6px,rgba(220,20,20,0.04) 6px,rgba(220,20,20,0.04) 7px);
+}
+.scoreboard.theme-tekken .event-bar         { border-bottom-color:#DC1414; box-shadow:0 2px 16px rgba(220,20,20,0.5); text-shadow:0 0 10px rgba(220,20,20,0.65); }
+.scoreboard.theme-tekken .player-tag        { animation:tekken-text 3s linear infinite; }
+.scoreboard.theme-tekken .score             { text-shadow:0 0 12px rgba(220,20,20,0.80),0 0 28px rgba(255,215,0,0.35); }
+.scoreboard.theme-tekken .score-center      { border-left-color:#DC1414; border-right-color:#FFD700; }
+.scoreboard.theme-tekken .player-character  { border-color:#DC1414; box-shadow:0 0 14px rgba(220,20,20,0.60); }
+.scoreboard.theme-tekken .player-left       { border-bottom-color:#DC1414; }
+.scoreboard.theme-tekken .player-right      { border-bottom-color:#FFD700; }
+.scoreboard.theme-tekken .slim-bar          { border-color:#DC1414; box-shadow:0 0 14px rgba(220,20,20,0.55),0 0 28px rgba(255,215,0,0.15); }
+.scoreboard.theme-tekken .slim-name         { animation:tekken-text 3s linear infinite; }
+.scoreboard.theme-tekken .slim-score        { text-shadow:0 0 10px rgba(220,20,20,0.80); }
+
+/* ── Street Fighter 2 ────────────────────────────────────────── */
+
+@keyframes sf2-hadouken {
+  0%,100% { box-shadow:0 0 20px rgba(0,160,255,0.65), inset 0 0 28px rgba(0,4,18,0.65); }
+  50%      { box-shadow:0 0 8px  rgba(0,160,255,0.28), inset 0 0 28px rgba(0,4,18,0.65); }
+}
+@keyframes sf2-text {
+  0%,100% { text-shadow:0 0 8px #00A0FF, 0 0 20px rgba(0,160,255,0.6); }
+  50%      { text-shadow:0 0 3px #0066CC, 0 0 8px rgba(0,102,204,0.4); }
+}
+@keyframes sf2-scan {
+  from { transform:translateY(-100%); }
+  to   { transform:translateY(100%); }
+}
+.scoreboard.theme-sf2 .players-container { border-color:#00A0FF; animation:sf2-hadouken 3s ease-in-out infinite; }
+.scoreboard.theme-sf2 .players-container::before {
+  content:''; position:absolute; inset:0; pointer-events:none; z-index:0;
+  background-image:
+    repeating-linear-gradient(0deg, transparent 0, transparent 3px, rgba(0,160,255,0.05) 3px, rgba(0,160,255,0.05) 4px);
+}
+.scoreboard.theme-sf2 .event-bar         { border-bottom-color:#00A0FF; box-shadow:0 2px 16px rgba(0,160,255,0.5); text-shadow:0 0 9px rgba(0,160,255,0.65); }
+.scoreboard.theme-sf2 .player-tag        { animation:sf2-text 3s ease-in-out infinite; }
+.scoreboard.theme-sf2 .score             { text-shadow:0 0 12px rgba(0,160,255,0.80),0 0 28px rgba(0,255,255,0.30); }
+.scoreboard.theme-sf2 .score-center      { border-left-color:#00A0FF; border-right-color:#FF4400; }
+.scoreboard.theme-sf2 .player-character  { border-color:#00A0FF; box-shadow:0 0 14px rgba(0,160,255,0.60); }
+.scoreboard.theme-sf2 .player-left       { border-bottom-color:#00A0FF; }
+.scoreboard.theme-sf2 .player-right      { border-bottom-color:#FF4400; }
+.scoreboard.theme-sf2 .slim-bar          { border-color:#00A0FF; box-shadow:0 0 13px rgba(0,160,255,0.55); }
+.scoreboard.theme-sf2 .slim-name         { animation:sf2-text 3s ease-in-out infinite; }
+.scoreboard.theme-sf2 .slim-score        { text-shadow:0 0 10px rgba(0,160,255,0.80); }
+
 /* ══════════════════════════════ */
 /* SMASH BROS ULTIMATE CHARACTERS */
 /* ══════════════════════════════ */

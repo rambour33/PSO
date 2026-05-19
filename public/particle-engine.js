@@ -214,6 +214,51 @@ window.createParticleSystem = function(canvasId, containerId) {
       bob:Math.random()*Math.PI*2,bobSpd:0.038+Math.random()*.028,
       shimmer:Math.random()*Math.PI*2,shimSpd:0.050+Math.random()*.055,
       op:0.74+Math.random()*.26,life:1,decay};}
+  // ── Yarn (Yoshi's Woolly World) ────────────────────────────
+  function mkYarn(W,H){
+    const hues=[350,0,30,200,280,120,55]; // pink, red, orange, blue, purple, green, yellow
+    return{t:'yarn',
+      x:Math.random()*W, y:Math.random()*H,
+      vx:(Math.random()-.5)*.35, vy:-(0.25+Math.random()*.4),
+      r:3+Math.random()*4.5,
+      hue:hues[Math.floor(Math.random()*hues.length)],
+      rot:Math.random()*Math.PI*2,
+      spin:(Math.random()-.5)*.055,
+      wobble:Math.random()*Math.PI*2,
+      wobSpd:0.04+Math.random()*.04,
+      life:0.7+Math.random()*.3,
+      decay:0.004+Math.random()*.005,
+      op:0.7+Math.random()*.3};}
+
+  // ── Pellet (Pac-Man) ──────────────────────────────────────
+  function mkPellet(W,H){
+    const big=Math.random()<0.12; // 12% power pellets
+    return{t:'pellet',
+      x:Math.random()*W, y:Math.random()*H,
+      vx:(Math.random()-.5)*.18, vy:(Math.random()-.5)*.18,
+      r:big?5.5:2.2,
+      big,
+      phase:Math.random()*Math.PI*2,
+      phaseSpd:big?0.06:0,
+      life:0.65+Math.random()*.35,
+      decay:0.0025+Math.random()*.003,
+      op:0.8+Math.random()*.2};}
+
+  // ── Hadouken (Street Fighter 2) ──────────────────────────
+  function mkHadouken(W,H){
+    const dir=Math.random()>.5?1:-1;
+    return{t:'hadouken',
+      x:dir>0?-40:W+40, y:25+Math.random()*(H-50),
+      vx:dir*(1.0+Math.random()*.8),
+      vy:(Math.random()-.5)*.25,
+      r:7+Math.random()*5,
+      hue:200+Math.random()*60, // cyan–blue range
+      phase:Math.random()*Math.PI*2,
+      phaseSpd:0.12+Math.random()*.08,
+      dir,
+      life:1,decay:0,
+      op:0.7+Math.random()*.3};}
+
   const FAC = { snow:mkSnow, fire:mkFire, rain:mkRain, sand:mkSand,
                 leaf:mkLeaf, bubble:mkBubble, sparkle:mkSparkle, data:mkData,
                 flake:mkFlake, bolt:mkBolt, pride:mkPride, shell:mkShell, flame:mkFlame,
@@ -223,7 +268,8 @@ window.createParticleSystem = function(canvasId, containerId) {
                 ink:mkInk, heart:mkHeart, kunai:mkKunai, shuriken:mkShuriken,
                 cross:mkCross, spring:mkSpring, block:mkBlock, triforce:mkTriforce,
                 keyblade:mkKeyblade, pikmin:mkPikmin, ordnance:mkOrdnance, marioitem:mkMarioItem, dkitem:mkDkItem,
-                crown:mkCrown };
+                crown:mkCrown,
+                yarn:mkYarn, pellet:mkPellet, hadouken:mkHadouken };
 
   // ── Update ─────────────────────────────────────────────────
   function upd(p, W, H) {
@@ -396,6 +442,20 @@ window.createParticleSystem = function(canvasId, containerId) {
         if(p.x<-32) p.x=W+32; if(p.x>W+32) p.x=-32;
         if(p.y<-32) p.y=H+32; if(p.y>H+32) p.y=-32;
       }
+    } else if (t==='yarn') {
+      p.wobble+=p.wobSpd; p.rot+=p.spin;
+      p.x+=p.vx+Math.sin(p.wobble)*0.4; p.y+=p.vy;
+      p.life-=p.decay;
+      if(p.life<=0||p.y<-12) Object.assign(p,mkYarn(W,H));
+      if(p.x<-12) p.x=W+12; if(p.x>W+12) p.x=-12;
+    } else if (t==='pellet') {
+      p.phase+=p.phaseSpd; p.x+=p.vx; p.y+=p.vy; p.life-=p.decay;
+      if(p.life<=0) Object.assign(p,mkPellet(W,H));
+      if(p.x<-8) p.x=W+8; if(p.x>W+8) p.x=-8;
+      if(p.y<-8) p.y=H+8; if(p.y>H+8) p.y=-8;
+    } else if (t==='hadouken') {
+      p.phase+=p.phaseSpd; p.x+=p.vx; p.y+=p.vy;
+      if(p.x<-50||p.x>W+50) Object.assign(p,mkHadouken(W,H));
     }
   }
 
@@ -1559,6 +1619,76 @@ window.createParticleSystem = function(canvasId, containerId) {
         }
       }
       ctx.restore(); ctx.globalAlpha=1;
+    } else if (t==='yarn') {
+      const al=p.op*p.life;
+      ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.rot); ctx.globalAlpha=al;
+      const r=p.r;
+      // Wooly ball: concentric fuzzy circles
+      const grd=ctx.createRadialGradient(0,0,0,0,0,r);
+      grd.addColorStop(0,`hsl(${p.hue},82%,80%)`);
+      grd.addColorStop(0.6,`hsl(${p.hue},72%,62%)`);
+      grd.addColorStop(1,`hsl(${p.hue},65%,48%)`);
+      ctx.beginPath(); ctx.arc(0,0,r,0,Math.PI*2); ctx.fillStyle=grd; ctx.fill();
+      // Fuzzy texture: radial lines
+      ctx.strokeStyle=`hsl(${p.hue},75%,72%)`; ctx.lineWidth=0.6; ctx.lineCap='round';
+      for(let i=0;i<8;i++){
+        const a=i*Math.PI/4;
+        ctx.beginPath(); ctx.moveTo(Math.cos(a)*r*.4,Math.sin(a)*r*.4);
+        ctx.lineTo(Math.cos(a)*r*.95,Math.sin(a)*r*.95); ctx.stroke();
+      }
+      // Highlight
+      ctx.beginPath(); ctx.arc(-r*.25,-r*.25,r*.28,0,Math.PI*2);
+      ctx.fillStyle=`rgba(255,255,255,${al*.42})`; ctx.fill();
+      ctx.restore(); ctx.globalAlpha=1;
+    } else if (t==='pellet') {
+      const al=p.op*p.life;
+      ctx.save(); ctx.globalAlpha=al;
+      if(p.big){
+        // Power pellet: glowing white dot
+        const pulse=(Math.sin(p.phase)+1)/2;
+        const r2=p.r*(0.75+pulse*0.35);
+        const hrd=ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,r2*2.2);
+        hrd.addColorStop(0,`rgba(255,245,180,${al})`);
+        hrd.addColorStop(0.4,`rgba(255,255,255,${al*0.7})`);
+        hrd.addColorStop(1,`rgba(255,220,50,0)`);
+        ctx.beginPath(); ctx.arc(p.x,p.y,r2*2.2,0,Math.PI*2); ctx.fillStyle=hrd; ctx.fill();
+        ctx.beginPath(); ctx.arc(p.x,p.y,r2,0,Math.PI*2);
+        ctx.fillStyle=`rgba(255,248,200,${al})`; ctx.fill();
+      } else {
+        // Normal pellet: small yellow circle
+        ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+        ctx.fillStyle=`rgba(255,240,100,${al})`; ctx.fill();
+        ctx.beginPath(); ctx.arc(p.x-p.r*.3,p.y-p.r*.3,p.r*.32,0,Math.PI*2);
+        ctx.fillStyle=`rgba(255,255,255,${al*.5})`; ctx.fill();
+      }
+      ctx.restore(); ctx.globalAlpha=1;
+    } else if (t==='hadouken') {
+      const al=p.op;
+      const pulse=(Math.sin(p.phase)+1)/2;
+      ctx.save(); ctx.translate(p.x,p.y); ctx.globalAlpha=al;
+      // Outer glow
+      const hrd=ctx.createRadialGradient(0,0,0,0,0,p.r*3.5);
+      hrd.addColorStop(0,`hsla(${p.hue},100%,80%,${al*0.65})`);
+      hrd.addColorStop(0.4,`hsla(${p.hue+20},100%,62%,${al*0.30})`);
+      hrd.addColorStop(1,`hsla(${p.hue},100%,50%,0)`);
+      ctx.beginPath(); ctx.arc(0,0,p.r*3.5,0,Math.PI*2); ctx.fillStyle=hrd; ctx.fill();
+      // Swirling ring
+      const rr=p.r*(1.3+pulse*0.5);
+      ctx.beginPath(); ctx.arc(0,0,rr,0,Math.PI*2);
+      ctx.strokeStyle=`hsla(${p.hue},100%,75%,${al*0.7})`; ctx.lineWidth=1.8; ctx.stroke();
+      // Core
+      const cr=ctx.createRadialGradient(0,0,0,0,0,p.r);
+      cr.addColorStop(0,`hsl(${p.hue+30},100%,95%)`);
+      cr.addColorStop(0.45,`hsl(${p.hue},100%,68%)`);
+      cr.addColorStop(1,`hsl(${p.hue-20},100%,42%)`);
+      ctx.beginPath(); ctx.arc(0,0,p.r,0,Math.PI*2); ctx.fillStyle=cr; ctx.fill();
+      // Spark trails on left/right edges
+      ctx.strokeStyle=`hsla(${p.hue+15},100%,82%,${al*0.55})`; ctx.lineWidth=1.2; ctx.lineCap='round';
+      [-p.r*.65,p.r*.65].forEach(ox=>{
+        ctx.beginPath(); ctx.moveTo(ox,0); ctx.lineTo(ox+p.dir*p.r*1.4,-(p.r*.4+pulse*p.r*.3)); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(ox,0); ctx.lineTo(ox+p.dir*p.r*1.4, (p.r*.4+pulse*p.r*.3)); ctx.stroke();
+      });
+      ctx.restore(); ctx.globalAlpha=1;
     }
   }
 
@@ -1798,4 +1928,13 @@ window.THEME_PARTICLES = {
   flag_eu:  { type:'sparkle', count:70 },
   flag_br:  { type:'sparkle', count:65 },
   flag_jp:  { type:'sparkle', count:55 },
+  botw:      { type:'leaf',    count:45 },
+  totk:      { type:'rune',   count:40 },
+  yoshiwool: { type:'yarn',   count:55 },
+  mario64:   { type:'star',   count:60 },
+  minecraft: { type:'block',  count:40 },
+  pacman:    { type:'pellet', count:70 },
+  megaman:   { type:'bolt',   count:55 },
+  tekken:    { type:'flame',  count:120 },
+  sf2:       { type:'hadouken', count:18 },
 };
