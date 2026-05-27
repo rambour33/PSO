@@ -23,12 +23,12 @@
 
   // ── Picker factory ───────────────────────────────────────────────────────────
 
-  function setupPicker(playerNum) {
-    const searchEl  = document.getElementById(`p${playerNum}-flag-search`);
-    const dropEl    = document.getElementById(`p${playerNum}-flag-dropdown`);
-    const hiddenEl  = document.getElementById(`p${playerNum}-flag`);
-    const previewEl = document.getElementById(`p${playerNum}-flag-preview`);
-    const clearBtn  = document.getElementById(`p${playerNum}-flag-clear`);
+  function setupPicker(playerNum, field = 'flag') {
+    const searchEl  = document.getElementById(`p${playerNum}-${field}-search`);
+    const dropEl    = document.getElementById(`p${playerNum}-${field}-dropdown`);
+    const hiddenEl  = document.getElementById(`p${playerNum}-${field}`);
+    const previewEl = document.getElementById(`p${playerNum}-${field}-preview`);
+    const clearBtn  = document.getElementById(`p${playerNum}-${field}-clear`);
     if (!searchEl) return;
 
     function hideDrop() { dropEl.style.display = 'none'; dropEl.innerHTML = ''; }
@@ -124,17 +124,17 @@
     clearBtn.addEventListener('click', () => selectFlag(''));
 
     document.addEventListener('click', e => {
-      const wrap = document.getElementById(`p${playerNum}-flag-wrap`);
+      const wrap = document.getElementById(`p${playerNum}-${field}-wrap`);
       if (wrap && !wrap.contains(e.target)) hideDrop();
     });
   }
 
   // ── Restore flag from saved state ────────────────────────────────────────────
 
-  window.flagPickerRestore = function (playerNum, path) {
-    const hiddenEl  = document.getElementById(`p${playerNum}-flag`);
-    const previewEl = document.getElementById(`p${playerNum}-flag-preview`);
-    const searchEl  = document.getElementById(`p${playerNum}-flag-search`);
+  window.flagPickerRestore = function (playerNum, path, field = 'flag') {
+    const hiddenEl  = document.getElementById(`p${playerNum}-${field}`);
+    const previewEl = document.getElementById(`p${playerNum}-${field}-preview`);
+    const searchEl  = document.getElementById(`p${playerNum}-${field}-search`);
     if (!hiddenEl) return;
     hiddenEl.value = path || '';
     if (path) {
@@ -156,6 +156,8 @@
   loadFlags().then(() => {
     setupPicker(1);
     setupPicker(2);
+    setupPicker(1, 'flag2');
+    setupPicker(2, 'flag2');
   });
 
 })();

@@ -442,7 +442,7 @@ function update(s) {
   sb.classList.toggle('hidden', !s.visible);
   // swapped est géré côté données (player1/player2 physiquement échangés)
   const _style = s.overlayStyle || 'full';
-  ['slim', 'full-rounded', 'compact-rounded', 'lower-third'].forEach(st => {
+  ['slim', 'full-rounded', 'compact-rounded', 'lower-third', 'pro'].forEach(st => {
     sb.classList.toggle('style-' + st, _style === st);
   });
   const _scoreDisplay = s.scoreDisplay || 'numbers';
@@ -579,6 +579,9 @@ function update(s) {
   // Colors — slim layout
   document.getElementById('player1-block-slim').style.setProperty('--p1-color', c1);
   document.getElementById('player2-block-slim').style.setProperty('--p2-color', c2);
+  // Colors — pro layout (sur scoreboard pour héritage CSS)
+  sb.style.setProperty('--p1-color', c1);
+  sb.style.setProperty('--p2-color', c2);
 
   // Player names — both layouts
   renderPlayerName('p1-name', s.player1);
@@ -691,8 +694,10 @@ function update(s) {
   }
 
   // Player flags
-  const p1FlagImg = document.getElementById('p1-flag-img');
-  const p2FlagImg = document.getElementById('p2-flag-img');
+  const p1FlagImg  = document.getElementById('p1-flag-img');
+  const p2FlagImg  = document.getElementById('p2-flag-img');
+  const p1Flag2Img = document.getElementById('p1-flag2-img');
+  const p2Flag2Img = document.getElementById('p2-flag2-img');
   if (p1FlagImg) {
     const f1 = s.player1?.flag;
     if (f1) { p1FlagImg.src = '/' + f1; p1FlagImg.style.display = 'block'; }
@@ -700,12 +705,22 @@ function update(s) {
     sb.style.setProperty('--p1-flag-x', (s.player1?.flagOffsetX ?? 0) + 'px');
     sb.style.setProperty('--p1-flag-y', (s.player1?.flagOffsetY ?? 0) + 'px');
   }
+  if (p1Flag2Img) {
+    const f1b = s.player1?.flag2;
+    if (f1b) { p1Flag2Img.src = '/' + f1b; p1Flag2Img.style.display = 'block'; }
+    else { p1Flag2Img.style.display = 'none'; }
+  }
   if (p2FlagImg) {
     const f2 = s.player2?.flag;
     if (f2) { p2FlagImg.src = '/' + f2; p2FlagImg.style.display = 'block'; }
     else { p2FlagImg.style.display = 'none'; }
     sb.style.setProperty('--p2-flag-x', (s.player2?.flagOffsetX ?? 0) + 'px');
     sb.style.setProperty('--p2-flag-y', (s.player2?.flagOffsetY ?? 0) + 'px');
+  }
+  if (p2Flag2Img) {
+    const f2b = s.player2?.flag2;
+    if (f2b) { p2Flag2Img.src = '/' + f2b; p2Flag2Img.style.display = 'block'; }
+    else { p2Flag2Img.style.display = 'none'; }
   }
 
   // Center logo — full layout
@@ -806,7 +821,116 @@ function update(s) {
     sb.style.setProperty('--tp-event-y', (ev.y ?? 0) + 'px');
   }
 
+  // ── Layout Pro ───────────────────────────────────────────────
+  if (_style === 'pro') renderProLayout(s);
+
   currentState = JSON.parse(JSON.stringify(s));
+}
+
+// ── Pro layout ────────────────────────────────────────────────────────────────
+
+function _proSetTxt(id, val) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = val;
+}
+
+function _proLoadChar(imgId, phId, player) {
+  const img = document.getElementById(imgId);
+  const ph  = document.getElementById(phId);
+  if (!img) return;
+  if (player.character) {
+    const n = player.character.name.replace(/\s*\/\s*/g, '-');
+    const c = String(player.stockColor ?? 0).padStart(2, '0');
+    const src = `/full/chara_1_${n}_${c}.png`;
+    img.onerror = () => {
+      img.onerror = null;
+      img.src = `/full/chara_1_${n}_00.png`;
+      img.onerror = () => { img.onerror = null; img.style.display = 'none'; if (ph) { ph.style.display = 'flex'; ph.textContent = n.charAt(0); } };
+    };
+    img.src = src;
+    img.style.display = 'block';
+    if (ph) ph.style.display = 'none';
+  } else {
+    img.style.display = 'none';
+    if (ph) { ph.style.display = 'flex'; ph.textContent = '?'; }
+  }
+}
+
+function _proMakeChip(type, ...args) {
+  const chip = document.createElement('div');
+  chip.className = 'pro-chip pro-chip-' + type;
+  if (type === 'flag') {
+    const [path, code] = args;
+    const img = document.createElement('img');
+    img.src = '/' + path; img.alt = code;
+    const lbl = document.createElement('span');
+    lbl.className = 'pro-chip-label';
+    lbl.textContent = code.toUpperCase();
+    chip.appendChild(img); chip.appendChild(lbl);
+  } else if (type === 'seed') {
+    const lbl = document.createElement('span'); lbl.className = 'pro-chip-label'; lbl.textContent = 'Seed ';
+    const val = document.createElement('span'); val.className = 'pro-chip-value'; val.textContent = args[0];
+    chip.appendChild(lbl); chip.appendChild(val);
+  } else if (type === 'social') {
+    const lbl = document.createElement('span'); lbl.className = 'pro-chip-label';
+    const h = args[0]; lbl.textContent = h.startsWith('@') ? h : '@' + h;
+    chip.appendChild(lbl);
+  } else if (type === 'pronouns') {
+    const lbl = document.createElement('span'); lbl.className = 'pro-chip-label'; lbl.textContent = args[0];
+    chip.appendChild(lbl);
+  }
+  return chip;
+}
+
+function _proRenderChips(player, side) {
+  const el = document.getElementById(side === 1 ? 'pro-chips-p1' : 'pro-chips-p2');
+  if (!el) return;
+  el.innerHTML = '';
+  const chips = [];
+  if (player.seeding != null && player.seeding !== '') chips.push(_proMakeChip('seed', player.seeding));
+  const soc = (player.socials || []).find(s => s && s.trim());
+  if (soc) chips.push(_proMakeChip('social', soc.trim()));
+  if (player.flag2) chips.push(_proMakeChip('flag', player.flag2, player.flag2.split('/')[2]?.replace('.png','') || ''));
+  if (player.flag)  chips.push(_proMakeChip('flag', player.flag, player.flag.split('/')[1] || ''));
+  if (player.pronouns && player.pronouns.trim()) chips.push(_proMakeChip('pronouns', player.pronouns.trim()));
+  const ordered = side === 2 ? chips.reverse() : chips;
+  ordered.forEach(c => el.appendChild(c));
+}
+
+function renderProLayout(s) {
+  const p1 = s.player1 || {};
+  const p2 = s.player2 || {};
+  // Round / event
+  const fmt = s.format === 'custom' ? `Bo${s.customWins * 2 - 1}` : (s.format || 'Bo3');
+  _proSetTxt('pro-round-type', ((s.event || 'TOURNOI') + '  ·  ' + fmt).toUpperCase());
+  _proSetTxt('pro-round-name', (s.stage  || 'GRAND FINAL').toUpperCase());
+  // Personnages
+  _proLoadChar('pro-p1-char-img', 'pro-p1-char-ph', p1);
+  _proLoadChar('pro-p2-char-img', 'pro-p2-char-ph', p2);
+  // Noms
+  _proSetTxt('pro-p1-tag-el',  p1.tag  || '');
+  _proSetTxt('pro-p1-name-el', p1.name || 'PLAYER 1');
+  _proSetTxt('pro-p2-tag-el',  p2.tag  || '');
+  _proSetTxt('pro-p2-name-el', p2.name || 'PLAYER 2');
+  // Couleur du tag en inline — indépendant de --p1-color/--p2-color
+  const _tagClr = s.tagColor || '#E8B830';
+  const _t1 = document.getElementById('pro-p1-tag-el');
+  const _t2 = document.getElementById('pro-p2-tag-el');
+  if (_t1) _t1.style.color = _tagClr;
+  if (_t2) _t2.style.color = _tagClr;
+  // Scores
+  _proSetTxt('pro-p1-score-el', p1.score ?? 0);
+  _proSetTxt('pro-p2-score-el', p2.score ?? 0);
+  // Logo central
+  const logoImg = document.getElementById('pro-logo-img');
+  const logoVs  = document.getElementById('pro-logo-vs');
+  if (logoImg) {
+    if (s.centerLogo) { logoImg.src = s.centerLogo; logoImg.style.display = 'block'; if (logoVs) logoVs.style.display = 'none'; }
+    else { logoImg.style.display = 'none'; if (logoVs) logoVs.style.display = 'inline'; }
+  }
+  // Chips
+  _proRenderChips(p1, 1);
+  _proRenderChips(p2, 2);
 }
 
 socket.on('stateUpdate', (s) => {

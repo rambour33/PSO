@@ -89,64 +89,6 @@ h1 {
   flex-wrap: wrap;
 }
 
-/* ── Overlay groups (dropdowns) ──────────────────────────────── */
-
-.overlay-group {
-  position: relative;
-}
-
-.overlay-group-btn {
-  font-size: 11px;
-  padding: 6px 10px;
-  letter-spacing: 1px;
-}
-
-.overlay-group-menu {
-  display: none;
-  position: absolute;
-  top: calc(100% + 4px);
-  left: 0;
-  background: var(--surface2);
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  min-width: 160px;
-  z-index: 200;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.6);
-  overflow: hidden;
-}
-
-.overlay-group:hover .overlay-group-menu,
-.overlay-group:focus-within .overlay-group-menu {
-  display: block;
-}
-
-.overlay-group-menu a {
-  display: block;
-  padding: 8px 14px;
-  font-size: 12px;
-  font-family: 'Inter', sans-serif;
-  color: var(--text);
-  text-decoration: none;
-  letter-spacing: 0.5px;
-  transition: background 0.1s, color 0.1s;
-  white-space: nowrap;
-}
-
-.overlay-group-menu a::after {
-  content: ' ↗';
-  opacity: 0.4;
-  font-size: 10px;
-}
-
-.overlay-group-menu a:hover {
-  background: rgba(232,184,48,0.08);
-  color: var(--gold);
-}
-
-.overlay-group-menu a:hover::after {
-  opacity: 1;
-  color: var(--gold);
-}
 
 /* ── Connexions tuto ─────────────────────────────────────────── */
 

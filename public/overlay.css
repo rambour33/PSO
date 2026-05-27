@@ -148,6 +148,32 @@ body {
   transform: translate(var(--p2-flag-x, 0px), var(--p2-flag-y, 0px));
 }
 
+.player-flag2 {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: calc(var(--flag-w, 52px) * 0.72);
+  height: calc(var(--flag-h, 34px) * 0.72);
+  object-fit: cover;
+  border-radius: 2px;
+  border: 1px solid rgba(255,255,255,0.15);
+  box-shadow: 0 1px 5px rgba(0,0,0,0.6);
+  z-index: 11;
+  pointer-events: none;
+}
+
+.player-flag2-left {
+  right: auto;
+  left: 0;
+  transform: translate(var(--p1-flag-x, 0px), var(--p1-flag-y, 0px));
+}
+
+.player-flag2-right {
+  left: auto;
+  right: 0;
+  transform: translate(var(--p2-flag-x, 0px), var(--p2-flag-y, 0px));
+}
+
 /* ── Character portrait ──────────────────────────────────────── */
 
 .player-character {
@@ -3931,3 +3957,327 @@ body {
 .lt-layout.theme-dual #lt-p2 .lt-inner {
   box-shadow: 0 0 12px var(--p2-theme-glow, rgba(58,127,232,0.3));
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   LAYOUT PRO  —  style tournoi (scoreboard + bande info + timer)
+   Activé quand : #scoreboard.style-pro
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Masqué par défaut, visible seulement en style-pro */
+.pro-layout { display: none; }
+.style-pro .pro-layout { display: block; }
+
+/* En style-pro : scoreboard remplit tout le canvas pour que les particules couvrent tout */
+.style-pro {
+  width: 1920px !important;
+  height: 1080px !important;
+}
+
+/* Particules : uniquement sur la barre scoreboard centrale */
+.style-pro #particle-canvas {
+  clip-path: inset(20px 500px 990px 500px round 6px);
+}
+
+/* Masquer les autres layouts et la barre event en style-pro */
+.style-pro .full-layout,
+.style-pro .slim-layout,
+.style-pro .event-bar { display: none; }
+
+/* ── Round info : absolu, haut gauche ─────────────────────────────────────── */
+.pro-round {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  width: 300px;
+  height: 70px;
+  background: var(--sb-bg, rgba(10,10,14,0.94));
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 0 16px;
+  gap: 3px;
+  border: 1px solid rgba(255,255,255,0.06);
+  overflow: hidden;
+  font-family: var(--custom-font, 'Russo One', sans-serif);
+}
+
+.pro-round::after {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: var(--tag-color, #E8B830);
+  opacity: 0.8;
+}
+
+.pro-round-type {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--tag-color, #E8B830);
+  opacity: 0.75;
+  line-height: 1;
+}
+
+.pro-round-name {
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--name-color, #F0EEF8);
+  line-height: 1;
+}
+
+/* ── Scoreboard bar : centré sur les 1920px ───────────────────────────────── */
+.pro-sb {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 920px;
+  height: 70px;
+  background: var(--sb-bg, rgba(10,10,14,0.94));
+  border-radius: 6px;
+  display: flex;
+  align-items: stretch;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.05);
+  font-family: var(--custom-font, 'Russo One', sans-serif);
+}
+
+.pro-side {
+  flex: 1 1 0;
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  gap: 10px;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.pro-p1-side { flex-direction: row; }
+.pro-p2-side { flex-direction: row-reverse; }
+
+/* Portrait personnage */
+.pro-char-sm {
+  flex: 0 0 50px;
+  width: 50px;
+  height: 50px;
+  border-radius: 4px;
+  overflow: hidden;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.07);
+  position: relative;
+  flex-shrink: 0;
+}
+
+.pro-char-sm img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  position: absolute;
+  inset: 0;
+}
+
+.pro-char-ph {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  color: rgba(255,255,255,0.25);
+}
+
+/* Noms */
+.pro-names {
+  flex: 1 1 0;
+  height: 54px; /* même hauteur que le cercle de score → alignement parfait */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  min-width: 0;
+  overflow: hidden;
+  text-align: center;
+}
+
+.pro-names-r { align-items: center; }
+
+.pro-ptag {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--tag-color, #E8B830);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1;
+}
+
+
+.pro-pname {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--name-color, #F0EEF8);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.1;
+}
+
+/* Cercle score */
+.pro-score-circ {
+  flex: 0 0 54px;
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  font-weight: 900;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.pro-p1-circ {
+  background: var(--p1-color, #E83030);
+  box-shadow: 0 0 16px var(--p1-color, rgba(232,48,48,0.6));
+}
+
+.pro-p2-circ {
+  background: var(--p2-color, #3070E8);
+  box-shadow: 0 0 16px var(--p2-color, rgba(48,112,232,0.6));
+}
+
+/* Centre logo */
+.pro-sb-center {
+  flex: 0 0 82px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pro-logo-wrap {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.04);
+  border: 2px solid rgba(255,255,255,0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.pro-logo-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+#pro-logo-vs {
+  font-size: 16px;
+  font-weight: 900;
+  color: rgba(255,255,255,0.35);
+  letter-spacing: 0.06em;
+}
+
+/* ── Bande info : centrée, même largeur que pro-sb ───────────────────────── */
+.pro-infobar {
+  position: absolute;
+  top: 96px;  /* 20 (top) + 70 (bar) + 6 (gap) */
+  left: 50%;
+  transform: translateX(-50%);
+  width: 920px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+}
+
+.pro-chips {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex: 1 1 0;
+}
+
+.pro-chips-l { justify-content: flex-start; }
+.pro-chips-r { justify-content: flex-end; }
+
+.pro-chips-gap { flex: 0 0 82px; }
+
+/* Chip générique */
+.pro-chip {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  height: 24px;
+  padding: 0 8px;
+  background: var(--sb-bg, rgba(10,10,14,0.88));
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+.pro-chip-flag img {
+  width: 28px;
+  height: 18px;
+  object-fit: cover;
+  border-radius: 2px;
+  border: 1px solid rgba(255,255,255,0.12);
+  display: block;
+}
+
+.pro-chip-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--name-color, #F0EEF8);
+  opacity: 0.9;
+}
+
+.pro-chip-seed .pro-chip-label { opacity: 0.55; font-size: 10px; }
+.pro-chip-seed .pro-chip-value {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--name-color, #F0EEF8);
+}
+
+.pro-chip-social .pro-chip-label {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+  opacity: 0.7;
+}
+
+.pro-chip-pronouns .pro-chip-label {
+  font-style: italic;
+  letter-spacing: 0;
+  text-transform: none;
+  opacity: 0.75;
+  color: var(--tag-color, #E8B830);
+}
+
+/* ── Thèmes : accent sur la bande colorée gauche du round ────────────────── */
+.style-pro.theme-cyberpunk  .pro-round::after { background: #00F5FF; }
+.style-pro.theme-synthwave  .pro-round::after { background: #FF6EC7; }
+.style-pro.theme-midnight   .pro-round::after { background: #4488FF; }
+.style-pro.theme-egypt      .pro-round::after { background: #D4A017; }
+.style-pro.theme-city       .pro-round::after { background: #A0C4D8; }
+.style-pro.theme-eco        .pro-round::after { background: #6BC96C; }
+.style-pro.theme-water      .pro-round::after { background: #29B6F6; }
+.style-pro.theme-fire       .pro-round::after { background: #FF6B00; }
+.style-pro.theme-rainbow    .pro-round::after { background: linear-gradient(180deg,#FF6EC7,#4488FF); }
+.style-pro.theme-trans      .pro-round::after { background: #55CDFC; }
+.style-pro.theme-pan        .pro-round::after { background: #FF218C; }
+.style-pro.theme-bi         .pro-round::after { background: #9B59D0; }
+.style-pro.theme-lesbian    .pro-round::after { background: #FF4500; }

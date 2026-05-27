@@ -152,63 +152,6 @@
         <span class="dot"></span>
         <span class="label">Connecté</span>
       </div>
-      <!-- Overlays groupés -->
-      <div class="overlay-group">
-        <button class="btn btn-outline overlay-group-btn">Scoreboard ▾</button>
-        <div class="overlay-group-menu">
-          <a href="/overlay" target="_blank">Scoreboard</a>
-          <a href="/vs-screen" target="_blank">VS Screen</a>
-          <a href="/cam" target="_blank">Cam</a>
-          <a href="/casters" target="_blank">Casters</a>
-          <a href="/casters-custom" target="_blank">Casters Custom</a>
-        </div>
-      </div>
-      <div class="overlay-group">
-        <button class="btn btn-outline overlay-group-btn">Tournoi ▾</button>
-        <div class="overlay-group-menu">
-          <a href="/stageveto" target="_blank">Stage Veto</a>
-          <a href="/bracket" target="_blank">Bracket</a>
-          <a href="/top8" target="_blank">Top 8</a>
-          <a href="/tournament-history" target="_blank">Historique</a>
-          <a href="/player-stats" target="_blank">Stats joueur</a>
-          <a href="/h2h" target="_blank">H2H</a>
-        </div>
-      </div>
-      <div class="overlay-group">
-        <button class="btn btn-outline overlay-group-btn">Stream ▾</button>
-        <div class="overlay-group-menu">
-          <a href="/stream-title" target="_blank">Titre</a>
-          <a href="/ticker" target="_blank">Bandeau</a>
-          <a href="/frames" target="_blank">Cadres</a>
-          <a href="/timer" target="_blank">Timer</a>
-          <a href="/deck" target="_blank" style="color:#E8B830">🎮 Stream Deck URLs</a>
-          <a href="/guide" target="_blank" style="color:#A0C4D8">📖 Guide d'utilisation</a>
-        </div>
-      </div>
-      <div class="overlay-group">
-        <button class="btn btn-outline overlay-group-btn" style="border-color:#9147FF55;color:#C9AAFF">Twitch ▾</button>
-        <div class="overlay-group-menu">
-          <a href="/nextmatch" target="_blank">Layout</a>
-          <a href="/twitch-viewer" target="_blank">Viewers</a>
-          <a href="/twitch-alerts" target="_blank">Alertes</a>
-          <a href="/twitch-chat" target="_blank">Chat</a>
-        </div>
-      </div>
-      <div class="overlay-group">
-        <button class="btn btn-outline overlay-group-btn" style="border-color:#FF000055;color:#FF8A8A">YouTube ▾</button>
-        <div class="overlay-group-menu">
-          <a href="/youtube-chat" target="_blank">Chat</a>
-          <a href="/youtube-viewer" target="_blank">Viewers</a>
-          <a href="/youtube-alerts" target="_blank">Alertes</a>
-        </div>
-      </div>
-      <div class="overlay-group">
-        <button class="btn btn-outline overlay-group-btn" style="border-color:#8844FF55;color:#BB99FF">Chat combiné ▾</button>
-        <div class="overlay-group-menu">
-          <a href="/combined-chat" target="_blank">Twitch + YouTube</a>
-        </div>
-      </div>
-      <button id="btn-server-reload" class="btn btn-outline" title="Redémarre le serveur Node.js" style="border-color:#e05;color:#e05">↺ Serveur</button>
       <button id="btn-mobile-mode" class="btn btn-outline" title="Mode mobile/tablette">📱</button>
       <button id="btn-toggle-regie" class="btn btn-outline" title="Basculer entre Mode Régie et Mode Config">🎬 Mode Régie</button>
       <a href="/guide" target="_blank" class="btn btn-outline" title="Guide d'utilisation" style="text-decoration:none">📖 Guide</a>
@@ -232,7 +175,6 @@
     <button class="tab-btn" data-tab="diffusions">Overlays plateformes de stream</button>
     <button class="tab-btn" data-tab="overlayip">PSO multi-PC</button>
     <button class="tab-btn" data-tab="notes">📋 Notes</button>
-    <button class="tab-btn" data-tab="stinger">Stinger</button>
   </nav>
 
   <!-- TAB SELECT (mobile) -->
@@ -245,7 +187,6 @@
       <option value="overlays">Overlays génériques</option>
       <option value="diffusions">Overlays plateformes de stream</option>
       <option value="overlayip">PSO multi-PC</option>
-      <option value="stinger">Stinger</option>
     </select>
   </div>
 
@@ -318,7 +259,7 @@
             <input type="text" id="p1-social-3" placeholder="ex: YouTube @kamex" />
           </div>
           <div class="form-group flag-picker-group">
-            <label>Drapeau</label>
+            <label>Pays</label>
             <div class="flag-picker-wrap" id="p1-flag-wrap">
               <div class="flag-search-row">
                 <img id="p1-flag-preview" class="flag-preview-img" />
@@ -327,6 +268,18 @@
               </div>
               <div class="flag-dropdown" id="p1-flag-dropdown"></div>
               <input type="hidden" id="p1-flag" value="" />
+            </div>
+          </div>
+          <div class="form-group flag-picker-group">
+            <label>Région</label>
+            <div class="flag-picker-wrap" id="p1-flag2-wrap">
+              <div class="flag-search-row">
+                <img id="p1-flag2-preview" class="flag-preview-img" />
+                <input type="text" id="p1-flag2-search" placeholder="Rechercher une région…" class="input-flag-search" autocomplete="off" />
+                <button class="btn-flag-clear" id="p1-flag2-clear" title="Effacer">✕</button>
+              </div>
+              <div class="flag-dropdown" id="p1-flag2-dropdown"></div>
+              <input type="hidden" id="p1-flag2" value="" />
             </div>
           </div>
           <div class="char-selector-mini" id="p1-char-display">
@@ -429,7 +382,7 @@
             <input type="text" id="p2-social-3" placeholder="ex: YouTube @kamex" />
           </div>
           <div class="form-group flag-picker-group">
-            <label>Drapeau</label>
+            <label>Pays</label>
             <div class="flag-picker-wrap" id="p2-flag-wrap">
               <div class="flag-search-row">
                 <img id="p2-flag-preview" class="flag-preview-img" />
@@ -438,6 +391,18 @@
               </div>
               <div class="flag-dropdown" id="p2-flag-dropdown"></div>
               <input type="hidden" id="p2-flag" value="" />
+            </div>
+          </div>
+          <div class="form-group flag-picker-group">
+            <label>Région</label>
+            <div class="flag-picker-wrap" id="p2-flag2-wrap">
+              <div class="flag-search-row">
+                <img id="p2-flag2-preview" class="flag-preview-img" />
+                <input type="text" id="p2-flag2-search" placeholder="Rechercher une région…" class="input-flag-search" autocomplete="off" />
+                <button class="btn-flag-clear" id="p2-flag2-clear" title="Effacer">✕</button>
+              </div>
+              <div class="flag-dropdown" id="p2-flag2-dropdown"></div>
+              <input type="hidden" id="p2-flag2" value="" />
             </div>
           </div>
           <div class="char-selector-mini" id="p2-char-display">
@@ -644,6 +609,7 @@
                     <button class="overlay-style-btn theme-btn" data-style="full-rounded" style="font-size:11px;padding:4px 10px">Full ◉</button>
                     <button class="overlay-style-btn theme-btn" data-style="compact-rounded" style="font-size:11px;padding:4px 10px">Compact ◉</button>
                     <button class="overlay-style-btn theme-btn" data-style="lower-third" style="font-size:11px;padding:4px 10px">Lower ↓</button>
+                    <button class="overlay-style-btn theme-btn" data-style="pro" style="font-size:11px;padding:4px 10px">Fragmenté ◈</button>
                   </div>
                   <div style="display:flex;gap:6px">
                     <button class="score-display-btn theme-btn active" data-display="numbers" style="font-size:11px;padding:4px 10px;flex:1">123</button>
@@ -3196,7 +3162,7 @@
     </section>
 
     <!-- ── Tuto Stream Deck ────────────────────────────────────── -->
-    <section class="section">
+    <section class="section" style="display:none">
       <div class="section-header"><h2>Stream Deck</h2></div>
       <div class="custom-card" style="padding:18px 20px">
 
@@ -3279,29 +3245,6 @@
           </div>
         </div>
 
-        <!-- Badge différence SD vs Companion -->
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px">
-          <div style="background:rgba(232,184,48,0.07);border:1px solid rgba(232,184,48,0.25);border-radius:8px;padding:12px 14px">
-            <div style="font-size:12px;font-weight:700;color:#E8B830;margin-bottom:6px">🎮 Stream Deck (natif)</div>
-            <ul style="font-size:11px;color:#888;line-height:1.8;list-style:none;padding:0">
-              <li>✔ Aucun logiciel tiers</li>
-              <li>✔ Action <strong style="color:#aaa">Website</strong> intégrée</li>
-              <li>✔ Simple, rapide à configurer</li>
-              <li>✘ Pas de retour visuel (LED)</li>
-              <li>✘ Pas de toggle automatique</li>
-            </ul>
-          </div>
-          <div style="background:rgba(107,201,108,0.07);border:1px solid rgba(107,201,108,0.25);border-radius:8px;padding:12px 14px">
-            <div style="font-size:12px;font-weight:700;color:#6BC96C;margin-bottom:6px">🕹️ Bitfocus Companion</div>
-            <ul style="font-size:11px;color:#888;line-height:1.8;list-style:none;padding:0">
-              <li>✔ Compatible tous contrôleurs</li>
-              <li>✔ Pages préconfigurées (64 boutons)</li>
-              <li>✔ Actions GET <em>et</em> POST (scènes)</li>
-              <li>✔ Facilement personnalisable</li>
-              <li>✘ Nécessite Companion installé</li>
-            </ul>
-          </div>
-        </div>
 
         <!-- Étape unique -->
         <div style="font-size:11px;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">Configuration en 1 étape</div>
@@ -3333,69 +3276,6 @@
 
         </div>
 
-        <!-- Mise en page des boutons -->
-        <div style="background:#0E0E12;border:1px solid #2a2a3a;border-radius:8px;padding:14px;margin-bottom:14px">
-          <div style="font-size:11px;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px">Page 1 — PSO Live (4 × 8 = 32 boutons)</div>
-          <div style="display:grid;grid-template-columns:repeat(8,1fr);gap:3px;font-family:monospace;font-size:9px;text-align:center">
-            <div style="background:#AA0000;color:#fff;border-radius:3px;padding:4px 2px;line-height:1.3">+1<br>J1</div>
-            <div style="background:#660000;color:#fff;border-radius:3px;padding:4px 2px;line-height:1.3">-1<br>J1</div>
-            <div style="background:#806200;color:#fff;border-radius:3px;padding:4px 2px;line-height:1.3">RESET<br>0/0</div>
-            <div style="background:#000066;color:#fff;border-radius:3px;padding:4px 2px;line-height:1.3">-1<br>J2</div>
-            <div style="background:#0000AA;color:#fff;border-radius:3px;padding:4px 2px;line-height:1.3">+1<br>J2</div>
-            <div style="background:#1E1E2E;color:#aaa;border-radius:3px;padding:4px 2px;line-height:1.3;border:1px solid #2a2a3a">Chat<br>Comb.</div>
-            <div style="background:#1E1E2E;color:#aaa;border-radius:3px;padding:4px 2px;line-height:1.3;border:1px solid #2a2a3a">Chat<br>YT</div>
-            <div style="background:#1E1E2E;color:#aaa;border-radius:3px;padding:4px 2px;line-height:1.3;border:1px solid #2a2a3a">TW<br>View</div>
-            <div style="background:#003300;color:#6BC96C;border-radius:3px;padding:4px 2px;line-height:1.3">Sc.<br>1</div>
-            <div style="background:#003300;color:#6BC96C;border-radius:3px;padding:4px 2px;line-height:1.3">Sc.<br>2</div>
-            <div style="background:#003300;color:#6BC96C;border-radius:3px;padding:4px 2px;line-height:1.3">Sc.<br>3</div>
-            <div style="background:#003300;color:#6BC96C;border-radius:3px;padding:4px 2px;line-height:1.3">Sc.<br>4</div>
-            <div style="background:#003300;color:#6BC96C;border-radius:3px;padding:4px 2px;line-height:1.3">Sc.<br>5</div>
-            <div style="background:#003300;color:#6BC96C;border-radius:3px;padding:4px 2px;line-height:1.3">Sc.<br>6</div>
-            <div style="background:#003300;color:#6BC96C;border-radius:3px;padding:4px 2px;line-height:1.3">Sc.<br>7</div>
-            <div style="background:#003300;color:#6BC96C;border-radius:3px;padding:4px 2px;line-height:1.3">Sc.<br>8</div>
-            <div style="background:#1E1E2E;color:#aaa;border-radius:3px;padding:4px 2px;line-height:1.3;border:1px solid #2a2a3a">SB ↕</div>
-            <div style="background:#1E1E2E;color:#aaa;border-radius:3px;padding:4px 2px;line-height:1.3;border:1px solid #2a2a3a">Slim ↕</div>
-            <div style="background:#1E1E2E;color:#aaa;border-radius:3px;padding:4px 2px;line-height:1.3;border:1px solid #2a2a3a">Cam ↕</div>
-            <div style="background:#1E1E2E;color:#aaa;border-radius:3px;padding:4px 2px;line-height:1.3;border:1px solid #2a2a3a">Tick. ↕</div>
-            <div style="background:#1E1E2E;color:#aaa;border-radius:3px;padding:4px 2px;line-height:1.3;border:1px solid #2a2a3a">Frames ↕</div>
-            <div style="background:#1E1E2E;color:#aaa;border-radius:3px;padding:4px 2px;line-height:1.3;border:1px solid #2a2a3a">Titre ↕</div>
-            <div style="background:#1E1E2E;color:#aaa;border-radius:3px;padding:4px 2px;line-height:1.3;border:1px solid #2a2a3a">Cast. ↕</div>
-            <div style="background:#1E1E2E;color:#aaa;border-radius:3px;padding:4px 2px;line-height:1.3;border:1px solid #2a2a3a">Veto ↕</div>
-            <div style="background:#1E1E2E;color:#aaa;border-radius:3px;padding:4px 2px;line-height:1.3;border:1px solid #2a2a3a">H2H ↕</div>
-            <div style="background:#1E1E2E;color:#aaa;border-radius:3px;padding:4px 2px;line-height:1.3;border:1px solid #2a2a3a">Stats ↕</div>
-            <div style="background:#1E1E2E;color:#aaa;border-radius:3px;padding:4px 2px;line-height:1.3;border:1px solid #2a2a3a">Timer ↕</div>
-            <div style="background:#1E1E2E;color:#aaa;border-radius:3px;padding:4px 2px;line-height:1.3;border:1px solid #2a2a3a">Histo. ↕</div>
-            <div style="background:#1E1E2E;color:#aaa;border-radius:3px;padding:4px 2px;line-height:1.3;border:1px solid #2a2a3a">Brack. ↕</div>
-            <div style="background:#1E1E2E;color:#aaa;border-radius:3px;padding:4px 2px;line-height:1.3;border:1px solid #2a2a3a">Top8 ↕</div>
-            <div style="background:#1E1E2E;color:#aaa;border-radius:3px;padding:4px 2px;line-height:1.3;border:1px solid #2a2a3a">TW Lay. ↕</div>
-            <div style="background:#1E1E2E;color:#aaa;border-radius:3px;padding:4px 2px;line-height:1.3;border:1px solid #2a2a3a">TW Chat ↕</div>
-            <div style="background:#334466;color:#88aaff;border-radius:3px;padding:4px 2px;line-height:1.3;border:1px solid #446699">VS ▶</div>
-            <div style="background:#334466;color:#88aaff;border-radius:3px;padding:4px 2px;line-height:1.3;border:1px solid #446699">VS ■</div>
-          </div>
-          <div style="display:flex;gap:14px;margin-top:10px;flex-wrap:wrap">
-            <span style="font-size:10px;color:#666;display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:2px;background:#AA0000;display:inline-block"></span> Scores J1</span>
-            <span style="font-size:10px;color:#666;display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:2px;background:#0000AA;display:inline-block"></span> Scores J2</span>
-            <span style="font-size:10px;color:#666;display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:2px;background:#806200;display:inline-block"></span> Reset</span>
-            <span style="font-size:10px;color:#666;display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:2px;background:#003300;display:inline-block"></span> Scènes Studio (POST)</span>
-            <span style="font-size:10px;color:#666;display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:2px;background:#1E1E2E;border:1px solid #2a2a3a;display:inline-block"></span> Overlays toggle (GET)</span>
-            <span style="font-size:10px;color:#666;display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:2px;background:#334466;border:1px solid #446699;display:inline-block"></span> VS Screen (déclencher / masquer)</span>
-          </div>
-        </div>
-
-        <!-- Page 2 résumé -->
-        <div style="background:#0E0E12;border:1px solid #2a2a3a;border-radius:8px;padding:14px;margin-bottom:14px">
-          <div style="font-size:11px;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Page 2 — PSO Show/Hide (4 × 8 = 32 boutons)</div>
-          <div style="display:flex;gap:10px">
-            <div style="flex:1;background:#003300;border-radius:6px;padding:10px 12px">
-              <div style="font-size:11px;font-weight:700;color:#6BC96C;margin-bottom:4px">▶ Lignes 0-1 — AFFICHER</div>
-              <div style="font-size:11px;color:#888">Scoreboard · Cam · Ticker · Frames · Titre · Casters · Veto · Timer · H2H · Stats · Bracket · Top 8 · TW Chat · TW Viewer · YT Chat · Chat Combiné · <strong style="color:#88aaff">VS Screen ▶</strong></div>
-            </div>
-            <div style="flex:1;background:#330000;border-radius:6px;padding:10px 12px">
-              <div style="font-size:11px;font-weight:700;color:#E05252;margin-bottom:4px">■ Lignes 2-3 — MASQUER</div>
-              <div style="font-size:11px;color:#888">Mêmes overlays + <strong style="color:#88aaff">VS Screen ■</strong> — pour forcer la disparition sans toggle.</div>
-            </div>
-          </div>
-        </div>
 
         <!-- Téléchargements -->
         <div style="font-size:11px;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">Fichier à télécharger</div>
@@ -4742,6 +4622,77 @@
       </div><!-- /accordion-avsync -->
 
     </section>
+
+    <!-- ══════════════════════════════════════════════════════════ -->
+    <!--  STINGER                                                   -->
+    <!-- ══════════════════════════════════════════════════════════ -->
+    <section class="section">
+
+      <!-- Tuto OBS -->
+      <div style="background:linear-gradient(135deg,rgba(99,102,241,.12),rgba(139,92,246,.08));border:1px solid rgba(99,102,241,.35);border-radius:10px;padding:14px 18px;margin-bottom:18px;display:flex;gap:14px;align-items:flex-start">
+        <span style="font-size:22px;flex-shrink:0;margin-top:1px">🎬</span>
+        <div style="font-size:13px;line-height:1.7;color:var(--text-muted)">
+          <strong style="color:var(--text);display:block;margin-bottom:4px">Comment appliquer un stinger dans OBS</strong>
+          <ol style="padding-left:18px;margin:0;display:flex;flex-direction:column;gap:3px">
+            <li>Dans OBS, allez dans <strong>Paramètres → Transitions</strong> et choisissez <strong>Transition Stinger</strong>.</li>
+            <li>Pour la <strong>Source vidéo</strong>, sélectionnez <strong>Source navigateur</strong> et entrez l'URL du stinger (ex. <code style="background:rgba(255,255,255,.07);padding:1px 5px;border-radius:4px">http://localhost:3002/stinger-tranches</code>).</li>
+            <li>Réglez le <strong>Point de transition</strong> à <strong>55&nbsp;%</strong> (type : Temps, valeur : ~&nbsp;1050&nbsp;ms pour 1,9&nbsp;s).</li>
+            <li>Cochez <strong>Rafraîchir le navigateur lors de l'activation</strong> pour que l'animation redémarre à chaque transition.</li>
+            <li>Appliquez la transition entre deux scènes — le stinger couvre l'écran, OBS coupe en milieu d'animation, puis il disparaît sur la nouvelle scène.</li>
+          </ol>
+        </div>
+      </div>
+
+      <div class="section-header"><h2>Stinger Overlay</h2></div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+
+        <!-- Logo -->
+        <div class="custom-card">
+          <h3 style="margin-bottom:14px">Logo</h3>
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+            <div style="width:80px;height:45px;border:1px solid var(--border);border-radius:6px;flex-shrink:0;background-color:var(--surface2);overflow:hidden;position:relative;display:flex;align-items:center;justify-content:center">
+              <span id="stinger-logo-thumb-empty" style="font-size:10px;color:var(--text-muted)">Aucun</span>
+              <img id="stinger-logo-thumb" src="" alt="" style="display:none;width:100%;height:100%;object-fit:contain;position:absolute;inset:0" />
+            </div>
+            <div style="display:flex;flex-direction:column;gap:6px">
+              <label class="btn btn-outline btn-sm" style="cursor:pointer">
+                📁 Choisir
+                <input type="file" id="stinger-logo-file" accept="image/png,image/jpeg,image/webp" style="display:none" />
+              </label>
+              <button type="button" id="btn-stinger-logo-clear" class="btn btn-outline btn-sm" style="color:var(--danger);border-color:var(--danger)">✕ Supprimer</button>
+            </div>
+          </div>
+          <p id="stinger-logo-status" class="hint" style="text-align:center;min-height:18px;font-size:11px"></p>
+        </div>
+
+        <!-- Background -->
+        <div class="custom-card">
+          <h3 style="margin-bottom:14px">Background</h3>
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+            <div style="width:80px;height:45px;border:1px solid var(--border);border-radius:6px;flex-shrink:0;background-color:var(--surface2);overflow:hidden;position:relative;display:flex;align-items:center;justify-content:center">
+              <span id="stinger-bg-thumb-empty" style="font-size:10px;color:var(--text-muted)">Aucune</span>
+              <img id="stinger-bg-thumb" src="" alt="" style="display:none;width:100%;height:100%;object-fit:cover;position:absolute;inset:0" />
+            </div>
+            <div style="display:flex;flex-direction:column;gap:6px">
+              <label class="btn btn-outline btn-sm" style="cursor:pointer">
+                📁 Choisir
+                <input type="file" id="stinger-bg-file" accept="image/png,image/jpeg,image/webp" style="display:none" />
+              </label>
+              <button type="button" id="btn-stinger-bg-clear" class="btn btn-outline btn-sm" style="color:var(--danger);border-color:var(--danger)">✕ Supprimer</button>
+            </div>
+          </div>
+          <p id="stinger-bg-status" class="hint" style="text-align:center;min-height:18px;font-size:11px"></p>
+        </div>
+
+      </div>
+
+      <!-- Stingers -->
+      <div class="section-header"><h2>Stingers</h2></div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px" id="stingers-grid"></div>
+
+    </section>
+
   </div><!-- /tab-overlays -->
 
   <!-- ═══════════════════════════════════════════════════════════ -->
@@ -5550,6 +5501,37 @@
   <div class="tab-content" id="tab-notes">
     <div class="notes-panel">
 
+      <!-- Tuto Notes -->
+      <div style="background:linear-gradient(135deg,rgba(232,184,48,.08),rgba(232,184,48,.03));border:1px solid rgba(232,184,48,.25);border-radius:10px;padding:14px 18px;margin-bottom:16px;display:flex;gap:14px;align-items:flex-start">
+        <span style="font-size:22px;flex-shrink:0;margin-top:1px">📋</span>
+        <div style="font-size:12px;line-height:1.7;color:var(--text-muted)">
+          <strong style="color:var(--text);display:block;margin-bottom:6px">Système de notes en temps réel</strong>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+            <div>
+              <div style="font-size:11px;font-weight:700;color:var(--gold);margin-bottom:4px;text-transform:uppercase;letter-spacing:.08em">Côté régie (ici)</div>
+              <ol style="padding-left:16px;margin:0;display:flex;flex-direction:column;gap:2px;font-size:11px">
+                <li>Saisir ton <strong style="color:var(--text)">nom</strong> dans le champ auteur</li>
+                <li>Choisir un <strong style="color:var(--text)">type</strong> : Info · Attention · Urgent</li>
+                <li>Écrire le message et appuyer sur <strong style="color:var(--text)">Envoyer</strong> ou <kbd style="background:var(--surface2);border:1px solid var(--border);border-radius:3px;padding:1px 5px;font-size:10px">Ctrl+Entrée</kbd></li>
+              </ol>
+            </div>
+            <div>
+              <div style="font-size:11px;font-weight:700;color:#A0C4D8;margin-bottom:4px;text-transform:uppercase;letter-spacing:.08em">Côté casteurs</div>
+              <ol style="padding-left:16px;margin:0;display:flex;flex-direction:column;gap:2px;font-size:11px">
+                <li>Ouvrir la <strong style="color:var(--text)">page casteurs</strong> via le bouton 🔗 ci-dessous</li>
+                <li>Les notes apparaissent <strong style="color:var(--text)">instantanément</strong> sans reload</li>
+                <li>Chaque note s'affiche avec <strong style="color:var(--text)">auteur, heure et type</strong></li>
+              </ol>
+            </div>
+          </div>
+          <div style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,.06);font-size:11px;display:flex;gap:16px">
+            <span><span style="color:#A0C4D8">ℹ Info</span> — information générale</span>
+            <span><span style="color:#E8B830">⚠ Attention</span> — message à surveiller</span>
+            <span><span style="color:#e05252">🔴 Urgent</span> — action immédiate requise</span>
+          </div>
+        </div>
+      </div>
+
       <!-- Rédaction -->
       <div class="notes-compose-bar">
         <div class="notes-meta-row">
@@ -5579,82 +5561,11 @@
     </div>
   </div><!-- /tab-notes -->
 
-  <!-- ══════════════════════════════════════════════════════════ -->
-  <!--  BONUS                                                     -->
-  <!-- ══════════════════════════════════════════════════════════ -->
-  <div class="tab-content" id="tab-stinger">
-    <section class="section">
-
-      <!-- Tuto OBS -->
-      <div style="background:linear-gradient(135deg,rgba(99,102,241,.12),rgba(139,92,246,.08));border:1px solid rgba(99,102,241,.35);border-radius:10px;padding:14px 18px;margin-bottom:18px;display:flex;gap:14px;align-items:flex-start">
-        <span style="font-size:22px;flex-shrink:0;margin-top:1px">🎬</span>
-        <div style="font-size:13px;line-height:1.7;color:var(--text-muted)">
-          <strong style="color:var(--text);display:block;margin-bottom:4px">Comment appliquer un stinger dans OBS</strong>
-          <ol style="padding-left:18px;margin:0;display:flex;flex-direction:column;gap:3px">
-            <li>Dans OBS, allez dans <strong>Paramètres → Transitions</strong> et choisissez <strong>Transition Stinger</strong>.</li>
-            <li>Pour la <strong>Source vidéo</strong>, sélectionnez <strong>Source navigateur</strong> et entrez l'URL du stinger (ex. <code style="background:rgba(255,255,255,.07);padding:1px 5px;border-radius:4px">http://localhost:3002/stinger-tranches</code>).</li>
-            <li>Réglez le <strong>Point de transition</strong> à <strong>55&nbsp;%</strong> (type : Temps, valeur : ~&nbsp;1050&nbsp;ms pour 1,9&nbsp;s).</li>
-            <li>Cochez <strong>Rafraîchir le navigateur lors de l'activation</strong> pour que l'animation redémarre à chaque transition.</li>
-            <li>Appliquez la transition entre deux scènes — le stinger couvre l'écran, OBS coupe en milieu d'animation, puis il disparaît sur la nouvelle scène.</li>
-          </ol>
-        </div>
-      </div>
-
-      <div class="section-header"><h2>Stinger Overlay</h2></div>
-
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
-
-        <!-- Logo -->
-        <div class="custom-card">
-          <h3 style="margin-bottom:14px">Logo</h3>
-          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
-            <div style="width:80px;height:45px;border:1px solid var(--border);border-radius:6px;flex-shrink:0;background-color:var(--surface2);overflow:hidden;position:relative;display:flex;align-items:center;justify-content:center">
-              <span id="stinger-logo-thumb-empty" style="font-size:10px;color:var(--text-muted)">Aucun</span>
-              <img id="stinger-logo-thumb" src="" alt="" style="display:none;width:100%;height:100%;object-fit:contain;position:absolute;inset:0" />
-            </div>
-            <div style="display:flex;flex-direction:column;gap:6px">
-              <label class="btn btn-outline btn-sm" style="cursor:pointer">
-                📁 Choisir
-                <input type="file" id="stinger-logo-file" accept="image/png,image/jpeg,image/webp" style="display:none" />
-              </label>
-              <button type="button" id="btn-stinger-logo-clear" class="btn btn-outline btn-sm" style="color:var(--danger);border-color:var(--danger)">✕ Supprimer</button>
-            </div>
-          </div>
-          <p id="stinger-logo-status" class="hint" style="text-align:center;min-height:18px;font-size:11px"></p>
-        </div>
-
-        <!-- Background -->
-        <div class="custom-card">
-          <h3 style="margin-bottom:14px">Background</h3>
-          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
-            <div style="width:80px;height:45px;border:1px solid var(--border);border-radius:6px;flex-shrink:0;background-color:var(--surface2);overflow:hidden;position:relative;display:flex;align-items:center;justify-content:center">
-              <span id="stinger-bg-thumb-empty" style="font-size:10px;color:var(--text-muted)">Aucune</span>
-              <img id="stinger-bg-thumb" src="" alt="" style="display:none;width:100%;height:100%;object-fit:cover;position:absolute;inset:0" />
-            </div>
-            <div style="display:flex;flex-direction:column;gap:6px">
-              <label class="btn btn-outline btn-sm" style="cursor:pointer">
-                📁 Choisir
-                <input type="file" id="stinger-bg-file" accept="image/png,image/jpeg,image/webp" style="display:none" />
-              </label>
-              <button type="button" id="btn-stinger-bg-clear" class="btn btn-outline btn-sm" style="color:var(--danger);border-color:var(--danger)">✕ Supprimer</button>
-            </div>
-          </div>
-          <p id="stinger-bg-status" class="hint" style="text-align:center;min-height:18px;font-size:11px"></p>
-        </div>
-
-      </div>
-
-      <!-- Stingers -->
-      <div class="section-header"><h2>Stingers</h2></div>
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px" id="stingers-grid"></div>
-
-    </section>
-  </div><!-- /tab-stinger -->
-
 
   <footer class="footer">
     <div id="status-msg" class="status-msg">Prêt</div>
     <div class="footer-right">
+      <button id="btn-server-reload" class="btn btn-outline" title="Redémarre le serveur Node.js" style="font-size:10px;padding:3px 8px;border-color:#e05;color:#e05;height:24px;line-height:1;margin-right:10px">↺ Serveur</button>
       Overlay : <span id="overlay-status">Visible</span>
       &nbsp;·&nbsp;
       <span class="shortcut-hint">Raccourcis : <kbd>1</kbd> <kbd>2</kbd> score, <kbd>R</kbd> reset, <kbd>V</kbd> visibilité</span>
@@ -5842,7 +5753,7 @@
   var firstCard = document.querySelector('#stingers-grid .custom-card');
   if (firstCard) new ResizeObserver(scaleAll).observe(firstCard);
 
-  var tabBtn = document.querySelector('.tab-btn[data-tab="stinger"]');
+  var tabBtn = document.querySelector('.tab-btn[data-tab="overlays"]');
   if (tabBtn) tabBtn.addEventListener('click', function () { requestAnimationFrame(scaleAll); });
 
   setTimeout(scaleAll, 200);

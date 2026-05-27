@@ -40,7 +40,8 @@
           <div class="player-info">
             <div class="player-name" id="p1-name">PLAYER 1</div>
           </div>
-          <img id="p1-flag-img" class="player-flag player-flag-left" src="" alt="" style="display:none" />
+          <img id="p1-flag-img"  class="player-flag player-flag-left"  src="" alt="" style="display:none" />
+          <img id="p1-flag2-img" class="player-flag2 player-flag2-left" src="" alt="" style="display:none" />
         </div>
         <div class="score-center">
           <div class="score-box">
@@ -66,7 +67,8 @@
             <div class="char-placeholder" id="p2-char-placeholder">?</div>
             <img id="p2-char-img" alt="" style="display:none" />
           </div>
-          <img id="p2-flag-img" class="player-flag player-flag-right" src="" alt="" style="display:none" />
+          <img id="p2-flag-img"  class="player-flag player-flag-right"  src="" alt="" style="display:none" />
+          <img id="p2-flag2-img" class="player-flag2 player-flag2-right" src="" alt="" style="display:none" />
         </div>
       </div>
     </div>
@@ -94,6 +96,67 @@
         </div>
       </div>
     </div>
+
+    <!-- Layout Pro (style tournoi) -->
+    <div class="pro-layout">
+
+      <!-- Round info (absolu, haut gauche) -->
+      <div class="pro-round">
+        <div class="pro-round-type" id="pro-round-type">TOURNOI</div>
+        <div class="pro-round-name" id="pro-round-name">GRAND FINAL</div>
+      </div>
+
+      <!-- Scoreboard (centré) -->
+      <div class="pro-sb">
+
+        <!-- Joueur 1 -->
+        <div class="pro-side pro-p1-side" id="pro-p1-block">
+          <div class="pro-char-sm">
+            <div class="pro-char-ph" id="pro-p1-char-ph">?</div>
+            <img id="pro-p1-char-img" src="" alt="" style="display:none" />
+          </div>
+          <div class="pro-names">
+            <span class="pro-ptag" id="pro-p1-tag-el"></span>
+            <span class="pro-pname" id="pro-p1-name-el">PLAYER 1</span>
+          </div>
+          <div class="pro-score-circ pro-p1-circ">
+            <span id="pro-p1-score-el">0</span>
+          </div>
+        </div>
+
+        <!-- Centre logo -->
+        <div class="pro-sb-center">
+          <div class="pro-logo-wrap">
+            <img id="pro-logo-img" src="" alt="" style="display:none" />
+            <span id="pro-logo-vs">VS</span>
+          </div>
+        </div>
+
+        <!-- Joueur 2 -->
+        <div class="pro-side pro-p2-side" id="pro-p2-block">
+          <div class="pro-char-sm">
+            <div class="pro-char-ph" id="pro-p2-char-ph">?</div>
+            <img id="pro-p2-char-img" src="" alt="" style="display:none" />
+          </div>
+          <div class="pro-names pro-names-r">
+            <span class="pro-ptag" id="pro-p2-tag-el"></span>
+            <span class="pro-pname" id="pro-p2-name-el">PLAYER 2</span>
+          </div>
+          <div class="pro-score-circ pro-p2-circ">
+            <span id="pro-p2-score-el">0</span>
+          </div>
+        </div>
+
+      </div><!-- /pro-sb -->
+
+      <!-- Bande info (centrée, même largeur que pro-sb) -->
+      <div class="pro-infobar">
+        <div class="pro-chips pro-chips-l" id="pro-chips-p1"></div>
+        <div class="pro-chips-gap"></div>
+        <div class="pro-chips pro-chips-r" id="pro-chips-p2"></div>
+      </div>
+
+    </div><!-- /pro-layout -->
 
   </div>
 

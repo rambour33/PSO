@@ -3309,7 +3309,7 @@ const TRANSITION_IDS = [
   'ticker', 'cam', 'frames', 'stream-title', 'h2h', 'player-stats',
   'tournament-history', 'bracket', 'top8', 'timer', 'nextmatch', 'upcoming',
   'twitch-chat', 'twitch-viewer', 'youtube-chat', 'combined-chat',
-  'victory', 'vs-screen',
+  'victory', 'vs-screen', 'stinger',
 ];
 
 function defaultTransition() {

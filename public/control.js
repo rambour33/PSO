@@ -129,8 +129,10 @@ function syncFromState(s) {
 
   // Flag restore
   if (window.flagPickerRestore) {
-    window.flagPickerRestore(1, s.player1.flag || '');
-    window.flagPickerRestore(2, s.player2.flag || '');
+    window.flagPickerRestore(1, s.player1.flag  || '');
+    window.flagPickerRestore(2, s.player2.flag  || '');
+    window.flagPickerRestore(1, s.player1.flag2 || '', 'flag2');
+    window.flagPickerRestore(2, s.player2.flag2 || '', 'flag2');
   }
   // Flag size restore
   const fs = s.flagSize ?? 52;
@@ -294,7 +296,8 @@ function buildStateFromForm() {
       pronouns:   document.getElementById('p1-pronouns').value.trim(),
       color:      document.getElementById('p1-color').value,
       stockColor: state.player1.stockColor ?? 0,
-      flag:        document.getElementById('p1-flag')?.value || '',
+      flag:        document.getElementById('p1-flag')?.value  || '',
+      flag2:       document.getElementById('p1-flag2')?.value || '',
       flagOffsetX: parseInt(document.getElementById('p1-flag-x-num')?.value ?? 0),
       flagOffsetY: parseInt(document.getElementById('p1-flag-y-num')?.value ?? 0),
       seeding:    document.getElementById('p1-seed')?.value.trim() ? parseInt(document.getElementById('p1-seed').value) : null,
@@ -311,7 +314,8 @@ function buildStateFromForm() {
       pronouns:   document.getElementById('p2-pronouns').value.trim(),
       color:      document.getElementById('p2-color').value,
       stockColor: state.player2.stockColor ?? 0,
-      flag:        document.getElementById('p2-flag')?.value || '',
+      flag:        document.getElementById('p2-flag')?.value  || '',
+      flag2:       document.getElementById('p2-flag2')?.value || '',
       flagOffsetX: parseInt(document.getElementById('p2-flag-x-num')?.value ?? 0),
       flagOffsetY: parseInt(document.getElementById('p2-flag-y-num')?.value ?? 0),
       seeding:    document.getElementById('p2-seed')?.value.trim() ? parseInt(document.getElementById('p2-seed').value) : null,
@@ -633,6 +637,7 @@ document.getElementById('btn-swap').addEventListener('click', () => {
   swapVal('p1-seed',      'p2-seed');
   swapVal('p1-color',     'p2-color');
   swapVal('p1-flag',      'p2-flag');
+  swapVal('p1-flag2',     'p2-flag2');
   swapVal('p1-flag-x-num','p2-flag-x-num');
   swapVal('p1-flag-y-num','p2-flag-y-num');
   swapVal('p1-flag-x',    'p2-flag-x');
@@ -644,7 +649,13 @@ document.getElementById('btn-swap').addEventListener('click', () => {
   state.player1 = state.player2;
   state.player2 = tmp;
 
-  // ── Mise à jour des previews personnage et stock colors ──
+  // ── Mise à jour des previews drapeaux, personnage et stock colors ──
+  if (window.flagPickerRestore) {
+    window.flagPickerRestore(1, document.getElementById('p1-flag')?.value  || '');
+    window.flagPickerRestore(2, document.getElementById('p2-flag')?.value  || '');
+    window.flagPickerRestore(1, document.getElementById('p1-flag2')?.value || '', 'flag2');
+    window.flagPickerRestore(2, document.getElementById('p2-flag2')?.value || '', 'flag2');
+  }
   updateCharPreview(1, state.player1.character);
   updateCharPreview(2, state.player2.character);
   updateStockColorBtns(1, state.player1.character?.name || null);
@@ -706,15 +717,15 @@ document.getElementById('btn-visibility')?.addEventListener('click', () => {
   setStatus(`Overlay ${ns.visible ? 'affiché' : 'masqué'}`);
 });
 
-document.getElementById('btn-server-reload').addEventListener('click', () => {
+
+document.getElementById('btn-server-reload')?.addEventListener('click', () => {
   const btn = document.getElementById('btn-server-reload');
   if (!confirm('Redémarrer le serveur PSO ?\nLes overlays se reconnecteront automatiquement.')) return;
   btn.disabled = true;
-  btn.textContent = '↺ Redémarrage…';
+  btn.textContent = '↺…';
   fetch('/api/server/reload', { method: 'POST' })
     .then(() => {
       setStatus('Serveur en cours de redémarrage…');
-      // Attendre reconnexion socket
       const check = setInterval(() => {
         if (socket.connected) {
           clearInterval(check);
@@ -725,7 +736,6 @@ document.getElementById('btn-server-reload').addEventListener('click', () => {
       }, 500);
     })
     .catch(() => {
-      // Normal : le serveur coupe avant de répondre
       setStatus('Serveur en cours de redémarrage…');
       btn.disabled = false;
       btn.textContent = '↺ Serveur';
@@ -9476,6 +9486,7 @@ document.querySelectorAll('.conn-copy-btn').forEach(btn => {
     { id: 'twitch-viewer',       label: 'Viewers Twitch'     },
     { id: 'youtube-chat',        label: 'Chat YouTube'       },
     { id: 'combined-chat',       label: 'Chat Combiné'       },
+    { id: 'stinger',             label: 'Stinger'            },
   ];
 
   const ANIM_TYPES = [
