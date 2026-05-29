@@ -349,7 +349,7 @@ function renderDots(containerId, score, totalGames, color) {
   for (let i = 0; i < winsNeeded; i++) {
     const dot = document.createElement('div');
     dot.className = 'win-dot' + (i < score ? ' filled' : '');
-    dot.style.setProperty('--dot-color', color);
+    if (color) dot.style.setProperty('--dot-color', color);
     el.appendChild(dot);
   }
 }
@@ -450,6 +450,11 @@ function update(s) {
     sb.classList.toggle('score-display-' + d, _scoreDisplay === d);
   });
   sb.classList.toggle('event-bar-bottom', s.eventBarPosition === 'bottom');
+
+  // Mode titre : 'bandeau' (défaut non-pro) ou 'independant' (défaut pro)
+  const _titleMode = s.titleMode || (_style === 'pro' ? 'independant' : 'bandeau');
+  sb.classList.toggle('pro-bandeau', _style === 'pro' && _titleMode === 'bandeau');
+  document.body.classList.toggle('sb-ind-mode', _titleMode === 'independant' && _style !== 'pro');
 
   // Theme class
   ['default', 'cyberpunk', 'synthwave', 'midnight', 'egypt', 'city', 'eco', 'water', 'fire',
@@ -570,6 +575,11 @@ function update(s) {
   sb.style.setProperty('--tag-color', s.tagColor || '#E8B830');
   sb.style.setProperty('--name-color', s.nameColor || '#F0EEF8');
   sb.style.setProperty('--pronouns-color', s.pronounsColor || '#5A5A7A');
+  // Mirror vers :root pour sb-ind-title (hors du scoreboard, pas d'héritage CSS)
+  const _root = document.documentElement;
+  _root.style.setProperty('--sb-bg',    sb.style.getPropertyValue('--sb-bg'));
+  _root.style.setProperty('--tag-color', s.tagColor || '#E8B830');
+  _root.style.setProperty('--name-color', s.nameColor || '#F0EEF8');
 
   // Colors — full layout
   const c1 = s.hidePlayerColors ? 'transparent' : s.player1.color;
@@ -591,6 +601,13 @@ function update(s) {
   document.getElementById('event-name').textContent = s.event;
   document.getElementById('event-stage').textContent = s.stage;
   document.getElementById('format-info').textContent = s.format === 'custom' ? `First to ${s.customWins}` : s.format;
+
+  // Titre indépendant — contenu
+  const _indFmt = s.format === 'custom' ? `First to ${s.customWins}` : s.format;
+  const _sittType = document.getElementById('sb-ind-title-type');
+  const _sittName = document.getElementById('sb-ind-title-name');
+  if (_sittType) _sittType.textContent = ((s.event || 'TOURNOI') + '  ·  ' + _indFmt).toUpperCase();
+  if (_sittName) _sittName.textContent = (s.stage || 'GRAND FINAL').toUpperCase();
 
   // Current stage
   const stageSep = document.getElementById('current-stage-sep');
@@ -778,10 +795,12 @@ function update(s) {
   const max = getFormatMax(s.format, s.customWins);
   const dotsOrientation = s.dotsOrientation || 'row';
   sb.classList.toggle('dots-column', dotsOrientation === 'column');
-  renderDots('p1-dots',     s.player1.score, max, c1);
-  renderDots('p2-dots',     s.player2.score, max, c2);
-  renderDots('p1-dots-col', s.player1.score, max, c1);
-  renderDots('p2-dots-col', s.player2.score, max, c2);
+  const dotC1 = s.hidePlayerColors ? '' : s.player1.color;
+  const dotC2 = s.hidePlayerColors ? '' : s.player2.color;
+  renderDots('p1-dots',     s.player1.score, max, dotC1);
+  renderDots('p2-dots',     s.player2.score, max, dotC2);
+  renderDots('p1-dots-col', s.player1.score, max, dotC1);
+  renderDots('p2-dots-col', s.player2.score, max, dotC2);
 
   // ── Lower-third layout ───────────────────────────────────────
   const ltEl = document.getElementById('lt-layout');

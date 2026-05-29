@@ -3978,10 +3978,14 @@ body {
   clip-path: inset(20px 500px 990px 500px round 6px);
 }
 
-/* Masquer les autres layouts et la barre event en style-pro */
+/* Masquer les autres layouts en style-pro */
 .style-pro .full-layout,
-.style-pro .slim-layout,
-.style-pro .event-bar { display: none; }
+.style-pro .slim-layout { display: none; }
+/* Event-bar cachée en style-pro sauf si bandeau explicitement choisi */
+.style-pro:not(.pro-bandeau) .event-bar { display: none; }
+/* Style-pro + bandeau : masquer uniquement le bloc titre, garder le scoreboard fragmenté */
+.style-pro.pro-bandeau .pro-round { display: none !important; }
+.style-pro.pro-bandeau .event-bar { display: flex !important; }
 
 /* ── Round info : absolu, haut gauche ─────────────────────────────────────── */
 .pro-round {
@@ -4281,3 +4285,52 @@ body {
 .style-pro.theme-pan        .pro-round::after { background: #FF218C; }
 .style-pro.theme-bi         .pro-round::after { background: #9B59D0; }
 .style-pro.theme-lesbian    .pro-round::after { background: #FF4500; }
+
+/* ── Titre indépendant (tous styles) ──────────────────────────────────────── */
+.sb-ind-title {
+  display: none;
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  z-index: 200;
+  width: 300px;
+  height: 70px;
+  background: var(--sb-bg, rgba(10,10,14,0.94));
+  border-radius: 6px;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 0 16px;
+  gap: 3px;
+  border: 1px solid rgba(255,255,255,0.06);
+  overflow: hidden;
+  font-family: 'Russo One', sans-serif;
+}
+.sb-ind-title::after {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: var(--tag-color, #E8B830);
+  opacity: 0.8;
+}
+.sb-ind-title-type {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--tag-color, #E8B830);
+  opacity: 0.75;
+  line-height: 1;
+}
+.sb-ind-title-name {
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--name-color, #F0EEF8);
+  line-height: 1;
+}
+/* Activation du mode indépendant */
+body.sb-ind-mode  .sb-ind-title              { display: flex; }
+body.sb-ind-mode  #scoreboard .event-bar     { display: none !important; }

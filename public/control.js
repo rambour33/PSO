@@ -168,6 +168,7 @@ function syncFromState(s) {
   document.querySelectorAll('.overlay-style-btn').forEach(b => {
     b.classList.toggle('active', b.dataset.style === (s.overlayStyle || 'full'));
   });
+  _updateStyleOptions(s.overlayStyle || 'full');
   const _showLtControls = s.ltVisible || s.overlayStyle === 'lower-third';
   const ltCard = document.getElementById('lt-position-card');
   if (ltCard) ltCard.style.display = _showLtControls ? '' : 'none';
@@ -187,6 +188,12 @@ function syncFromState(s) {
   // Event bar position buttons
   document.querySelectorAll('.event-bar-pos-btn').forEach(b => {
     b.classList.toggle('active', b.dataset.pos === (s.eventBarPosition || 'top'));
+  });
+
+  // Title mode buttons
+  const _effectiveTitleMode = s.titleMode || ((s.overlayStyle || 'full') === 'pro' ? 'independant' : 'bandeau');
+  document.querySelectorAll('.title-mode-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.mode === _effectiveTitleMode);
   });
 
   // Textes joueurs
@@ -402,6 +409,7 @@ document.querySelectorAll('.format-btn').forEach(btn => {
       b.classList.toggle('active', b.dataset.fmt === state.format);
     });
     document.getElementById('custom-wins-group').style.display = state.format === 'custom' ? '' : 'none';
+    emitState(buildStateFromForm());
   });
 });
 
@@ -564,11 +572,33 @@ document.getElementById('sb-bg-opacity').addEventListener('input', (e) => {
   emitState(buildStateFromForm());
 });
 
+// Capacités de chaque style d'overlay — ajouter ici pour étendre
+const STYLE_OPTIONS = {
+  'full':            { score: true },
+  'slim':            {},
+  'full-rounded':    { score: true },
+  'compact-rounded': {},
+  'lower-third':     {},
+  'pro':             {},
+};
+
+function _updateStyleOptions(style) {
+  const opts = STYLE_OPTIONS[style] || {};
+  const scorePanel = document.getElementById('style-opt-score');
+  if (scorePanel) scorePanel.style.display = opts.score ? '' : 'none';
+}
+
 document.querySelectorAll('.overlay-style-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     state.overlayStyle = btn.dataset.style;
     document.querySelectorAll('.overlay-style-btn').forEach(b => {
       b.classList.toggle('active', b.dataset.style === state.overlayStyle);
+    });
+    _updateStyleOptions(state.overlayStyle);
+    // Rafraîchir le bouton titre selon le mode effectif du nouveau style
+    const _eff = state.titleMode || (state.overlayStyle === 'pro' ? 'independant' : 'bandeau');
+    document.querySelectorAll('.title-mode-btn').forEach(b => {
+      b.classList.toggle('active', b.dataset.mode === _eff);
     });
     const ltCard = document.getElementById('lt-position-card');
     if (ltCard) ltCard.style.display = (state.overlayStyle === 'lower-third' || state.ltVisible) ? '' : 'none';
@@ -582,6 +612,16 @@ document.querySelectorAll('.score-display-btn').forEach(btn => {
     state.scoreDisplay = btn.dataset.display;
     document.querySelectorAll('.score-display-btn').forEach(b => {
       b.classList.toggle('active', b.dataset.display === state.scoreDisplay);
+    });
+    emitState(buildStateFromForm());
+  });
+});
+
+document.querySelectorAll('.title-mode-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    state.titleMode = btn.dataset.mode;
+    document.querySelectorAll('.title-mode-btn').forEach(b => {
+      b.classList.toggle('active', b.dataset.mode === state.titleMode);
     });
     emitState(buildStateFromForm());
   });
@@ -10369,8 +10409,8 @@ document.querySelectorAll('.conn-copy-btn').forEach(btn => {
     }
   }
 
-  function openModal() { modal.style.display = 'flex'; }
-  function closeModal() { modal.style.display = 'none'; }
+  function openModal()  { if (typeof switchTab === 'function') switchTab('config'); }
+  function closeModal() { if (typeof switchTab === 'function') switchTab('match'); }
 
   /* ── Enregistrer la clé API (même endpoint que partout) ────── */
 
@@ -10516,7 +10556,7 @@ document.querySelectorAll('.conn-copy-btn').forEach(btn => {
 
   indicator.addEventListener('click', () => {
     localStorage.removeItem('pso_setup_dismissed');
-    openModal();
+    if (typeof switchTab === 'function') switchTab('config');
   });
 
   /* ── Sync slug inputs depuis la config du tournoi ─────────── */
@@ -10633,4 +10673,130 @@ initScrollNav('veto-scroll-area',    'veto-nav-titles');
 initScrollNav('casters-scroll-area', 'casters-nav-titles');
 
 // ═══════════════════════════════════════════════════════════════
-// BONUS OVERLAY — géré par script inline dans control.html
+// BONUS OVERLAY
+// ═══════════════════════════════════════════════════════════════
+(function () {
+  const logoFileInput  = document.getElementById('bonus-logo-file');
+  const logoClearBtn   = document.getElementById('btn-bonus-logo-clear');
+  const logoThumb      = document.getElementById('bonus-logo-thumb');
+  const logoThumbEmpty = document.getElementById('bonus-logo-thumb-empty');
+  const logoStatus     = document.getElementById('bonus-logo-status');
+
+  const bgFileInput    = document.getElementById('bonus-bg-file');
+  const bgClearBtn     = document.getElementById('btn-bonus-bg-clear');
+  const bgThumb        = document.getElementById('bonus-bg-thumb');
+  const bgThumbEmpty   = document.getElementById('bonus-bg-thumb-empty');
+  const bgStatus       = document.getElementById('bonus-bg-status');
+
+  const previewWrap    = document.getElementById('bonus-preview-wrap');
+  const previewIframe  = document.getElementById('bonus-iframe');
+
+  if (!logoFileInput) return;
+
+  function scalePreview() {
+    if (!previewWrap || !previewIframe) return;
+    const scale = previewWrap.offsetWidth / 1920;
+    previewIframe.style.transform = `scale(${scale})`;
+    previewWrap.style.height = (1080 * scale) + 'px';
+  }
+  window.addEventListener('resize', scalePreview);
+  if (previewWrap) new ResizeObserver(scalePreview).observe(previewWrap);
+  document.querySelector('.tab-btn[data-tab="bonus"]')?.addEventListener('click', () => requestAnimationFrame(scalePreview));
+  scalePreview();
+
+  function reloadPreview() {
+    if (previewIframe) previewIframe.src = '/bonus?_=' + Date.now();
+  }
+
+  function applyLogoThumb(url) {
+    if (!logoThumb) return;
+    if (url) {
+      logoThumb.src = url + '?v=' + Date.now();
+      logoThumb.style.display = '';
+      if (logoThumbEmpty) logoThumbEmpty.style.display = 'none';
+    } else {
+      logoThumb.src = '';
+      logoThumb.style.display = 'none';
+      if (logoThumbEmpty) logoThumbEmpty.style.display = '';
+    }
+  }
+
+  function applyBgThumb(url) {
+    if (!bgThumb) return;
+    if (url) {
+      bgThumb.src = url + '?v=' + Date.now();
+      bgThumb.style.display = '';
+      if (bgThumbEmpty) bgThumbEmpty.style.display = 'none';
+    } else {
+      bgThumb.src = '';
+      bgThumb.style.display = 'none';
+      if (bgThumbEmpty) bgThumbEmpty.style.display = '';
+    }
+  }
+
+  logoFileInput.addEventListener('change', () => {
+    const file = logoFileInput.files[0];
+    if (!file) return;
+    if (logoStatus) logoStatus.textContent = 'Envoi…';
+    const reader = new FileReader();
+    reader.onload = e => {
+      const b64 = e.target.result.split(',')[1];
+      fetch('/api/bonus/logo', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ filename: file.name, data: b64 }),
+      })
+        .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
+        .then(d => {
+          applyLogoThumb(d.url);
+          reloadPreview();
+          if (logoStatus) { logoStatus.textContent = 'Logo appliqué ✓'; setTimeout(() => { logoStatus.textContent = ''; }, 2000); }
+        })
+        .catch(() => { if (logoStatus) logoStatus.textContent = 'Erreur upload'; });
+    };
+    reader.readAsDataURL(file);
+    logoFileInput.value = '';
+  });
+
+  logoClearBtn.addEventListener('click', () => {
+    fetch('/api/bonus/logo', { method: 'DELETE' })
+      .then(() => { applyLogoThumb(null); reloadPreview(); if (logoStatus) { logoStatus.textContent = 'Supprimé'; setTimeout(() => { logoStatus.textContent = ''; }, 1500); } })
+      .catch(() => {});
+  });
+
+  bgFileInput.addEventListener('change', () => {
+    const file = bgFileInput.files[0];
+    if (!file) return;
+    if (bgStatus) bgStatus.textContent = 'Envoi…';
+    const reader = new FileReader();
+    reader.onload = e => {
+      const b64 = e.target.result.split(',')[1];
+      fetch('/api/bonus/background', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ filename: file.name, data: b64 }),
+      })
+        .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
+        .then(d => {
+          applyBgThumb(d.url);
+          reloadPreview();
+          if (bgStatus) { bgStatus.textContent = 'Image appliquée ✓'; setTimeout(() => { bgStatus.textContent = ''; }, 2000); }
+        })
+        .catch(() => { if (bgStatus) bgStatus.textContent = 'Erreur upload'; });
+    };
+    reader.readAsDataURL(file);
+    bgFileInput.value = '';
+  });
+
+  bgClearBtn.addEventListener('click', () => {
+    fetch('/api/bonus/background', { method: 'DELETE' })
+      .then(() => { applyBgThumb(null); reloadPreview(); if (bgStatus) { bgStatus.textContent = 'Supprimée'; setTimeout(() => { bgStatus.textContent = ''; }, 1500); } })
+      .catch(() => {});
+  });
+
+  fetch('/api/bonus').then(r => r.json()).then(cfg => {
+    if (cfg.logoUrl) applyLogoThumb(cfg.logoUrl);
+    if (cfg.bgUrl)   applyBgThumb(cfg.bgUrl);
+    scalePreview();
+  }).catch(() => {});
+})();

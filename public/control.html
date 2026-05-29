@@ -13,124 +13,8 @@
 <!-- ══════════════════════════════════════════════════════════ -->
 <!--  SETUP MODAL — configuration initiale du tournoi          -->
 <!-- ══════════════════════════════════════════════════════════ -->
-<div id="setup-modal" class="setup-overlay" style="display:none">
-  <div class="setup-card">
-
-    <div class="setup-card-header">
-      <div class="setup-pso-mark">PSO</div>
-      <h2 class="setup-title">Configuration du tournoi</h2>
-      <p class="setup-sub">Renseignez les informations ci-dessous — elles seront partagées avec tous les overlays.</p>
-    </div>
-
-    <div class="setup-card-body">
-
-      <!-- ── Connexion Start.gg ──────────────────────────── -->
-      <div class="setup-section">
-        <div class="setup-section-title">
-          <span class="setup-section-dot"></span>
-          Connexion Start.gg
-        </div>
-
-        <!-- État : clé déjà enregistrée -->
-        <div id="setup-key-connected" class="setup-key-connected" style="display:none">
-          <span class="setup-key-dot"></span>
-          <span class="setup-key-label">Clé API start.gg enregistrée</span>
-          <button class="btn btn-outline btn-sm" id="setup-key-change">Modifier</button>
-        </div>
-
-        <!-- État : saisie de la clé -->
-        <div id="setup-key-form" class="setup-field">
-          <label class="setup-label">Clé API (token Bearer)</label>
-          <div class="setup-row">
-            <input type="password" id="setup-apikey" class="setup-input"
-                   placeholder="Votre clé API start.gg" autocomplete="new-password" />
-            <button class="btn btn-outline" id="setup-key-save" style="white-space:nowrap">Enregistrer</button>
-          </div>
-          <div id="setup-key-status" style="font-size:11px;color:var(--text-muted);min-height:16px;margin-top:2px"></div>
-        </div>
-
-        <div class="setup-field">
-          <label class="setup-label">URL ou slug du tournoi</label>
-          <div class="setup-row">
-            <input type="text" id="setup-slug-input" class="setup-input"
-                   placeholder="start.gg/tournament/mon-tournoi" />
-            <button class="btn btn-outline" id="setup-verify-btn">🔍 Vérifier</button>
-          </div>
-        </div>
-
-        <div class="setup-verify-status" id="setup-verify-status"></div>
-
-        <!-- Sélection de l'évènement — affiché après vérification -->
-        <div class="setup-field" id="setup-event-section" style="display:none">
-          <label class="setup-label">Bracket</label>
-          <select id="setup-event-select" class="setup-input" style="cursor:pointer">
-            <option value="">— Sélectionner un bracket —</option>
-          </select>
-        </div>
-
-        <!-- Sélection de la phase — affiché après sélection de bracket -->
-        <div class="setup-field" id="setup-phase-section" style="display:none">
-          <label class="setup-label">Phase <span style="font-weight:400;opacity:0.6">(optionnel)</span></label>
-          <select id="setup-phase-select" class="setup-input" style="cursor:pointer">
-            <option value="">— Toutes les phases —</option>
-          </select>
-          <div style="font-size:10px;color:var(--text-muted);margin-top:4px">
-            Filtrer les prochains matchs par phase. Laisser vide pour afficher toutes les phases.
-          </div>
-        </div>
-      </div>
-
-      <!-- ── Collection OBS ─────────────────────────────────── -->
-      <div class="setup-section">
-        <div class="setup-section-title">
-          <span class="setup-section-dot"></span>
-          Collection OBS
-        </div>
-        <div class="setup-field">
-          <p style="font-size:12px;color:var(--text-muted);margin-bottom:10px">
-            Téléchargez et importez cette collection dans OBS Studio pour ajouter tous les overlays PSO en une seule opération.
-          </p>
-          <a class="btn btn-outline" href="/api/obs-collection" download="PSO-collection.json" style="display:inline-flex;align-items:center;gap:6px;text-decoration:none">
-            ↓ Télécharger la collection OBS
-          </a>
-        </div>
-      </div>
-
-      <!-- ── Informations tournoi ────────────────────────── -->
-      <div class="setup-section">
-        <div class="setup-section-title">
-          <span class="setup-section-dot"></span>
-          Informations du tournoi
-        </div>
-
-        <div class="setup-info-row">
-          <div class="setup-field" style="flex:1;min-width:0">
-            <label class="setup-label">Nom du tournoi</label>
-            <input type="text" id="setup-name" class="setup-input"
-                   placeholder="PSO Winter Cup" />
-          </div>
-          <div class="setup-logo-preview-box" id="setup-logo-preview-box">
-            <img id="setup-logo-preview-img" src="" alt="" style="display:none" />
-            <span class="setup-logo-placeholder-text" id="setup-logo-placeholder">Logo</span>
-          </div>
-        </div>
-
-        <div class="setup-field">
-          <label class="setup-label">URL du logo (auto-rempli depuis Start.gg)</label>
-          <input type="url" id="setup-logo-input" class="setup-input"
-                 placeholder="https://images.start.gg/…" />
-        </div>
-      </div>
-
-    </div><!-- /setup-card-body -->
-
-    <div class="setup-card-footer">
-      <button class="btn setup-skip-btn" id="setup-skip-btn">Ignorer</button>
-      <button class="btn btn-primary setup-save-btn" id="setup-save-btn">✓ Commencer</button>
-    </div>
-
-  </div><!-- /setup-card -->
-</div><!-- /setup-modal -->
+<!-- Placeholder vide — garde la compatibilité JS (modal variable) -->
+<div id="setup-modal"></div>
 
 <div class="app">
 
@@ -166,6 +50,7 @@
 
   <!-- TAB NAV (desktop) -->
   <nav class="tab-nav" id="tab-nav-desktop">
+    <button class="tab-btn" data-tab="config">⚙ Config tournoi</button>
     <button class="tab-btn active" data-tab="match" id="tab-btn-match">SSBU Overlays</button>
     <button class="tab-btn" data-tab="startgg">Start.gg Overlays</button>
     <button class="tab-btn" data-tab="themes">Thèmes</button>
@@ -448,19 +333,46 @@
 
           <div style="display:flex;height:700px;overflow:hidden;border-top:1px solid var(--border)">
 
-            <!-- Titres verticaux -->
-            <div id="sb-nav-titles" style="width:30px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:20px 0;gap:28px;border-right:1px solid var(--border);background:var(--surface)">
-              <span class="vic-nav-title" data-target="sb-sect-logo">Logo</span>
-              <span class="vic-nav-title" data-target="sb-sect-drapeaux">Drapeaux</span>
-              <span class="vic-nav-title" data-target="sb-sect-fond">Fond</span>
-              <span class="vic-nav-title" data-target="sb-sect-style">Style</span>
-              <span class="vic-nav-title" data-target="sb-sect-position">Position</span>
-              <span class="vic-nav-title" data-target="sb-sect-textes">Textes</span>
-              <span class="vic-nav-title" data-target="sb-sect-particules">Particules</span>
-            </div>
-
             <!-- Config scrollable -->
             <div id="sb-scroll-area" style="flex:1;min-width:0;overflow-y:auto;position:relative">
+
+              <!-- Style -->
+              <div id="sb-sect-style" style="padding:16px 16px 0">
+                <div class="custom-card">
+                  <h3>Style d'affichage</h3>
+
+                  <!-- Sélecteur de style — toujours visible -->
+                  <div class="theme-btn-row" style="flex-wrap:wrap;gap:4px">
+                    <button class="overlay-style-btn theme-btn active" data-style="full"            style="font-size:11px;padding:4px 10px">Full ▬</button>
+                    <button class="overlay-style-btn theme-btn"        data-style="slim"            style="font-size:11px;padding:4px 10px">Slim —</button>
+                    <button class="overlay-style-btn theme-btn"        data-style="full-rounded"    style="font-size:11px;padding:4px 10px">Full ◉</button>
+                    <button class="overlay-style-btn theme-btn"        data-style="compact-rounded" style="font-size:11px;padding:4px 10px">Compact ◉</button>
+                    <button class="overlay-style-btn theme-btn"        data-style="lower-third"     style="font-size:11px;padding:4px 10px">Lower ↓</button>
+                    <button class="overlay-style-btn theme-btn"        data-style="pro"             style="font-size:11px;padding:4px 10px">Fragmenté ◈</button>
+                  </div>
+
+                  <!-- Option : mode titre (tous styles) -->
+                  <div id="style-opt-title" style="margin-top:10px;border-top:1px solid var(--border);padding-top:10px">
+                    <div style="font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px">Titre</div>
+                    <div style="display:flex;gap:6px">
+                      <button class="title-mode-btn theme-btn active" data-mode="bandeau"     style="font-size:11px;padding:4px 10px;flex:1">▬ Bandeau</button>
+                      <button class="title-mode-btn theme-btn"        data-mode="independant" style="font-size:11px;padding:4px 10px;flex:1">◈ Indépendant</button>
+                    </div>
+                  </div>
+
+                  <!-- Option : affichage du score (Full ▬ · Full ◉ uniquement) -->
+                  <div id="style-opt-score" style="display:none;margin-top:10px;border-top:1px solid var(--border);padding-top:10px">
+                    <div style="font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px">Affichage du score</div>
+                    <div style="display:flex;gap:6px;flex-wrap:wrap">
+                      <button class="score-display-btn theme-btn active" data-display="numbers"     style="font-size:11px;padding:4px 10px;flex:1">123 Chiffres</button>
+                      <button class="score-display-btn theme-btn"        data-display="dots"        style="font-size:11px;padding:4px 10px;flex:1">◉ Points</button>
+                      <button class="dots-orientation-btn theme-btn active" data-orientation="row"  style="font-size:11px;padding:4px 10px;flex:1">— Ligne</button>
+                      <button class="dots-orientation-btn theme-btn"    data-orientation="column"   style="font-size:11px;padding:4px 10px;flex:1">| Colonne</button>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
 
               <!-- Logo central -->
               <div id="sb-sect-logo" style="padding:16px">
@@ -595,27 +507,6 @@
                         <span style="font-size:11px;color:var(--text-muted)">%</span>
                       </div>
                     </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Style -->
-              <div id="sb-sect-style" style="padding:0 16px 16px">
-                <div class="custom-card">
-                  <h3>Style d'affichage</h3>
-                  <div class="theme-btn-row" style="margin-bottom:8px;flex-wrap:wrap;gap:4px">
-                    <button class="overlay-style-btn theme-btn active" data-style="full" style="font-size:11px;padding:4px 10px">Full ▬</button>
-                    <button class="overlay-style-btn theme-btn" data-style="slim" style="font-size:11px;padding:4px 10px">Slim —</button>
-                    <button class="overlay-style-btn theme-btn" data-style="full-rounded" style="font-size:11px;padding:4px 10px">Full ◉</button>
-                    <button class="overlay-style-btn theme-btn" data-style="compact-rounded" style="font-size:11px;padding:4px 10px">Compact ◉</button>
-                    <button class="overlay-style-btn theme-btn" data-style="lower-third" style="font-size:11px;padding:4px 10px">Lower ↓</button>
-                    <button class="overlay-style-btn theme-btn" data-style="pro" style="font-size:11px;padding:4px 10px">Fragmenté ◈</button>
-                  </div>
-                  <div style="display:flex;gap:6px">
-                    <button class="score-display-btn theme-btn active" data-display="numbers" style="font-size:11px;padding:4px 10px;flex:1">123</button>
-                    <button class="score-display-btn theme-btn" data-display="dots" style="font-size:11px;padding:4px 10px;flex:1">◉ Points</button>
-                    <button class="dots-orientation-btn theme-btn active" data-orientation="row" style="font-size:11px;padding:4px 10px;flex:1">— Ligne</button>
-                    <button class="dots-orientation-btn theme-btn" data-orientation="column" style="font-size:11px;padding:4px 10px;flex:1">| Col.</button>
                   </div>
                 </div>
               </div>
@@ -5560,6 +5451,107 @@
 
     </div>
   </div><!-- /tab-notes -->
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!--  CONFIG PRÉ TOURNOI                                        -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <div class="tab-content" id="tab-config">
+    <section class="section">
+      <div class="section-header"><h2>Configuration pré tournoi</h2></div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start">
+
+        <!-- ── Start.gg ── -->
+        <div class="custom-card">
+          <h3 style="margin-bottom:14px">Connexion Start.gg</h3>
+
+          <div id="setup-key-connected" class="setup-key-connected" style="display:none">
+            <span class="setup-key-dot"></span>
+            <span class="setup-key-label">Clé API start.gg enregistrée</span>
+            <button class="btn btn-outline btn-sm" id="setup-key-change">Modifier</button>
+          </div>
+
+          <div id="setup-key-form" class="setup-field">
+            <label class="setup-label">Clé API (token Bearer)</label>
+            <div class="setup-row">
+              <input type="password" id="setup-apikey" class="setup-input"
+                     placeholder="Votre clé API start.gg" autocomplete="new-password" />
+              <button class="btn btn-outline" id="setup-key-save" style="white-space:nowrap">Enregistrer</button>
+            </div>
+            <div id="setup-key-status" style="font-size:11px;color:var(--text-muted);min-height:16px;margin-top:2px"></div>
+          </div>
+
+          <div class="setup-field">
+            <label class="setup-label">URL ou slug du tournoi</label>
+            <div class="setup-row">
+              <input type="text" id="setup-slug-input" class="setup-input"
+                     placeholder="start.gg/tournament/mon-tournoi" />
+              <button class="btn btn-outline" id="setup-verify-btn">🔍 Vérifier</button>
+            </div>
+          </div>
+
+          <div class="setup-verify-status" id="setup-verify-status"></div>
+
+          <div class="setup-field" id="setup-event-section" style="display:none">
+            <label class="setup-label">Bracket</label>
+            <select id="setup-event-select" class="setup-input" style="cursor:pointer">
+              <option value="">— Sélectionner un bracket —</option>
+            </select>
+          </div>
+
+          <div class="setup-field" id="setup-phase-section" style="display:none">
+            <label class="setup-label">Phase <span style="font-weight:400;opacity:0.6">(optionnel)</span></label>
+            <select id="setup-phase-select" class="setup-input" style="cursor:pointer">
+              <option value="">— Toutes les phases —</option>
+            </select>
+            <div style="font-size:10px;color:var(--text-muted);margin-top:4px">Filtrer les prochains matchs par phase.</div>
+          </div>
+        </div>
+
+        <!-- ── Infos tournoi + OBS ── -->
+        <div style="display:flex;flex-direction:column;gap:16px">
+
+          <div class="custom-card">
+            <h3 style="margin-bottom:14px">Informations du tournoi</h3>
+
+            <div class="setup-info-row">
+              <div class="setup-field" style="flex:1;min-width:0">
+                <label class="setup-label">Nom du tournoi</label>
+                <input type="text" id="setup-name" class="setup-input" placeholder="PSO Winter Cup" />
+              </div>
+              <div class="setup-logo-preview-box" id="setup-logo-preview-box">
+                <img id="setup-logo-preview-img" src="" alt="" style="display:none" />
+                <span class="setup-logo-placeholder-text" id="setup-logo-placeholder">Logo</span>
+              </div>
+            </div>
+
+            <div class="setup-field">
+              <label class="setup-label">URL du logo (auto-rempli depuis Start.gg)</label>
+              <input type="url" id="setup-logo-input" class="setup-input"
+                     placeholder="https://images.start.gg/…" />
+            </div>
+
+            <div style="display:flex;gap:8px;margin-top:8px">
+              <button class="btn btn-primary" id="setup-save-btn" style="flex:1">✓ Sauvegarder</button>
+              <button class="btn btn-outline" id="setup-skip-btn">Passer</button>
+            </div>
+          </div>
+
+          <div class="custom-card">
+            <h3 style="margin-bottom:10px">Collection OBS</h3>
+            <p style="font-size:12px;color:var(--text-muted);margin-bottom:12px">
+              Importez cette collection dans OBS Studio pour ajouter tous les overlays PSO en une opération.
+            </p>
+            <a class="btn btn-outline" href="/api/obs-collection" download="PSO-collection.json"
+               style="display:inline-flex;align-items:center;gap:6px;text-decoration:none">
+              ↓ Télécharger la collection OBS
+            </a>
+          </div>
+
+        </div>
+      </div>
+    </section>
+  </div><!-- /tab-config -->
 
 
   <footer class="footer">
