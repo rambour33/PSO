@@ -21,14 +21,6 @@
   <!-- HEADER -->
   <header class="header">
     <div class="header-left">
-      <button class="tournament-btn" id="tournament-indicator" title="Configuration du tournoi">
-        <img class="tournament-btn-logo" id="ti-logo" src="" alt="" style="display:none" />
-        <span class="tournament-btn-name" id="ti-name">Configurer le tournoi</span>
-        <svg class="tournament-btn-arrow" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </button>
-      <div class="header-sep"></div>
       <h1>PSO</h1>
     </div>
     <div class="header-right">
@@ -51,7 +43,7 @@
   <!-- TAB NAV (desktop) -->
   <nav class="tab-nav" id="tab-nav-desktop">
     <button class="tab-btn" data-tab="config">⚙ Config tournoi</button>
-    <button class="tab-btn active" data-tab="match" id="tab-btn-match">SSBU Overlays</button>
+    <button class="tab-btn active" data-tab="match" id="tab-btn-match">Scoreboard SSBU</button>
     <button class="tab-btn" data-tab="startgg">Start.gg Overlays</button>
     <button class="tab-btn" data-tab="themes">Thèmes</button>
     <button class="tab-btn" data-tab="custom">Liens overlays</button>
@@ -60,12 +52,13 @@
     <button class="tab-btn" data-tab="diffusions">Overlays plateformes de stream</button>
     <button class="tab-btn" data-tab="overlayip">PSO multi-PC</button>
     <button class="tab-btn" data-tab="notes">📋 Notes</button>
+    <button class="tab-btn" data-tab="dev" style="margin-left:auto;opacity:0.65">🔧 En cours de dev</button>
   </nav>
 
   <!-- TAB SELECT (mobile) -->
   <div class="tab-nav-mobile" id="tab-nav-mobile">
     <select id="tab-select-mobile" class="tab-mobile-select">
-      <option value="match">SSBU Overlays</option>
+      <option value="match">Scoreboard SSBU</option>
       <option value="startgg">Start.gg Overlays</option>
       <option value="themes">Thèmes</option>
       <option value="custom">Liens overlays</option>
@@ -85,12 +78,10 @@
       <div class="match-nav-group active">
         <button class="match-subpanel-btn match-nav-section active" data-subpanel="sb-sub-match">Scoreboard</button>
         <button class="match-subpanel-btn" data-subpanel="sb-sub-custom">Customisation</button>
-        <button class="match-subpanel-btn" data-subpanel="sb-sub-builder">Builder</button>
       </div>
       <span class="match-nav-sep"></span>
       <div class="match-nav-group">
         <button class="match-subpanel-btn match-nav-section" data-subpanel="casters-sub-match">Casters</button>
-        <button class="match-subpanel-btn" data-subpanel="casters-sub-builder">Builder</button>
         </div>
       <span class="match-nav-sep"></span>
       <div class="match-nav-group">
@@ -642,122 +633,7 @@
         </section>
       </div><!-- /sb-sub-custom -->
 
-      <div class="match-subpanel" id="sb-sub-builder">
-        <!-- ── Créateur visuel (vue principale) ── -->
-    <section class="section">
-      <div class="section-header">
-        <h2>Créateur de scoreboard</h2>
-        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-          <select id="sbb-layout-select" style="background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:5px 10px;border-radius:6px;font-size:13px;min-width:160px;"></select>
-          <button class="btn btn-primary btn-sm" id="sbb-btn-new">+ Nouveau</button>
-          <button class="btn btn-outline btn-sm" id="sbb-btn-rename">Renommer</button>
-          <button class="btn btn-outline btn-sm" id="sbb-btn-duplicate">Dupliquer</button>
-          <button class="btn btn-outline btn-sm" id="sbb-btn-delete" style="border-color:#e05;color:#e05">Supprimer</button>
-          <a id="sbb-overlay-link" href="#" target="_blank" class="btn btn-outline btn-sm" style="border-color:#4a9;">Overlay ↗</a>
-          <button class="btn btn-outline btn-sm" id="sbb-btn-copy-url">Copier URL</button>
-        </div>
-      </div>
 
-      <div style="display:flex;gap:12px;margin-top:12px;align-items:flex-start;">
-
-        <!-- ── Colonne 1 : palette + calques ──────────────────── -->
-        <div style="width:260px;flex-shrink:0;display:flex;flex-direction:column;gap:12px;">
-
-          <!-- Ajouter une forme -->
-          <div class="custom-card">
-            <h3 style="margin-bottom:10px">Ajouter une forme</h3>
-            <p style="font-size:11px;color:var(--text-muted);margin-bottom:8px;">Base</p>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:10px;">
-              <button class="btn btn-outline sbb-add-shape" data-type="rect"  style="font-size:12px;padding:6px 8px;gap:5px;justify-content:center;">▬ Rectangle</button>
-              <button class="btn btn-outline sbb-add-shape" data-type="text"  style="font-size:12px;padding:6px 8px;gap:5px;justify-content:center;">T Texte</button>
-              <button class="btn btn-outline sbb-add-shape" data-type="image" style="font-size:12px;padding:6px 8px;gap:5px;justify-content:center;">🖼 Image</button>
-            </div>
-            <p style="font-size:11px;color:var(--text-muted);margin-bottom:8px;">Courbes</p>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:10px;">
-              <button class="btn btn-outline sbb-add-shape" data-type="circle"       style="font-size:12px;padding:6px 8px;justify-content:center;">● Cercle</button>
-              <button class="btn btn-outline sbb-add-shape" data-type="oval"         style="font-size:12px;padding:6px 8px;justify-content:center;">⬭ Ovale</button>
-              <button class="btn btn-outline sbb-add-shape" data-type="semi-circle"  style="font-size:12px;padding:6px 8px;justify-content:center;">◗ Demi-cercle</button>
-            </div>
-            <p style="font-size:11px;color:var(--text-muted);margin-bottom:8px;">Polygones</p>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;">
-              <button class="btn btn-outline sbb-add-shape" data-type="triangle" style="font-size:12px;padding:6px 8px;justify-content:center;">▲ Triangle</button>
-              <button class="btn btn-outline sbb-add-shape" data-type="star"     style="font-size:12px;padding:6px 8px;justify-content:center;">★ Étoile</button>
-              <button class="btn btn-outline sbb-add-shape" data-type="diamond"  style="font-size:12px;padding:6px 8px;justify-content:center;">◆ Diamant</button>
-              <button class="btn btn-outline sbb-add-shape" data-type="hexagon"  style="font-size:12px;padding:6px 8px;justify-content:center;">⬡ Hexagone</button>
-            </div>
-          </div>
-
-          <!-- Calques -->
-          <div class="custom-card" style="flex:1;min-height:200px;">
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-              <h3>Calques</h3>
-              <span class="hint">glisser ⠿ pour réordonner</span>
-            </div>
-            <div id="sbb-layers" style="display:flex;flex-direction:column;gap:4px;"></div>
-          </div>
-
-          <!-- Séquences -->
-          <div class="custom-card" id="sbb-seq-card">
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-              <h3>Séquences</h3>
-              <button class="btn btn-sm" id="sbb-seq-add">+ Nouvelle</button>
-            </div>
-            <div id="sbb-seq-list" style="display:flex;flex-direction:column;gap:8px;"></div>
-          </div>
-        </div>
-
-        <!-- ── Canvas + propriétés ────────────────────────────── -->
-        <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:12px;">
-          <div class="custom-card" style="padding:0;overflow:hidden;">
-            <div style="background:#111;padding:8px 14px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;">
-              <span style="font-size:11px;font-weight:600;color:var(--text-muted);letter-spacing:1px;text-transform:uppercase;">
-                Canvas 1920×1080 · cliquer pour sélectionner · glisser pour déplacer
-              </span>
-              <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
-                <!-- Fond de référence -->
-                <label style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text-muted);cursor:pointer;" title="Image de référence (visible uniquement dans le builder)">
-                  <span>Fond réf.</span>
-                  <input type="file" id="sbb-bg-file" accept="image/*" style="display:none;" />
-                  <button class="btn btn-outline btn-sm" id="sbb-bg-pick" style="font-size:11px;">📁 Choisir</button>
-                </label>
-                <input type="text" id="sbb-bg-url" placeholder="ou URL…" style="font-size:11px;padding:3px 7px;background:var(--surface2);border:1px solid var(--border);border-radius:5px;color:var(--text);width:140px;" />
-                <label style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text-muted);">
-                  Opacité
-                  <input type="range" id="sbb-bg-opacity" min="5" max="100" value="30" style="width:60px;" />
-                  <span id="sbb-bg-opacity-val">30%</span>
-                </label>
-                <button class="btn btn-outline btn-sm" id="sbb-bg-clear" style="font-size:11px;border-color:#e05;color:#e05;" title="Retirer l'image de fond">✕</button>
-                <div style="width:1px;height:18px;background:var(--border);margin:0 2px;"></div>
-                <label style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text-muted);cursor:pointer;" title="Aimanter sur les bords des autres formes (±5px)">
-                  <input type="checkbox" id="sbb-snap-enabled" checked />
-                  Magnétisme
-                </label>
-                <div style="width:1px;height:18px;background:var(--border);"></div>
-                <button class="btn btn-outline btn-sm" id="sbb-btn-deselect" style="font-size:11px;">Désélectionner</button>
-                <button class="btn btn-outline btn-sm" id="sbb-btn-center" style="font-size:11px;">Centrer</button>
-              </div>
-            </div>
-            <div id="sbb-canvas-wrap" style="position:relative;background:#0a0a0f;cursor:default;user-select:none;overflow:hidden;">
-              <div id="sbb-bg-layer" style="position:absolute;inset:0;background-size:cover;background-position:center;background-repeat:no-repeat;opacity:0.3;pointer-events:none;z-index:0;"></div>
-              <div id="sbb-canvas-inner" style="position:relative;width:1920px;height:1080px;transform-origin:top left;z-index:1;"></div>
-              <div id="sbb-snap-guides" style="position:absolute;inset:0;pointer-events:none;z-index:190;overflow:hidden;"></div>
-              <div id="sbb-interact-layer" style="position:absolute;inset:0;pointer-events:none;z-index:200;"></div>
-            </div>
-          </div>
-          <div class="custom-card" id="sbb-props-card" style="display:none;">
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
-              <h3 id="sbb-props-title">Propriétés</h3>
-              <div style="display:flex;gap:6px;">
-                <button class="btn btn-outline btn-sm" id="sbb-btn-duplicate-shape">Dupliquer</button>
-                <button class="btn btn-outline btn-sm" id="sbb-btn-delete-shape" style="border-color:#e05;color:#e05">Supprimer</button>
-              </div>
-            </div>
-            <div id="sbb-props-body" style="display:flex;flex-direction:column;gap:10px;"></div>
-          </div>
-        </div>
-      </div>
-    </section>
-      </div><!-- /sb-sub-builder -->
 
       <div class="match-subpanel" id="casters-sub-match">
         <section class="section" style="padding:0">
@@ -3248,41 +3124,22 @@
 
     </div><!-- /sgg-setup-wrap -->
 
-    <!-- Participants -->
-    <section class="section" id="sgg-entrants-section" style="display:none">
-      <div class="section-header">
-        <h2>Participants</h2>
-        <span class="hint" id="sgg-entrants-count"></span>
-      </div>
-      <div class="form-group">
-        <input type="text" id="sgg-entrants-search" placeholder="Filtrer les joueurs…" style="width:100%" />
-      </div>
-      <div id="sgg-entrants-list" class="sgg-entrants-list"></div>
-      <div id="sgg-entrants-pagination" class="sgg-pagination"></div>
-    </section>
-
-    <!-- Sets en cours -->
-    <section class="section" id="sgg-sets-section" style="display:none">
-      <div class="section-header">
-        <div>
-          <h2 style="margin:0">Sets en cours</h2>
-          <span style="font-size:11px;color:var(--text-muted,#666)">La stream queue est gérée sur start.gg</span>
-        </div>
-        <div style="display:flex;align-items:center;gap:8px">
-          <span id="sgg-refresh-countdown" class="hint"></span>
-          <button class="btn btn-outline btn-sm" id="sgg-refresh-sets">Actualiser</button>
-        </div>
-      </div>
-      <div id="sgg-stream-queue" class="sgg-stream-queue" style="display:none"></div>
-      <div id="sgg-sets-list" class="sgg-sets-list"></div>
-    </section>
-
     <!-- Bracket visualiseur -->
-    <section class="section" id="sgg-bracket-section" style="display:none">
-      <div class="section-header">
-        <h2>Visualiseur de Bracket</h2>
-        <a href="/bracket" target="_blank" class="btn btn-outline btn-sm">Overlay ↗</a>
+    <div class="accordion-tile" id="sgg-bracket-section" style="display:none">
+      <div class="accordion-header">
+        <div class="accordion-title">
+          <span class="accordion-emoji">🗂️</span>
+          <div>
+            <h3>Visualiseur de Bracket</h3>
+            <div class="accordion-meta">Arbre du tournoi</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <a href="/bracket" target="_blank" class="btn btn-outline btn-sm" onclick="event.stopPropagation()">Ouvrir ↗</a>
+          <span class="accordion-chevron">▼</span>
+        </div>
       </div>
+      <div class="accordion-body">
 
       <div class="custom-card-grid">
 
@@ -3360,14 +3217,25 @@
         <div style="font-size:11px;color:var(--text-muted);margin-bottom:6px;letter-spacing:1px;text-transform:uppercase">Aperçu des rounds</div>
         <div id="sgg-bracket-rounds-list" style="display:flex;flex-wrap:wrap;gap:6px"></div>
       </div>
-    </section>
+      </div><!-- /accordion-body -->
+    </div>
 
     <!-- Stats joueur -->
-    <section class="section" id="ps-section" style="display:none">
-      <div class="section-header">
-        <h2>Stats Joueur</h2>
-        <a href="/player-stats" target="_blank" class="btn btn-outline btn-sm">Overlay ↗</a>
+    <div class="accordion-tile" id="ps-section" style="display:none">
+      <div class="accordion-header">
+        <div class="accordion-title">
+          <span class="accordion-emoji">📊</span>
+          <div>
+            <h3>Stats Joueur</h3>
+            <div class="accordion-meta">Fiche statistiques d'un joueur</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <a href="/player-stats" target="_blank" class="btn btn-outline btn-sm" onclick="event.stopPropagation()">Ouvrir ↗</a>
+          <span class="accordion-chevron">▼</span>
+        </div>
       </div>
+      <div class="accordion-body">
       <div class="form-group">
         <label>Rechercher un joueur</label>
         <input type="text" id="ps-entrant-search" placeholder="Filtrer…" style="width:100%;margin-bottom:6px" />
@@ -3406,14 +3274,25 @@
           <button class="btn btn-outline" id="ps-history-hide-btn">Masquer</button>
         </div>
       </div>
-    </section>
+      </div><!-- /accordion-body -->
+    </div>
 
     <!-- Top 8 -->
-    <section class="section" id="sgg-top8-section" style="display:none">
-      <div class="section-header">
-        <h2>Top 8</h2>
-        <a href="/top8" target="_blank" class="btn btn-outline btn-sm">Overlay ↗</a>
+    <div class="accordion-tile" id="sgg-top8-section" style="display:none">
+      <div class="accordion-header">
+        <div class="accordion-title">
+          <span class="accordion-emoji">🏆</span>
+          <div>
+            <h3>Top 8</h3>
+            <div class="accordion-meta">Classement final du tournoi</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <a href="/top8" target="_blank" class="btn btn-outline btn-sm" onclick="event.stopPropagation()">Ouvrir ↗</a>
+          <span class="accordion-chevron">▼</span>
+        </div>
       </div>
+      <div class="accordion-body">
 
       <div class="custom-card-grid">
 
@@ -3469,14 +3348,25 @@
         </div>
 
       </div>
-    </section>
+      </div><!-- /accordion-body -->
+    </div>
 
     <!-- Head to Head -->
-    <section class="section" id="sgg-h2h-section" style="display:none">
-      <div class="section-header">
-        <h2>Head to Head</h2>
-        <a href="/h2h" target="_blank" class="btn btn-outline btn-sm">Overlay ↗</a>
+    <div class="accordion-tile" id="sgg-h2h-section" style="display:none">
+      <div class="accordion-header">
+        <div class="accordion-title">
+          <span class="accordion-emoji">⚔️</span>
+          <div>
+            <h3>Head to Head</h3>
+            <div class="accordion-meta">Confrontation entre deux joueurs</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <a href="/h2h" target="_blank" class="btn btn-outline btn-sm" onclick="event.stopPropagation()">Ouvrir ↗</a>
+          <span class="accordion-chevron">▼</span>
+        </div>
       </div>
+      <div class="accordion-body">
 
       <div class="custom-card-grid">
 
@@ -3518,13 +3408,25 @@
         </div>
 
       </div>
-    </section>
+      </div><!-- /accordion-body -->
+    </div>
 
     <!-- ── Prochains matchs ────────────────────────────────── -->
-    <section class="section" style="margin-top:20px">
-      <div class="section-header">
-        <h2>Prochains matchs · Overlay stream queue</h2>
+    <div class="accordion-tile" id="sgg-upcoming-section">
+      <div class="accordion-header">
+        <div class="accordion-title">
+          <span class="accordion-emoji">📋</span>
+          <div>
+            <h3>Prochains matchs</h3>
+            <div class="accordion-meta">Overlay stream queue</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <a href="/upcoming" target="_blank" class="btn btn-outline btn-sm" onclick="event.stopPropagation()">Ouvrir ↗</a>
+          <span class="accordion-chevron">▼</span>
+        </div>
       </div>
+      <div class="accordion-body">
       <div class="custom-card" style="display:flex;flex-direction:column;gap:12px">
 
         <div class="ctrl-row" style="gap:10px;flex-wrap:wrap">
@@ -3576,7 +3478,8 @@
         </div>
 
       </div>
-    </section>
+      </div><!-- /accordion-body -->
+    </div>
 
   </div><!-- /tab-startgg -->
 
@@ -5451,6 +5354,142 @@
 
     </div>
   </div><!-- /tab-notes -->
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!--  EN COURS DE DEV                                          -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <div class="tab-content" id="tab-dev">
+
+    <!-- Panneau travaux -->
+    <div style="display:flex;align-items:center;gap:12px;padding:10px 16px;background:repeating-linear-gradient(45deg,#E8B830,#E8B830 10px,#1a1a00 10px,#1a1a00 20px);border-radius:0;margin-bottom:0;border-bottom:2px solid #E8B830">
+      <span style="font-size:20px">🚧</span>
+      <span style="font-weight:700;font-size:13px;letter-spacing:0.08em;color:#E8B830;text-shadow:0 0 8px rgba(232,184,48,0.6);text-transform:uppercase">Section en cours de développement — instable</span>
+      <span style="font-size:20px">🚧</span>
+    </div>
+
+    <section class="section">
+      <div class="section-header">
+        <h2>Créateur de scoreboard</h2>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <select id="sbb-layout-select" style="background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:5px 10px;border-radius:6px;font-size:13px;min-width:160px;"></select>
+          <button class="btn btn-primary btn-sm" id="sbb-btn-new">+ Nouveau</button>
+          <button class="btn btn-outline btn-sm" id="sbb-btn-rename">Renommer</button>
+          <button class="btn btn-outline btn-sm" id="sbb-btn-duplicate">Dupliquer</button>
+          <button class="btn btn-outline btn-sm" id="sbb-btn-delete" style="border-color:#e05;color:#e05">Supprimer</button>
+          <a id="sbb-overlay-link" href="#" target="_blank" class="btn btn-outline btn-sm" style="border-color:#4a9;">Overlay ↗</a>
+          <button class="btn btn-outline btn-sm" id="sbb-btn-copy-url">Copier URL</button>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:12px;margin-top:12px;align-items:flex-start;">
+
+        <!-- ── Colonne 1 : palette + calques ──────────────────── -->
+        <div style="width:260px;flex-shrink:0;display:flex;flex-direction:column;gap:12px;">
+
+          <div class="custom-card">
+            <h3 style="margin-bottom:10px">Ajouter une forme</h3>
+            <p style="font-size:11px;color:var(--text-muted);margin-bottom:8px;">Base</p>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:10px;">
+              <button class="btn btn-outline sbb-add-shape" data-type="rect"  style="font-size:12px;padding:6px 8px;gap:5px;justify-content:center;">▬ Rectangle</button>
+              <button class="btn btn-outline sbb-add-shape" data-type="text"  style="font-size:12px;padding:6px 8px;gap:5px;justify-content:center;">T Texte</button>
+              <button class="btn btn-outline sbb-add-shape" data-type="image" style="font-size:12px;padding:6px 8px;gap:5px;justify-content:center;">🖼 Image</button>
+            </div>
+            <p style="font-size:11px;color:var(--text-muted);margin-bottom:8px;">Courbes</p>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:10px;">
+              <button class="btn btn-outline sbb-add-shape" data-type="circle"       style="font-size:12px;padding:6px 8px;justify-content:center;">● Cercle</button>
+              <button class="btn btn-outline sbb-add-shape" data-type="oval"         style="font-size:12px;padding:6px 8px;justify-content:center;">⬭ Ovale</button>
+              <button class="btn btn-outline sbb-add-shape" data-type="semi-circle"  style="font-size:12px;padding:6px 8px;justify-content:center;">◗ Demi-cercle</button>
+            </div>
+            <p style="font-size:11px;color:var(--text-muted);margin-bottom:8px;">Polygones</p>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;">
+              <button class="btn btn-outline sbb-add-shape" data-type="triangle" style="font-size:12px;padding:6px 8px;justify-content:center;">▲ Triangle</button>
+              <button class="btn btn-outline sbb-add-shape" data-type="star"     style="font-size:12px;padding:6px 8px;justify-content:center;">★ Étoile</button>
+              <button class="btn btn-outline sbb-add-shape" data-type="diamond"  style="font-size:12px;padding:6px 8px;justify-content:center;">◆ Diamant</button>
+              <button class="btn btn-outline sbb-add-shape" data-type="hexagon"  style="font-size:12px;padding:6px 8px;justify-content:center;">⬡ Hexagone</button>
+            </div>
+          </div>
+
+          <div class="custom-card" style="flex:1;min-height:200px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+              <h3>Calques</h3>
+              <span class="hint">glisser ⠿ pour réordonner</span>
+            </div>
+            <div id="sbb-layers" style="display:flex;flex-direction:column;gap:4px;"></div>
+          </div>
+
+          <div class="custom-card" id="sbb-seq-card">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+              <h3>Séquences</h3>
+              <button class="btn btn-sm" id="sbb-seq-add">+ Nouvelle</button>
+            </div>
+            <div id="sbb-seq-list" style="display:flex;flex-direction:column;gap:8px;"></div>
+          </div>
+        </div>
+
+        <!-- ── Canvas + propriétés ────────────────────────────── -->
+        <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:12px;">
+          <div class="custom-card" style="padding:0;overflow:hidden;">
+            <div style="background:#111;padding:8px 14px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;">
+              <span style="font-size:11px;font-weight:600;color:var(--text-muted);letter-spacing:1px;text-transform:uppercase;">
+                Canvas 1920×1080 · cliquer pour sélectionner · glisser pour déplacer
+              </span>
+              <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
+                <label style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text-muted);cursor:pointer;" title="Image de référence (visible uniquement dans le builder)">
+                  <span>Fond réf.</span>
+                  <input type="file" id="sbb-bg-file" accept="image/*" style="display:none;" />
+                  <button class="btn btn-outline btn-sm" id="sbb-bg-pick" style="font-size:11px;">📁 Choisir</button>
+                </label>
+                <input type="text" id="sbb-bg-url" placeholder="ou URL…" style="font-size:11px;padding:3px 7px;background:var(--surface2);border:1px solid var(--border);border-radius:5px;color:var(--text);width:140px;" />
+                <label style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text-muted);">
+                  Opacité
+                  <input type="range" id="sbb-bg-opacity" min="5" max="100" value="30" style="width:60px;" />
+                  <span id="sbb-bg-opacity-val">30%</span>
+                </label>
+                <button class="btn btn-outline btn-sm" id="sbb-bg-clear" style="font-size:11px;border-color:#e05;color:#e05;" title="Retirer l'image de fond">✕</button>
+                <div style="width:1px;height:18px;background:var(--border);margin:0 2px;"></div>
+                <label style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text-muted);cursor:pointer;" title="Aimanter sur les bords des autres formes (±5px)">
+                  <input type="checkbox" id="sbb-snap-enabled" checked />
+                  Magnétisme
+                </label>
+                <div style="width:1px;height:18px;background:var(--border);"></div>
+                <button class="btn btn-outline btn-sm" id="sbb-btn-deselect" style="font-size:11px;">Désélectionner</button>
+                <button class="btn btn-outline btn-sm" id="sbb-btn-center" style="font-size:11px;">Centrer</button>
+              </div>
+            </div>
+            <div id="sbb-canvas-wrap" style="position:relative;background:#0a0a0f;cursor:default;user-select:none;overflow:hidden;">
+              <div id="sbb-bg-layer" style="position:absolute;inset:0;background-size:cover;background-position:center;background-repeat:no-repeat;opacity:0.3;pointer-events:none;z-index:0;"></div>
+              <div id="sbb-canvas-inner" style="position:relative;width:1920px;height:1080px;transform-origin:top left;z-index:1;"></div>
+              <div id="sbb-snap-guides" style="position:absolute;inset:0;pointer-events:none;z-index:190;overflow:hidden;"></div>
+              <div id="sbb-interact-layer" style="position:absolute;inset:0;pointer-events:none;z-index:200;"></div>
+            </div>
+          </div>
+          <div class="custom-card" id="sbb-props-card" style="display:none;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+              <h3 id="sbb-props-title">Propriétés</h3>
+              <div style="display:flex;gap:6px;">
+                <button class="btn btn-outline btn-sm" id="sbb-btn-duplicate-shape">Dupliquer</button>
+                <button class="btn btn-outline btn-sm" id="sbb-btn-delete-shape" style="border-color:#e05;color:#e05">Supprimer</button>
+              </div>
+            </div>
+            <div id="sbb-props-body" style="display:flex;flex-direction:column;gap:10px;"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Participants (déplacé depuis Start.gg) -->
+    <section class="section" id="sgg-entrants-section" style="display:none">
+      <div class="section-header">
+        <h2>Participants</h2>
+        <span class="hint" id="sgg-entrants-count"></span>
+      </div>
+      <div class="form-group">
+        <input type="text" id="sgg-entrants-search" placeholder="Filtrer les joueurs…" style="width:100%" />
+      </div>
+      <div id="sgg-entrants-list" class="sgg-entrants-list"></div>
+      <div id="sgg-entrants-pagination" class="sgg-pagination"></div>
+    </section>
+  </div><!-- /tab-dev -->
 
   <!-- ══════════════════════════════════════════════════════════ -->
   <!--  CONFIG PRÉ TOURNOI                                        -->

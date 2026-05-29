@@ -89,8 +89,10 @@
     showStatus('Recherche du tournoi…');
     const infoEl = document.getElementById(infoId);
     if (infoEl) infoEl.style.display = 'none';
-    document.getElementById('sgg-entrants-section').style.display = 'none';
-    document.getElementById('sgg-sets-section').style.display = 'none';
+    const entrantsSec = document.getElementById('sgg-entrants-section');
+    if (entrantsSec) entrantsSec.style.display = 'none';
+    const setsSec = document.getElementById('sgg-sets-section');
+    if (setsSec) setsSec.style.display = 'none';
 
     const res = await fetch(`/api/startgg/tournament/${encodeURIComponent(slug)}`);
     const data = await res.json();
@@ -150,7 +152,8 @@
     if (other && other.value !== eventId) other.value = eventId;
     currentPage = 1;
     await fetchEntrants(eventId, 1);
-    document.getElementById('sgg-sets-section').style.display = '';
+    const setsSecShow = document.getElementById('sgg-sets-section');
+    if (setsSecShow) setsSecShow.style.display = '';
     await Promise.all([fetchSets(eventId), fetchStreamQueue()]);
     startAutoRefresh();
     // Masquer la section connexion dans l'onglet match une fois chargée
@@ -759,7 +762,7 @@
     showStatus('Sets actualisés');
   }
 
-  document.getElementById('sgg-refresh-sets').addEventListener('click', refreshSets);
+  document.getElementById('sgg-refresh-sets')?.addEventListener('click', refreshSets);
   document.getElementById('match-sgg-refresh-sets')?.addEventListener('click', refreshSets);
 
   // ── Autocomplete ──────────────────────────────────────────────────────────────
