@@ -752,6 +752,41 @@ input[type="color"] {
 .match-subpanel { display: none; }
 .match-subpanel.active { display: block; }
 
+/* ── Catégories d'overlays (Start.gg · Génériques · Plateformes) ── */
+.ov-cat-nav {
+  display: flex;
+  gap: 4px;
+  padding: 12px 20px 0;
+  border-bottom: 1px solid var(--border);
+  background: rgba(0,0,0,0.18);
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  flex-wrap: wrap;
+}
+.ov-cat-btn {
+  padding: 9px 18px;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text-muted, #888);
+  font-family: 'Russo One', sans-serif;
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+  margin-bottom: -1px;
+}
+.ov-cat-btn:hover { color: var(--text); }
+.ov-cat-btn.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+.ov-cat-panel { display: none; }
+.ov-cat-panel.active { display: block; }
+
+
 /* ── Overlay preview ────────────────────────────────────────── */
 
 .overlay-preview-container {
@@ -2222,6 +2257,26 @@ kbd {
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+/* Titre cliquable (copie l'URL) */
+.obs-url-clickable {
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+.obs-url-clickable span {
+  color: var(--text);
+  min-width: 0;
+}
+.obs-url-clickable:hover {
+  border-color: var(--gold);
+  background: rgba(232,184,48,0.08);
+}
+.obs-url-clickable:hover span { color: var(--gold); }
+.obs-url-clickable.copied {
+  border-color: #6BC96C;
+  background: rgba(107,201,108,0.1);
+}
+.obs-url-clickable.copied span { color: #6BC96C; }
 
 /* ── Champ nom tripartite ────────────────────────────────────── */
 

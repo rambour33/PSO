@@ -798,12 +798,10 @@ function getServerBase() {
 function applyUrlMode(mode) {
   _urlMode = mode;
   const base = getServerBase();
-  document.querySelectorAll('.obs-url-item .btn-copy[data-url]').forEach(btn => {
+  document.querySelectorAll('.obs-url-item[data-url]').forEach(item => {
     try {
-      const urlPath = new URL(btn.dataset.url).pathname;
-      btn.dataset.url = base + urlPath;
-      const code = btn.previousElementSibling;
-      if (code && code.tagName === 'CODE') code.textContent = base + urlPath;
+      const urlPath = new URL(item.dataset.url).pathname;
+      item.dataset.url = base + urlPath;
     } catch(e) {}
   });
   document.getElementById('btn-mode-local')?.classList.toggle('active', mode === 'local');
@@ -2210,6 +2208,22 @@ document.getElementById('btn-vs-hide')?.addEventListener('click', () => {
     });
   });
 
+  // Catégories d'overlays (Start.gg · Génériques · Plateformes de stream)
+  document.querySelectorAll('.ov-cat-nav .ov-cat-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const nav = btn.closest('.ov-cat-nav');
+      const container = nav.parentElement;
+      nav.querySelectorAll('.ov-cat-btn').forEach(b => b.classList.remove('active'));
+      container.querySelectorAll(':scope > .ov-cat-panel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      const target = container.querySelector('#' + btn.dataset.target);
+      if (target) {
+        target.classList.add('active');
+        target.querySelectorAll('.overlay-preview-wrap').forEach(scalePreviewWrap);
+      }
+    });
+  });
+
   // Sous-onglets VS Screen
   document.querySelectorAll('.vs-subtab-btn').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -2487,13 +2501,15 @@ document.getElementById('btn-vs-hide')?.addEventListener('click', () => {
   }).catch(() => {});
 })();
 
-// Boutons copie dans tab customisation
-document.querySelectorAll('.obs-url-item .btn-copy[data-url]').forEach(btn => {
-  btn.addEventListener('click', () => {
-    navigator.clipboard.writeText(btn.dataset.url).then(() => {
-      const old = btn.textContent;
-      btn.textContent = '✓';
-      setTimeout(() => { btn.textContent = old; }, 1500);
+// Titres cliquables → copie de l'URL
+document.querySelectorAll('.obs-url-item[data-url]').forEach(item => {
+  item.addEventListener('click', () => {
+    navigator.clipboard.writeText(item.dataset.url).then(() => {
+      item.classList.add('copied');
+      const span = item.querySelector('span');
+      const old = span ? span.textContent : '';
+      if (span) span.textContent = '✓ Copié';
+      setTimeout(() => { item.classList.remove('copied'); if (span) span.textContent = old; }, 1200);
       setStatus('URL copiée');
     });
   });
@@ -7085,12 +7101,12 @@ document.querySelectorAll('.conn-copy-btn').forEach(btn => {
       });
   }
 
-  // Charger l'IP quand l'onglet est ouvert
-  document.querySelectorAll('.tab-btn[data-tab="overlayip"]').forEach(btn => {
+  // Charger l'IP quand l'onglet Outils collaboratifs est ouvert
+  document.querySelectorAll('.tab-btn[data-tab="tools"]').forEach(btn => {
     btn.addEventListener('click', loadIPs);
   });
   document.getElementById('tab-select-mobile')?.addEventListener('change', function() {
-    if (this.value === 'overlayip') loadIPs();
+    if (this.value === 'tools') loadIPs();
   });
 })();
 
@@ -10054,7 +10070,7 @@ document.querySelectorAll('.conn-copy-btn').forEach(btn => {
   const KEY = 'pso_regie_mode';
 
   // Onglets visibles en mode régie
-  const REGIE_TABS    = ['match', 'startgg'];
+  const REGIE_TABS    = ['match', 'overlays'];
   // Sous-panneaux à masquer (config/builder/preview)
   const HIDE_SUBPANEL = ['-custom', '-builder', '-preview'];
 
@@ -10111,8 +10127,10 @@ document.querySelectorAll('.conn-copy-btn').forEach(btn => {
   function setRegieMode(active) {
     localStorage.setItem(KEY, active ? '1' : '0');
     document.body.classList.toggle('regie-mode', active);
-    toggleBtn.textContent = active ? '⚙ Mode Config' : '🎬 Mode Régie';
-    toggleBtn.classList.toggle('regie-active', active);
+    if (toggleBtn) {
+      toggleBtn.textContent = active ? '⚙ Mode Config' : '🎬 Mode Régie';
+      toggleBtn.classList.toggle('regie-active', active);
+    }
     const bar = document.getElementById('regie-overlay-bar');
     if (bar) bar.style.display = active ? 'flex' : 'none';
 
@@ -10145,7 +10163,9 @@ document.querySelectorAll('.conn-copy-btn').forEach(btn => {
   socket.on('overlayHide', ({ id }) => { ovState[id] = false; refreshOverlayBar(); });
 
   // ── Init ──────────────────────────────────────────────────────
-  if (localStorage.getItem(KEY) === '1') setRegieMode(true);
+  // Mode régie supprimé : on force la désactivation de tout état résiduel
+  document.body.classList.remove('regie-mode');
+  localStorage.removeItem(KEY);
 
 })();
 
@@ -10547,7 +10567,7 @@ document.querySelectorAll('.conn-copy-btn').forEach(btn => {
 
   /* ── Ignorer ───────────────────────────────────────────────── */
 
-  skipBtn.addEventListener('click', () => {
+  skipBtn?.addEventListener('click', () => {
     localStorage.setItem('pso_setup_dismissed', '1');
     closeModal();
   });

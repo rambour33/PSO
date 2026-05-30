@@ -29,7 +29,7 @@
         <span class="label">Connecté</span>
       </div>
       <button id="btn-mobile-mode" class="btn btn-outline" title="Mode mobile/tablette">📱</button>
-      <button id="btn-toggle-regie" class="btn btn-outline" title="Basculer entre Mode Régie et Mode Config">🎬 Mode Régie</button>
+      <a href="/regie" target="_blank" class="btn btn-outline" title="Page régie — animations entrée/sortie" style="text-decoration:none">🎬 Régie</a>
       <a href="/guide" target="_blank" class="btn btn-outline" title="Guide d'utilisation" style="text-decoration:none">📖 Guide</a>
     </div>
   </header>
@@ -44,14 +44,10 @@
   <nav class="tab-nav" id="tab-nav-desktop">
     <button class="tab-btn" data-tab="config">⚙ Config tournoi</button>
     <button class="tab-btn active" data-tab="match" id="tab-btn-match">Scoreboard SSBU</button>
-    <button class="tab-btn" data-tab="startgg">Start.gg Overlays</button>
+    <button class="tab-btn" data-tab="overlays">Overlays</button>
     <button class="tab-btn" data-tab="themes">Thèmes</button>
-    <button class="tab-btn" data-tab="custom">Liens overlays</button>
     <button class="tab-btn" data-tab="chars" style="display:none">Personnages</button>
-    <button class="tab-btn" data-tab="overlays">Overlays génériques</button>
-    <button class="tab-btn" data-tab="diffusions">Overlays plateformes de stream</button>
-    <button class="tab-btn" data-tab="overlayip">PSO multi-PC</button>
-    <button class="tab-btn" data-tab="notes">📋 Notes</button>
+    <button class="tab-btn" data-tab="tools">🤝 Outils collaboratifs</button>
     <button class="tab-btn" data-tab="dev" style="margin-left:auto;opacity:0.65">🔧 En cours de dev</button>
   </nav>
 
@@ -59,12 +55,9 @@
   <div class="tab-nav-mobile" id="tab-nav-mobile">
     <select id="tab-select-mobile" class="tab-mobile-select">
       <option value="match">Scoreboard SSBU</option>
-      <option value="startgg">Start.gg Overlays</option>
+      <option value="overlays">Overlays</option>
       <option value="themes">Thèmes</option>
-      <option value="custom">Liens overlays</option>
-      <option value="overlays">Overlays génériques</option>
-      <option value="diffusions">Overlays plateformes de stream</option>
-      <option value="overlayip">PSO multi-PC</option>
+      <option value="tools">🤝 Outils collaboratifs</option>
     </select>
   </div>
 
@@ -78,26 +71,6 @@
       <div class="match-nav-group active">
         <button class="match-subpanel-btn match-nav-section active" data-subpanel="sb-sub-match">Scoreboard</button>
         <button class="match-subpanel-btn" data-subpanel="sb-sub-custom">Customisation</button>
-      </div>
-      <span class="match-nav-sep"></span>
-      <div class="match-nav-group">
-        <button class="match-subpanel-btn match-nav-section" data-subpanel="casters-sub-match">Casters</button>
-        </div>
-      <span class="match-nav-sep"></span>
-      <div class="match-nav-group">
-        <button class="match-subpanel-btn match-nav-section" data-subpanel="nm-sub-match">Next Match</button>
-      </div>
-      <span class="match-nav-sep"></span>
-      <div class="match-nav-group">
-        <button class="match-subpanel-btn match-nav-section" data-subpanel="vs-sub-main">VS Screen</button>
-      </div>
-      <span class="match-nav-sep"></span>
-      <div class="match-nav-group">
-        <button class="match-subpanel-btn match-nav-section" data-subpanel="vic-sub-main">Victory</button>
-      </div>
-      <span class="match-nav-sep"></span>
-      <div class="match-nav-group">
-        <button class="match-subpanel-btn match-nav-section" data-subpanel="veto-sub-match">Veto</button>
       </div>
     </div>
 
@@ -635,823 +608,7 @@
 
 
 
-      <div class="match-subpanel" id="casters-sub-match">
-        <section class="section" style="padding:0">
-          <div class="section-header" style="padding:12px 16px">
-            <h2>Casters</h2>
-            <div style="display:flex;gap:8px;align-items:center;">
-              <a href="/casters" target="_blank" class="btn btn-outline btn-sm">OBS ↗</a>
-              <button id="btn-copy-casters" class="btn-copy" title="Copier URL casters">📋</button>
-              <button id="btn-casters-visibility" class="btn btn-primary btn-sm">Afficher</button>
-            </div>
-          </div>
-          <div style="display:flex;height:700px;overflow:hidden;border-top:1px solid var(--border)">
-          <!-- Titres verticaux -->
-          <div id="casters-nav-titles" style="width:30px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;padding-top:16px;gap:0;background:var(--surface1);border-right:1px solid var(--border);overflow:hidden;">
-            <span class="vic-nav-title" data-target="casters-sect-form">Casters</span>
-            <span class="vic-nav-title" data-target="casters-sect-config">Config</span>
-          </div>
-          <!-- Config scrollable -->
-          <div id="casters-scroll-area" style="flex:1;min-width:0;overflow-y:auto;position:relative">
-            <div id="casters-sect-form" style="padding:16px;border-bottom:1px solid var(--border);">
-              <div class="casters-grid">
-                <div class="caster-form-card">
-                  <div class="caster-card-header">
-                    <h3>Caster 1</h3>
-                    <button class="btn btn-outline btn-sm" id="btn-save-roster-1" title="Sauvegarder dans le roster">💾 Sauvegarder</button>
-                  </div>
-                  <div class="form-group"><label>Nom</label><input type="text" id="c1-name" placeholder="Pseudo du caster" /></div>
-                  <div class="form-group"><label>Twitter / X</label><input type="text" id="c1-twitter" placeholder="@handle" /></div>
-                  <div class="form-group"><label>Twitch</label><input type="text" id="c1-twitch" placeholder="/channel" /></div>
-                  <div class="form-group"><label>YouTube</label><input type="text" id="c1-youtube" placeholder="@channel" /></div>
-                </div>
-                <div class="caster-form-card">
-                  <div class="caster-card-header">
-                    <h3>Caster 2</h3>
-                    <button class="btn btn-outline btn-sm" id="btn-save-roster-2" title="Sauvegarder dans le roster">💾 Sauvegarder</button>
-                  </div>
-                  <div class="form-group"><label>Nom</label><input type="text" id="c2-name" placeholder="Pseudo du caster" /></div>
-                  <div class="form-group"><label>Twitter / X</label><input type="text" id="c2-twitter" placeholder="@handle" /></div>
-                  <div class="form-group"><label>Twitch</label><input type="text" id="c2-twitch" placeholder="/channel" /></div>
-                  <div class="form-group"><label>YouTube</label><input type="text" id="c2-youtube" placeholder="@channel" /></div>
-                </div>
-              </div>
-              <div class="casters-footer">
-                <button id="btn-apply-casters" class="btn btn-primary" style="align-self:flex-end">Appliquer</button>
-              </div>
-              <div class="caster-roster-section">
-                <div class="caster-roster-header">
-                  <span class="caster-roster-title">Roster</span>
-                  <span class="caster-roster-hint">Cliquer pour assigner à un slot</span>
-                </div>
-                <div id="caster-roster-list" class="caster-roster-list">
-                  <div class="caster-roster-empty">Aucun caster sauvegardé</div>
-                </div>
-              </div>
-            </div>
-<div id="casters-sect-config" style="padding:16px;">
-              <div class="custom-grid">
-                <div class="custom-card">
-                  <h3>Disposition</h3>
-                  <div class="theme-btn-row">
-                    <button class="casters-layout-btn theme-btn active" data-layout="row">En ligne →</button>
-                    <button class="casters-layout-btn theme-btn" data-layout="column">En colonne ↓</button>
-                  </div>
-                </div>
-                <div class="custom-card">
-                  <h3>Fond des cartes</h3>
-                  <div class="form-group" style="margin:0">
-                    <label>Couleur</label>
-                    <div style="display:flex;gap:8px;align-items:center">
-                      <input type="color" id="casters-bg-color" value="#0E0E12" />
-                      <input type="number" id="casters-bg-opacity" value="100" min="0" max="100" style="width:60px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:13px;padding:4px 6px;text-align:center" />
-                      <span style="font-size:12px;color:var(--text-muted)">%</span>
-                    </div>
-                  </div>
-                </div>
-                <div class="custom-card">
-                  <h3>Éléments visibles</h3>
-                  <div class="sel-group-label" style="margin-top:8px;">Overlay</div>
-                  <div class="sel-rows" style="margin-bottom:8px;">
-                    <div class="sel-row">
-                      <span class="sel-row-name">Étiquette</span>
-                      <label class="sel-vis-label"><input type="checkbox" id="cb-showLabel" checked />Vis</label>
-                    </div>
-                  </div>
-                  <div class="sel-group-label">Caster 1</div>
-                  <div class="sel-rows" style="margin-bottom:8px;">
-                    <div class="sel-row">
-                      <span class="sel-row-name">Nom</span>
-                      <label class="sel-vis-label"><input type="checkbox" id="cb-c1ShowName" checked />Vis</label>
-                      <label class="sel-coord">Taille<input type="number" id="cb-c1NameSize" value="22" min="8" max="80" /></label>
-                      <input type="color" id="cb-c1NameColor" value="#F0EEF8" title="Couleur" style="width:28px;height:24px;padding:2px;border:1px solid var(--border);border-radius:4px;cursor:pointer;background:none;flex-shrink:0;" />
-                    </div>
-                    <div class="sel-row"><span class="sel-row-name">Twitter</span><label class="sel-vis-label"><input type="checkbox" id="cb-c1ShowTwitter" checked />Vis</label></div>
-                    <div class="sel-row"><span class="sel-row-name">Twitch</span><label class="sel-vis-label"><input type="checkbox" id="cb-c1ShowTwitch" checked />Vis</label></div>
-                    <div class="sel-row"><span class="sel-row-name">YouTube</span><label class="sel-vis-label"><input type="checkbox" id="cb-c1ShowYoutube" checked />Vis</label></div>
-                  </div>
-                  <div class="sel-group-label">Caster 2</div>
-                  <div class="sel-rows">
-                    <div class="sel-row">
-                      <span class="sel-row-name">Nom</span>
-                      <label class="sel-vis-label"><input type="checkbox" id="cb-c2ShowName" checked />Vis</label>
-                      <label class="sel-coord">Taille<input type="number" id="cb-c2NameSize" value="22" min="8" max="80" /></label>
-                      <input type="color" id="cb-c2NameColor" value="#F0EEF8" title="Couleur" style="width:28px;height:24px;padding:2px;border:1px solid var(--border);border-radius:4px;cursor:pointer;background:none;flex-shrink:0;" />
-                    </div>
-                    <div class="sel-row"><span class="sel-row-name">Twitter</span><label class="sel-vis-label"><input type="checkbox" id="cb-c2ShowTwitter" checked />Vis</label></div>
-                    <div class="sel-row"><span class="sel-row-name">Twitch</span><label class="sel-vis-label"><input type="checkbox" id="cb-c2ShowTwitch" checked />Vis</label></div>
-                    <div class="sel-row"><span class="sel-row-name">YouTube</span><label class="sel-vis-label"><input type="checkbox" id="cb-c2ShowYoutube" checked />Vis</label></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <!-- Iframe fixe 60% -->
-          <div style="flex:0 0 60%;border-left:1px solid var(--border);background:#000;position:relative;overflow:hidden;">
-            <div class="overlay-preview-wrap" id="preview-wrap-casters">
-              <iframe src="/casters" class="overlay-preview-frame" id="preview-frame-casters"></iframe>
-            </div>
-          </div>
-        </div>
-        </section>
-      </div><!-- /casters-sub-match -->
-
-      <div class="match-subpanel" id="veto-sub-match">
-        <section class="section" style="padding:0">
-          <div class="section-header" style="padding:12px 16px">
-            <div class="veto-title-row">
-              <h2>Stage Veto</h2>
-              <span class="badge badge-gold">Ruleset custom</span>
-            </div>
-            <div class="veto-header-actions">
-              <a href="/stageveto" target="_blank" class="btn btn-outline btn-sm">OBS ↗</a>
-              <button id="veto-btn-visibility" class="btn btn-primary btn-sm">Masquer veto</button>
-              <button id="veto-btn-next-game" class="btn btn-outline btn-sm">Jeu suivant ▶</button>
-              <button id="veto-btn-reset" class="btn btn-danger btn-sm">Reset veto</button>
-              <button class="btn-copy" id="btn-copy-veto" title="Copier URL veto">📋</button>
-            </div>
-          </div>
-          <div style="display:flex;height:700px;overflow:hidden;border-top:1px solid var(--border)">
-          <!-- Titres verticaux -->
-          <div id="veto-nav-titles" style="width:30px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;padding-top:16px;gap:0;background:var(--surface1);border-right:1px solid var(--border);overflow:hidden;">
-            <span class="vic-nav-title" data-target="veto-sect-action">Action</span>
-            <span class="vic-nav-title" data-target="veto-sect-ruleset">Ruleset</span>
-          </div>
-          <!-- Config scrollable -->
-          <div id="veto-scroll-area" style="flex:1;min-width:0;overflow-y:auto;position:relative">
-            <div id="veto-sect-action" style="padding:16px;border-bottom:1px solid var(--border);">
-              <section class="section veto-section" style="padding:0;border:none">
-                <div class="veto-step-bar">
-                  <div id="veto-action-badge" class="csb-action ban">BAN</div>
-                  <span class="csb-sep">·</span>
-                  <span id="veto-step-text" class="csb-team">Chargement...</span>
-                </div>
-                <div class="veto-body">
-                  <div class="veto-main-col">
-                    <div id="veto-stages-grid" class="veto-stages-grid"></div>
-                    <div id="veto-seq-track" class="veto-sequence-track"></div>
-                  </div>
-                  <div class="veto-side-col">
-                    <div class="ban-gen-block">
-                      <div class="ban-gen-header"><span>Shifumi</span></div>
-                      <button id="btn-shifumi" class="btn btn-outline btn-full">🎲 Lancer le shifumi</button>
-                      <span id="ban-first-result" class="ban-first-result" style="text-align:left;font-style:normal;font-size:12px;min-height:16px;display:block"></span>
-                    </div>
-                    <div class="ban-gen-block">
-                      <div class="ban-gen-header"><span>Premier bannisseur</span></div>
-                      <div class="ban-first-row">
-                        <button class="ban-first-btn active" data-first="1" id="ban-first-p1">J1</button>
-                        <button class="ban-first-btn" data-first="2" id="ban-first-p2">J2</button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </section>
-            </div>
-<div id="veto-sect-ruleset" style="padding:16px;">
-              <div class="ruleset-card">
-                <div id="ruleset-stages-list" class="ruleset-stages-list" style="grid-column:1/-1"></div>
-                <div class="add-stage-form" style="grid-column:1/-1">
-                  <h4>Ajouter un stage</h4>
-                  <div class="stage-type-row">
-                    <label><input type="radio" name="stage-type" value="starter" checked /> Starter</label>
-                    <label><input type="radio" name="stage-type" value="counterpick" /> Counterpick</label>
-                  </div>
-                  <button id="btn-open-stage-picker" class="btn btn-outline btn-full">Choisir un stage…</button>
-                </div>
-                <div class="ban-builder-block">
-                  <div class="ban-builder-title">Séquence jeu 1<span class="ban-builder-count" id="ban-builder-g1-count"></span></div>
-                  <div class="ban-seq-steps" id="ban-seq-g1"></div>
-                  <div class="ban-seq-add-row">
-                    <button class="ban-seq-btn p1" data-builder="g1" data-player="1">+ Gagnant</button>
-                    <button class="ban-seq-btn p2" data-builder="g1" data-player="2">+ Perdant</button>
-                    <button class="ban-seq-btn pick" data-builder="g1">+ Map sélectionnée</button>
-                  </div>
-                  <input type="hidden" id="ban-pattern-g1" value="2-2" />
-                </div>
-                <div class="ban-builder-block">
-                  <div class="ban-builder-title">Séquence jeux suivants<span class="ban-builder-count" id="ban-builder-g2-count"></span></div>
-                  <div class="ban-seq-steps" id="ban-seq-g2"></div>
-                  <div class="ban-seq-add-row">
-                    <button class="ban-seq-btn p1" data-builder="g2" data-player="1">+ Gagnant</button>
-                    <button class="ban-seq-btn p2" data-builder="g2" data-player="2">+ Perdant</button>
-                    <button class="ban-seq-btn pick" data-builder="g2">+ Map sélectionnée</button>
-                  </div>
-                  <input type="hidden" id="ban-pattern-g2" value="1" />
-                </div>
-                <p class="hint" id="ban-pattern-preview" style="grid-column:1/-1;margin:0"></p>
-                <label class="checkbox-row" style="grid-column:1/-1">
-                  <input type="checkbox" id="stage-clause" />
-                  <span>Stage clause <span style="font-size:10px;color:var(--text-muted)">(pas de répétition)</span></span>
-                </label>
-                <button id="btn-save-ruleset" class="btn btn-primary btn-full" style="grid-column:1/-1">Appliquer le ruleset</button>
-                <div style="grid-column:1/-1;border-top:1px solid var(--border);padding-top:12px">
-                  <h4 style="font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px">Enregistrer</h4>
-                  <div style="display:flex;gap:6px">
-                    <input type="text" id="ruleset-save-name" placeholder="Nom du ruleset…" style="flex:1" />
-                    <button id="btn-ruleset-save" class="btn btn-primary btn-sm">Enregistrer</button>
-                  </div>
-                </div>
-                <div style="grid-column:1/-1">
-                  <h4 style="font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px">Rulesets sauvegardés</h4>
-                  <div id="saved-rulesets-list"></div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <!-- Iframe fixe 60% -->
-          <div style="flex:0 0 60%;border-left:1px solid var(--border);background:#000;position:relative;overflow:hidden;">
-            <div class="overlay-preview-wrap" id="preview-wrap-veto">
-              <iframe src="/stageveto" class="overlay-preview-frame" id="preview-frame-veto"></iframe>
-            </div>
-          </div>
-        </div>
-        </section>
-      </div><!-- /veto-sub-match -->
-
-      <!-- VS Screen déplacé → onglet ⚔ VS / Victoire -->
-
-      <div class="match-subpanel" id="nm-sub-match">
-        <section class="section" style="padding:0">
-          <div class="section-header" style="padding:12px 16px">
-            <h2>Next Match</h2>
-            <a href="/nextmatch" target="_blank" class="btn btn-outline btn-sm">OBS ↗</a>
-          </div>
-          <div style="display:flex;height:700px;overflow:hidden;border-top:1px solid var(--border)">
-          <!-- Titres verticaux -->
-          <div id="nm-nav-titles" style="width:30px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;padding-top:16px;gap:0;background:var(--surface1);border-right:1px solid var(--border);overflow:hidden;">
-            <span class="vic-nav-title" data-target="nm-sect-obs">OBS</span>
-            <span class="vic-nav-title" data-target="nm-sect-cadre">Cadre</span>
-            <span class="vic-nav-title" data-target="nm-sect-elements">Éléments</span>
-          </div>
-          <!-- Config scrollable -->
-          <div id="nm-scroll-area" style="flex:1;min-width:0;overflow-y:auto;position:relative">
-            <div id="nm-sect-obs" style="padding:16px;border-bottom:1px solid var(--border);">
-              <div class="custom-card" style="margin:0;">
-                <h3>Utilisation dans OBS</h3>
-                <p style="font-size:13px;color:var(--text-muted);margin-bottom:12px;line-height:1.6;">
-                  Ajoute une <strong>Source Navigateur</strong> dans OBS avec l'URL ci-dessous.<br>
-                  Résolution : <strong>1920 × 1080</strong> · Actualiser toutes les scènes.
-                </p>
-                <div class="name-row" style="gap:8px;">
-                  <input type="text" id="twitch-layout-url" readonly
-                    style="flex:1;font-size:12px;background:var(--surface2);border:1px solid var(--border);color:var(--text-muted);cursor:text;"
-                    value="http://localhost:3002/nextmatch" />
-                  <button class="btn btn-primary btn-sm" id="btn-copy-twitch-url">Copier</button>
-                </div>
-              </div>
-            </div>
-<div id="nm-sect-cadre" style="padding:16px;border-bottom:1px solid var(--border);">
-              <div class="custom-card" style="margin:0;">
-                <h3>Options du cadre</h3>
-                <div class="form-group" style="margin-bottom:14px;">
-                  <label>Taille des coins <span class="hint">px</span></label>
-                  <div class="logo-particles-row">
-                    <input type="range" id="tw-corner-size" min="20" max="120" value="48" />
-                    <input type="number" id="tw-corner-size-num" min="20" max="120" value="48" style="width:60px;" />
-                  </div>
-                </div>
-                <div class="form-group" style="margin-bottom:14px;">
-                  <label>Épaisseur du cadre <span class="hint">px</span></label>
-                  <div class="logo-particles-row">
-                    <input type="range" id="tw-corner-thick" min="1" max="8" value="3" step="1" />
-                    <input type="number" id="tw-corner-thick-num" min="1" max="8" value="3" style="width:60px;" />
-                  </div>
-                </div>
-                <div class="form-group" style="margin:0;">
-                  <label>Opacité du fond de la barre <span class="hint">0 – 100 %</span></label>
-                  <div class="logo-particles-row">
-                    <input type="range" id="tw-bg-opacity" min="0" max="100" value="88" />
-                    <input type="number" id="tw-bg-opacity-num" min="0" max="100" value="88" style="width:60px;" />
-                  </div>
-                </div>
-              </div>
-            </div>
-<div id="nm-sect-elements" style="padding:16px;">
-              <div class="custom-card" style="margin:0;">
-                <h3>Éléments affichés</h3>
-                <div style="display:flex;flex-direction:column;gap:10px;">
-                  <label class="checkbox-row"><input type="checkbox" id="tw-show-corners" checked /><span>Coins décoratifs</span></label>
-                  <label class="checkbox-row"><input type="checkbox" id="tw-show-scanline" checked /><span>Ligne de scan animée</span></label>
-                  <label class="checkbox-row"><input type="checkbox" id="tw-show-sidelines" checked /><span>Lignes latérales</span></label>
-                  <label class="checkbox-row"><input type="checkbox" id="tw-show-glow" checked /><span>Lueur ambiante</span></label>
-                  <label class="checkbox-row"><input type="checkbox" id="tw-show-chars" checked /><span>Personnages dans la barre joueurs</span></label>
-                  <label class="checkbox-row"><input type="checkbox" id="tw-show-vs" checked /><span>Barre joueurs (joueur 1 · VS · joueur 2)</span></label>
-                </div>
-              </div>
-            </div>
-          </div>
-          <!-- Iframe fixe 60% -->
-          <div style="flex:0 0 60%;border-left:1px solid var(--border);background:#000;position:relative;overflow:hidden;">
-            <div class="overlay-preview-wrap" id="preview-wrap-nextmatch">
-              <iframe src="/nextmatch" class="overlay-preview-frame" id="preview-frame-nextmatch"></iframe>
-            </div>
-          </div>
-        </div>
-        </section>
-      </div><!-- /nm-sub-match -->
-
-      <div class="match-subpanel" id="vs-sub-main">
-      <section class="section" style="padding:0">
-        <div class="section-header" style="padding:12px 16px">
-          <h2>VS Screen</h2>
-          <div style="display:flex;gap:8px;align-items:center">
-            <button id="btn-vs-trigger" class="btn btn-primary btn-sm">⚔ VS Anim</button>
-            <button id="btn-vs-hide" class="btn btn-outline btn-sm">Masquer</button>
-            <a href="/vs-screen" target="_blank" class="btn btn-outline btn-sm">OBS ↗</a>
-          </div>
-        </div>
-        <div style="display:flex;height:700px;overflow:hidden;border-top:1px solid var(--border)">
-          <!-- Titres verticaux -->
-          <div id="vs-nav-titles" style="width:30px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;padding-top:16px;gap:0;background:var(--surface1);border-right:1px solid var(--border);overflow:hidden;">
-            <span class="vic-nav-title" data-target="vs-sect-obs">OBS</span>
-            <span class="vic-nav-title" data-target="vs-sect-fond">Fond</span>
-            <span class="vic-nav-title" data-target="vs-sect-effects">Effets</span>
-            <span class="vic-nav-title" data-target="vs-sect-particles">Particules</span>
-            <span class="vic-nav-title" data-target="vs-sect-anim">Animation</span>
-          </div>
-          <!-- Config scrollable -->
-          <div id="vs-scroll-area" style="flex:1;min-width:0;overflow-y:auto;position:relative">
-            <div id="vs-sect-obs" style="padding:16px;border-bottom:1px solid var(--border);">
-              <div class="vs-obs-guide">
-                <div class="vs-obs-guide-title">📺 Intégration OBS</div>
-                <ol class="vs-obs-guide-steps">
-                  <li>Dans OBS, ajouter une source <strong>Navigateur</strong></li>
-                  <li>URL : <code>http://localhost:3002/vs-screen</code> <button class="btn-copy-inline" data-url="http://localhost:3002/vs-screen">📋</button></li>
-                  <li>Résolution : <strong>1920 × 1080</strong>, fond transparent activé</li>
-                  <li>Utiliser le bouton <em>Déclencher</em> ci-dessus pour lancer l'animation</li>
-                  <li>Le bouton <em>Masquer</em> ou la minuterie auto-masquage cachent la VS screen</li>
-                </ol>
-              </div>
-            </div>
-<div id="vs-sect-fond" style="padding:16px;border-bottom:1px solid var(--border);">
-              <div class="custom-grid">
-                <div class="custom-card">
-                  <h3>Image de fond</h3>
-                  <p class="hint" style="margin-bottom:10px">PNG, JPG ou WebP — 1920×1080.</p>
-                  <div style="display:flex;flex-direction:column;gap:10px">
-                    <label class="btn btn-outline" style="cursor:pointer;text-align:center">
-                      Choisir une image
-                      <input type="file" id="vs-bg-file" accept="image/png,image/jpeg,image/webp" style="display:none" />
-                    </label>
-                    <div id="vs-bg-preview-wrap" style="display:none;position:relative">
-                      <img id="vs-bg-preview" style="width:100%;border-radius:6px;border:1px solid var(--border);display:block" alt="aperçu" />
-                      <button id="btn-vs-bg-clear" class="btn btn-sm" style="margin-top:6px;width:100%;background:rgba(220,50,50,0.15);color:#e05050;border:1px solid rgba(220,50,50,0.3)">Supprimer</button>
-                    </div>
-                    <p id="vs-bg-status" class="hint" style="text-align:center"></p>
-                  </div>
-                </div>
-                <div class="custom-card">
-                  <h3>Filtres du fond de scène</h3>
-                  <div class="form-group">
-                    <label>Flou <span id="vs-bg-blur-val" class="hint">18px</span></label>
-                    <input type="range" id="vs-bg-blur" min="0" max="60" value="18" />
-                  </div>
-                  <div class="form-group">
-                    <label>Luminosité <span id="vs-bg-brightness-val" class="hint">30%</span></label>
-                    <input type="range" id="vs-bg-brightness" min="0" max="120" value="30" />
-                  </div>
-                  <div class="form-group">
-                    <label>Saturation <span id="vs-bg-saturation-val" class="hint">140%</span></label>
-                    <input type="range" id="vs-bg-saturation" min="0" max="300" value="140" />
-                  </div>
-                  <div class="form-group">
-                    <label>Opacité fond <span id="vs-bg-opacity-val" class="hint">100%</span></label>
-                    <input type="range" id="vs-bg-opacity" min="0" max="100" value="100" />
-                  </div>
-                </div>
-              </div>
-            </div>
-<div id="vs-sect-effects" style="padding:16px;border-bottom:1px solid var(--border);">
-              <div class="custom-grid">
-                <div class="custom-card">
-                  <h3>Vignette</h3>
-                  <div class="form-group">
-                    <label>Intensité <span id="vs-vignette-val" class="hint">100%</span></label>
-                    <input type="range" id="vs-vignette-intensity" min="0" max="100" value="100" />
-                  </div>
-                </div>
-                <div class="custom-card">
-                  <h3>Scanlines</h3>
-                  <div class="form-group">
-                    <label class="checkbox-row">
-                      <input type="checkbox" id="vs-scanlines-visible" checked />
-                      <span>Visibles</span>
-                    </label>
-                  </div>
-                  <div class="form-group">
-                    <label>Opacité <span id="vs-scanlines-opacity-val" class="hint">8%</span></label>
-                    <input type="range" id="vs-scanlines-opacity" min="0" max="50" value="8" />
-                  </div>
-                </div>
-                <div class="custom-card">
-                  <h3>Teinte de couleur</h3>
-                  <div class="form-group">
-                    <label class="checkbox-row">
-                      <input type="checkbox" id="vs-tint-visible" />
-                      <span>Activer la teinte</span>
-                    </label>
-                  </div>
-                  <div class="form-group">
-                    <label>Couleur</label>
-                    <input type="color" id="vs-tint-color" value="#000000" />
-                  </div>
-                  <div class="form-group">
-                    <label>Opacité <span id="vs-tint-opacity-val" class="hint">0%</span></label>
-                    <input type="range" id="vs-tint-opacity" min="0" max="80" value="0" />
-                  </div>
-                </div>
-              </div>
-            </div>
-<div id="vs-sect-particles" style="padding:16px;border-bottom:1px solid var(--border);">
-              <div class="custom-grid">
-                <div class="custom-card">
-                  <h3>Override Joueur 1</h3>
-                  <div class="form-group">
-                    <select id="vs-p1-particle" class="select-input" style="width:100%">
-                      <option value="auto">Auto (selon personnage)</option>
-                      <option value="none">Aucune</option>
-                      <optgroup label="Atmosphère">
-                        <option value="snow">Neige</option><option value="rain">Pluie</option><option value="leaf">Feuilles</option>
-                        <option value="sand">Sable</option><option value="smoke">Fumée</option><option value="petal">Pétales</option>
-                        <option value="bubble">Bulles</option>
-                      </optgroup>
-                      <optgroup label="Énergie">
-                        <option value="fire">Feu</option><option value="flame">Flammes</option><option value="bolt">Éclairs</option>
-                        <option value="sparkle">Étincelles</option><option value="aura">Aura</option><option value="pixel">Pixels</option>
-                        <option value="data">Data</option>
-                      </optgroup>
-                      <optgroup label="Objets">
-                        <option value="star">Étoiles</option><option value="heart">Cœurs</option><option value="ghost">Fantômes</option>
-                        <option value="note">Notes</option><option value="coin">Pièces</option><option value="ring">Anneaux</option>
-                        <option value="feather">Plumes</option><option value="rune">Runes</option>
-                      </optgroup>
-                    </select>
-                  </div>
-                </div>
-                <div class="custom-card">
-                  <h3>Override Joueur 2</h3>
-                  <div class="form-group">
-                    <select id="vs-p2-particle" class="select-input" style="width:100%">
-                      <option value="auto">Auto (selon personnage)</option>
-                      <option value="none">Aucune</option>
-                      <optgroup label="Atmosphère">
-                        <option value="snow">Neige</option><option value="rain">Pluie</option><option value="leaf">Feuilles</option>
-                        <option value="sand">Sable</option><option value="smoke">Fumée</option><option value="petal">Pétales</option>
-                        <option value="bubble">Bulles</option>
-                      </optgroup>
-                      <optgroup label="Énergie">
-                        <option value="fire">Feu</option><option value="flame">Flammes</option><option value="bolt">Éclairs</option>
-                        <option value="sparkle">Étincelles</option><option value="aura">Aura</option><option value="pixel">Pixels</option>
-                        <option value="data">Data</option>
-                      </optgroup>
-                      <optgroup label="Objets">
-                        <option value="star">Étoiles</option><option value="heart">Cœurs</option><option value="ghost">Fantômes</option>
-                        <option value="note">Notes</option><option value="coin">Pièces</option><option value="ring">Anneaux</option>
-                        <option value="feather">Plumes</option><option value="rune">Runes</option>
-                      </optgroup>
-                    </select>
-                  </div>
-                </div>
-                <div class="custom-card" style="grid-column:1/-1">
-                  <h3>Global</h3>
-                  <div class="form-group">
-                    <label>Densité <span id="vs-particle-density-val" class="hint">100%</span></label>
-                    <input type="range" id="vs-particle-density" min="0" max="200" value="100" />
-                  </div>
-                  <div class="form-group">
-                    <label>Opacité <span id="vs-particle-opacity-val" class="hint">100%</span></label>
-                    <input type="range" id="vs-particle-opacity" min="0" max="100" value="100" />
-                  </div>
-                </div>
-              </div>
-            </div>
-<div id="vs-sect-anim" style="padding:16px;">
-              <div class="custom-grid">
-                <div class="custom-card">
-                  <h3>Entrée</h3>
-                  <div class="form-group">
-                    <label>Type d'animation</label>
-                    <div class="vs-anim-grid" id="vs-entry-grid">
-                      <button class="vs-anim-btn active" data-entry="slide">↔ Glissement</button>
-                      <button class="vs-anim-btn" data-entry="zoom">⊕ Zoom</button>
-                      <button class="vs-anim-btn" data-entry="fade">◎ Fondu</button>
-                      <button class="vs-anim-btn" data-entry="drop">↓ Chute</button>
-                      <button class="vs-anim-btn" data-entry="bounce">⇌ Rebond</button>
-                      <button class="vs-anim-btn" data-entry="split">⇔ Split</button>
-                    </div>
-                  </div>
-                  <div class="form-group">
-                    <label>Durée <span id="vs-anim-duration-val" class="hint">700ms</span></label>
-                    <input type="range" id="vs-anim-duration" min="200" max="2000" step="50" value="700" />
-                  </div>
-                  <div class="form-group">
-                    <label class="checkbox-row">
-                      <input type="checkbox" id="vs-flash-enabled" checked />
-                      <span>Flash d'entrée</span>
-                    </label>
-                  </div>
-                </div>
-                <div class="custom-card">
-                  <h3>Sortie</h3>
-                  <div class="form-group">
-                    <label>Type de sortie</label>
-                    <div class="vs-anim-grid" id="vs-exit-grid">
-                      <button class="vs-anim-btn active" data-exit="fade">◎ Fondu</button>
-                      <button class="vs-anim-btn" data-exit="slide">↔ Glissement</button>
-                      <button class="vs-anim-btn" data-exit="zoom-out">⊖ Zoom arrière</button>
-                    </div>
-                  </div>
-                </div>
-                <div class="custom-card" style="grid-column:1/-1">
-                  <h3>Minuterie auto-masquage</h3>
-                  <p class="hint" style="margin-bottom:10px">Masque automatiquement la VS screen après l'animation d'entrée. <strong>0 = désactivé.</strong></p>
-                  <div style="display:flex;align-items:center;gap:12px">
-                    <input type="range" id="vs-autohide-range" min="0" max="30" value="0" style="flex:1" />
-                    <input type="number" id="vs-autohide-num" min="0" max="30" value="0" style="width:60px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:13px;padding:4px 6px;text-align:center" />
-                    <span class="hint">sec</span>
-                  </div>
-                  <p id="vs-autohide-preview" class="hint" style="margin-top:6px;text-align:center"></p>
-                </div>
-              </div>
-            </div>
-          </div>
-          <!-- Iframe fixe 60% -->
-          <div style="flex:0 0 60%;border-left:1px solid var(--border);background:#000;position:relative;overflow:hidden;">
-            <div class="overlay-preview-wrap" id="preview-wrap-vsscreen">
-              <iframe src="/vs-screen" class="overlay-preview-frame" id="preview-frame-vsscreen"></iframe>
-            </div>
-          </div>
-        </div>
-      </section>
-      </div><!-- /vs-sub-main -->
-
-      <div class="match-subpanel" id="vic-sub-main">
-      <section class="section" style="padding:0">
-        <div class="section-header" style="padding:12px 16px">
-          <h2>Overlay Victoire</h2>
-          <a href="/victory" target="_blank" class="btn btn-outline btn-sm">Ouvrir l'overlay ↗</a>
-        </div>
-
-        <div style="display:flex;height:700px;overflow:hidden;border-top:1px solid var(--border)">
-
-          <!-- Titres verticaux -->
-          <div id="vic-nav-titles" style="width:30px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:20px 0;gap:28px;border-right:1px solid var(--border);background:var(--surface)">
-            <span class="vic-nav-title" data-target="vic-sect-obs">OBS</span>
-            <span class="vic-nav-title" data-target="vic-sect-fond">Fond</span>
-            <span class="vic-nav-title" data-target="vic-sect-effects">Effets</span>
-            <span class="vic-nav-title" data-target="vic-sect-particles">Particules</span>
-            <span class="vic-nav-title" data-target="vic-sect-anim">Animation</span>
-          </div>
-
-          <!-- Config scrollable -->
-          <div id="vic-scroll-area" style="flex:1;min-width:0;overflow-y:auto;position:relative">
-
-            <div id="vic-sect-obs" style="padding:16px">
-              <div class="vs-obs-guide">
-                <div class="vs-obs-guide-title">📺 Intégration OBS</div>
-                <ol class="vs-obs-guide-steps">
-                  <li>Dans OBS, ajouter une source <strong>Navigateur</strong></li>
-                  <li>URL : <code>http://localhost:3002/victory</code> <button class="btn-copy-inline" data-url="http://localhost:3002/victory">📋</button></li>
-                  <li>Résolution : <strong>1920 × 1080</strong>, fond transparent activé</li>
-                  <li>Le joueur affiché est celui qui a <strong>le plus de points</strong> dans le scoreboard</li>
-                  <li>Il disparaît automatiquement quand le score est remis à zéro</li>
-                </ol>
-              </div>
-            </div>
-
-            <div id="vic-sect-fond" style="padding:0 16px 20px">
-              <div class="custom-grid">
-                <div class="custom-card">
-                  <h3>Image de fond</h3>
-                  <p class="hint" style="margin-bottom:10px">PNG, JPG ou WebP — 1920×1080.</p>
-                  <div style="display:flex;flex-direction:column;gap:10px">
-                    <label class="btn btn-outline" style="cursor:pointer;text-align:center">
-                      Choisir une image
-                      <input type="file" id="vic-bg-file" accept="image/png,image/jpeg,image/webp" style="display:none" />
-                    </label>
-                    <div id="vic-bg-preview-wrap" style="display:none;position:relative">
-                      <img id="vic-bg-preview" style="width:100%;border-radius:6px;border:1px solid var(--border);display:block" alt="aperçu" />
-                      <button id="btn-vic-bg-clear" class="btn btn-sm" style="margin-top:6px;width:100%;background:rgba(220,50,50,0.15);color:#e05050;border:1px solid rgba(220,50,50,0.3)">Supprimer</button>
-                    </div>
-                    <p id="vic-bg-status" class="hint" style="text-align:center"></p>
-                  </div>
-                </div>
-                <div class="custom-card">
-                  <h3>Filtres du fond de scène</h3>
-                  <div class="form-group">
-                    <label>Flou <span id="vic-bg-blur-val" class="hint">18px</span></label>
-                    <input type="range" id="vic-bg-blur" min="0" max="60" value="18" />
-                  </div>
-                  <div class="form-group">
-                    <label>Luminosité <span id="vic-bg-brightness-val" class="hint">30%</span></label>
-                    <input type="range" id="vic-bg-brightness" min="0" max="120" value="30" />
-                  </div>
-                  <div class="form-group">
-                    <label>Saturation <span id="vic-bg-saturation-val" class="hint">140%</span></label>
-                    <input type="range" id="vic-bg-saturation" min="0" max="300" value="140" />
-                  </div>
-                  <div class="form-group">
-                    <label>Opacité fond <span id="vic-bg-opacity-val" class="hint">100%</span></label>
-                    <input type="range" id="vic-bg-opacity" min="0" max="100" value="100" />
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div id="vic-sect-effects" style="padding:0 16px 20px">
-              <div class="custom-grid">
-                <div class="custom-card">
-                  <h3>Vignette</h3>
-                  <div class="form-group">
-                    <label>Intensité <span id="vic-vignette-val" class="hint">100%</span></label>
-                    <input type="range" id="vic-vignette-intensity" min="0" max="100" value="100" />
-                  </div>
-                </div>
-                <div class="custom-card">
-                  <h3>Scanlines</h3>
-                  <div class="form-group">
-                    <label class="checkbox-row">
-                      <input type="checkbox" id="vic-scanlines-visible" checked />
-                      <span>Visibles</span>
-                    </label>
-                  </div>
-                  <div class="form-group">
-                    <label>Opacité <span id="vic-scanlines-opacity-val" class="hint">8%</span></label>
-                    <input type="range" id="vic-scanlines-opacity" min="0" max="50" value="8" />
-                  </div>
-                </div>
-                <div class="custom-card">
-                  <h3>Teinte de couleur</h3>
-                  <div class="form-group">
-                    <label class="checkbox-row">
-                      <input type="checkbox" id="vic-tint-visible" />
-                      <span>Activer la teinte</span>
-                    </label>
-                  </div>
-                  <div class="form-group">
-                    <label>Couleur</label>
-                    <input type="color" id="vic-tint-color" value="#000000" />
-                  </div>
-                  <div class="form-group">
-                    <label>Opacité <span id="vic-tint-opacity-val" class="hint">0%</span></label>
-                    <input type="range" id="vic-tint-opacity" min="0" max="80" value="0" />
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div id="vic-sect-particles" style="padding:0 16px 20px">
-              <div class="custom-grid">
-                <div class="custom-card">
-                  <h3>Override Joueur 1</h3>
-                  <div class="form-group">
-                    <select id="vic-p1-particle" class="select-input" style="width:100%">
-                      <option value="auto">Auto (selon personnage)</option>
-                      <option value="none">Aucune</option>
-                      <optgroup label="Atmosphère">
-                        <option value="snow">Neige</option>
-                        <option value="rain">Pluie</option>
-                        <option value="leaf">Feuilles</option>
-                        <option value="sand">Sable</option>
-                        <option value="smoke">Fumée</option>
-                        <option value="petal">Pétales</option>
-                        <option value="bubble">Bulles</option>
-                      </optgroup>
-                      <optgroup label="Énergie">
-                        <option value="fire">Feu</option>
-                        <option value="flame">Flammes</option>
-                        <option value="bolt">Éclairs</option>
-                        <option value="sparkle">Étincelles</option>
-                        <option value="aura">Aura</option>
-                        <option value="pixel">Pixels</option>
-                        <option value="data">Data</option>
-                      </optgroup>
-                      <optgroup label="Objets">
-                        <option value="star">Étoiles</option>
-                        <option value="heart">Cœurs</option>
-                        <option value="ghost">Fantômes</option>
-                        <option value="note">Notes</option>
-                        <option value="coin">Pièces</option>
-                        <option value="ring">Anneaux</option>
-                        <option value="feather">Plumes</option>
-                        <option value="rune">Runes</option>
-                      </optgroup>
-                    </select>
-                  </div>
-                </div>
-                <div class="custom-card">
-                  <h3>Override Joueur 2</h3>
-                  <div class="form-group">
-                    <select id="vic-p2-particle" class="select-input" style="width:100%">
-                      <option value="auto">Auto (selon personnage)</option>
-                      <option value="none">Aucune</option>
-                      <optgroup label="Atmosphère">
-                        <option value="snow">Neige</option>
-                        <option value="rain">Pluie</option>
-                        <option value="leaf">Feuilles</option>
-                        <option value="sand">Sable</option>
-                        <option value="smoke">Fumée</option>
-                        <option value="petal">Pétales</option>
-                        <option value="bubble">Bulles</option>
-                      </optgroup>
-                      <optgroup label="Énergie">
-                        <option value="fire">Feu</option>
-                        <option value="flame">Flammes</option>
-                        <option value="bolt">Éclairs</option>
-                        <option value="sparkle">Étincelles</option>
-                        <option value="aura">Aura</option>
-                        <option value="pixel">Pixels</option>
-                        <option value="data">Data</option>
-                      </optgroup>
-                      <optgroup label="Objets">
-                        <option value="star">Étoiles</option>
-                        <option value="heart">Cœurs</option>
-                        <option value="ghost">Fantômes</option>
-                        <option value="note">Notes</option>
-                        <option value="coin">Pièces</option>
-                        <option value="ring">Anneaux</option>
-                        <option value="feather">Plumes</option>
-                        <option value="rune">Runes</option>
-                      </optgroup>
-                    </select>
-                  </div>
-                </div>
-                <div class="custom-card" style="grid-column:1/-1">
-                  <h3>Global</h3>
-                  <div class="form-group">
-                    <label>Densité <span id="vic-particle-density-val" class="hint">100%</span></label>
-                    <input type="range" id="vic-particle-density" min="0" max="200" value="100" />
-                  </div>
-                  <div class="form-group">
-                    <label>Opacité <span id="vic-particle-opacity-val" class="hint">100%</span></label>
-                    <input type="range" id="vic-particle-opacity" min="0" max="100" value="100" />
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div id="vic-sect-anim" style="padding:0 16px 40px">
-              <div class="custom-grid">
-                <div class="custom-card">
-                  <h3>Entrée</h3>
-                  <div class="form-group">
-                    <label>Type d'animation</label>
-                    <div class="vs-anim-grid" id="vic-entry-grid">
-                      <button class="vs-anim-btn" data-vicentry="slide">↔ Glissement</button>
-                      <button class="vs-anim-btn" data-vicentry="zoom">⊕ Zoom</button>
-                      <button class="vs-anim-btn active" data-vicentry="fade">◎ Fondu</button>
-                      <button class="vs-anim-btn" data-vicentry="drop">↓ Chute</button>
-                      <button class="vs-anim-btn" data-vicentry="bounce">⇌ Rebond</button>
-                    </div>
-                  </div>
-                  <div class="form-group">
-                    <label>Durée <span id="vic-anim-duration-val" class="hint">700ms</span></label>
-                    <input type="range" id="vic-anim-duration" min="200" max="2000" step="50" value="700" />
-                  </div>
-                  <div class="form-group">
-                    <label class="checkbox-row">
-                      <input type="checkbox" id="vic-flash-enabled" checked />
-                      <span>Flash d'entrée</span>
-                    </label>
-                  </div>
-                </div>
-                <div class="custom-card">
-                  <h3>Sortie</h3>
-                  <div class="form-group">
-                    <label>Type de sortie</label>
-                    <div class="vs-anim-grid" id="vic-exit-grid">
-                      <button class="vs-anim-btn active" data-vicexit="fade">◎ Fondu</button>
-                      <button class="vs-anim-btn" data-vicexit="slide">↔ Glissement</button>
-                      <button class="vs-anim-btn" data-vicexit="zoom-out">⊖ Zoom arrière</button>
-                    </div>
-                  </div>
-                </div>
-                <div class="custom-card" style="grid-column:1/-1">
-                  <h3>Minuterie auto-masquage</h3>
-                  <p class="hint" style="margin-bottom:10px">Masque automatiquement l'overlay victoire après l'animation d'entrée. <strong>0 = désactivé.</strong></p>
-                  <div style="display:flex;align-items:center;gap:12px">
-                    <input type="range" id="vic-autohide-range" min="0" max="30" value="0" style="flex:1" />
-                    <input type="number" id="vic-autohide-num" min="0" max="30" value="0" style="width:60px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:13px;padding:4px 6px;text-align:center" />
-                    <span class="hint">sec</span>
-                  </div>
-                  <p id="vic-autohide-preview" class="hint" style="margin-top:6px;text-align:center"></p>
-                </div>
-              </div>
-            </div>
-
-          </div><!-- /vic-scroll-area -->
-
-          <!-- Iframe fixe 60% -->
-          <div style="flex:0 0 60%;min-width:0;border-left:1px solid var(--border);background:var(--surface2);padding:10px">
-            <div class="overlay-preview-wrap" id="preview-wrap-victory">
-              <iframe src="/victory" class="overlay-preview-frame" id="preview-frame-victory"></iframe>
-            </div>
-          </div>
-
-        </div><!-- /flex row -->
-      </section>
-      </div><!-- /vic-sub-main -->
+      
 
     <!-- CONNEXION START.GG (toujours visible, masquée quand les participants sont chargés) -->
     <section class="section" id="match-sgg-connect-section">
@@ -2853,225 +2010,7 @@
   <!-- ═══════════════════════════════════════════════════════════ -->
   <!-- TAB : LIENS OVERLAYS                                        -->
   <!-- ═══════════════════════════════════════════════════════════ -->
-  <div class="tab-content" id="tab-custom">
-    <section class="section">
-      <div class="section-header"><h2>URLs overlays OBS</h2></div>
-      <div class="custom-grid" style="grid-template-columns:1fr">
-        <div class="custom-card">
-          <!-- Téléchargement collection OBS -->
-          <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 14px;margin-bottom:14px;background:linear-gradient(135deg,rgba(232,184,48,0.08),rgba(232,184,48,0.03));border:1px solid rgba(232,184,48,0.3);border-radius:8px;">
-            <div>
-              <div style="font-weight:700;font-size:13px;margin-bottom:4px;color:var(--text)">Collection de scènes OBS prête à l'emploi</div>
-              <div style="font-size:12px;color:var(--text-muted);line-height:1.5">Télécharge un fichier JSON à importer dans OBS via <strong style="color:var(--text)">Collection de scènes → Importer</strong>. Crée automatiquement une scène par overlay (1920×1080, fond transparent).</div>
-            </div>
-            <a href="/api/obs-collection" download="PSO-Overlays.json" class="btn btn-primary" style="white-space:nowrap;flex-shrink:0;padding:10px 18px;font-size:13px">⬇ Télécharger</a>
-          </div>
-          <p class="hint" style="margin-bottom:10px">Copier-coller dans OBS → Source Navigateur.</p>
-          <div id="obs-mode-bar" style="display:flex;align-items:center;gap:8px;margin-bottom:12px;padding:8px 10px;background:var(--surface2);border-radius:6px;border:1px solid var(--border)">
-            <span style="font-size:11px;color:var(--text-muted);flex-shrink:0">URLs pour :</span>
-            <button class="btn btn-sm active" id="btn-mode-local" title="Utiliser localhost (ce PC)">Ce PC</button>
-            <button class="btn btn-sm" id="btn-mode-network" title="Utiliser l'IP réseau (autre PC sur le même réseau)">Autre PC</button>
-            <span id="obs-mode-ip" style="font-size:11px;color:var(--text-muted);margin-left:4px;font-family:monospace"></span>
-          </div>
-          <div class="obs-url-cols">
-            <div class="obs-url-col" id="obs-custom-scenes-col">
-              <div class="obs-url-col-header" style="color:#c084fc">Scènes custom</div>
-              <!-- Populated dynamically by control.js -->
-            </div>
-            <div class="obs-url-col">
-              <div class="obs-url-col-header">Scoreboard</div>
-              <div class="obs-url-item"><span>Scoreboard</span><code>http://localhost:3002/overlay</code><button class="btn-copy" data-url="http://localhost:3002/overlay">📋</button></div>
-              <div class="obs-url-item"><span>VS Screen</span><code>http://localhost:3002/vs-screen</code><button class="btn-copy" data-url="http://localhost:3002/vs-screen">📋</button></div>
-              <div class="obs-url-item"><span>Victoire</span><code>http://localhost:3002/victory</code><button class="btn-copy" data-url="http://localhost:3002/victory">📋</button></div>
-              <div class="obs-url-item"><span>Casters</span><code>http://localhost:3002/casters</code><button class="btn-copy" data-url="http://localhost:3002/casters">📋</button></div>
-              <div class="obs-url-item"><span>Cam</span><code>http://localhost:3002/cam</code><button class="btn-copy" data-url="http://localhost:3002/cam">📋</button></div>
-            </div>
-            <div class="obs-url-col">
-              <div class="obs-url-col-header">Tournoi</div>
-              <div class="obs-url-item"><span>Stage Veto</span><code>http://localhost:3002/stageveto</code><button class="btn-copy" data-url="http://localhost:3002/stageveto">📋</button></div>
-              <div class="obs-url-item"><span>Bracket</span><code>http://localhost:3002/bracket</code><button class="btn-copy" data-url="http://localhost:3002/bracket">📋</button></div>
-              <div class="obs-url-item"><span>Top 8</span><code>http://localhost:3002/top8</code><button class="btn-copy" data-url="http://localhost:3002/top8">📋</button></div>
-              <div class="obs-url-item"><span>H2H</span><code>http://localhost:3002/h2h</code><button class="btn-copy" data-url="http://localhost:3002/h2h">📋</button></div>
-              <div class="obs-url-item"><span>Stats joueur</span><code>http://localhost:3002/player-stats</code><button class="btn-copy" data-url="http://localhost:3002/player-stats">📋</button></div>
-              <div class="obs-url-item"><span>Historique</span><code>http://localhost:3002/tournament-history</code><button class="btn-copy" data-url="http://localhost:3002/tournament-history">📋</button></div>
-            </div>
-            <div class="obs-url-col">
-              <div class="obs-url-col-header">Stream</div>
-              <div class="obs-url-item"><span>Titre du stream</span><code>http://localhost:3002/stream-title</code><button class="btn-copy" data-url="http://localhost:3002/stream-title">📋</button></div>
-              <div class="obs-url-item"><span>Bandeau</span><code>http://localhost:3002/ticker</code><button class="btn-copy" data-url="http://localhost:3002/ticker">📋</button></div>
-              <div class="obs-url-item"><span>Cadres</span><code>http://localhost:3002/frames</code><button class="btn-copy" data-url="http://localhost:3002/frames">📋</button></div>
-              <div class="obs-url-item"><span>Timer</span><code>http://localhost:3002/timer</code><button class="btn-copy" data-url="http://localhost:3002/timer">📋</button></div>
-            </div>
-            <div class="obs-url-col">
-              <div class="obs-url-col-header obs-url-col-header--twitch">Twitch</div>
-              <div class="obs-url-item"><span>Layout</span><code>http://localhost:3002/nextmatch</code><button class="btn-copy" data-url="http://localhost:3002/nextmatch">📋</button></div>
-              <div class="obs-url-item"><span>Viewers</span><code>http://localhost:3002/twitch-viewer</code><button class="btn-copy" data-url="http://localhost:3002/twitch-viewer">📋</button></div>
-              <div class="obs-url-item"><span>Alertes</span><code>http://localhost:3002/twitch-alerts</code><button class="btn-copy" data-url="http://localhost:3002/twitch-alerts">📋</button></div>
-              <div class="obs-url-item"><span>Chat</span><code>http://localhost:3002/twitch-chat</code><button class="btn-copy" data-url="http://localhost:3002/twitch-chat">📋</button></div>
-              <div class="obs-url-col-header obs-url-col-header--yt" style="margin-top:10px">YouTube</div>
-              <div class="obs-url-item"><span>Chat</span><code>http://localhost:3002/youtube-chat</code><button class="btn-copy" data-url="http://localhost:3002/youtube-chat">📋</button></div>
-              <div class="obs-url-item"><span>Viewers</span><code>http://localhost:3002/youtube-viewer</code><button class="btn-copy" data-url="http://localhost:3002/youtube-viewer">📋</button></div>
-              <div class="obs-url-item"><span>Alertes</span><code>http://localhost:3002/youtube-alerts</code><button class="btn-copy" data-url="http://localhost:3002/youtube-alerts">📋</button></div>
-              <div class="obs-url-item"><span>Chat Twitch+YT</span><code>http://localhost:3002/combined-chat</code><button class="btn-copy" data-url="http://localhost:3002/combined-chat">📋</button></div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ── Animations entrée / sortie ─────────────────────── -->
-    <section class="section">
-      <div class="section-header"><h2>Animations entrée / sortie</h2></div>
-      <div class="custom-card" style="padding:14px 16px">
-        <p class="hint" style="margin-bottom:14px">Contrôle les transitions visuelles de chaque overlay dans OBS. Cliquez Afficher / Masquer pour déclencher l'animation.</p>
-        <div id="anim-grid" class="anim-grid"></div>
-      </div>
-    </section>
-
-    <!-- ── Tuto Stream Deck ────────────────────────────────────── -->
-    <section class="section" style="display:none">
-      <div class="section-header"><h2>Stream Deck</h2></div>
-      <div class="custom-card" style="padding:18px 20px">
-
-        <!-- En-tête -->
-        <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px">
-          <div style="width:40px;height:40px;background:linear-gradient(135deg,#1C1C2E,#2A2A4A);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">🎮</div>
-          <div>
-            <div style="font-weight:700;font-size:14px;color:#F0EEF8">Contrôle les overlays depuis ton Stream Deck</div>
-            <div style="font-size:12px;color:#666;margin-top:2px">Aucun plugin requis — utilise l'action <strong style="color:#A0C4D8">Website</strong> native de Stream Deck</div>
-          </div>
-          <a href="/deck" target="_blank" style="margin-left:auto;background:#E8B830;color:#0E0E12;font-size:12px;font-weight:700;padding:7px 14px;border-radius:7px;text-decoration:none;flex-shrink:0;white-space:nowrap">Voir tous les URLs →</a>
-        </div>
-
-        <!-- Badge "sans plugin" -->
-        <div style="background:rgba(107,201,108,0.08);border:1px solid rgba(107,201,108,0.25);border-radius:8px;padding:10px 14px;margin-bottom:16px;display:flex;align-items:center;gap:10px">
-          <span style="font-size:18px">✅</span>
-          <span style="font-size:12px;color:#9EE09E;line-height:1.5">L'action <strong>Website</strong> est intégrée dans Stream Deck — elle ouvre l'URL dans un navigateur qui se ferme instantanément. Aucun plugin à installer.</span>
-        </div>
-
-        <!-- Étapes -->
-        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px;margin-bottom:18px">
-
-          <div style="background:#0E0E12;border:1px solid #2a2a3a;border-radius:8px;padding:14px">
-            <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
-              <span style="background:#E8B830;color:#0E0E12;font-size:11px;font-weight:800;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0">1</span>
-              <span style="font-size:13px;font-weight:600;color:#F0EEF8">Ouvrir Stream Deck</span>
-            </div>
-            <p style="font-size:12px;color:#888;line-height:1.6">Lance le logiciel <strong style="color:#aaa">Elgato Stream Deck</strong> sur ton PC et sélectionne un bouton vide.</p>
-          </div>
-
-          <div style="background:#0E0E12;border:1px solid #2a2a3a;border-radius:8px;padding:14px">
-            <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
-              <span style="background:#E8B830;color:#0E0E12;font-size:11px;font-weight:800;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0">2</span>
-              <span style="font-size:13px;font-weight:600;color:#F0EEF8">Ajouter "Website"</span>
-            </div>
-            <p style="font-size:12px;color:#888;line-height:1.6">Dans le panneau de droite, cherche <strong style="color:#A0C4D8">Website</strong> (catégorie <em>System</em>) et glisse-la sur le bouton.</p>
-          </div>
-
-          <div style="background:#0E0E12;border:1px solid #2a2a3a;border-radius:8px;padding:14px">
-            <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
-              <span style="background:#E8B830;color:#0E0E12;font-size:11px;font-weight:800;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0">3</span>
-              <span style="font-size:13px;font-weight:600;color:#F0EEF8">Coller l'URL</span>
-            </div>
-            <p style="font-size:12px;color:#888;line-height:1.6">Copie une URL ci-dessous et colle-la dans le champ <strong style="color:#A0C4D8">URL</strong> du bouton. Le onglet se ferme seul après l'appui.</p>
-          </div>
-
-          <div style="background:#0E0E12;border:1px solid rgba(107,201,108,0.3);border-radius:8px;padding:14px">
-            <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
-              <span style="background:#6BC96C;color:#0E0E12;font-size:11px;font-weight:800;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0">✓</span>
-              <span style="font-size:13px;font-weight:600;color:#F0EEF8">Appuyer</span>
-            </div>
-            <p style="font-size:12px;color:#888;line-height:1.6">L'overlay s'anime avec le type et la durée configurés ci-dessus. <strong style="color:#A0C4D8">/toggle</strong> bascule, <strong style="color:#A0C4D8">/show</strong> affiche, <strong style="color:#A0C4D8">/hide</strong> masque.</p>
-          </div>
-
-        </div>
-
-        <!-- Exemples d'URLs cliquables -->
-        <div style="background:#0E0E12;border:1px solid #2a2a3a;border-radius:8px;padding:12px 14px">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-            <span style="font-size:11px;font-weight:700;color:#666;text-transform:uppercase;letter-spacing:1px">Exemples — cliquer pour copier</span>
-            <a href="/deck" target="_blank" style="font-size:11px;color:#E8B830;text-decoration:none">Tous les overlays →</a>
-          </div>
-          <div style="display:flex;flex-direction:column;gap:5px" id="deck-examples"></div>
-        </div>
-
-      </div>
-    </section>
-
-    <!-- ── Bitfocus Companion ────────────────────────────────────── -->
-    <section class="section">
-      <div class="section-header"><h2>Bitfocus Companion</h2></div>
-      <div class="custom-card" style="padding:18px 20px">
-
-        <!-- En-tête -->
-        <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px">
-          <div style="width:40px;height:40px;background:linear-gradient(135deg,#1C2230,#2A3A5A);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">🕹️</div>
-          <div>
-            <div style="font-weight:700;font-size:14px;color:#F0EEF8">Contrôle avancé via Bitfocus Companion</div>
-            <div style="font-size:12px;color:#666;margin-top:2px">Pour Stream Deck XL, Loupedeck, X-Keys, etc. — 64 boutons préconfigurés à télécharger</div>
-          </div>
-        </div>
-
-
-        <!-- Étape unique -->
-        <div style="font-size:11px;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">Configuration en 1 étape</div>
-        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;margin-bottom:18px">
-
-          <div style="background:#0E0E12;border:1px solid #2a2a3a;border-radius:8px;padding:14px">
-            <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
-              <span style="background:#E8B830;color:#0E0E12;font-size:11px;font-weight:800;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0">1</span>
-              <span style="font-size:13px;font-weight:600;color:#F0EEF8">Télécharger le fichier</span>
-            </div>
-            <p style="font-size:12px;color:#888;line-height:1.6">Télécharge <strong style="color:#A0C4D8">PSO-Companion.companionconfig</strong> ci-dessous. Il contient déjà les 2 pages et la connexion HTTP préconfigurée.</p>
-          </div>
-
-          <div style="background:#0E0E12;border:1px solid #2a2a3a;border-radius:8px;padding:14px">
-            <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
-              <span style="background:#E8B830;color:#0E0E12;font-size:11px;font-weight:800;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0">2</span>
-              <span style="font-size:13px;font-weight:600;color:#F0EEF8">Importer dans Companion</span>
-            </div>
-            <p style="font-size:12px;color:#888;line-height:1.6">Companion → <strong style="color:#aaa">Import / Export</strong> → onglet <strong style="color:#aaa">Import</strong> → sélectionner le fichier → <strong style="color:#E8B830">Import full config</strong>.</p>
-          </div>
-
-          <div style="background:#0E0E12;border:1px solid rgba(107,201,108,0.3);border-radius:8px;padding:14px">
-            <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
-              <span style="background:#6BC96C;color:#0E0E12;font-size:11px;font-weight:800;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0">✓</span>
-              <span style="font-size:13px;font-weight:600;color:#F0EEF8">Prêt</span>
-            </div>
-            <p style="font-size:12px;color:#888;line-height:1.6">64 boutons actifs sur ton contrôleur. Les <strong style="color:#6BC96C">scènes Studio</strong> utilisent POST, les <strong style="color:#A0C4D8">overlays</strong> utilisent GET.</p>
-          </div>
-
-        </div>
-
-
-        <!-- Téléchargements -->
-        <div style="font-size:11px;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">Fichier à télécharger</div>
-        <div style="display:flex;flex-direction:column;gap:6px">
-          <a href="/companion/PSO-Companion.companionconfig" download style="display:flex;align-items:center;gap:10px;background:#0E0E12;border:1px solid #2a2a3a;border-radius:7px;padding:10px 14px;text-decoration:none;transition:border-color .15s" onmouseover="this.style.borderColor='#E8B830'" onmouseout="this.style.borderColor='#2a2a3a'">
-            <span style="font-size:20px">📥</span>
-            <div>
-              <div style="font-size:13px;font-weight:700;color:#F0EEF8">PSO-Companion.companionconfig</div>
-              <div style="font-size:11px;color:#666">Config complète — 2 pages · 64 boutons · connexion HTTP incluse</div>
-            </div>
-          </a>
-          <a href="/companion/SETUP.txt" download style="display:flex;align-items:center;gap:10px;background:#0E0E12;border:1px solid #2a2a3a;border-radius:7px;padding:10px 14px;text-decoration:none;transition:border-color .15s" onmouseover="this.style.borderColor='#A0C4D8'" onmouseout="this.style.borderColor='#2a2a3a'">
-            <span style="font-size:20px">📄</span>
-            <div>
-              <div style="font-size:13px;font-weight:700;color:#F0EEF8">SETUP.txt</div>
-              <div style="font-size:11px;color:#666">Instructions complètes + liste de toutes les URLs disponibles</div>
-            </div>
-          </a>
-        </div>
-
-        <!-- Note réseau -->
-        <div style="background:rgba(160,196,216,0.07);border:1px solid rgba(160,196,216,0.2);border-radius:7px;padding:10px 14px;margin-top:14px;font-size:11px;color:#A0C4D8;line-height:1.6">
-          💡 <strong>Companion sur un autre PC ?</strong> Remplacer <code style="background:#0E0E12;padding:1px 5px;border-radius:3px">localhost:3002</code> par l'IP du serveur PSO dans chaque action Companion (ex: <code style="background:#0E0E12;padding:1px 5px;border-radius:3px">192.168.1.10:3002</code>).
-        </div>
-
-      </div>
-    </section>
-
-  </div><!-- /tab-custom -->
+  
 
   <!-- ═══════════════════════════════════════════════════════════ -->
   <!-- TAB : PERSONNAGES                                           -->
@@ -3094,7 +2033,932 @@
   <!-- ═══════════════════════════════════════════════════════════ -->
   <!-- TAB : START.GG                                              -->
   <!-- ═══════════════════════════════════════════════════════════ -->
-  <div class="tab-content" id="tab-startgg">
+  
+
+
+  <!-- STAGE PICKER MODAL -->
+  <div class="char-modal" id="stage-modal" style="display:none">
+    <div class="char-modal-inner stage-modal-inner">
+      <div class="char-modal-header">
+        <h2>Choisir un stage</h2>
+        <button class="btn btn-outline" id="stage-modal-close">Fermer</button>
+      </div>
+      <div class="stage-picker-grid" id="stage-picker-grid"></div>
+    </div>
+  </div>
+
+  <!-- CHARACTER PICKER MODAL -->
+  <div class="char-modal" id="char-modal" style="display:none">
+    <div class="char-modal-inner">
+      <div class="char-modal-header">
+        <h2 id="char-modal-title">Choisir un personnage — Joueur 1</h2>
+        <div class="char-search-row">
+          <input type="text" id="char-search" placeholder="Rechercher un personnage..." />
+          <button class="btn btn-outline" id="char-modal-close">Fermer</button>
+        </div>
+      </div>
+      <div class="char-grid" id="char-grid"></div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- TAB : LAYOUTS TWITCH                                        -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <div class="tab-content" id="tab-twitch"></div><!-- /tab-twitch -->
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- TAB : OVERLAYS (Cam + Cadres + Titre + Bandeau)              -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <div class="tab-content" id="tab-overlays">
+    <div class="ov-cat-nav">
+      <button class="ov-cat-btn active" data-target="ov-sub-ssbu">Smash Bros Ultimate</button>
+      <button class="ov-cat-btn" data-target="ov-sub-startgg">Start.gg</button>
+      <button class="ov-cat-btn" data-target="ov-sub-generic">Génériques</button>
+      <button class="ov-cat-btn" data-target="ov-sub-diffusions">Plateformes de stream</button>
+    </div>
+    <div class="ov-cat-panel active" id="ov-sub-ssbu">
+    <section class="section">
+      <div class="section-header"><h2>Smash Bros Ultimate</h2></div>
+      <div class="accordion-tile" id="casters-sub-match">
+      <div class="accordion-header">
+        <div class="accordion-title">
+          <span class="accordion-emoji">🎙️</span>
+          <div><h3>Casters</h3><div class="accordion-meta">Commentateurs</div></div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <a href="/casters" target="_blank" class="btn btn-outline btn-sm" onclick="event.stopPropagation()">Ouvrir ↗</a>
+          <span class="accordion-chevron">▼</span>
+        </div>
+      </div>
+      <div class="accordion-body" style="padding:0">
+        <section class="section" style="padding:0">
+          <div class="section-header" style="padding:12px 16px">
+            <h2>Casters</h2>
+            <div style="display:flex;gap:8px;align-items:center;">
+              <a href="/casters" target="_blank" class="btn btn-outline btn-sm">OBS ↗</a>
+              <button id="btn-copy-casters" class="btn-copy" title="Copier URL casters">📋</button>
+              <button id="btn-casters-visibility" class="btn btn-primary btn-sm">Afficher</button>
+            </div>
+          </div>
+          <div style="display:flex;height:700px;overflow:hidden;border-top:1px solid var(--border)">
+          <!-- Titres verticaux -->
+          <div id="casters-nav-titles" style="width:30px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;padding-top:16px;gap:0;background:var(--surface1);border-right:1px solid var(--border);overflow:hidden;">
+            <span class="vic-nav-title" data-target="casters-sect-form">Casters</span>
+            <span class="vic-nav-title" data-target="casters-sect-config">Config</span>
+          </div>
+          <!-- Config scrollable -->
+          <div id="casters-scroll-area" style="flex:1;min-width:0;overflow-y:auto;position:relative">
+            <div id="casters-sect-form" style="padding:16px;border-bottom:1px solid var(--border);">
+              <div class="casters-grid">
+                <div class="caster-form-card">
+                  <div class="caster-card-header">
+                    <h3>Caster 1</h3>
+                    <button class="btn btn-outline btn-sm" id="btn-save-roster-1" title="Sauvegarder dans le roster">💾 Sauvegarder</button>
+                  </div>
+                  <div class="form-group"><label>Nom</label><input type="text" id="c1-name" placeholder="Pseudo du caster" /></div>
+                  <div class="form-group"><label>Twitter / X</label><input type="text" id="c1-twitter" placeholder="@handle" /></div>
+                  <div class="form-group"><label>Twitch</label><input type="text" id="c1-twitch" placeholder="/channel" /></div>
+                  <div class="form-group"><label>YouTube</label><input type="text" id="c1-youtube" placeholder="@channel" /></div>
+                </div>
+                <div class="caster-form-card">
+                  <div class="caster-card-header">
+                    <h3>Caster 2</h3>
+                    <button class="btn btn-outline btn-sm" id="btn-save-roster-2" title="Sauvegarder dans le roster">💾 Sauvegarder</button>
+                  </div>
+                  <div class="form-group"><label>Nom</label><input type="text" id="c2-name" placeholder="Pseudo du caster" /></div>
+                  <div class="form-group"><label>Twitter / X</label><input type="text" id="c2-twitter" placeholder="@handle" /></div>
+                  <div class="form-group"><label>Twitch</label><input type="text" id="c2-twitch" placeholder="/channel" /></div>
+                  <div class="form-group"><label>YouTube</label><input type="text" id="c2-youtube" placeholder="@channel" /></div>
+                </div>
+              </div>
+              <div class="casters-footer">
+                <button id="btn-apply-casters" class="btn btn-primary" style="align-self:flex-end">Appliquer</button>
+              </div>
+              <div class="caster-roster-section">
+                <div class="caster-roster-header">
+                  <span class="caster-roster-title">Roster</span>
+                  <span class="caster-roster-hint">Cliquer pour assigner à un slot</span>
+                </div>
+                <div id="caster-roster-list" class="caster-roster-list">
+                  <div class="caster-roster-empty">Aucun caster sauvegardé</div>
+                </div>
+              </div>
+            </div>
+<div id="casters-sect-config" style="padding:16px;">
+              <div class="custom-grid">
+                <div class="custom-card">
+                  <h3>Disposition</h3>
+                  <div class="theme-btn-row">
+                    <button class="casters-layout-btn theme-btn active" data-layout="row">En ligne →</button>
+                    <button class="casters-layout-btn theme-btn" data-layout="column">En colonne ↓</button>
+                  </div>
+                </div>
+                <div class="custom-card">
+                  <h3>Fond des cartes</h3>
+                  <div class="form-group" style="margin:0">
+                    <label>Couleur</label>
+                    <div style="display:flex;gap:8px;align-items:center">
+                      <input type="color" id="casters-bg-color" value="#0E0E12" />
+                      <input type="number" id="casters-bg-opacity" value="100" min="0" max="100" style="width:60px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:13px;padding:4px 6px;text-align:center" />
+                      <span style="font-size:12px;color:var(--text-muted)">%</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="custom-card">
+                  <h3>Éléments visibles</h3>
+                  <div class="sel-group-label" style="margin-top:8px;">Overlay</div>
+                  <div class="sel-rows" style="margin-bottom:8px;">
+                    <div class="sel-row">
+                      <span class="sel-row-name">Étiquette</span>
+                      <label class="sel-vis-label"><input type="checkbox" id="cb-showLabel" checked />Vis</label>
+                    </div>
+                  </div>
+                  <div class="sel-group-label">Caster 1</div>
+                  <div class="sel-rows" style="margin-bottom:8px;">
+                    <div class="sel-row">
+                      <span class="sel-row-name">Nom</span>
+                      <label class="sel-vis-label"><input type="checkbox" id="cb-c1ShowName" checked />Vis</label>
+                      <label class="sel-coord">Taille<input type="number" id="cb-c1NameSize" value="22" min="8" max="80" /></label>
+                      <input type="color" id="cb-c1NameColor" value="#F0EEF8" title="Couleur" style="width:28px;height:24px;padding:2px;border:1px solid var(--border);border-radius:4px;cursor:pointer;background:none;flex-shrink:0;" />
+                    </div>
+                    <div class="sel-row"><span class="sel-row-name">Twitter</span><label class="sel-vis-label"><input type="checkbox" id="cb-c1ShowTwitter" checked />Vis</label></div>
+                    <div class="sel-row"><span class="sel-row-name">Twitch</span><label class="sel-vis-label"><input type="checkbox" id="cb-c1ShowTwitch" checked />Vis</label></div>
+                    <div class="sel-row"><span class="sel-row-name">YouTube</span><label class="sel-vis-label"><input type="checkbox" id="cb-c1ShowYoutube" checked />Vis</label></div>
+                  </div>
+                  <div class="sel-group-label">Caster 2</div>
+                  <div class="sel-rows">
+                    <div class="sel-row">
+                      <span class="sel-row-name">Nom</span>
+                      <label class="sel-vis-label"><input type="checkbox" id="cb-c2ShowName" checked />Vis</label>
+                      <label class="sel-coord">Taille<input type="number" id="cb-c2NameSize" value="22" min="8" max="80" /></label>
+                      <input type="color" id="cb-c2NameColor" value="#F0EEF8" title="Couleur" style="width:28px;height:24px;padding:2px;border:1px solid var(--border);border-radius:4px;cursor:pointer;background:none;flex-shrink:0;" />
+                    </div>
+                    <div class="sel-row"><span class="sel-row-name">Twitter</span><label class="sel-vis-label"><input type="checkbox" id="cb-c2ShowTwitter" checked />Vis</label></div>
+                    <div class="sel-row"><span class="sel-row-name">Twitch</span><label class="sel-vis-label"><input type="checkbox" id="cb-c2ShowTwitch" checked />Vis</label></div>
+                    <div class="sel-row"><span class="sel-row-name">YouTube</span><label class="sel-vis-label"><input type="checkbox" id="cb-c2ShowYoutube" checked />Vis</label></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Iframe fixe 60% -->
+          <div style="flex:0 0 60%;border-left:1px solid var(--border);background:#000;position:relative;overflow:hidden;">
+            <div class="overlay-preview-wrap" id="preview-wrap-casters">
+              <iframe src="/casters" class="overlay-preview-frame" id="preview-frame-casters"></iframe>
+            </div>
+          </div>
+        </div>
+        </section>
+      </div><!-- /accordion-body -->
+      </div><!-- /casters-sub-match -->
+
+<div class="accordion-tile" id="veto-sub-match">
+      <div class="accordion-header">
+        <div class="accordion-title">
+          <span class="accordion-emoji">🚫</span>
+          <div><h3>Stage Veto</h3><div class="accordion-meta">Bannissement de stages</div></div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <a href="/stageveto" target="_blank" class="btn btn-outline btn-sm" onclick="event.stopPropagation()">Ouvrir ↗</a>
+          <span class="accordion-chevron">▼</span>
+        </div>
+      </div>
+      <div class="accordion-body" style="padding:0">
+        <section class="section" style="padding:0">
+          <div class="section-header" style="padding:12px 16px">
+            <div class="veto-title-row">
+              <h2>Stage Veto</h2>
+              <span class="badge badge-gold">Ruleset custom</span>
+            </div>
+            <div class="veto-header-actions">
+              <a href="/stageveto" target="_blank" class="btn btn-outline btn-sm">OBS ↗</a>
+              <button id="veto-btn-visibility" class="btn btn-primary btn-sm">Masquer veto</button>
+              <button id="veto-btn-next-game" class="btn btn-outline btn-sm">Jeu suivant ▶</button>
+              <button id="veto-btn-reset" class="btn btn-danger btn-sm">Reset veto</button>
+              <button class="btn-copy" id="btn-copy-veto" title="Copier URL veto">📋</button>
+            </div>
+          </div>
+          <div style="display:flex;height:700px;overflow:hidden;border-top:1px solid var(--border)">
+          <!-- Titres verticaux -->
+          <div id="veto-nav-titles" style="width:30px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;padding-top:16px;gap:0;background:var(--surface1);border-right:1px solid var(--border);overflow:hidden;">
+            <span class="vic-nav-title" data-target="veto-sect-action">Action</span>
+            <span class="vic-nav-title" data-target="veto-sect-ruleset">Ruleset</span>
+          </div>
+          <!-- Config scrollable -->
+          <div id="veto-scroll-area" style="flex:1;min-width:0;overflow-y:auto;position:relative">
+            <div id="veto-sect-action" style="padding:16px;border-bottom:1px solid var(--border);">
+              <section class="section veto-section" style="padding:0;border:none">
+                <div class="veto-step-bar">
+                  <div id="veto-action-badge" class="csb-action ban">BAN</div>
+                  <span class="csb-sep">·</span>
+                  <span id="veto-step-text" class="csb-team">Chargement...</span>
+                </div>
+                <div class="veto-body">
+                  <div class="veto-main-col">
+                    <div id="veto-stages-grid" class="veto-stages-grid"></div>
+                    <div id="veto-seq-track" class="veto-sequence-track"></div>
+                  </div>
+                  <div class="veto-side-col">
+                    <div class="ban-gen-block">
+                      <div class="ban-gen-header"><span>Shifumi</span></div>
+                      <button id="btn-shifumi" class="btn btn-outline btn-full">🎲 Lancer le shifumi</button>
+                      <span id="ban-first-result" class="ban-first-result" style="text-align:left;font-style:normal;font-size:12px;min-height:16px;display:block"></span>
+                    </div>
+                    <div class="ban-gen-block">
+                      <div class="ban-gen-header"><span>Premier bannisseur</span></div>
+                      <div class="ban-first-row">
+                        <button class="ban-first-btn active" data-first="1" id="ban-first-p1">J1</button>
+                        <button class="ban-first-btn" data-first="2" id="ban-first-p2">J2</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </section>
+            </div>
+<div id="veto-sect-ruleset" style="padding:16px;">
+              <div class="ruleset-card">
+                <div id="ruleset-stages-list" class="ruleset-stages-list" style="grid-column:1/-1"></div>
+                <div class="add-stage-form" style="grid-column:1/-1">
+                  <h4>Ajouter un stage</h4>
+                  <div class="stage-type-row">
+                    <label><input type="radio" name="stage-type" value="starter" checked /> Starter</label>
+                    <label><input type="radio" name="stage-type" value="counterpick" /> Counterpick</label>
+                  </div>
+                  <button id="btn-open-stage-picker" class="btn btn-outline btn-full">Choisir un stage…</button>
+                </div>
+                <div class="ban-builder-block">
+                  <div class="ban-builder-title">Séquence jeu 1<span class="ban-builder-count" id="ban-builder-g1-count"></span></div>
+                  <div class="ban-seq-steps" id="ban-seq-g1"></div>
+                  <div class="ban-seq-add-row">
+                    <button class="ban-seq-btn p1" data-builder="g1" data-player="1">+ Gagnant</button>
+                    <button class="ban-seq-btn p2" data-builder="g1" data-player="2">+ Perdant</button>
+                    <button class="ban-seq-btn pick" data-builder="g1">+ Map sélectionnée</button>
+                  </div>
+                  <input type="hidden" id="ban-pattern-g1" value="2-2" />
+                </div>
+                <div class="ban-builder-block">
+                  <div class="ban-builder-title">Séquence jeux suivants<span class="ban-builder-count" id="ban-builder-g2-count"></span></div>
+                  <div class="ban-seq-steps" id="ban-seq-g2"></div>
+                  <div class="ban-seq-add-row">
+                    <button class="ban-seq-btn p1" data-builder="g2" data-player="1">+ Gagnant</button>
+                    <button class="ban-seq-btn p2" data-builder="g2" data-player="2">+ Perdant</button>
+                    <button class="ban-seq-btn pick" data-builder="g2">+ Map sélectionnée</button>
+                  </div>
+                  <input type="hidden" id="ban-pattern-g2" value="1" />
+                </div>
+                <p class="hint" id="ban-pattern-preview" style="grid-column:1/-1;margin:0"></p>
+                <label class="checkbox-row" style="grid-column:1/-1">
+                  <input type="checkbox" id="stage-clause" />
+                  <span>Stage clause <span style="font-size:10px;color:var(--text-muted)">(pas de répétition)</span></span>
+                </label>
+                <button id="btn-save-ruleset" class="btn btn-primary btn-full" style="grid-column:1/-1">Appliquer le ruleset</button>
+                <div style="grid-column:1/-1;border-top:1px solid var(--border);padding-top:12px">
+                  <h4 style="font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px">Enregistrer</h4>
+                  <div style="display:flex;gap:6px">
+                    <input type="text" id="ruleset-save-name" placeholder="Nom du ruleset…" style="flex:1" />
+                    <button id="btn-ruleset-save" class="btn btn-primary btn-sm">Enregistrer</button>
+                  </div>
+                </div>
+                <div style="grid-column:1/-1">
+                  <h4 style="font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px">Rulesets sauvegardés</h4>
+                  <div id="saved-rulesets-list"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Iframe fixe 60% -->
+          <div style="flex:0 0 60%;border-left:1px solid var(--border);background:#000;position:relative;overflow:hidden;">
+            <div class="overlay-preview-wrap" id="preview-wrap-veto">
+              <iframe src="/stageveto" class="overlay-preview-frame" id="preview-frame-veto"></iframe>
+            </div>
+          </div>
+        </div>
+        </section>
+      </div><!-- /accordion-body -->
+      </div><!-- /veto-sub-match -->
+
+      <!-- VS Screen déplacé → onglet ⚔ VS / Victoire -->
+
+<div class="accordion-tile" id="nm-sub-match">
+      <div class="accordion-header">
+        <div class="accordion-title">
+          <span class="accordion-emoji">⏭️</span>
+          <div><h3>Next Match</h3><div class="accordion-meta">Prochain match</div></div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <a href="/nextmatch" target="_blank" class="btn btn-outline btn-sm" onclick="event.stopPropagation()">Ouvrir ↗</a>
+          <span class="accordion-chevron">▼</span>
+        </div>
+      </div>
+      <div class="accordion-body" style="padding:0">
+        <section class="section" style="padding:0">
+          <div class="section-header" style="padding:12px 16px">
+            <h2>Next Match</h2>
+            <a href="/nextmatch" target="_blank" class="btn btn-outline btn-sm">OBS ↗</a>
+          </div>
+          <div style="display:flex;height:700px;overflow:hidden;border-top:1px solid var(--border)">
+          <!-- Titres verticaux -->
+          <div id="nm-nav-titles" style="width:30px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;padding-top:16px;gap:0;background:var(--surface1);border-right:1px solid var(--border);overflow:hidden;">
+            <span class="vic-nav-title" data-target="nm-sect-obs">OBS</span>
+            <span class="vic-nav-title" data-target="nm-sect-cadre">Cadre</span>
+            <span class="vic-nav-title" data-target="nm-sect-elements">Éléments</span>
+          </div>
+          <!-- Config scrollable -->
+          <div id="nm-scroll-area" style="flex:1;min-width:0;overflow-y:auto;position:relative">
+            <div id="nm-sect-obs" style="padding:16px;border-bottom:1px solid var(--border);">
+              <div class="custom-card" style="margin:0;">
+                <h3>Utilisation dans OBS</h3>
+                <p style="font-size:13px;color:var(--text-muted);margin-bottom:12px;line-height:1.6;">
+                  Ajoute une <strong>Source Navigateur</strong> dans OBS avec l'URL ci-dessous.<br>
+                  Résolution : <strong>1920 × 1080</strong> · Actualiser toutes les scènes.
+                </p>
+                <div class="name-row" style="gap:8px;">
+                  <input type="text" id="twitch-layout-url" readonly
+                    style="flex:1;font-size:12px;background:var(--surface2);border:1px solid var(--border);color:var(--text-muted);cursor:text;"
+                    value="http://localhost:3002/nextmatch" />
+                  <button class="btn btn-primary btn-sm" id="btn-copy-twitch-url">Copier</button>
+                </div>
+              </div>
+            </div>
+<div id="nm-sect-cadre" style="padding:16px;border-bottom:1px solid var(--border);">
+              <div class="custom-card" style="margin:0;">
+                <h3>Options du cadre</h3>
+                <div class="form-group" style="margin-bottom:14px;">
+                  <label>Taille des coins <span class="hint">px</span></label>
+                  <div class="logo-particles-row">
+                    <input type="range" id="tw-corner-size" min="20" max="120" value="48" />
+                    <input type="number" id="tw-corner-size-num" min="20" max="120" value="48" style="width:60px;" />
+                  </div>
+                </div>
+                <div class="form-group" style="margin-bottom:14px;">
+                  <label>Épaisseur du cadre <span class="hint">px</span></label>
+                  <div class="logo-particles-row">
+                    <input type="range" id="tw-corner-thick" min="1" max="8" value="3" step="1" />
+                    <input type="number" id="tw-corner-thick-num" min="1" max="8" value="3" style="width:60px;" />
+                  </div>
+                </div>
+                <div class="form-group" style="margin:0;">
+                  <label>Opacité du fond de la barre <span class="hint">0 – 100 %</span></label>
+                  <div class="logo-particles-row">
+                    <input type="range" id="tw-bg-opacity" min="0" max="100" value="88" />
+                    <input type="number" id="tw-bg-opacity-num" min="0" max="100" value="88" style="width:60px;" />
+                  </div>
+                </div>
+              </div>
+            </div>
+<div id="nm-sect-elements" style="padding:16px;">
+              <div class="custom-card" style="margin:0;">
+                <h3>Éléments affichés</h3>
+                <div style="display:flex;flex-direction:column;gap:10px;">
+                  <label class="checkbox-row"><input type="checkbox" id="tw-show-corners" checked /><span>Coins décoratifs</span></label>
+                  <label class="checkbox-row"><input type="checkbox" id="tw-show-scanline" checked /><span>Ligne de scan animée</span></label>
+                  <label class="checkbox-row"><input type="checkbox" id="tw-show-sidelines" checked /><span>Lignes latérales</span></label>
+                  <label class="checkbox-row"><input type="checkbox" id="tw-show-glow" checked /><span>Lueur ambiante</span></label>
+                  <label class="checkbox-row"><input type="checkbox" id="tw-show-chars" checked /><span>Personnages dans la barre joueurs</span></label>
+                  <label class="checkbox-row"><input type="checkbox" id="tw-show-vs" checked /><span>Barre joueurs (joueur 1 · VS · joueur 2)</span></label>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Iframe fixe 60% -->
+          <div style="flex:0 0 60%;border-left:1px solid var(--border);background:#000;position:relative;overflow:hidden;">
+            <div class="overlay-preview-wrap" id="preview-wrap-nextmatch">
+              <iframe src="/nextmatch" class="overlay-preview-frame" id="preview-frame-nextmatch"></iframe>
+            </div>
+          </div>
+        </div>
+        </section>
+      </div><!-- /accordion-body -->
+      </div><!-- /nm-sub-match -->
+
+<div class="accordion-tile" id="vs-sub-main">
+      <div class="accordion-header">
+        <div class="accordion-title">
+          <span class="accordion-emoji">⚔️</span>
+          <div><h3>VS Screen</h3><div class="accordion-meta">Écran d'affrontement</div></div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <a href="/vs-screen" target="_blank" class="btn btn-outline btn-sm" onclick="event.stopPropagation()">Ouvrir ↗</a>
+          <span class="accordion-chevron">▼</span>
+        </div>
+      </div>
+      <div class="accordion-body" style="padding:0">
+      <section class="section" style="padding:0">
+        <div class="section-header" style="padding:12px 16px">
+          <h2>VS Screen</h2>
+          <div style="display:flex;gap:8px;align-items:center">
+            <button id="btn-vs-trigger" class="btn btn-primary btn-sm">⚔ VS Anim</button>
+            <button id="btn-vs-hide" class="btn btn-outline btn-sm">Masquer</button>
+            <a href="/vs-screen" target="_blank" class="btn btn-outline btn-sm">OBS ↗</a>
+          </div>
+        </div>
+        <div style="display:flex;height:700px;overflow:hidden;border-top:1px solid var(--border)">
+          <!-- Titres verticaux -->
+          <div id="vs-nav-titles" style="width:30px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;padding-top:16px;gap:0;background:var(--surface1);border-right:1px solid var(--border);overflow:hidden;">
+            <span class="vic-nav-title" data-target="vs-sect-obs">OBS</span>
+            <span class="vic-nav-title" data-target="vs-sect-fond">Fond</span>
+            <span class="vic-nav-title" data-target="vs-sect-effects">Effets</span>
+            <span class="vic-nav-title" data-target="vs-sect-particles">Particules</span>
+            <span class="vic-nav-title" data-target="vs-sect-anim">Animation</span>
+          </div>
+          <!-- Config scrollable -->
+          <div id="vs-scroll-area" style="flex:1;min-width:0;overflow-y:auto;position:relative">
+            <div id="vs-sect-obs" style="padding:16px;border-bottom:1px solid var(--border);">
+              <div class="vs-obs-guide">
+                <div class="vs-obs-guide-title">📺 Intégration OBS</div>
+                <ol class="vs-obs-guide-steps">
+                  <li>Dans OBS, ajouter une source <strong>Navigateur</strong></li>
+                  <li>URL : <code>http://localhost:3002/vs-screen</code> <button class="btn-copy-inline" data-url="http://localhost:3002/vs-screen">📋</button></li>
+                  <li>Résolution : <strong>1920 × 1080</strong>, fond transparent activé</li>
+                  <li>Utiliser le bouton <em>Déclencher</em> ci-dessus pour lancer l'animation</li>
+                  <li>Le bouton <em>Masquer</em> ou la minuterie auto-masquage cachent la VS screen</li>
+                </ol>
+              </div>
+            </div>
+<div id="vs-sect-fond" style="padding:16px;border-bottom:1px solid var(--border);">
+              <div class="custom-grid">
+                <div class="custom-card">
+                  <h3>Image de fond</h3>
+                  <p class="hint" style="margin-bottom:10px">PNG, JPG ou WebP — 1920×1080.</p>
+                  <div style="display:flex;flex-direction:column;gap:10px">
+                    <label class="btn btn-outline" style="cursor:pointer;text-align:center">
+                      Choisir une image
+                      <input type="file" id="vs-bg-file" accept="image/png,image/jpeg,image/webp" style="display:none" />
+                    </label>
+                    <div id="vs-bg-preview-wrap" style="display:none;position:relative">
+                      <img id="vs-bg-preview" style="width:100%;border-radius:6px;border:1px solid var(--border);display:block" alt="aperçu" />
+                      <button id="btn-vs-bg-clear" class="btn btn-sm" style="margin-top:6px;width:100%;background:rgba(220,50,50,0.15);color:#e05050;border:1px solid rgba(220,50,50,0.3)">Supprimer</button>
+                    </div>
+                    <p id="vs-bg-status" class="hint" style="text-align:center"></p>
+                  </div>
+                </div>
+                <div class="custom-card">
+                  <h3>Filtres du fond de scène</h3>
+                  <div class="form-group">
+                    <label>Flou <span id="vs-bg-blur-val" class="hint">18px</span></label>
+                    <input type="range" id="vs-bg-blur" min="0" max="60" value="18" />
+                  </div>
+                  <div class="form-group">
+                    <label>Luminosité <span id="vs-bg-brightness-val" class="hint">30%</span></label>
+                    <input type="range" id="vs-bg-brightness" min="0" max="120" value="30" />
+                  </div>
+                  <div class="form-group">
+                    <label>Saturation <span id="vs-bg-saturation-val" class="hint">140%</span></label>
+                    <input type="range" id="vs-bg-saturation" min="0" max="300" value="140" />
+                  </div>
+                  <div class="form-group">
+                    <label>Opacité fond <span id="vs-bg-opacity-val" class="hint">100%</span></label>
+                    <input type="range" id="vs-bg-opacity" min="0" max="100" value="100" />
+                  </div>
+                </div>
+              </div>
+            </div>
+<div id="vs-sect-effects" style="padding:16px;border-bottom:1px solid var(--border);">
+              <div class="custom-grid">
+                <div class="custom-card">
+                  <h3>Vignette</h3>
+                  <div class="form-group">
+                    <label>Intensité <span id="vs-vignette-val" class="hint">100%</span></label>
+                    <input type="range" id="vs-vignette-intensity" min="0" max="100" value="100" />
+                  </div>
+                </div>
+                <div class="custom-card">
+                  <h3>Scanlines</h3>
+                  <div class="form-group">
+                    <label class="checkbox-row">
+                      <input type="checkbox" id="vs-scanlines-visible" checked />
+                      <span>Visibles</span>
+                    </label>
+                  </div>
+                  <div class="form-group">
+                    <label>Opacité <span id="vs-scanlines-opacity-val" class="hint">8%</span></label>
+                    <input type="range" id="vs-scanlines-opacity" min="0" max="50" value="8" />
+                  </div>
+                </div>
+                <div class="custom-card">
+                  <h3>Teinte de couleur</h3>
+                  <div class="form-group">
+                    <label class="checkbox-row">
+                      <input type="checkbox" id="vs-tint-visible" />
+                      <span>Activer la teinte</span>
+                    </label>
+                  </div>
+                  <div class="form-group">
+                    <label>Couleur</label>
+                    <input type="color" id="vs-tint-color" value="#000000" />
+                  </div>
+                  <div class="form-group">
+                    <label>Opacité <span id="vs-tint-opacity-val" class="hint">0%</span></label>
+                    <input type="range" id="vs-tint-opacity" min="0" max="80" value="0" />
+                  </div>
+                </div>
+              </div>
+            </div>
+<div id="vs-sect-particles" style="padding:16px;border-bottom:1px solid var(--border);">
+              <div class="custom-grid">
+                <div class="custom-card">
+                  <h3>Override Joueur 1</h3>
+                  <div class="form-group">
+                    <select id="vs-p1-particle" class="select-input" style="width:100%">
+                      <option value="auto">Auto (selon personnage)</option>
+                      <option value="none">Aucune</option>
+                      <optgroup label="Atmosphère">
+                        <option value="snow">Neige</option><option value="rain">Pluie</option><option value="leaf">Feuilles</option>
+                        <option value="sand">Sable</option><option value="smoke">Fumée</option><option value="petal">Pétales</option>
+                        <option value="bubble">Bulles</option>
+                      </optgroup>
+                      <optgroup label="Énergie">
+                        <option value="fire">Feu</option><option value="flame">Flammes</option><option value="bolt">Éclairs</option>
+                        <option value="sparkle">Étincelles</option><option value="aura">Aura</option><option value="pixel">Pixels</option>
+                        <option value="data">Data</option>
+                      </optgroup>
+                      <optgroup label="Objets">
+                        <option value="star">Étoiles</option><option value="heart">Cœurs</option><option value="ghost">Fantômes</option>
+                        <option value="note">Notes</option><option value="coin">Pièces</option><option value="ring">Anneaux</option>
+                        <option value="feather">Plumes</option><option value="rune">Runes</option>
+                      </optgroup>
+                    </select>
+                  </div>
+                </div>
+                <div class="custom-card">
+                  <h3>Override Joueur 2</h3>
+                  <div class="form-group">
+                    <select id="vs-p2-particle" class="select-input" style="width:100%">
+                      <option value="auto">Auto (selon personnage)</option>
+                      <option value="none">Aucune</option>
+                      <optgroup label="Atmosphère">
+                        <option value="snow">Neige</option><option value="rain">Pluie</option><option value="leaf">Feuilles</option>
+                        <option value="sand">Sable</option><option value="smoke">Fumée</option><option value="petal">Pétales</option>
+                        <option value="bubble">Bulles</option>
+                      </optgroup>
+                      <optgroup label="Énergie">
+                        <option value="fire">Feu</option><option value="flame">Flammes</option><option value="bolt">Éclairs</option>
+                        <option value="sparkle">Étincelles</option><option value="aura">Aura</option><option value="pixel">Pixels</option>
+                        <option value="data">Data</option>
+                      </optgroup>
+                      <optgroup label="Objets">
+                        <option value="star">Étoiles</option><option value="heart">Cœurs</option><option value="ghost">Fantômes</option>
+                        <option value="note">Notes</option><option value="coin">Pièces</option><option value="ring">Anneaux</option>
+                        <option value="feather">Plumes</option><option value="rune">Runes</option>
+                      </optgroup>
+                    </select>
+                  </div>
+                </div>
+                <div class="custom-card" style="grid-column:1/-1">
+                  <h3>Global</h3>
+                  <div class="form-group">
+                    <label>Densité <span id="vs-particle-density-val" class="hint">100%</span></label>
+                    <input type="range" id="vs-particle-density" min="0" max="200" value="100" />
+                  </div>
+                  <div class="form-group">
+                    <label>Opacité <span id="vs-particle-opacity-val" class="hint">100%</span></label>
+                    <input type="range" id="vs-particle-opacity" min="0" max="100" value="100" />
+                  </div>
+                </div>
+              </div>
+            </div>
+<div id="vs-sect-anim" style="padding:16px;">
+              <div class="custom-grid">
+                <div class="custom-card">
+                  <h3>Entrée</h3>
+                  <div class="form-group">
+                    <label>Type d'animation</label>
+                    <div class="vs-anim-grid" id="vs-entry-grid">
+                      <button class="vs-anim-btn active" data-entry="slide">↔ Glissement</button>
+                      <button class="vs-anim-btn" data-entry="zoom">⊕ Zoom</button>
+                      <button class="vs-anim-btn" data-entry="fade">◎ Fondu</button>
+                      <button class="vs-anim-btn" data-entry="drop">↓ Chute</button>
+                      <button class="vs-anim-btn" data-entry="bounce">⇌ Rebond</button>
+                      <button class="vs-anim-btn" data-entry="split">⇔ Split</button>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label>Durée <span id="vs-anim-duration-val" class="hint">700ms</span></label>
+                    <input type="range" id="vs-anim-duration" min="200" max="2000" step="50" value="700" />
+                  </div>
+                  <div class="form-group">
+                    <label class="checkbox-row">
+                      <input type="checkbox" id="vs-flash-enabled" checked />
+                      <span>Flash d'entrée</span>
+                    </label>
+                  </div>
+                </div>
+                <div class="custom-card">
+                  <h3>Sortie</h3>
+                  <div class="form-group">
+                    <label>Type de sortie</label>
+                    <div class="vs-anim-grid" id="vs-exit-grid">
+                      <button class="vs-anim-btn active" data-exit="fade">◎ Fondu</button>
+                      <button class="vs-anim-btn" data-exit="slide">↔ Glissement</button>
+                      <button class="vs-anim-btn" data-exit="zoom-out">⊖ Zoom arrière</button>
+                    </div>
+                  </div>
+                </div>
+                <div class="custom-card" style="grid-column:1/-1">
+                  <h3>Minuterie auto-masquage</h3>
+                  <p class="hint" style="margin-bottom:10px">Masque automatiquement la VS screen après l'animation d'entrée. <strong>0 = désactivé.</strong></p>
+                  <div style="display:flex;align-items:center;gap:12px">
+                    <input type="range" id="vs-autohide-range" min="0" max="30" value="0" style="flex:1" />
+                    <input type="number" id="vs-autohide-num" min="0" max="30" value="0" style="width:60px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:13px;padding:4px 6px;text-align:center" />
+                    <span class="hint">sec</span>
+                  </div>
+                  <p id="vs-autohide-preview" class="hint" style="margin-top:6px;text-align:center"></p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Iframe fixe 60% -->
+          <div style="flex:0 0 60%;border-left:1px solid var(--border);background:#000;position:relative;overflow:hidden;">
+            <div class="overlay-preview-wrap" id="preview-wrap-vsscreen">
+              <iframe src="/vs-screen" class="overlay-preview-frame" id="preview-frame-vsscreen"></iframe>
+            </div>
+          </div>
+        </div>
+      </section>
+      </div><!-- /accordion-body -->
+      </div><!-- /vs-sub-main -->
+
+<div class="accordion-tile" id="vic-sub-main">
+      <div class="accordion-header">
+        <div class="accordion-title">
+          <span class="accordion-emoji">🏆</span>
+          <div><h3>Overlay Victoire</h3><div class="accordion-meta">Écran de victoire</div></div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <a href="/victory" target="_blank" class="btn btn-outline btn-sm" onclick="event.stopPropagation()">Ouvrir ↗</a>
+          <span class="accordion-chevron">▼</span>
+        </div>
+      </div>
+      <div class="accordion-body" style="padding:0">
+      <section class="section" style="padding:0">
+        <div class="section-header" style="padding:12px 16px">
+          <h2>Overlay Victoire</h2>
+          <a href="/victory" target="_blank" class="btn btn-outline btn-sm">Ouvrir l'overlay ↗</a>
+        </div>
+
+        <div style="display:flex;height:700px;overflow:hidden;border-top:1px solid var(--border)">
+
+          <!-- Titres verticaux -->
+          <div id="vic-nav-titles" style="width:30px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:20px 0;gap:28px;border-right:1px solid var(--border);background:var(--surface)">
+            <span class="vic-nav-title" data-target="vic-sect-obs">OBS</span>
+            <span class="vic-nav-title" data-target="vic-sect-fond">Fond</span>
+            <span class="vic-nav-title" data-target="vic-sect-effects">Effets</span>
+            <span class="vic-nav-title" data-target="vic-sect-particles">Particules</span>
+            <span class="vic-nav-title" data-target="vic-sect-anim">Animation</span>
+          </div>
+
+          <!-- Config scrollable -->
+          <div id="vic-scroll-area" style="flex:1;min-width:0;overflow-y:auto;position:relative">
+
+            <div id="vic-sect-obs" style="padding:16px">
+              <div class="vs-obs-guide">
+                <div class="vs-obs-guide-title">📺 Intégration OBS</div>
+                <ol class="vs-obs-guide-steps">
+                  <li>Dans OBS, ajouter une source <strong>Navigateur</strong></li>
+                  <li>URL : <code>http://localhost:3002/victory</code> <button class="btn-copy-inline" data-url="http://localhost:3002/victory">📋</button></li>
+                  <li>Résolution : <strong>1920 × 1080</strong>, fond transparent activé</li>
+                  <li>Le joueur affiché est celui qui a <strong>le plus de points</strong> dans le scoreboard</li>
+                  <li>Il disparaît automatiquement quand le score est remis à zéro</li>
+                </ol>
+              </div>
+            </div>
+
+            <div id="vic-sect-fond" style="padding:0 16px 20px">
+              <div class="custom-grid">
+                <div class="custom-card">
+                  <h3>Image de fond</h3>
+                  <p class="hint" style="margin-bottom:10px">PNG, JPG ou WebP — 1920×1080.</p>
+                  <div style="display:flex;flex-direction:column;gap:10px">
+                    <label class="btn btn-outline" style="cursor:pointer;text-align:center">
+                      Choisir une image
+                      <input type="file" id="vic-bg-file" accept="image/png,image/jpeg,image/webp" style="display:none" />
+                    </label>
+                    <div id="vic-bg-preview-wrap" style="display:none;position:relative">
+                      <img id="vic-bg-preview" style="width:100%;border-radius:6px;border:1px solid var(--border);display:block" alt="aperçu" />
+                      <button id="btn-vic-bg-clear" class="btn btn-sm" style="margin-top:6px;width:100%;background:rgba(220,50,50,0.15);color:#e05050;border:1px solid rgba(220,50,50,0.3)">Supprimer</button>
+                    </div>
+                    <p id="vic-bg-status" class="hint" style="text-align:center"></p>
+                  </div>
+                </div>
+                <div class="custom-card">
+                  <h3>Filtres du fond de scène</h3>
+                  <div class="form-group">
+                    <label>Flou <span id="vic-bg-blur-val" class="hint">18px</span></label>
+                    <input type="range" id="vic-bg-blur" min="0" max="60" value="18" />
+                  </div>
+                  <div class="form-group">
+                    <label>Luminosité <span id="vic-bg-brightness-val" class="hint">30%</span></label>
+                    <input type="range" id="vic-bg-brightness" min="0" max="120" value="30" />
+                  </div>
+                  <div class="form-group">
+                    <label>Saturation <span id="vic-bg-saturation-val" class="hint">140%</span></label>
+                    <input type="range" id="vic-bg-saturation" min="0" max="300" value="140" />
+                  </div>
+                  <div class="form-group">
+                    <label>Opacité fond <span id="vic-bg-opacity-val" class="hint">100%</span></label>
+                    <input type="range" id="vic-bg-opacity" min="0" max="100" value="100" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div id="vic-sect-effects" style="padding:0 16px 20px">
+              <div class="custom-grid">
+                <div class="custom-card">
+                  <h3>Vignette</h3>
+                  <div class="form-group">
+                    <label>Intensité <span id="vic-vignette-val" class="hint">100%</span></label>
+                    <input type="range" id="vic-vignette-intensity" min="0" max="100" value="100" />
+                  </div>
+                </div>
+                <div class="custom-card">
+                  <h3>Scanlines</h3>
+                  <div class="form-group">
+                    <label class="checkbox-row">
+                      <input type="checkbox" id="vic-scanlines-visible" checked />
+                      <span>Visibles</span>
+                    </label>
+                  </div>
+                  <div class="form-group">
+                    <label>Opacité <span id="vic-scanlines-opacity-val" class="hint">8%</span></label>
+                    <input type="range" id="vic-scanlines-opacity" min="0" max="50" value="8" />
+                  </div>
+                </div>
+                <div class="custom-card">
+                  <h3>Teinte de couleur</h3>
+                  <div class="form-group">
+                    <label class="checkbox-row">
+                      <input type="checkbox" id="vic-tint-visible" />
+                      <span>Activer la teinte</span>
+                    </label>
+                  </div>
+                  <div class="form-group">
+                    <label>Couleur</label>
+                    <input type="color" id="vic-tint-color" value="#000000" />
+                  </div>
+                  <div class="form-group">
+                    <label>Opacité <span id="vic-tint-opacity-val" class="hint">0%</span></label>
+                    <input type="range" id="vic-tint-opacity" min="0" max="80" value="0" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div id="vic-sect-particles" style="padding:0 16px 20px">
+              <div class="custom-grid">
+                <div class="custom-card">
+                  <h3>Override Joueur 1</h3>
+                  <div class="form-group">
+                    <select id="vic-p1-particle" class="select-input" style="width:100%">
+                      <option value="auto">Auto (selon personnage)</option>
+                      <option value="none">Aucune</option>
+                      <optgroup label="Atmosphère">
+                        <option value="snow">Neige</option>
+                        <option value="rain">Pluie</option>
+                        <option value="leaf">Feuilles</option>
+                        <option value="sand">Sable</option>
+                        <option value="smoke">Fumée</option>
+                        <option value="petal">Pétales</option>
+                        <option value="bubble">Bulles</option>
+                      </optgroup>
+                      <optgroup label="Énergie">
+                        <option value="fire">Feu</option>
+                        <option value="flame">Flammes</option>
+                        <option value="bolt">Éclairs</option>
+                        <option value="sparkle">Étincelles</option>
+                        <option value="aura">Aura</option>
+                        <option value="pixel">Pixels</option>
+                        <option value="data">Data</option>
+                      </optgroup>
+                      <optgroup label="Objets">
+                        <option value="star">Étoiles</option>
+                        <option value="heart">Cœurs</option>
+                        <option value="ghost">Fantômes</option>
+                        <option value="note">Notes</option>
+                        <option value="coin">Pièces</option>
+                        <option value="ring">Anneaux</option>
+                        <option value="feather">Plumes</option>
+                        <option value="rune">Runes</option>
+                      </optgroup>
+                    </select>
+                  </div>
+                </div>
+                <div class="custom-card">
+                  <h3>Override Joueur 2</h3>
+                  <div class="form-group">
+                    <select id="vic-p2-particle" class="select-input" style="width:100%">
+                      <option value="auto">Auto (selon personnage)</option>
+                      <option value="none">Aucune</option>
+                      <optgroup label="Atmosphère">
+                        <option value="snow">Neige</option>
+                        <option value="rain">Pluie</option>
+                        <option value="leaf">Feuilles</option>
+                        <option value="sand">Sable</option>
+                        <option value="smoke">Fumée</option>
+                        <option value="petal">Pétales</option>
+                        <option value="bubble">Bulles</option>
+                      </optgroup>
+                      <optgroup label="Énergie">
+                        <option value="fire">Feu</option>
+                        <option value="flame">Flammes</option>
+                        <option value="bolt">Éclairs</option>
+                        <option value="sparkle">Étincelles</option>
+                        <option value="aura">Aura</option>
+                        <option value="pixel">Pixels</option>
+                        <option value="data">Data</option>
+                      </optgroup>
+                      <optgroup label="Objets">
+                        <option value="star">Étoiles</option>
+                        <option value="heart">Cœurs</option>
+                        <option value="ghost">Fantômes</option>
+                        <option value="note">Notes</option>
+                        <option value="coin">Pièces</option>
+                        <option value="ring">Anneaux</option>
+                        <option value="feather">Plumes</option>
+                        <option value="rune">Runes</option>
+                      </optgroup>
+                    </select>
+                  </div>
+                </div>
+                <div class="custom-card" style="grid-column:1/-1">
+                  <h3>Global</h3>
+                  <div class="form-group">
+                    <label>Densité <span id="vic-particle-density-val" class="hint">100%</span></label>
+                    <input type="range" id="vic-particle-density" min="0" max="200" value="100" />
+                  </div>
+                  <div class="form-group">
+                    <label>Opacité <span id="vic-particle-opacity-val" class="hint">100%</span></label>
+                    <input type="range" id="vic-particle-opacity" min="0" max="100" value="100" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div id="vic-sect-anim" style="padding:0 16px 40px">
+              <div class="custom-grid">
+                <div class="custom-card">
+                  <h3>Entrée</h3>
+                  <div class="form-group">
+                    <label>Type d'animation</label>
+                    <div class="vs-anim-grid" id="vic-entry-grid">
+                      <button class="vs-anim-btn" data-vicentry="slide">↔ Glissement</button>
+                      <button class="vs-anim-btn" data-vicentry="zoom">⊕ Zoom</button>
+                      <button class="vs-anim-btn active" data-vicentry="fade">◎ Fondu</button>
+                      <button class="vs-anim-btn" data-vicentry="drop">↓ Chute</button>
+                      <button class="vs-anim-btn" data-vicentry="bounce">⇌ Rebond</button>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label>Durée <span id="vic-anim-duration-val" class="hint">700ms</span></label>
+                    <input type="range" id="vic-anim-duration" min="200" max="2000" step="50" value="700" />
+                  </div>
+                  <div class="form-group">
+                    <label class="checkbox-row">
+                      <input type="checkbox" id="vic-flash-enabled" checked />
+                      <span>Flash d'entrée</span>
+                    </label>
+                  </div>
+                </div>
+                <div class="custom-card">
+                  <h3>Sortie</h3>
+                  <div class="form-group">
+                    <label>Type de sortie</label>
+                    <div class="vs-anim-grid" id="vic-exit-grid">
+                      <button class="vs-anim-btn active" data-vicexit="fade">◎ Fondu</button>
+                      <button class="vs-anim-btn" data-vicexit="slide">↔ Glissement</button>
+                      <button class="vs-anim-btn" data-vicexit="zoom-out">⊖ Zoom arrière</button>
+                    </div>
+                  </div>
+                </div>
+                <div class="custom-card" style="grid-column:1/-1">
+                  <h3>Minuterie auto-masquage</h3>
+                  <p class="hint" style="margin-bottom:10px">Masque automatiquement l'overlay victoire après l'animation d'entrée. <strong>0 = désactivé.</strong></p>
+                  <div style="display:flex;align-items:center;gap:12px">
+                    <input type="range" id="vic-autohide-range" min="0" max="30" value="0" style="flex:1" />
+                    <input type="number" id="vic-autohide-num" min="0" max="30" value="0" style="width:60px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:13px;padding:4px 6px;text-align:center" />
+                    <span class="hint">sec</span>
+                  </div>
+                  <p id="vic-autohide-preview" class="hint" style="margin-top:6px;text-align:center"></p>
+                </div>
+              </div>
+            </div>
+
+          </div><!-- /vic-scroll-area -->
+
+          <!-- Iframe fixe 60% -->
+          <div style="flex:0 0 60%;min-width:0;border-left:1px solid var(--border);background:var(--surface2);padding:10px">
+            <div class="overlay-preview-wrap" id="preview-wrap-victory">
+              <iframe src="/victory" class="overlay-preview-frame" id="preview-frame-victory"></iframe>
+            </div>
+          </div>
+
+        </div><!-- /flex row -->
+      </section>
+      </div><!-- /accordion-body -->
+      </div><!-- /vic-sub-main -->
+    </section>
+    </div>
+    <div class="ov-cat-panel" id="ov-sub-startgg">
 
     <!-- Barre compacte (visible après recherche de tournoi) -->
     <div id="sgg-active-bar" style="display:none;background:var(--surface2);border:1px solid rgba(23,185,120,0.3);border-radius:8px;padding:10px 14px;margin-bottom:12px">
@@ -3481,43 +3345,8 @@
       </div><!-- /accordion-body -->
     </div>
 
-  </div><!-- /tab-startgg -->
-
-
-  <!-- STAGE PICKER MODAL -->
-  <div class="char-modal" id="stage-modal" style="display:none">
-    <div class="char-modal-inner stage-modal-inner">
-      <div class="char-modal-header">
-        <h2>Choisir un stage</h2>
-        <button class="btn btn-outline" id="stage-modal-close">Fermer</button>
-      </div>
-      <div class="stage-picker-grid" id="stage-picker-grid"></div>
-    </div>
   </div>
-
-  <!-- CHARACTER PICKER MODAL -->
-  <div class="char-modal" id="char-modal" style="display:none">
-    <div class="char-modal-inner">
-      <div class="char-modal-header">
-        <h2 id="char-modal-title">Choisir un personnage — Joueur 1</h2>
-        <div class="char-search-row">
-          <input type="text" id="char-search" placeholder="Rechercher un personnage..." />
-          <button class="btn btn-outline" id="char-modal-close">Fermer</button>
-        </div>
-      </div>
-      <div class="char-grid" id="char-grid"></div>
-    </div>
-  </div>
-
-  <!-- ═══════════════════════════════════════════════════════════ -->
-  <!-- TAB : LAYOUTS TWITCH                                        -->
-  <!-- ═══════════════════════════════════════════════════════════ -->
-  <div class="tab-content" id="tab-twitch"></div><!-- /tab-twitch -->
-
-  <!-- ═══════════════════════════════════════════════════════════ -->
-  <!-- TAB : OVERLAYS (Cam + Cadres + Titre + Bandeau)              -->
-  <!-- ═══════════════════════════════════════════════════════════ -->
-  <div class="tab-content" id="tab-overlays">
+    <div class="ov-cat-panel" id="ov-sub-generic">
     <section class="section">
       <div class="section-header"><h2>Overlays</h2></div>
 
@@ -4487,21 +4316,8 @@
 
     </section>
 
-  </div><!-- /tab-overlays -->
-
-  <!-- ═══════════════════════════════════════════════════════════ -->
-  <!-- TAB : SCOREBOARD BUILDER                                     -->
-  <!-- ═══════════════════════════════════════════════════════════ -->
-  <div class="tab-content" id="tab-builder"></div><!-- /tab-builder -->
-
-  <!-- ═══════════════════════════════════════════════════════════ -->
-  <!-- TAB : YOUTUBE                                               -->
-  <!-- ═══════════════════════════════════════════════════════════ -->
-  <div class="tab-content" id="tab-youtube"></div><!-- /tab-youtube -->
-  <!-- ═══════════════════════════════════════════════════════════ -->
-  <!-- TAB : OVERLAYS DIFFUSIONS                                    -->
-  <!-- ═══════════════════════════════════════════════════════════ -->
-  <div class="tab-content" id="tab-diffusions">
+  </div>
+    <div class="ov-cat-panel" id="ov-sub-diffusions">
     <div class="match-subpanel-nav">
       <button class="match-subpanel-btn active" data-subpanel="diff-sub-twitch">Twitch</button>
       <button class="match-subpanel-btn" data-subpanel="diff-sub-youtube">YouTube</button>
@@ -5170,7 +4986,22 @@
       </div>
     </section>
     </div>
-  </div><!-- /tab-diffusions -->
+  </div>
+  </div><!-- /tab-overlays -->
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- TAB : SCOREBOARD BUILDER                                     -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <div class="tab-content" id="tab-builder"></div><!-- /tab-builder -->
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- TAB : YOUTUBE                                               -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <div class="tab-content" id="tab-youtube"></div><!-- /tab-youtube -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- TAB : OVERLAYS DIFFUSIONS                                    -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  
 
 
   
@@ -5178,7 +5009,10 @@
   <!-- ═══════════════════════════════════════════════════════════ -->
   <!-- TAB : OVERLAY MULTI-PC                                      -->
   <!-- ═══════════════════════════════════════════════════════════ -->
-  <div class="tab-content" id="tab-overlayip">
+  <div class="tab-content" id="tab-tools">
+    <div style="display:grid;grid-template-columns:2fr 1fr;gap:16px;align-items:start">
+      <!-- Deux tiers gauche : PSO multi-PC -->
+      <div style="min-width:0">
     <section class="section">
       <div class="section-header">
         <h2>PSO multi-PC</h2>
@@ -5287,12 +5121,9 @@
       </div>
 
     </section>
-  </div><!-- /tab-overlayip -->
-
-  <!-- ═══════════════════════════════════════════════════════════ -->
-  <!-- TAB : NOTES INTERNES                                        -->
-  <!-- ═══════════════════════════════════════════════════════════ -->
-  <div class="tab-content" id="tab-notes">
+  </div>
+      <!-- Tiers droit : Notes -->
+      <div style="min-width:0">
     <div class="notes-panel">
 
       <!-- Tuto Notes -->
@@ -5353,7 +5184,14 @@
       <div id="notes-list" class="notes-list"></div>
 
     </div>
-  </div><!-- /tab-notes -->
+  </div>
+    </div>
+  </div><!-- /tab-tools -->
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- TAB : NOTES INTERNES                                        -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  
 
   <!-- ══════════════════════════════════════════════════════════ -->
   <!--  EN COURS DE DEV                                          -->
@@ -5499,9 +5337,9 @@
       <div class="section-header"><h2>Configuration pré tournoi</h2></div>
 
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start">
-
-        <!-- ── Start.gg ── -->
-        <div class="custom-card">
+        <!-- Gauche : Start.gg + Infos + Collection OBS -->
+        <div style="display:flex;flex-direction:column;gap:16px;min-width:0">
+          <div class="custom-card">
           <h3 style="margin-bottom:14px">Connexion Start.gg</h3>
 
           <div id="setup-key-connected" class="setup-key-connected" style="display:none">
@@ -5546,10 +5384,6 @@
             <div style="font-size:10px;color:var(--text-muted);margin-top:4px">Filtrer les prochains matchs par phase.</div>
           </div>
         </div>
-
-        <!-- ── Infos tournoi + OBS ── -->
-        <div style="display:flex;flex-direction:column;gap:16px">
-
           <div class="custom-card">
             <h3 style="margin-bottom:14px">Informations du tournoi</h3>
 
@@ -5572,10 +5406,81 @@
 
             <div style="display:flex;gap:8px;margin-top:8px">
               <button class="btn btn-primary" id="setup-save-btn" style="flex:1">✓ Sauvegarder</button>
-              <button class="btn btn-outline" id="setup-skip-btn">Passer</button>
             </div>
           </div>
+          <div class="custom-card">
+            <h3 style="margin-bottom:14px">Bitfocus Companion</h3>
 
+        <!-- En-tête -->
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px">
+          <div style="width:40px;height:40px;background:linear-gradient(135deg,#1C2230,#2A3A5A);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">🕹️</div>
+          <div>
+            <div style="font-weight:700;font-size:14px;color:#F0EEF8">Contrôle avancé via Bitfocus Companion</div>
+            <div style="font-size:12px;color:#666;margin-top:2px">Pour Stream Deck XL, Loupedeck, X-Keys, etc. — 64 boutons préconfigurés à télécharger</div>
+          </div>
+        </div>
+
+
+        <!-- Étape unique -->
+        <div style="font-size:11px;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">Configuration en 1 étape</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;margin-bottom:18px">
+
+          <div style="background:#0E0E12;border:1px solid #2a2a3a;border-radius:8px;padding:14px">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+              <span style="background:#E8B830;color:#0E0E12;font-size:11px;font-weight:800;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0">1</span>
+              <span style="font-size:13px;font-weight:600;color:#F0EEF8">Télécharger le fichier</span>
+            </div>
+            <p style="font-size:12px;color:#888;line-height:1.6">Télécharge <strong style="color:#A0C4D8">PSO-Companion.companionconfig</strong> ci-dessous. Il contient déjà les 2 pages et la connexion HTTP préconfigurée.</p>
+          </div>
+
+          <div style="background:#0E0E12;border:1px solid #2a2a3a;border-radius:8px;padding:14px">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+              <span style="background:#E8B830;color:#0E0E12;font-size:11px;font-weight:800;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0">2</span>
+              <span style="font-size:13px;font-weight:600;color:#F0EEF8">Importer dans Companion</span>
+            </div>
+            <p style="font-size:12px;color:#888;line-height:1.6">Companion → <strong style="color:#aaa">Import / Export</strong> → onglet <strong style="color:#aaa">Import</strong> → sélectionner le fichier → <strong style="color:#E8B830">Import full config</strong>.</p>
+          </div>
+
+          <div style="background:#0E0E12;border:1px solid rgba(107,201,108,0.3);border-radius:8px;padding:14px">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+              <span style="background:#6BC96C;color:#0E0E12;font-size:11px;font-weight:800;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0">✓</span>
+              <span style="font-size:13px;font-weight:600;color:#F0EEF8">Prêt</span>
+            </div>
+            <p style="font-size:12px;color:#888;line-height:1.6">64 boutons actifs sur ton contrôleur. Les <strong style="color:#6BC96C">scènes Studio</strong> utilisent POST, les <strong style="color:#A0C4D8">overlays</strong> utilisent GET.</p>
+          </div>
+
+        </div>
+
+
+        <!-- Téléchargements -->
+        <div style="font-size:11px;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">Fichier à télécharger</div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <a href="/companion/PSO-Companion.companionconfig" download style="display:flex;align-items:center;gap:10px;background:#0E0E12;border:1px solid #2a2a3a;border-radius:7px;padding:10px 14px;text-decoration:none;transition:border-color .15s" onmouseover="this.style.borderColor='#E8B830'" onmouseout="this.style.borderColor='#2a2a3a'">
+            <span style="font-size:20px">📥</span>
+            <div>
+              <div style="font-size:13px;font-weight:700;color:#F0EEF8">PSO-Companion.companionconfig</div>
+              <div style="font-size:11px;color:#666">Config complète — 2 pages · 64 boutons · connexion HTTP incluse</div>
+            </div>
+          </a>
+          <a href="/companion/SETUP.txt" download style="display:flex;align-items:center;gap:10px;background:#0E0E12;border:1px solid #2a2a3a;border-radius:7px;padding:10px 14px;text-decoration:none;transition:border-color .15s" onmouseover="this.style.borderColor='#A0C4D8'" onmouseout="this.style.borderColor='#2a2a3a'">
+            <span style="font-size:20px">📄</span>
+            <div>
+              <div style="font-size:13px;font-weight:700;color:#F0EEF8">SETUP.txt</div>
+              <div style="font-size:11px;color:#666">Instructions complètes + liste de toutes les URLs disponibles</div>
+            </div>
+          </a>
+        </div>
+
+        <!-- Note réseau -->
+        <div style="background:rgba(160,196,216,0.07);border:1px solid rgba(160,196,216,0.2);border-radius:7px;padding:10px 14px;margin-top:14px;font-size:11px;color:#A0C4D8;line-height:1.6">
+          💡 <strong>Companion sur un autre PC ?</strong> Remplacer <code style="background:#0E0E12;padding:1px 5px;border-radius:3px">localhost:3002</code> par l'IP du serveur PSO dans chaque action Companion (ex: <code style="background:#0E0E12;padding:1px 5px;border-radius:3px">192.168.1.10:3002</code>).
+        </div>
+
+      </div>
+          
+        </div>
+        <!-- Droite (50%) : Collection OBS + liens overlays -->
+        <div style="display:flex;flex-direction:column;gap:16px;min-width:0">
           <div class="custom-card">
             <h3 style="margin-bottom:10px">Collection OBS</h3>
             <p style="font-size:12px;color:var(--text-muted);margin-bottom:12px">
@@ -5586,7 +5491,53 @@
               ↓ Télécharger la collection OBS
             </a>
           </div>
-
+          <div class="custom-card" style="min-width:0">
+          <h3 style="margin-bottom:12px">Liens overlays OBS</h3>
+          <div id="obs-mode-bar" style="display:flex;align-items:center;gap:8px;margin-bottom:12px;padding:8px 10px;background:var(--surface2);border-radius:6px;border:1px solid var(--border)">
+            <span style="font-size:11px;color:var(--text-muted);flex-shrink:0">URLs pour :</span>
+            <button class="btn btn-sm active" id="btn-mode-local" title="Utiliser localhost (ce PC)">Ce PC</button>
+            <button class="btn btn-sm" id="btn-mode-network" title="Utiliser l'IP réseau (autre PC sur le même réseau)">Autre PC</button>
+            <span id="obs-mode-ip" style="font-size:11px;color:var(--text-muted);margin-left:4px;font-family:monospace"></span>
+          </div>
+          <div class="obs-url-cols">
+            <div class="obs-url-col">
+              <div class="obs-url-col-header">Scoreboard</div>
+              <div class="obs-url-item obs-url-clickable" data-url="http://localhost:3002/overlay" title="Cliquer pour copier l'URL"><span>Scoreboard</span></div>
+              <div class="obs-url-item obs-url-clickable" data-url="http://localhost:3002/vs-screen" title="Cliquer pour copier l'URL"><span>VS Screen</span></div>
+              <div class="obs-url-item obs-url-clickable" data-url="http://localhost:3002/victory" title="Cliquer pour copier l'URL"><span>Victoire</span></div>
+              <div class="obs-url-item obs-url-clickable" data-url="http://localhost:3002/casters" title="Cliquer pour copier l'URL"><span>Casters</span></div>
+              <div class="obs-url-item obs-url-clickable" data-url="http://localhost:3002/cam" title="Cliquer pour copier l'URL"><span>Cam</span></div>
+            </div>
+            <div class="obs-url-col">
+              <div class="obs-url-col-header">Tournoi</div>
+              <div class="obs-url-item obs-url-clickable" data-url="http://localhost:3002/stageveto" title="Cliquer pour copier l'URL"><span>Stage Veto</span></div>
+              <div class="obs-url-item obs-url-clickable" data-url="http://localhost:3002/bracket" title="Cliquer pour copier l'URL"><span>Bracket</span></div>
+              <div class="obs-url-item obs-url-clickable" data-url="http://localhost:3002/top8" title="Cliquer pour copier l'URL"><span>Top 8</span></div>
+              <div class="obs-url-item obs-url-clickable" data-url="http://localhost:3002/h2h" title="Cliquer pour copier l'URL"><span>H2H</span></div>
+              <div class="obs-url-item obs-url-clickable" data-url="http://localhost:3002/player-stats" title="Cliquer pour copier l'URL"><span>Stats joueur</span></div>
+              <div class="obs-url-item obs-url-clickable" data-url="http://localhost:3002/tournament-history" title="Cliquer pour copier l'URL"><span>Historique</span></div>
+            </div>
+            <div class="obs-url-col">
+              <div class="obs-url-col-header">Stream</div>
+              <div class="obs-url-item obs-url-clickable" data-url="http://localhost:3002/stream-title" title="Cliquer pour copier l'URL"><span>Titre du stream</span></div>
+              <div class="obs-url-item obs-url-clickable" data-url="http://localhost:3002/ticker" title="Cliquer pour copier l'URL"><span>Bandeau</span></div>
+              <div class="obs-url-item obs-url-clickable" data-url="http://localhost:3002/frames" title="Cliquer pour copier l'URL"><span>Cadres</span></div>
+              <div class="obs-url-item obs-url-clickable" data-url="http://localhost:3002/timer" title="Cliquer pour copier l'URL"><span>Timer</span></div>
+            </div>
+            <div class="obs-url-col">
+              <div class="obs-url-col-header obs-url-col-header--twitch">Twitch</div>
+              <div class="obs-url-item obs-url-clickable" data-url="http://localhost:3002/nextmatch" title="Cliquer pour copier l'URL"><span>Layout</span></div>
+              <div class="obs-url-item obs-url-clickable" data-url="http://localhost:3002/twitch-viewer" title="Cliquer pour copier l'URL"><span>Viewers</span></div>
+              <div class="obs-url-item obs-url-clickable" data-url="http://localhost:3002/twitch-alerts" title="Cliquer pour copier l'URL"><span>Alertes</span></div>
+              <div class="obs-url-item obs-url-clickable" data-url="http://localhost:3002/twitch-chat" title="Cliquer pour copier l'URL"><span>Chat</span></div>
+              <div class="obs-url-col-header obs-url-col-header--yt" style="margin-top:10px">YouTube</div>
+              <div class="obs-url-item obs-url-clickable" data-url="http://localhost:3002/youtube-chat" title="Cliquer pour copier l'URL"><span>Chat</span></div>
+              <div class="obs-url-item obs-url-clickable" data-url="http://localhost:3002/youtube-viewer" title="Cliquer pour copier l'URL"><span>Viewers</span></div>
+              <div class="obs-url-item obs-url-clickable" data-url="http://localhost:3002/youtube-alerts" title="Cliquer pour copier l'URL"><span>Alertes</span></div>
+              <div class="obs-url-item obs-url-clickable" data-url="http://localhost:3002/combined-chat" title="Cliquer pour copier l'URL"><span>Chat Twitch+YT</span></div>
+            </div>
+          </div>
+        </div>
         </div>
       </div>
     </section>
