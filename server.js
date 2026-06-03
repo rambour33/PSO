@@ -3743,6 +3743,141 @@ app.delete('/api/stinger/background', (req, res) => {
   res.json({ ok: true });
 });
 
+// ─── Rendu WebM des stingers (Puppeteer + ffmpeg, alpha VP9) ───────────────────
+function findChromeExecutable() {
+  const candidates = [
+    'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
+    'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',
+    'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe',
+    'C:\\Program Files\\Microsoft\\Edge\\Application\\msedge.exe',
+  ];
+  return candidates.find(p => { try { return fs.existsSync(p); } catch { return false; } });
+}
+
+let _stingerRenderBusy = false;
+
+app.get('/api/stinger/render/:theme', async (req, res) => {
+  const theme = String(req.params.theme || '').replace(/[^a-z0-9-]/gi, '');
+  if (!theme.startsWith('stinger-')) return res.status(400).json({ error: 'Thème invalide' });
+  if (_stingerRenderBusy) return res.status(429).json({ error: 'Un rendu est déjà en cours, réessayez dans un instant.' });
+
+  const fps      = Math.min(60, Math.max(10, parseInt(req.query.fps, 10) || 30));
+  const durMs    = Math.min(6000, Math.max(500, parseInt(req.query.dur, 10) || 2200));
+  const width    = 1920, height = 1080;
+  let puppeteer, ffmpegPath;
+  try {
+    puppeteer  = require('puppeteer-core');
+    ffmpegPath = require('ffmpeg-static');
+  } catch (e) {
+    return res.status(500).json({ error: 'Dépendances manquantes (puppeteer-core / ffmpeg-static)' });
+  }
+  const chrome = findChromeExecutable();
+  if (!chrome)     return res.status(500).json({ error: 'Chrome ou Edge introuvable sur ce PC' });
+  if (!ffmpegPath) return res.status(500).json({ error: 'ffmpeg introuvable' });
+
+  _stingerRenderBusy = true;
+  const os  = require('os');
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'pso-stinger-'));
+  let browser;
+  try {
+    browser = await puppeteer.launch({
+      executablePath: chrome,
+      headless: 'new',
+      args: ['--no-sandbox', '--disable-setuid-sandbox', '--force-color-profile=srgb',
+             '--hide-scrollbars', '--disable-gpu', '--mute-audio'],
+    });
+    const page   = await browser.newPage();
+    await page.setViewport({ width, height, deviceScaleFactor: 1 });
+
+    // Bloque socket.io (connexion persistante) qui bloquerait l'horloge virtuelle
+    await page.setRequestInterception(true);
+    page.on('request', reqI => {
+      if (reqI.url().includes('/socket.io/')) reqI.abort().catch(() => {});
+      else reqI.continue().catch(() => {});
+    });
+
+    // Ralentit l'horloge JS de la page (avant tout script) pour densifier les frames
+    const SLOW = 3;
+    await page.evaluateOnNewDocument((S) => {
+      const _pnow = performance.now.bind(performance); const pt0 = _pnow();
+      performance.now = () => pt0 + (_pnow() - pt0) / S;
+      const _dnow = Date.now; const dt0 = _dnow();
+      Date.now = () => dt0 + (_dnow() - dt0) / S;
+      const _sT = window.setTimeout.bind(window);
+      window.setTimeout = (fn, ms, ...a) => _sT(fn, (ms || 0) * S, ...a);
+      const _sI = window.setInterval.bind(window);
+      window.setInterval = (fn, ms, ...a) => _sI(fn, (ms || 0) * S, ...a);
+      const _raf = window.requestAnimationFrame.bind(window);
+      window.requestAnimationFrame = (cb) => _raf(() => cb(performance.now()));
+    }, SLOW);
+
+    const client = await page.target().createCDPSession();
+    await client.send('Animation.enable');
+    const setRate = () => client.send('Animation.setPlaybackRate', { playbackRate: 1 / SLOW }).catch(() => {});
+    await setRate();
+
+    // Chargement initial (réchauffe la page + récupère la config stinger)
+    await page.goto(`http://localhost:${PORT}/${theme}`, { waitUntil: 'networkidle0', timeout: 15000 });
+    await setRate();
+
+    // Relance l'animation depuis le début puis capture en temps réel ralenti
+    await page.evaluate(() => location.reload());
+    await new Promise(r => setTimeout(r, 250 * SLOW));
+    await setRate();
+
+    const realMs = durMs * SLOW;
+    const frames = [];
+    const t0 = Date.now();
+    while (Date.now() - t0 < realMs) {
+      const ts = (Date.now() - t0) / SLOW / 1000; // temps animation (s)
+      try {
+        const buf = await page.screenshot({ omitBackground: true, type: 'png', clip: { x: 0, y: 0, width, height } });
+        frames.push({ ts, buf });
+      } catch (e) { /* ignore */ }
+    }
+
+    await browser.close(); browser = null;
+
+    if (frames.length < 2) throw new Error('Capture vide (aucune frame)');
+
+    // Écrit les frames + liste concat avec durées réelles (timing fidèle)
+    let listTxt = '';
+    for (let i = 0; i < frames.length; i++) {
+      const name = 'f' + String(i).padStart(4, '0') + '.png';
+      fs.writeFileSync(path.join(tmp, name), frames[i].buf);
+      const dur = (i < frames.length - 1) ? Math.max(0.001, frames[i + 1].ts - frames[i].ts) : (1 / fps);
+      listTxt += "file '" + name + "'\nduration " + dur.toFixed(4) + '\n';
+    }
+    listTxt += "file '" + ('f' + String(frames.length - 1).padStart(4, '0') + '.png') + "'\n";
+    fs.writeFileSync(path.join(tmp, 'list.txt'), listTxt);
+
+    // Encodage WebM VP9 alpha, sortie CFR pour compatibilité OBS
+    const outPath = path.join(tmp, theme + '.webm');
+    await new Promise((resolve, reject) => {
+      const { spawn } = require('child_process');
+      const ff = spawn(ffmpegPath, [
+        '-y', '-f', 'concat', '-safe', '0', '-i', path.join(tmp, 'list.txt'),
+        '-c:v', 'libvpx-vp9', '-pix_fmt', 'yuva420p', '-b:v', '0', '-crf', '22',
+        '-r', String(fps), '-an', outPath,
+      ]);
+      let errLog = '';
+      ff.stderr.on('data', d => { errLog += d.toString(); });
+      ff.on('close', code => code === 0 ? resolve() : reject(new Error('ffmpeg code ' + code + '\n' + errLog.slice(-500))));
+      ff.on('error', reject);
+    });
+
+    res.download(outPath, theme + '.webm', () => {
+      _stingerRenderBusy = false;
+      fs.rm(tmp, { recursive: true, force: true }, () => {});
+    });
+  } catch (e) {
+    if (browser) { try { await browser.close(); } catch {} }
+    _stingerRenderBusy = false;
+    fs.rm(tmp, { recursive: true, force: true }, () => {});
+    if (!res.headersSent) res.status(500).json({ error: e.message });
+  }
+});
+
 // ─── Prochains matchs (stream queue overlay) ──────────────────────────────────
 
 let upcomingState = (() => {
@@ -3881,13 +4016,13 @@ server.listen(PORT, '0.0.0.0', () => {
   console.log('');
   console.log('  ── Ce PC (localhost) ──────────────────────────────────────');
   console.log('   Contrôle   → http://localhost:' + PORT + '/control');
-  console.log('   Overlays   → http://localhost:' + PORT + '/overlay  (etc.)');
+  console.log('   Régie      → http://localhost:' + PORT + '/regie');
   if (ips.length > 0) {
     console.log('');
     console.log('  ── Autre PC (réseau local) ────────────────────────────────');
     ips.forEach(ip => {
       console.log('   Contrôle   → http://' + ip + ':' + PORT + '/control');
-      console.log('   Overlays   → http://' + ip + ':' + PORT + '/overlay  (etc.)');
+      console.log('   Régie      → http://' + ip + ':' + PORT + '/regie');
     });
   }
   console.log('');

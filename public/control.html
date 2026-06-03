@@ -4318,11 +4318,17 @@
 
   </div>
     <div class="ov-cat-panel" id="ov-sub-diffusions">
-    <div class="match-subpanel-nav">
-      <button class="match-subpanel-btn active" data-subpanel="diff-sub-twitch">Twitch</button>
-      <button class="match-subpanel-btn" data-subpanel="diff-sub-youtube">YouTube</button>
-    </div>
-    <div class="match-subpanel active" id="diff-sub-twitch">
+    <section class="section">
+      <div class="section-header"><h2>Plateformes de stream</h2></div>
+      <div class="accordion-tile" id="diff-sub-twitch">
+      <div class="accordion-header">
+        <div class="accordion-title">
+          <span class="accordion-emoji" style="color:#9147FF">◉</span>
+          <div><h3>Twitch</h3><div class="accordion-meta">Connexion, viewers, chat</div></div>
+        </div>
+        <span class="accordion-chevron">▼</span>
+      </div>
+      <div class="accordion-body">
     <!-- ── TWITCH ─────────────────────────────────────────────────── -->
     <section class="section">
       <div class="section-header">
@@ -4730,8 +4736,17 @@
 
       </div>
     </section>
-    </div>
-    <div class="match-subpanel" id="diff-sub-youtube">
+      </div><!-- /accordion-body -->
+      </div><!-- /diff-sub-twitch -->
+      <div class="accordion-tile" id="diff-sub-youtube">
+      <div class="accordion-header">
+        <div class="accordion-title">
+          <span class="accordion-emoji" style="color:#FF0000">◉</span>
+          <div><h3>YouTube</h3><div class="accordion-meta">Connexion, chat, viewers</div></div>
+        </div>
+        <span class="accordion-chevron">▼</span>
+      </div>
+      <div class="accordion-body">
     <!-- ── YOUTUBE ────────────────────────────────────────────────── -->
     <section class="section">
       <div class="section-header">
@@ -4985,8 +5000,10 @@
 
       </div>
     </section>
+      </div><!-- /accordion-body -->
+      </div><!-- /diff-sub-youtube -->
+    </section>
     </div>
-  </div>
   </div><!-- /tab-overlays -->
 
   <!-- ═══════════════════════════════════════════════════════════ -->
@@ -5713,9 +5730,10 @@
         '<div id="' + wrapId + '-wrap" style="position:relative;width:100%;aspect-ratio:16/9;background:#000;border-radius:4px;overflow:hidden;cursor:pointer;margin-bottom:8px" onclick="replayStinger(\'' + wrapId + '-wrap\',\'' + path + '\')">' +
           '<iframe id="' + wrapId + '-iframe" src="/' + path + '" style="position:absolute;top:0;left:0;width:1920px;height:1080px;transform-origin:top left;border:none;pointer-events:none"></iframe>' +
         '</div>' +
-        '<div style="display:flex;gap:6px">' +
+        '<div style="display:flex;gap:6px;flex-wrap:wrap">' +
           '<button type="button" class="btn btn-outline btn-sm" style="flex:1" onclick="replayStinger(\'' + wrapId + '-wrap\',\'' + path + '\')">▶ Rejouer</button>' +
           '<button type="button" class="btn btn-outline btn-sm" style="flex:1" id="copy-' + s.id + '" onclick="copyStingerUrl(\'' + path + '\',\'' + s.id + '\')">⎘ URL OBS</button>' +
+          '<button type="button" class="btn btn-outline btn-sm" style="flex:1 1 100%" onclick="downloadStingerWebm(\'' + path + '\', this)">⬇ WebM (alpha)</button>' +
         '</div>';
       grid.appendChild(card);
     });
@@ -5757,6 +5775,31 @@ window.copyStingerUrl = function (path, id) {
     var btn = document.getElementById('copy-' + id);
     if (btn) { var o=btn.textContent; btn.textContent='Copié ✓'; setTimeout(function(){btn.textContent=o;},1500); }
   });
+};
+
+window.downloadStingerWebm = function (path, btn) {
+  if (btn && btn.dataset.busy) return;
+  var orig = btn ? btn.textContent : '';
+  if (btn) { btn.dataset.busy = '1'; btn.disabled = true; btn.textContent = '⏳ Génération… (~15 s)'; }
+  fetch('/api/stinger/render/' + encodeURIComponent(path) + '?dur=2200&fps=30')
+    .then(function (r) {
+      if (!r.ok) return r.json().then(function (j) { throw new Error(j.error || ('HTTP ' + r.status)); });
+      return r.blob();
+    })
+    .then(function (blob) {
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url; a.download = path + '.webm';
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
+      if (btn) { btn.textContent = '✓ Téléchargé'; setTimeout(function () { btn.textContent = orig; }, 2000); }
+    })
+    .catch(function (e) {
+      if (btn) { btn.textContent = '✕ ' + (e.message || 'Erreur'); setTimeout(function () { btn.textContent = orig; }, 3000); }
+    })
+    .finally(function () {
+      if (btn) { delete btn.dataset.busy; btn.disabled = false; }
+    });
 };
 </script>
 
