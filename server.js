@@ -78,7 +78,8 @@ app.use(express.json({ limit: '25mb' }));
 
 // Auth check on /control and write-API routes — overlays stay public
 app.use((req, res, next) => {
-  const isControl  = req.path === '/control' || req.path === '/control.html' || req.path.startsWith('/control?');
+  const isControl  = req.path === '/control' || req.path === '/control.html' || req.path.startsWith('/control?')
+                  || req.path === '/startgg' || req.path === '/startgg.html';
   const isWriteApi = req.method !== 'GET' && req.path.startsWith('/api/') && req.path !== '/api/login';
   if (isControl || isWriteApi) return requireAuth(req, res, next);
   next();
@@ -424,6 +425,7 @@ app.get('/twitch-alerts',(req, res) => res.sendFile(path.join(__dirname, 'public
 app.get('/stageveto', (req, res) => res.sendFile(path.join(__dirname, 'public', 'stageveto.html')));
 app.get('/casters', (req, res) => res.sendFile(path.join(__dirname, 'public', 'casters.html')));
 app.get('/control', (req, res) => res.sendFile(path.join(__dirname, 'public', 'control.html')));
+app.get('/startgg', (req, res) => res.sendFile(path.join(__dirname, 'public', 'startgg.html')));
 app.get('/vs-screen', (req, res) => res.sendFile(path.join(__dirname, 'public', 'vs-screen.html')));
 app.get('/victory',   (req, res) => res.sendFile(path.join(__dirname, 'public', 'victory.html')));
 app.get('/player-stats', (req, res) => res.sendFile(path.join(__dirname, 'public', 'player-stats.html')));
@@ -1965,8 +1967,8 @@ function saveConfig(cfg) {
   fs.writeFileSync(CONFIG_FILE, JSON.stringify(cfg, null, 2));
 }
 
-async function startggQuery(query, variables = {}) {
-  const apiKey = getConfig().startggApiKey;
+async function startggQuery(query, variables = {}, apiKeyOverride = null) {
+  const apiKey = apiKeyOverride || getConfig().startggApiKey;
   if (!apiKey) throw new Error('Clé API start.gg non configurée');
   const res = await fetch('https://api.start.gg/gql/alpha', {
     method: 'POST',
@@ -1997,6 +1999,88 @@ app.post('/api/startgg/config', (req, res) => {
   if (req.body.apiKey !== undefined) cfg.startggApiKey = req.body.apiKey;
   saveConfig(cfg);
   res.json({ ok: true });
+});
+
+/* ── Page /startgg : compte lié à la clé + tournois administrés ── */
+
+const SGG_ME_QUERY = `
+  query Me {
+    currentUser { id slug name player { gamerTag } images { url type } }
+  }`;
+
+function formatSggUser(u) {
+  if (!u) return null;
+  const imgs = u.images || [];
+  return {
+    id:       u.id,
+    name:     u.name || '',
+    gamerTag: u.player?.gamerTag || '',
+    slug:     u.slug || '',
+    avatar:   (imgs.find(i => i.type === 'profile') || imgs[0])?.url || '',
+  };
+}
+
+function pickSggImages(imgs = []) {
+  const logo   = imgs.find(i => i.type === 'profile') || imgs.find(i => Math.abs((i.ratio || 1) - 1) < 0.25) || imgs[0];
+  const banner = imgs.find(i => i.type === 'banner')  || imgs.find(i => (i.ratio || 1) > 1.4);
+  return { logoUrl: logo?.url || '', bannerUrl: banner?.url || '' };
+}
+
+/* Compte associé à la clé enregistrée */
+app.get('/api/startgg/me', async (req, res) => {
+  if (!getConfig().startggApiKey) return res.json({ hasKey: false });
+  try {
+    const data = await startggQuery(SGG_ME_QUERY);
+    res.json({ hasKey: true, ok: true, user: formatSggUser(data.currentUser) });
+  } catch (e) {
+    res.json({ hasKey: true, ok: false, error: e.message });
+  }
+});
+
+/* Teste une clé (sans l'enregistrer) */
+app.post('/api/startgg/test-key', async (req, res) => {
+  const key = String(req.body?.apiKey || '').trim().replace(/^Bearer\s+/i, '');
+  if (!key) return res.status(400).json({ ok: false, error: 'Clé manquante' });
+  try {
+    const data = await startggQuery(SGG_ME_QUERY, {}, key);
+    if (!data.currentUser) throw new Error('Clé refusée par start.gg');
+    res.json({ ok: true, user: formatSggUser(data.currentUser) });
+  } catch (e) {
+    res.status(400).json({ ok: false, error: e.message });
+  }
+});
+
+/* Tournois dont le compte est admin / organisateur */
+app.get('/api/startgg/my-tournaments', async (req, res) => {
+  try {
+    const data = await startggQuery(`
+      query MyTournaments($perPage: Int!) {
+        currentUser {
+          tournaments(query: { perPage: $perPage, page: 1, filter: { tournamentView: "admin" } }) {
+            nodes {
+              id name slug startAt endAt city numAttendees
+              images { url type ratio }
+              events { id name numEntrants }
+            }
+          }
+        }
+      }`, { perPage: 50 });
+    const nodes = data.currentUser?.tournaments?.nodes || [];
+    const tournaments = nodes.map(t => ({
+      id:           t.id,
+      name:         t.name,
+      slug:         String(t.slug || '').replace(/^tournament\//, ''),
+      startAt:      t.startAt || null,
+      endAt:        t.endAt   || null,
+      city:         t.city    || '',
+      numAttendees: t.numAttendees || 0,
+      ...pickSggImages(t.images),
+      events:       (t.events || []).map(e => ({ id: e.id, name: e.name, numEntrants: e.numEntrants })),
+    })).sort((a, b) => (b.startAt || 0) - (a.startAt || 0));
+    res.json({ tournaments });
+  } catch (e) {
+    res.status(400).json({ error: e.message });
+  }
 });
 
 app.get('/api/startgg/tournament/:slug', async (req, res) => {
@@ -3598,7 +3682,7 @@ app.post('/api/tournament-config/fetch', async (req, res) => {
     const data = await startggQuery(`
       query TournamentSetup($slug: String!) {
         tournament(slug: $slug) {
-          id name slug
+          id name slug startAt endAt city numAttendees
           images { url type ratio width height }
           events { id name numEntrants }
         }
@@ -3619,6 +3703,10 @@ app.post('/api/tournament-config/fetch', async (req, res) => {
       id:        t.id,
       name:      t.name,
       slug:      t.slug,
+      startAt:   t.startAt || null,
+      endAt:     t.endAt   || null,
+      city:      t.city    || '',
+      numAttendees: t.numAttendees || 0,
       logoUrl:   logoImg?.url   || '',
       bannerUrl: bannerImg?.url || '',
       events:    (t.events || []).map(e => ({ id: e.id, name: e.name, numEntrants: e.numEntrants })),

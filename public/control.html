@@ -5357,73 +5357,24 @@
         <!-- Gauche : Start.gg + Infos + Collection OBS -->
         <div style="display:flex;flex-direction:column;gap:16px;min-width:0">
           <div class="custom-card">
-          <h3 style="margin-bottom:14px">Connexion Start.gg</h3>
+            <h3 style="margin-bottom:14px">Start.gg</h3>
 
-          <div id="setup-key-connected" class="setup-key-connected" style="display:none">
-            <span class="setup-key-dot"></span>
-            <span class="setup-key-label">Clé API start.gg enregistrée</span>
-            <button class="btn btn-outline btn-sm" id="setup-key-change">Modifier</button>
-          </div>
-
-          <div id="setup-key-form" class="setup-field">
-            <label class="setup-label">Clé API (token Bearer)</label>
-            <div class="setup-row">
-              <input type="password" id="setup-apikey" class="setup-input"
-                     placeholder="Votre clé API start.gg" autocomplete="new-password" />
-              <button class="btn btn-outline" id="setup-key-save" style="white-space:nowrap">Enregistrer</button>
-            </div>
-            <div id="setup-key-status" style="font-size:11px;color:var(--text-muted);min-height:16px;margin-top:2px"></div>
-          </div>
-
-          <div class="setup-field">
-            <label class="setup-label">URL ou slug du tournoi</label>
-            <div class="setup-row">
-              <input type="text" id="setup-slug-input" class="setup-input"
-                     placeholder="start.gg/tournament/mon-tournoi" />
-              <button class="btn btn-outline" id="setup-verify-btn">🔍 Vérifier</button>
-            </div>
-          </div>
-
-          <div class="setup-verify-status" id="setup-verify-status"></div>
-
-          <div class="setup-field" id="setup-event-section" style="display:none">
-            <label class="setup-label">Bracket</label>
-            <select id="setup-event-select" class="setup-input" style="cursor:pointer">
-              <option value="">— Sélectionner un bracket —</option>
-            </select>
-          </div>
-
-          <div class="setup-field" id="setup-phase-section" style="display:none">
-            <label class="setup-label">Phase <span style="font-weight:400;opacity:0.6">(optionnel)</span></label>
-            <select id="setup-phase-select" class="setup-input" style="cursor:pointer">
-              <option value="">— Toutes les phases —</option>
-            </select>
-            <div style="font-size:10px;color:var(--text-muted);margin-top:4px">Filtrer les prochains matchs par phase.</div>
-          </div>
-        </div>
-          <div class="custom-card">
-            <h3 style="margin-bottom:14px">Informations du tournoi</h3>
-
-            <div class="setup-info-row">
-              <div class="setup-field" style="flex:1;min-width:0">
-                <label class="setup-label">Nom du tournoi</label>
-                <input type="text" id="setup-name" class="setup-input" placeholder="PSO Winter Cup" />
+            <div style="display:flex;align-items:center;gap:12px">
+              <div class="setup-logo-preview-box">
+                <img id="setup-sum-logo" src="" alt="" style="display:none" />
+                <span class="setup-logo-placeholder-text" id="setup-sum-logo-ph">Logo</span>
               </div>
-              <div class="setup-logo-preview-box" id="setup-logo-preview-box">
-                <img id="setup-logo-preview-img" src="" alt="" style="display:none" />
-                <span class="setup-logo-placeholder-text" id="setup-logo-placeholder">Logo</span>
+              <div style="flex:1;min-width:0">
+                <div id="setup-sum-name" style="font-weight:700;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Aucun tournoi configuré</div>
+                <div id="setup-sum-event" style="font-size:12px;color:var(--text-muted);margin-top:2px"></div>
+                <div id="setup-sum-key" style="font-size:12px;margin-top:6px;color:var(--text-muted)">Clé API : …</div>
               </div>
             </div>
 
-            <div class="setup-field">
-              <label class="setup-label">URL du logo (auto-rempli depuis Start.gg)</label>
-              <input type="url" id="setup-logo-input" class="setup-input"
-                     placeholder="https://images.start.gg/…" />
-            </div>
-
-            <div style="display:flex;gap:8px;margin-top:8px">
-              <button class="btn btn-primary" id="setup-save-btn" style="flex:1">✓ Sauvegarder</button>
-            </div>
+            <a href="/startgg" target="_blank" class="btn btn-primary open-setup-link" style="display:flex;justify-content:center;margin-top:14px;text-decoration:none">
+              Connexion start.gg — clé API &amp; tournoi ↗
+            </a>
+            <p class="hint" style="margin-top:8px">La clé API et le choix du tournoi se font sur une page dédiée. Le panneau se met à jour tout seul après l'enregistrement.</p>
           </div>
           <div class="custom-card">
             <h3 style="margin-bottom:14px">Bitfocus Companion</h3>

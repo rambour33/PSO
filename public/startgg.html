@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PSO – Connexion start.gg</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Russo+One&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="startgg.css" />
+</head>
+<body>
+
+<header class="sg-header">
+  <a href="/control" class="sg-back">← Panneau de contrôle</a>
+  <h1><span class="sg-logo-dot"></span>Connexion start.gg</h1>
+  <div class="sg-header-status" id="hdr-status"></div>
+</header>
+
+<main class="sg-main">
+
+  <!-- ══ 1. Clé API ══════════════════════════════════════════ -->
+  <section class="sg-card" id="card-key">
+    <div class="sg-card-head">
+      <span class="sg-step" id="step-key">1</span>
+      <div>
+        <h2>Clé API</h2>
+        <p class="sg-sub">Le jeton personnel qui permet à PSO de lire ton tournoi et d'envoyer les scores.</p>
+      </div>
+    </div>
+
+    <!-- Connecté -->
+    <div id="key-connected" class="sg-account" hidden>
+      <img id="acc-avatar" class="sg-avatar" alt="" />
+      <div class="sg-account-info">
+        <div class="sg-account-label">Connecté en tant que</div>
+        <div class="sg-account-name" id="acc-name">—</div>
+        <a id="acc-link" class="sg-muted-link" target="_blank" rel="noopener">Voir le profil start.gg ↗</a>
+      </div>
+      <div class="sg-account-actions">
+        <button class="sg-btn sg-btn-outline" id="key-change">Changer la clé</button>
+        <button class="sg-btn sg-btn-ghost" id="key-remove">Déconnecter</button>
+      </div>
+    </div>
+
+    <!-- Clé enregistrée mais refusée -->
+    <div id="key-invalid" class="sg-alert sg-alert-err" hidden></div>
+
+    <!-- Formulaire -->
+    <div id="key-form">
+      <label class="sg-label" for="key-input">Jeton start.gg</label>
+      <div class="sg-row">
+        <div class="sg-input-wrap">
+          <input type="password" id="key-input" class="sg-input" placeholder="Colle ta clé ici" autocomplete="off" spellcheck="false" />
+          <button class="sg-eye" id="key-eye" type="button" title="Afficher / masquer">👁</button>
+        </div>
+        <button class="sg-btn sg-btn-primary" id="key-save">Tester et enregistrer</button>
+        <button class="sg-btn sg-btn-ghost" id="key-cancel" hidden>Annuler</button>
+      </div>
+      <div class="sg-status" id="key-status"></div>
+
+      <details class="sg-help">
+        <summary>Où trouver ma clé ?</summary>
+        <ol>
+          <li>Ouvre <a href="https://start.gg/admin/profile/developer" target="_blank" rel="noopener">start.gg → Paramètres du compte → Developer Settings</a>.</li>
+          <li>Clique sur <b>Create new token</b>, donne-lui un nom (ex. « PSO »).</li>
+          <li>Copie le jeton et colle-le ci-dessus. Il n'est affiché qu'une seule fois sur start.gg.</li>
+        </ol>
+        <p>Pour envoyer les scores, le compte doit être organisateur ou admin du tournoi.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- ══ 2. Tournoi ══════════════════════════════════════════ -->
+  <section class="sg-card" id="card-tournament">
+    <div class="sg-card-head">
+      <span class="sg-step" id="step-tour">2</span>
+      <div>
+        <h2>Tournoi</h2>
+        <p class="sg-sub">Le tournoi et le bracket que PSO va suivre (participants, sets, prochains matchs).</p>
+      </div>
+    </div>
+
+    <!-- Tournoi actuel -->
+    <div id="current" class="sg-current" hidden>
+      <div class="sg-current-banner" id="cur-banner"></div>
+      <div class="sg-current-body">
+        <img id="cur-logo" class="sg-current-logo" alt="" />
+        <div class="sg-current-info">
+          <div class="sg-current-label">Tournoi actif</div>
+          <div class="sg-current-name" id="cur-name">—</div>
+          <div class="sg-current-meta" id="cur-meta"></div>
+        </div>
+        <a class="sg-btn sg-btn-outline sg-btn-sm" id="cur-open" target="_blank" rel="noopener">start.gg ↗</a>
+      </div>
+    </div>
+
+    <div id="tour-locked" class="sg-locked">Enregistre d'abord une clé API valide.</div>
+
+    <div id="tour-picker" hidden>
+      <div class="sg-tabs">
+        <button class="sg-tab active" data-pane="pane-mine">Mes tournois</button>
+        <button class="sg-tab" data-pane="pane-url">Par lien</button>
+      </div>
+
+      <!-- Mes tournois -->
+      <div class="sg-pane" id="pane-mine">
+        <div class="sg-row">
+          <input type="search" id="mine-filter" class="sg-input" placeholder="Filtrer par nom…" />
+          <button class="sg-btn sg-btn-outline" id="mine-refresh" title="Recharger">↻</button>
+        </div>
+        <div class="sg-status" id="mine-status"></div>
+        <div class="sg-tour-list" id="mine-list"></div>
+        <p class="sg-hint">Ton tournoi n'est pas dans la liste ? start.gg n'y montre pas tous les tournois que tu co-organises. Passe par l'onglet <a href="#" id="go-url">Par lien</a>.</p>
+      </div>
+
+      <!-- Par lien -->
+      <div class="sg-pane" id="pane-url" hidden>
+        <label class="sg-label" for="url-input">Lien ou slug du tournoi</label>
+        <div class="sg-row">
+          <input type="text" id="url-input" class="sg-input" placeholder="https://www.start.gg/tournament/mon-tournoi" />
+          <button class="sg-btn sg-btn-primary" id="url-fetch">Récupérer</button>
+        </div>
+        <div class="sg-status" id="url-status"></div>
+      </div>
+
+      <!-- Détail du tournoi sélectionné -->
+      <div id="detail" class="sg-detail" hidden>
+        <div class="sg-detail-banner" id="det-banner"></div>
+        <div class="sg-detail-head">
+          <img id="det-logo" class="sg-detail-logo" alt="" />
+          <div>
+            <div class="sg-detail-name" id="det-name"></div>
+            <div class="sg-detail-meta" id="det-meta"></div>
+          </div>
+        </div>
+
+        <label class="sg-label">Bracket</label>
+        <div class="sg-events" id="det-events"></div>
+
+        <div id="det-phase-wrap" hidden>
+          <label class="sg-label" for="det-phase">Phase <span class="sg-opt">(optionnel)</span></label>
+          <select id="det-phase" class="sg-input"></select>
+        </div>
+
+        <div class="sg-grid2">
+          <div>
+            <label class="sg-label" for="det-display-name">Nom affiché dans les overlays</label>
+            <input type="text" id="det-display-name" class="sg-input" />
+          </div>
+          <div>
+            <label class="sg-label">Logo</label>
+            <label class="sg-check"><input type="checkbox" id="det-use-logo" checked /> Utiliser le logo start.gg</label>
+            <div class="sg-hint" id="det-logo-hint"></div>
+          </div>
+        </div>
+
+        <div class="sg-actions">
+          <button class="sg-btn sg-btn-primary sg-btn-lg" id="det-save">✓ Utiliser ce tournoi</button>
+        </div>
+        <div class="sg-status" id="det-status"></div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<div class="sg-toast" id="toast"></div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="startgg.js"></script>
+</body>
+</html>
