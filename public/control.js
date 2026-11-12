@@ -10032,7 +10032,7 @@ document.querySelectorAll('.conn-copy-btn').forEach(btn => {
       saveLayout:     saveCbb,
       apiBase:        '/api/caster-layouts',
       canvasSelector: '#cbb-canvas-inner',
-    });
+    }) || { render() {} }; // buildSeqUI renvoie undefined si la liste n'existe pas dans le DOM
 
     socket.on('casterLayoutUpdate', data => {
       const idx = _cbbLayouts.findIndex(l => l.id === data.id);
@@ -10347,81 +10347,35 @@ document.querySelectorAll('.conn-copy-btn').forEach(btn => {
 
 /* ══════════════════════════════════════════════════════════════
    SETUP / TOURNAMENT CONFIG
+   La connexion (clé API + choix du tournoi) se fait sur la page
+   dédiée /startgg. Ici : résumé, indicateur header et synchro.
    ══════════════════════════════════════════════════════════════ */
 (function () {
   'use strict';
 
-  const modal            = document.getElementById('setup-modal');
-  const keyConnected     = document.getElementById('setup-key-connected');
-  const keyForm          = document.getElementById('setup-key-form');
-  const apikeyInput      = document.getElementById('setup-apikey');
-  const keySaveBtn       = document.getElementById('setup-key-save');
-  const keyStatus        = document.getElementById('setup-key-status');
-  const keyChangeBtn     = document.getElementById('setup-key-change');
-  const slugInput        = document.getElementById('setup-slug-input');
-  const verifyBtn        = document.getElementById('setup-verify-btn');
-  const verifyStatus     = document.getElementById('setup-verify-status');
-  const eventSection     = document.getElementById('setup-event-section');
-  const eventSelect      = document.getElementById('setup-event-select');
-  const phaseSection     = document.getElementById('setup-phase-section');
-  const phaseSelect      = document.getElementById('setup-phase-select');
-  const nameInput        = document.getElementById('setup-name');
-  const logoInput        = document.getElementById('setup-logo-input');
-  const logoPreview      = document.getElementById('setup-logo-preview-img');
-  const logoPH           = document.getElementById('setup-logo-placeholder');
-  const skipBtn          = document.getElementById('setup-skip-btn');
-  const saveBtn        = document.getElementById('setup-save-btn');
-  const indicator      = document.getElementById('tournament-indicator');
-  const tiLogo         = document.getElementById('ti-logo');
-  const tiName         = document.getElementById('ti-name');
+  const indicator = document.getElementById('tournament-indicator');
+  const tiLogo    = document.getElementById('ti-logo');
+  const tiName    = document.getElementById('ti-name');
+  const sumLogo   = document.getElementById('setup-sum-logo');
+  const sumLogoPH = document.getElementById('setup-sum-logo-ph');
+  const sumName   = document.getElementById('setup-sum-name');
+  const sumEvent  = document.getElementById('setup-sum-event');
+  const sumKey    = document.getElementById('setup-sum-key');
 
-  if (!modal) return;
-
-  let _hasKey = false;
-
-  /* ── Helpers ───────────────────────────────────────────────── */
-
-  function extractSlug(raw) {
-    if (!raw) return '';
-    const m = raw.match(/(?:start\.gg\/tournament\/)([\w-]+)/i);
-    if (m) return m[1];
-    return raw.trim().replace(/^\/|\/$/g, '');
+  function openStartggPage() {
+    const w = window.open('/startgg', 'pso-startgg');
+    if (!w) location.href = '/startgg';
+    else w.focus();
   }
-
-  function setVerifyStatus(msg, cls) {
-    verifyStatus.textContent = msg;
-    verifyStatus.className = 'setup-verify-status' + (cls ? ' ' + cls : '');
-  }
-
-  function applyKeyState(hasKey) {
-    _hasKey = hasKey;
-    keyConnected.style.display = hasKey ? 'flex' : 'none';
-    keyForm.style.display      = hasKey ? 'none' : '';
-    if (hasKey) apikeyInput.value = '';
-  }
-
-  function updateLogoPreview(url) {
-    if (url) {
-      logoPreview.src = url;
-      logoPreview.style.display = '';
-      if (logoPH) logoPH.style.display = 'none';
-    } else {
-      logoPreview.src = '';
-      logoPreview.style.display = 'none';
-      if (logoPH) logoPH.style.display = '';
-    }
-  }
+  window.openStartggPage = openStartggPage;
 
   function updateIndicator(cfg) {
+    if (!indicator) return;
     if (cfg && cfg.name) {
       tiName.textContent = cfg.name;
       indicator.classList.add('configured');
-      if (cfg.logoUrl) {
-        tiLogo.src = cfg.logoUrl;
-        tiLogo.style.display = '';
-      } else {
-        tiLogo.style.display = 'none';
-      }
+      if (cfg.logoUrl) { tiLogo.src = cfg.logoUrl; tiLogo.style.display = ''; }
+      else tiLogo.style.display = 'none';
     } else {
       tiName.textContent = 'Configurer le tournoi';
       indicator.classList.remove('configured');
@@ -10429,155 +10383,21 @@ document.querySelectorAll('.conn-copy-btn').forEach(btn => {
     }
   }
 
-  function openModal()  { if (typeof switchTab === 'function') switchTab('config'); }
-  function closeModal() { if (typeof switchTab === 'function') switchTab('match'); }
-
-  /* ── Enregistrer la clé API (même endpoint que partout) ────── */
-
-  keySaveBtn.addEventListener('click', () => {
-    const key = apikeyInput.value.trim();
-    if (!key) { keyStatus.textContent = 'Veuillez saisir une clé.'; return; }
-    keySaveBtn.disabled = true;
-    keyStatus.textContent = 'Enregistrement…';
-    fetch('/api/startgg/config', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ apiKey: key }),
-    })
-    .then(r => r.json())
-    .then(() => { applyKeyState(true); })
-    .catch(() => { keyStatus.textContent = 'Erreur réseau.'; })
-    .finally(() => { keySaveBtn.disabled = false; });
-  });
-
-  /* ── Modifier la clé ───────────────────────────────────────── */
-
-  keyChangeBtn.addEventListener('click', () => applyKeyState(false));
-
-  /* ── Vérifier le slug (utilise la clé déjà stockée côté serveur) */
-
-  function populateEventSelect(events, selectedId) {
-    if (!eventSelect) return;
-    eventSelect.innerHTML = '<option value="">— Sélectionner un bracket —</option>';
-    (events || []).forEach(ev => {
-      const opt = document.createElement('option');
-      opt.value = ev.id;
-      opt.textContent = ev.name + (ev.numEntrants ? ` (${ev.numEntrants})` : '');
-      if (String(ev.id) === String(selectedId)) opt.selected = true;
-      eventSelect.appendChild(opt);
-    });
-    if (eventSection) eventSection.style.display = '';
-    if (eventSelect.value) loadPhases(eventSelect.value);
+  function updateSummary(cfg) {
+    if (!sumName) return;
+    sumName.textContent = cfg.name || cfg.slug || 'Aucun tournoi configuré';
+    sumEvent.textContent = cfg.slug
+      ? [cfg.eventName || 'Aucun bracket choisi', cfg.phaseName].filter(Boolean).join(' · ')
+      : '';
+    if (cfg.logoUrl) { sumLogo.src = cfg.logoUrl; sumLogo.style.display = ''; sumLogoPH.style.display = 'none'; }
+    else { sumLogo.src = ''; sumLogo.style.display = 'none'; sumLogoPH.style.display = ''; }
   }
 
-  function populatePhaseSelect(phases, selectedId) {
-    if (!phaseSelect) return;
-    phaseSelect.innerHTML = '<option value="">— Toutes les phases —</option>';
-    (phases || []).forEach(ph => {
-      const opt = document.createElement('option');
-      opt.value = ph.id;
-      opt.textContent = ph.name;
-      if (String(ph.id) === String(selectedId)) opt.selected = true;
-      phaseSelect.appendChild(opt);
-    });
-    if (phaseSection) phaseSection.style.display = phases.length > 1 ? '' : 'none';
+  function updateKeySummary(hasKey) {
+    if (!sumKey) return;
+    sumKey.textContent = hasKey ? '● Clé API enregistrée' : '● Aucune clé API';
+    sumKey.style.color = hasKey ? 'var(--success)' : 'var(--danger)';
   }
-
-  function loadPhases(eventId, selectedPhaseId) {
-    if (!eventId || !phaseSection) return;
-    fetch(`/api/startgg/event/${eventId}/phases`)
-      .then(r => r.json())
-      .then(data => {
-        const phases = data.phases || [];
-        populatePhaseSelect(phases, selectedPhaseId || phaseSelect?.dataset.savedId);
-      })
-      .catch(() => { if (phaseSection) phaseSection.style.display = 'none'; });
-  }
-
-  if (eventSelect) {
-    eventSelect.addEventListener('change', () => {
-      if (phaseSection) phaseSection.style.display = 'none';
-      if (phaseSelect) phaseSelect.innerHTML = '<option value="">— Toutes les phases —</option>';
-      if (eventSelect.value) loadPhases(eventSelect.value);
-    });
-  }
-
-  verifyBtn.addEventListener('click', () => {
-    const slug = extractSlug(slugInput.value);
-    if (!slug) { setVerifyStatus('URL/slug requis', 'err'); return; }
-    if (!_hasKey) { setVerifyStatus('Enregistrez d\'abord la clé API', 'err'); return; }
-
-    setVerifyStatus('Recherche en cours…', 'busy');
-    verifyBtn.disabled = true;
-    if (eventSection) eventSection.style.display = 'none';
-
-    fetch('/api/tournament-config/fetch', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ slug }),
-    })
-    .then(r => r.json())
-    .then(data => {
-      if (data.error) { setVerifyStatus('❌ ' + data.error, 'err'); return; }
-      setVerifyStatus('✓ Tournoi trouvé : ' + data.name, 'ok');
-      if (data.name && !nameInput.value) nameInput.value = data.name;
-      if (data.logoUrl) { logoInput.value = data.logoUrl; updateLogoPreview(data.logoUrl); }
-      if (data.events?.length) populateEventSelect(data.events, eventSelect?.dataset.savedId);
-    })
-    .catch(() => setVerifyStatus('❌ Erreur réseau', 'err'))
-    .finally(() => { verifyBtn.disabled = false; });
-  });
-
-  /* ── Logo URL input ────────────────────────────────────────── */
-
-  logoInput.addEventListener('input', () => updateLogoPreview(logoInput.value.trim()));
-
-  /* ── Sauvegarder la config tournoi (sans la clé API) ───────── */
-
-  saveBtn.addEventListener('click', () => {
-    const selectedEventId   = eventSelect?.value ? parseInt(eventSelect.value, 10) : null;
-    const selectedEventName = eventSelect?.selectedOptions?.[0]?.textContent?.replace(/\s*\(\d+\)$/, '').trim() || '';
-    const selectedPhaseId   = phaseSelect?.value ? parseInt(phaseSelect.value, 10) : null;
-    const selectedPhaseName = phaseSelect?.selectedOptions?.[0]?.textContent?.trim() || '';
-    const payload = {
-      slug:      extractSlug(slugInput.value),
-      name:      nameInput.value.trim(),
-      logoUrl:   logoInput.value.trim(),
-      eventId:   selectedEventId,
-      eventName: selectedEventName,
-      phaseId:   selectedPhaseId,
-      phaseName: selectedPhaseId ? selectedPhaseName : '',
-    };
-    saveBtn.disabled = true;
-    fetch('/api/tournament-config', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    })
-    .then(r => r.json())
-    .then(data => {
-      if (data.error) { alert('Erreur : ' + data.error); return; }
-      localStorage.setItem('pso_setup_dismissed', '1');
-      updateIndicator(payload);
-      closeModal();
-    })
-    .catch(() => alert('Erreur réseau'))
-    .finally(() => { saveBtn.disabled = false; });
-  });
-
-  /* ── Ignorer ───────────────────────────────────────────────── */
-
-  skipBtn?.addEventListener('click', () => {
-    localStorage.setItem('pso_setup_dismissed', '1');
-    closeModal();
-  });
-
-  /* ── Indicateur header (rouvrir le modal) ──────────────────── */
-
-  indicator.addEventListener('click', () => {
-    localStorage.removeItem('pso_setup_dismissed');
-    if (typeof switchTab === 'function') switchTab('config');
-  });
 
   /* ── Sync slug inputs depuis la config du tournoi ─────────── */
 
@@ -10599,16 +10419,26 @@ document.querySelectorAll('.conn-copy-btn').forEach(btn => {
     if (upcomingLabel) upcomingLabel.textContent = cfg.name || s || '—';
   }
 
-  /* ── Lien "Configuration du tournoi" dans l'onglet Start.gg ── */
+  function applyConfig(cfg) {
+    cfg = cfg || {};
+    updateIndicator(cfg);
+    updateSummary(cfg);
+    applySlugsFromConfig(cfg);
+  }
+
+  /* ── Ouvertures de la page /startgg ───────────────────────── */
+
+  indicator?.addEventListener('click', openStartggPage);
   document.querySelectorAll('.open-setup-link').forEach(el => {
-    el.addEventListener('click', e => { e.preventDefault(); openModal(); });
+    el.addEventListener('click', e => { e.preventDefault(); openStartggPage(); });
   });
 
   /* ── Socket.IO sync ────────────────────────────────────────── */
 
   socket.on('tournamentConfigUpdate', cfg => {
-    updateIndicator(cfg);
-    applySlugsFromConfig(cfg);
+    applyConfig(cfg);
+    // La clé a forcément été validée si un tournoi vient d'être enregistré
+    fetch('/api/startgg/config').then(r => r.json()).then(d => updateKeySummary(!!d.hasKey)).catch(() => {});
     // Recharger les données start.gg si le tournoi configuré change
     if (cfg.eventId) window.sggAutoLoad?.();
   });
@@ -10619,47 +10449,18 @@ document.querySelectorAll('.conn-copy-btn').forEach(btn => {
     fetch('/api/startgg/config').then(r => r.json()).catch(() => ({ hasKey: false })),
     fetch('/api/tournament-config').then(r => r.json()).catch(() => ({})),
   ]).then(([keyData, cfg]) => {
-    applyKeyState(!!keyData.hasKey);
-    if (cfg.slug)    slugInput.value = cfg.slug;
-    if (cfg.name)    nameInput.value = cfg.name;
-    if (cfg.logoUrl) { logoInput.value = cfg.logoUrl; updateLogoPreview(cfg.logoUrl); }
-    updateIndicator(cfg);
-    applySlugsFromConfig(cfg);
+    updateKeySummary(!!keyData.hasKey);
+    applyConfig(cfg);
 
-    /* Si un slug est déjà configuré et qu'on a la clé, pré-charger les events */
-    if (cfg.slug && keyData.hasKey) {
-      if (eventSelect) eventSelect.dataset.savedId = cfg.eventId || '';
-      if (phaseSelect) phaseSelect.dataset.savedId = cfg.phaseId || '';
-      fetch('/api/tournament-config/fetch', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ slug: cfg.slug }),
-      }).then(r => r.json()).then(data => {
-        if (data.events?.length) populateEventSelect(data.events, cfg.eventId);
-      }).catch(() => {});
-    } else if (cfg.eventId && cfg.eventName && eventSelect) {
-      /* Afficher au moins l'événement sauvegardé si on ne peut pas recharger */
-      const opt = document.createElement('option');
-      opt.value = cfg.eventId;
-      opt.textContent = cfg.eventName;
-      opt.selected = true;
-      eventSelect.innerHTML = '<option value="">— Sélectionner un bracket —</option>';
-      eventSelect.appendChild(opt);
-      if (eventSection) eventSection.style.display = '';
-      if (cfg.phaseId && cfg.phaseName && phaseSelect) {
-        const pOpt = document.createElement('option');
-        pOpt.value = cfg.phaseId;
-        pOpt.textContent = cfg.phaseName;
-        pOpt.selected = true;
-        phaseSelect.innerHTML = '<option value="">— Toutes les phases —</option>';
-        phaseSelect.appendChild(pOpt);
-        if (phaseSection) phaseSection.style.display = '';
-      }
-    }
-
+    // Rien de configuré : on affiche l'onglet Config (résumé + bouton vers /startgg)
     const configured = !!(cfg.name || cfg.slug);
     const dismissed  = !!localStorage.getItem('pso_setup_dismissed');
-    if (!configured && !dismissed) openModal();
+    if (!configured && !dismissed && typeof switchTab === 'function') switchTab('config');
+  });
+
+  // Retour sur l'onglet du panneau : rafraîchir l'état de la clé
+  window.addEventListener('focus', () => {
+    fetch('/api/startgg/config').then(r => r.json()).then(d => updateKeySummary(!!d.hasKey)).catch(() => {});
   });
 })();
 
